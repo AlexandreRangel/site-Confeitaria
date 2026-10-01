@@ -51,12 +51,25 @@
 
   <main>
     <section id="hero-carrossel" class="hero" aria-roledescription="carrossel" aria-label="Destaques">
-      <div class="hero__track" data-bind="carousel"></div>
-      <p class="hero__brand-title">Jana Abreu Confeitaria</p>
-      <div class="hero__controls">
-        <button type="button" class="hero__arrow" data-action="carousel-prev" aria-label="Slide anterior">‹</button>
-        <div class="hero__dots" data-bind="carousel-dots"></div>
-        <button type="button" class="hero__arrow" data-action="carousel-next" aria-label="Próximo slide">›</button>
+      <div class="hero__media">
+        <div class="hero__track" data-bind="carousel"></div>
+        <h1 class="hero__brand-title" data-bind="brandName">Jana Abreu Confeitaria</h1>
+      </div>
+      <div class="hero__below">
+        <div class="hero__caption">
+          <div class="hero__caption-inner" data-bind="hero-caption-inner">
+            <h2 data-bind="hero-slide-title"></h2>
+            <p data-bind="hero-slide-subtitle"></p>
+            <button type="button" class="btn btn--outline" data-action="carousel-link" data-bind="hero-slide-cta">
+              Ver opções
+            </button>
+          </div>
+        </div>
+        <div class="hero__controls">
+          <button type="button" class="hero__arrow" data-action="carousel-prev" aria-label="Slide anterior">‹</button>
+          <div class="hero__dots" data-bind="carousel-dots"></div>
+          <button type="button" class="hero__arrow" data-action="carousel-next" aria-label="Próximo slide">›</button>
+        </div>
       </div>
     </section>
 
@@ -102,7 +115,7 @@
       </div>
       <div class="featured-block frost">
         <h2 data-bind="presentes-title">Presentes que fazem sucesso</h2>
-        <div class="product-grid" data-bind="featured-gifts"></div>
+        <div class="product-grid product-grid--gifts" data-bind="featured-gifts"></div>
       </div>
       <div class="featured-block frost">
         <h2 data-bind="bolos-title">Os bolos mais pedidos</h2>

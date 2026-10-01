@@ -68,28 +68,43 @@
   overflow: visible;
 }
 
-.bolinha img {
+.bolinha__media {
   width: 76px;
   height: 76px;
   margin: 0 auto 0.45rem;
   border-radius: 50%;
-  object-fit: cover;
-  object-position: center;
+  overflow: hidden;
   border: 4px solid var(--cream);
   background: var(--blush);
   box-shadow: var(--shadow-soft);
-  transition: transform 0.28s ease;
 }
 
-.bolinha.is-active img,
-.bolinha:hover img,
-.bolinha:focus-visible img {
+.bolinha img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transform: scale(1);
+  transform-origin: center center;
+  transition: transform 0.45s ease;
+}
+
+.bolinha.is-active .bolinha__media,
+.bolinha:hover .bolinha__media,
+.bolinha:focus-visible .bolinha__media {
   border-color: var(--mint);
 }
 
-.bolinha:hover img,
-.bolinha:focus-visible img {
+.bolinha:hover .bolinha__media img,
+.bolinha:focus-visible .bolinha__media img {
   transform: scale(1.33);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bolinha:hover .bolinha__media img,
+  .bolinha:focus-visible .bolinha__media img {
+    transform: none;
+  }
 }
 
 .bolinha span {
@@ -98,46 +113,52 @@
   font-size: 0.92rem;
   line-height: 1.25;
   font-weight: 400;
-  color: #5a3d36;
+  color: var(--brown);
 }
 
 .promo-card {
-  position: relative;
-  min-height: 280px;
+  display: flex;
+  flex-direction: column;
   border: 0;
   padding: 0;
   overflow: hidden;
   background: var(--blush);
   border-radius: 28px;
   box-shadow: var(--shadow);
+  color: var(--brown);
 }
 
-.promo-card img {
+.promo-card__media {
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--blush);
+}
+
+.promo-card__media img {
   width: 100%;
   height: 100%;
-  min-height: 280px;
   object-fit: cover;
 }
 
+.promo-card__plaque {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.85rem 0.9rem 1rem;
+  background: rgba(255, 246, 239, 0.5);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255, 255, 255, 0.7);
+}
+
 .promo-card__copy {
-  position: absolute;
-  inset: 1rem auto auto 1rem;
-  max-width: 11rem;
   text-align: left;
-  color: var(--ink);
+  color: var(--brown);
   font-family: var(--serif);
   font-size: 1.35rem;
   line-height: 1.2;
-  background: rgba(255, 246, 239, 0.72);
-  border-radius: 18px;
-  padding: 0.45rem 0.65rem;
 }
 
 .promo-card__cta {
-  position: absolute;
-  left: 50%;
-  bottom: 1.1rem;
-  transform: translateX(-50%);
+  justify-self: start;
   background: var(--cream);
   border: 1px solid rgba(252, 126, 142, 0.25);
   border-radius: 999px;
@@ -146,12 +167,12 @@
   font-size: 0.86rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--ink);
+  color: var(--brown);
   box-shadow: var(--shadow-soft);
 }
 
 .card {
-  background: rgba(255, 248, 242, 0.5);
+  background: var(--panel);
   border: 1px solid rgba(255, 255, 255, 0.7);
   border-radius: var(--radius);
   overflow: hidden;
@@ -422,20 +443,12 @@
     position: relative;
   }
 
-  .promo-card {
-    min-height: 420px;
-  }
-
-  .promo-card img {
-    min-height: 420px;
-  }
-
   .bolinha {
     flex: 0 0 108px;
     width: 108px;
   }
 
-  .bolinha img {
+  .bolinha__media {
     width: 92px;
     height: 92px;
   }
@@ -447,13 +460,8 @@
     width: 118px;
   }
 
-  .bolinha img {
+  .bolinha__media {
     width: 100px;
     height: 100px;
-  }
-
-  .promo-card,
-  .promo-card img {
-    min-height: 460px;
   }
 }

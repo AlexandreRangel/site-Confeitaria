@@ -10,10 +10,12 @@
   --copper-deep: #e45d70;
   --cream: #fff6ef;
   --cream-deep: #ffe8dc;
-  --ink: #5a3d36;
-  --muted: #7a564c;
+  --ink: #3d2e29;
+  --brown: #5c4033;
+  --muted: #6b5149;
   --line: #f0cfd8;
-  --frost: linear-gradient(180deg, rgba(255, 246, 239, 0.38) 0%, rgba(245, 213, 224, 0.34) 100%);
+  --panel: rgba(255, 246, 239, 0.5);
+  --frost: var(--panel);
   --accent-bar: linear-gradient(90deg, #d63b55, #fc7e8e, #d63b55);
   --whatsapp: #128c7e;
   --shadow: 0 14px 34px rgba(252, 126, 142, 0.22);
@@ -35,12 +37,13 @@ html {
   scroll-behavior: smooth;
   scroll-padding-top: calc(var(--header-h) + 12px);
   overflow-x: hidden;
+  background: #efe6ea;
 }
 
 body {
   margin: 0;
   color: var(--ink);
-  background: #efe6ea;
+  background: transparent;
   font-family: var(--sans);
   font-size: 1rem;
   line-height: 1.55;
@@ -63,9 +66,9 @@ body {
 }
 
 .frost {
-  background: var(--frost);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(252, 126, 142, 0.22);
+  background: var(--panel);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.38);
   border-radius: var(--radius);
   box-shadow: inset 0 6px 0 #e0455c, var(--shadow-soft);
 }

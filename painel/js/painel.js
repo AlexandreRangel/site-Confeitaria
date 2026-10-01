@@ -187,6 +187,9 @@
       if (action === "open-order") {
         location.hash = "pedido:" + target.getAttribute("data-id");
       }
+      if (action === "export-orders-csv") {
+        Jana.Persist.downloadCSV("pedidos.csv", Jana.Persist.ordersToCSV(state.orders));
+      }
       if (action === "download-orders") {
         Jana.Persist.downloadJSON("orders.json", state.orders);
       }

@@ -38,6 +38,15 @@ Use estes nomes ao pedir mudanças no site ou no chat com o assistente. Eles bat
 - `caixa-50-brigadeiros-personalizados`, `caixa-15-brigadeiros`
 - `cheesecake-frutas-vermelhas-g`
 
+## Atalhos de chat
+
+- `hero` → `#hero-carrossel` (fotos sem texto; título da marca em overlay; legenda em fade **sem** o nome da empresa)
+- `categoria:{slug}` → bolinha + filtro da vitrine
+- `produto:{slug}` → card / modal
+- `kits` / `presentes` → bloco Presentes (`featured-gifts`)
+- `encomendar` → `#encomendas` + WhatsApp `5561981246112`
+- `painel-csv` → `/painel/` exporta CSV de clientes (`nome,email,telefone`) e de pedidos
+
 ## Contatos canônicos
 
 - WhatsApp (wa.me): `5561981246112` — exibição `(61) 98124-6112`

@@ -51,7 +51,7 @@ Sketch atual: `speed=1.1`, `contrast=0.45`, `brightness=0.222`. Para trocar o vi
 
 ## Marca
 
-Cores da loja ao vivo: **#FC7E8E** (coral), **#F5D5E0** (blush), creme **#FFF6EF** e texto marrom **#5A3D36**. Painéis frosting translúcidos sobre o Hydra, com barras coral saturadas. Ajuste em `data/site.json` → `colors`.
+Cores da loja ao vivo: **#FC7E8E** (coral), **#F5D5E0** (blush), creme **#FFF6EF**, texto marrom **#3D2E29** / **#5C4033**. Painéis a 50% sobre o Hydra. Ajuste em `data/site.json` → `colors`.
 
 ## Instagram
 
@@ -74,7 +74,7 @@ Copie a pasta publicada (HTML, CSS, JS, `data/`, `assets/`) para esse caminho no
 
 ## Painel (`/painel/`)
 
-Área interna de demonstração: pedidos estilo Vendizap e clientes. Dados em `data/orders.json` + `data/clients.json`, com overlay em `localStorage`. Exportar CSV de clientes (`nome,email,telefone`). **Google Sheets não está ligado** — ver [docs/PAINEL.md](docs/PAINEL.md).
+Área interna de demonstração: pedidos estilo Vendizap e clientes. Dados em `data/orders.json` + `data/clients.json`, com overlay em `localStorage`. Exportar CSV de clientes (`nome,email,telefone`) e de pedidos. **Google Sheets não está ligado** — ver [docs/PAINEL.md](docs/PAINEL.md).
 
 ## Documentação
 

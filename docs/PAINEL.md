@@ -7,7 +7,7 @@ Painel interno da loja, no mesmo site estático. Sem backend e **sem Google Shee
 - Lista e detalhe de pedidos (clima Vendizap: nº, itens, frete, total, endereço, observações, WhatsApp)
 - Cadastro simples de clientes
 - Persistência de demonstração em `data/orders.json` + `data/clients.json` (semente) e `localStorage` (alterações no navegador)
-- Botões para **baixar JSON** (backup) e **CSV de clientes**
+- Botões para **baixar JSON** (backup), **CSV de clientes** (`nome,email,telefone`) e **CSV de pedidos**
 - Stub comentado para Sheets no futuro — **não chama APIs do Google**
 
 ## Persistência (padrão baixável)
@@ -26,7 +26,7 @@ Um cliente por linha. Colunas obrigatórias:
 
 `nome,email,telefone`
 
-Extras opcionais no mesmo arquivo: `bairro,notas,id`.
+Pedidos: `id,status,nome,telefone,total,data`.
 
 ## Google Sheets (futuro — NÃO ligar agora)
 

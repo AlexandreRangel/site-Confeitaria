@@ -88,17 +88,24 @@
       URL.revokeObjectURL(link.href);
     },
     clientsToCSV: function clientsToCSV(clients) {
-      const header = ["nome", "email", "telefone", "bairro", "notas", "id"];
-      const lines = [header.join(",")];
+      const lines = ["nome,email,telefone"];
       clients.forEach(function row(client) {
+        lines.push([csvEscape(client.nome), csvEscape(client.email), csvEscape(client.telefone)].join(","));
+      });
+      return lines.join("\n");
+    },
+    ordersToCSV: function ordersToCSV(orders) {
+      const lines = ["id,status,nome,telefone,total,data"];
+      orders.forEach(function row(order) {
+        const customer = order.customer || {};
         lines.push(
           [
-            csvEscape(client.nome),
-            csvEscape(client.email),
-            csvEscape(client.telefone),
-            csvEscape(client.bairro),
-            csvEscape(client.notas),
-            csvEscape(client.id),
+            csvEscape(order.id),
+            csvEscape(order.status),
+            csvEscape(customer.nome),
+            csvEscape(customer.telefone || order.whatsapp),
+            csvEscape(order.total),
+            csvEscape(order.desiredDate || order.createdAt),
           ].join(",")
         );
       });

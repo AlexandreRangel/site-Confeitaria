@@ -104,25 +104,7 @@
     const dots = Jana.qs('[data-bind="carousel-dots"]');
     track.innerHTML = state.carousel
       .map(function slideHtml(slide) {
-        const target = slide.productSlug
-          ? "#produto:" + slide.productSlug
-          : slide.linkCategory
-            ? "#categorias"
-            : "#catalogo";
         const isLogo = slide.id === "slide-marca";
-        const caption = isLogo
-          ? ""
-          : '<div class="hero__caption is-fading"><h2>' +
-            Jana.escapeHtml(slide.title) +
-            "</h2><p>" +
-            Jana.escapeHtml(slide.subtitle) +
-            '</p><button type="button" class="btn btn--outline" data-action="carousel-link" data-category="' +
-            Jana.escapeHtml(slide.linkCategory || "") +
-            '" data-slug="' +
-            Jana.escapeHtml(slide.productSlug || "") +
-            '" data-href="' +
-            target +
-            '">Ver opções</button></div>';
         return (
           '<article class="hero__slide' +
           (isLogo ? " hero__slide--logo" : "") +
@@ -130,9 +112,7 @@
           Jana.escapeHtml(slide.image) +
           '" alt="' +
           Jana.escapeHtml(slide.title) +
-          '">' +
-          caption +
-          "</article>"
+          '"></article>'
         );
       })
       .join("");
@@ -149,6 +129,28 @@
         );
       })
       .join("");
+    updateHeroCaption(true);
+  }
+
+  function updateHeroCaption(skipFade) {
+    const slide = state.carousel[state.slide];
+    const inner = Jana.qs('[data-bind="hero-caption-inner"]');
+    const cta = Jana.qs('[data-bind="hero-slide-cta"]');
+    if (!slide || !inner || !cta) return;
+    const isBrand = slide.id === "slide-marca";
+    function applyCaption() {
+      Jana.bindText("hero-slide-title", isBrand ? "" : slide.title);
+      Jana.bindText("hero-slide-subtitle", slide.subtitle || "");
+      cta.setAttribute("data-category", slide.linkCategory || "");
+      cta.setAttribute("data-slug", slide.productSlug || "");
+      inner.classList.remove("is-fading");
+    }
+    if (skipFade) {
+      applyCaption();
+      return;
+    }
+    inner.classList.add("is-fading");
+    window.setTimeout(applyCaption, 280);
   }
 
   function goToSlide(index) {
@@ -159,15 +161,7 @@
     Jana.qsa(".hero__dot").forEach(function mark(dot, i) {
       dot.classList.toggle("is-active", i === state.slide);
     });
-    replayCaptionFade();
-  }
-
-  function replayCaptionFade() {
-    Jana.qsa(".hero__caption").forEach(function replay(caption) {
-      caption.classList.remove("is-fading");
-      void caption.offsetWidth;
-      caption.classList.add("is-fading");
-    });
+    updateHeroCaption();
   }
 
   function startCarousel() {
@@ -190,7 +184,7 @@
       '<button type="button" class="bolinha' +
       (state.filter === "todas" ? " is-active" : "") +
       '" data-action="filter-category" data-category="todas">' +
-      '<img src="assets/favicon.svg" alt="">' +
+      '<span class="bolinha__media"><img src="assets/favicon.svg" alt=""></span>' +
       "<span>Todas</span></button>";
     row.innerHTML =
       allButton +
@@ -203,9 +197,9 @@
             '" data-action="filter-category" data-category="' +
             Jana.escapeHtml(category.id) +
             '">' +
-            '<img src="' +
+            '<span class="bolinha__media"><img src="' +
             Jana.escapeHtml(category.image) +
-            '" alt="">' +
+            '" alt=""></span>' +
             "<span>" +
             Jana.escapeHtml(category.name) +
             "</span></button>"
@@ -272,23 +266,23 @@
           '<button type="button" class="promo-card" data-action="filter-category" data-category="' +
           promo.category +
           '">' +
-          '<img src="' +
+          '<span class="promo-card__media"><img src="' +
           promo.image +
-          '" alt="">' +
-          '<span class="promo-card__copy">' +
+          '" alt=""></span>' +
+          '<span class="promo-card__plaque"><span class="promo-card__copy">' +
           Jana.escapeHtml(promo.title) +
-          "</span>" +
-          '<span class="promo-card__cta">' +
+          '</span><span class="promo-card__cta">' +
           promo.cta +
-          "</span></button>"
+          "</span></span></button>"
         );
       })
       .join("");
     const gifts = featuredByTag("presente", "cestas-presentes");
-    Jana.qs('[data-bind="featured-gifts"]').innerHTML = (gifts.length ? gifts : productsByCategory("cestas-presentes"))
-      .slice(0, 4)
-      .map(productCard)
-      .join("");
+    const giftList = (gifts.length ? gifts : productsByCategory("cestas-presentes")).slice(0, 4);
+    const giftsEl = Jana.qs('[data-bind="featured-gifts"]');
+    giftsEl.classList.toggle("product-grid--center", giftList.length === 1);
+    giftsEl.classList.toggle("product-grid--gifts", giftList.length > 1);
+    giftsEl.innerHTML = giftList.map(productCard).join("");
     const cakes = featuredByTag("mais-pedidos", "bolos");
     Jana.qs('[data-bind="featured-cakes"]').innerHTML = (cakes.length ? cakes : productsByCategory("bolos"))
       .slice(0, 5)
