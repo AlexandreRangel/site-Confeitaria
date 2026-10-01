@@ -24,8 +24,46 @@
     return Array.from((root || document).querySelectorAll(selector));
   };
 
+  Jana.assetRoot = function assetRoot() {
+    const raw = document.body.getAttribute("data-root");
+    if (raw === null || raw === "") {
+      return document.body.getAttribute("data-page") === "category" ? "../" : "";
+    }
+    return raw.charAt(raw.length - 1) === "/" ? raw : raw + "/";
+  };
+
+  Jana.assetUrl = function assetUrl(path) {
+    const value = String(path || "");
+    if (!value) {
+      return "";
+    }
+    if (/^(https?:|data:|mailto:|tel:|#)/i.test(value)) {
+      return value;
+    }
+    const root = Jana.assetRoot();
+    return root + value.replace(/^\.\//, "");
+  };
+
+  Jana.homeUrl = function homeUrl() {
+    return Jana.assetRoot() || "./";
+  };
+
+  Jana.categoryUrl = function categoryUrl(slug) {
+    return Jana.assetUrl(String(slug || "") + "/");
+  };
+
+  Jana.categorySlug = function categorySlug(category) {
+    if (!category) {
+      return "";
+    }
+    if (typeof category === "string") {
+      return category;
+    }
+    return category.slug || category.id || "";
+  };
+
   Jana.loadJSON = async function loadJSON(path) {
-    const response = await fetch(path, { cache: "no-store" });
+    const response = await fetch(Jana.assetUrl(path), { cache: "no-store" });
     if (!response.ok) {
       throw new Error("Não foi possível carregar " + path);
     }

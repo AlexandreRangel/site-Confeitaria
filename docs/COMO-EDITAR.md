@@ -35,6 +35,7 @@ Marque vitrine de teste com `"exemplo"` em `tags`. Quando o item for real, remov
 1. Adicione um objeto em `data/categories.json` com `id`, `name`, `slug`, `image`, `order`.
 2. Ponha a arte circular em `assets/categories/`.
 3. Nos produtos, use o mesmo `categoryId`.
+4. Crie a pasta `{slug}/index.html` (cópia de outra categoria) com `data-category="{slug}"` para a URL `/slug/` funcionar no GitHub Pages. Slug em minúsculas, hífens, sem acento e sem underscore.
 
 ## Novo slide do carrossel
 

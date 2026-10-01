@@ -7,15 +7,15 @@ Servidor local: `http://127.0.0.1:8765/` (pasta `site-confeitaria-preview`).
 ### Mobile (~375px)
 - Header sticky com logo circular + nome; menu hamburger e carrinho com alvo ≥ 44px.
 - Carrossel full-bleed com fotos reais e caption em card translúcido.
-- Fileira de **categorias** em scroll horizontal (bolinhas com fotos WebP).
-- Grade de produtos em 1 coluna; botões “Ver mais / Adicionar” com 44px de altura.
+- Fileira de **categorias** em scroll horizontal (bolinhas com fotos WebP) que abrem páginas próprias (`/bolos/`, `/sobremesas/`, …).
+- Home **sem** vitrine mista: só hero, visita, círculos/cards de categoria, Instagram e rodapé.
 - Sem overflow horizontal (body/`html` com `overflow-x: hidden`).
 
 ### Desktop (~1280px)
 - Container ~**1120px** nas seções; header com nav horizontal.
-- Categorias em **linha centralizada** (wrap), sem scroller.
-- Vitrine em **4 colunas**; destaques de bolos em grade multi-coluna.
-- Carrossel alto (~520px) full-bleed.
+- Categorias em **linha centralizada** (wrap), sem scroller; clique vai para a pasta da categoria.
+- Página de categoria: grade de produtos daquela categoria em **4 colunas**.
+- Carrossel alto (~520px) full-bleed só na home.
 
 ### Brand & conteúdo
 - Cores: ink `#2A1F24`, muted `#6B4F58`, primary `#FC7E8E`, panels frosted white over Hydra.
@@ -38,7 +38,7 @@ Servidor local: `http://127.0.0.1:8765/` (pasta `site-confeitaria-preview`).
 - Link discreto no rodapé: **Área da loja**.
 
 ### Smoke checklist
-1. Abrir home → carrossel avança sozinho.
-2. Clicar categoria → filtra vitrine.
-3. Abrir produto → modal com foto; adicionar → gaveta WhatsApp.
+1. Abrir home → carrossel avança sozinho; **não** há grade mista de produtos.
+2. Clicar categoria → abre URL limpa (`/bolos/`, `/cestas-presentes/`, …); hard-refresh mantém a página.
+3. Na categoria, abrir produto → modal com foto; adicionar → gaveta WhatsApp.
 4. Conferir 375px e 1280px (DevTools) sem barra horizontal.

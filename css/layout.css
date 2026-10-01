@@ -378,11 +378,37 @@ main,
   margin-bottom: 1.35rem;
 }
 
+.catalogo__crumb {
+  margin: 0 0 0.45rem;
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  color: var(--brown);
+}
+
+.catalogo__crumb a {
+  color: var(--brown);
+  text-decoration: none;
+}
+
+.catalogo__crumb a:hover,
+.catalogo__crumb a:focus-visible {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.catalogo__head h1 {
+  margin-bottom: 0.35rem;
+}
+
 .catalogo__note,
 .catalogo__filter {
   color: var(--brown);
   font-family: var(--serif);
   font-size: 1rem;
+}
+
+.catalogo .categorias__row {
+  margin: 0.4rem 0 1.4rem;
 }
 
 .product-grid {

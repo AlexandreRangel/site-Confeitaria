@@ -12,6 +12,18 @@
     galleryIndex: 0,
   };
 
+  function isCategoryPage() {
+    return document.body.getAttribute("data-page") === "category";
+  }
+
+  function pageCategoryId() {
+    return document.body.getAttribute("data-category") || "";
+  }
+
+  function clearPageHash() {
+    history.replaceState(null, "", location.pathname + location.search);
+  }
+
   async function init() {
     try {
       const loaded = await Promise.all([
@@ -26,6 +38,9 @@
       state.products = loaded[3].filter(function isActive(product) {
         return product.active !== false;
       });
+      if (isCategoryPage()) {
+        state.filter = pageCategoryId() || "todas";
+      }
       applyBrand();
       renderCarousel();
       renderCategories();
@@ -74,9 +89,10 @@
     Jana.bindText("bolos-title", site.destaquesCopy.bolosPedidosTitle);
     Jana.bindText("year", String(new Date().getFullYear()));
     document.title = site.brandName;
+    applyCategoryTitle();
     if (site.logo) {
       Jana.qsa('[data-bind="logo"]').forEach(function setLogo(img) {
-        img.src = site.logo;
+        img.src = Jana.assetUrl(site.logo);
         img.alt = site.brandName || "";
       });
     }
@@ -102,14 +118,31 @@
     }
   }
 
+  function applyCategoryTitle() {
+    if (!isCategoryPage()) {
+      return;
+    }
+    const category = state.categories.find(function findCat(item) {
+      return item.id === state.filter || item.slug === state.filter;
+    });
+    const name = category ? category.name : "Categoria";
+    Jana.bindText("category-title", name);
+    if (state.site && state.site.brandName) {
+      document.title = name + " · " + state.site.brandName;
+    }
+  }
+
   function renderCarousel() {
     const track = Jana.qs('[data-bind="carousel"]');
     const dots = Jana.qs('[data-bind="carousel-dots"]');
+    if (!track || !dots) {
+      return;
+    }
     track.innerHTML = state.carousel
       .map(function slideHtml(slide) {
         return (
           '<article class="hero__slide">' +
-          '<img src="' + Jana.escapeHtml(slide.image) + '" alt="' +
+          '<img src="' + Jana.escapeHtml(Jana.assetUrl(slide.image)) + '" alt="' +
           Jana.escapeHtml(slide.title || "") +
           '">' +
           "</article>"
@@ -149,8 +182,8 @@
       const target = slide.productSlug
         ? "#produto:" + slide.productSlug
         : slide.linkCategory
-          ? "#categorias"
-          : "#catalogo";
+          ? Jana.categoryUrl(slide.linkCategory)
+          : "#categorias";
       cta.setAttribute("data-href", target);
     };
 
@@ -173,7 +206,10 @@
     const next = (index + total) % total;
     const changed = next !== state.slide;
     state.slide = next;
-    Jana.qs('[data-bind="carousel"]').style.transform = "translateX(-" + state.slide * 100 + "%)";
+    const track = Jana.qs('[data-bind="carousel"]');
+    if (track) {
+      track.style.transform = "translateX(-" + state.slide * 100 + "%)";
+    }
     Jana.qsa(".hero__dot").forEach(function mark(dot, i) {
       dot.classList.toggle("is-active", i === state.slide);
     });
@@ -181,6 +217,9 @@
   }
 
   function startCarousel() {
+    if (!Jana.qs("#hero-carrossel") || !state.carousel.length) {
+      return;
+    }
     stopCarousel();
     state.timer = setInterval(function advance() {
       goToSlide(state.slide + 1);
@@ -196,32 +235,31 @@
 
   function renderCategories() {
     const row = Jana.qs('[data-bind="categories"]');
-    const allButton =
-      '<button type="button" class="bolinha' +
-      (state.filter === "todas" ? " is-active" : "") +
-      '" data-action="filter-category" data-category="todas">' +
-      '<span class="bolinha__media"><img src="assets/brand/logo.webp" alt=""></span>' +
-      "<span>Todas</span></button>";
-    row.innerHTML =
-      allButton +
-      state.categories
-        .map(function categoryHtml(category) {
-          const active = state.filter === category.id ? " is-active" : "";
-          return (
-            '<button type="button" class="bolinha' +
-            active +
-            '" data-action="filter-category" data-category="' +
-            Jana.escapeHtml(category.id) +
-            '">' +
-            '<span class="bolinha__media"><img src="' +
-            Jana.escapeHtml(category.image) +
-            '" alt=""></span>' +
-            "<span>" +
-            Jana.escapeHtml(category.name) +
-            "</span></button>"
-          );
-        })
-        .join("");
+    if (!row) {
+      return;
+    }
+    const current = isCategoryPage() ? state.filter : "";
+    row.innerHTML = state.categories
+      .map(function categoryHtml(category) {
+        const slug = Jana.categorySlug(category);
+        const active = current === category.id || current === slug ? " is-active" : "";
+        return (
+          '<a class="bolinha' +
+          active +
+          '" href="' +
+          Jana.escapeHtml(Jana.categoryUrl(slug)) +
+          '"' +
+          (active ? ' aria-current="page"' : "") +
+          ">" +
+          '<span class="bolinha__media"><img src="' +
+          Jana.escapeHtml(Jana.assetUrl(category.image)) +
+          '" alt=""></span>' +
+          "<span>" +
+          Jana.escapeHtml(category.name) +
+          "</span></a>"
+        );
+      })
+      .join("");
   }
 
   function productCard(product) {
@@ -233,7 +271,7 @@
       '<div class="card__media">' +
       (exemplo ? '<span class="badge">Exemplo</span>' : "") +
       '<img src="' +
-      Jana.escapeHtml(product.images[0]) +
+      Jana.escapeHtml(Jana.assetUrl(product.images[0])) +
       '" alt="' +
       Jana.escapeHtml(product.name) +
       '">' +
@@ -256,19 +294,6 @@
     );
   }
 
-  function productsByCategory(categoryId) {
-    return state.products.filter(function match(product) {
-      return (product.categoryIds && product.categoryIds.indexOf(categoryId) !== -1) || product.categoryId === categoryId;
-    });
-  }
-
-  function featuredByTag(tag, categoryId) {
-    return state.products.filter(function match(product) {
-      const featured = product.featured || (product.tags && product.tags.indexOf(tag) !== -1);
-      return featured && (!categoryId || ((product.categoryIds && product.categoryIds.indexOf(categoryId) !== -1) || product.categoryId === categoryId));
-    });
-  }
-
   function renderDestaques() {
     const copy = state.site.destaquesCopy;
     const promos = [
@@ -276,14 +301,18 @@
       { title: copy.bolosTitle, category: "bolos", cta: "Confira", image: "assets/products/bolo-2-andares-g-p/01.webp" },
       { title: copy.docesTitle, category: "doces-festa", cta: "Ver tudo", image: "assets/products/caixa-parabens-individual-kit-com-10-und/01.webp" },
     ];
-    Jana.qs('[data-bind="promo-cards"]').innerHTML = promos
+    const promoEl = Jana.qs('[data-bind="promo-cards"]');
+    if (!promoEl) {
+      return;
+    }
+    promoEl.innerHTML = promos
       .map(function promoHtml(promo) {
         return (
-          '<button type="button" class="promo-card" data-action="filter-category" data-category="' +
-          promo.category +
+          '<a class="promo-card" href="' +
+          Jana.escapeHtml(Jana.categoryUrl(promo.category)) +
           '">' +
           '<span class="promo-card__media"><img src="' +
-          promo.image +
+          Jana.escapeHtml(Jana.assetUrl(promo.image)) +
           '" alt=""></span>' +
           '<span class="promo-card__plaque">' +
           '<span class="promo-card__copy">' +
@@ -291,24 +320,17 @@
           "</span>" +
           '<span class="promo-card__cta">' +
           promo.cta +
-          "</span></span></button>"
+          "</span></span></a>"
         );
       })
-      .join("");
-    const gifts = featuredByTag("presente", "cestas-presentes");
-    const giftList = (gifts.length ? gifts : productsByCategory("cestas-presentes")).slice(0, 3);
-    const giftsEl = Jana.qs('[data-bind="featured-gifts"]');
-    giftsEl.classList.toggle("product-grid--center", giftList.length === 1);
-    giftsEl.classList.toggle("product-grid--gifts", giftList.length > 1);
-    giftsEl.innerHTML = giftList.map(productCard).join("");
-    const cakes = featuredByTag("mais-pedidos", "bolos");
-    Jana.qs('[data-bind="featured-cakes"]').innerHTML = (cakes.length ? cakes : productsByCategory("bolos"))
-      .slice(0, 4)
-      .map(productCard)
       .join("");
   }
 
   function renderProducts() {
+    const grid = Jana.qs('[data-bind="products"]');
+    if (!grid) {
+      return;
+    }
     const list =
       state.filter === "todas"
         ? state.products
@@ -316,19 +338,24 @@
             return (product.categoryIds && product.categoryIds.indexOf(state.filter) !== -1) || product.categoryId === state.filter;
           });
     const category = state.categories.find(function findCat(item) {
-      return item.id === state.filter;
+      return item.id === state.filter || item.slug === state.filter;
     });
     Jana.bindText("filter-label", category ? category.name : "Todas as categorias");
-    Jana.qs('[data-bind="products"]').innerHTML = list.length
+    applyCategoryTitle();
+    grid.innerHTML = list.length
       ? list.map(productCard).join("")
       : '<p class="empty">Nenhum produto nesta categoria. Edite data/products.json.</p>';
     renderCategories();
   }
 
   function renderInstagram() {
+    const grid = Jana.qs('[data-bind="instagram-grid"]');
+    if (!grid) {
+      return;
+    }
     const url = Jana.instagramUrl(state.site.contato.instagram);
     const images = state.site.instagramGallery || [];
-    Jana.qs('[data-bind="instagram-grid"]').innerHTML = images
+    grid.innerHTML = images
       .map(function tile(src, index) {
         return (
           '<a href="' +
@@ -337,7 +364,7 @@
           (index + 1) +
           '">' +
           '<img src="' +
-          Jana.escapeHtml(src) +
+          Jana.escapeHtml(Jana.assetUrl(src)) +
           '" alt="Foto do Instagram"></a>'
         );
       })
@@ -375,7 +402,7 @@
     const product = state.currentProduct;
     if (!product) return;
     const image = Jana.qs('[data-bind="modal-image"]');
-    image.src = product.images[state.galleryIndex];
+    image.src = Jana.assetUrl(product.images[state.galleryIndex]);
     image.alt = product.name;
     Jana.qs('[data-bind="modal-thumbs"]').innerHTML = product.images
       .map(function thumb(src, index) {
@@ -385,7 +412,7 @@
           '" data-action="gallery-goto" data-index="' +
           index +
           '"><img src="' +
-          Jana.escapeHtml(src) +
+          Jana.escapeHtml(Jana.assetUrl(src)) +
           '" alt=""></button>'
         );
       })
@@ -398,7 +425,7 @@
       modal.close();
     }
     if (location.hash.indexOf("#produto:") === 0) {
-      history.replaceState(null, "", "#catalogo");
+      clearPageHash();
     }
   }
 
@@ -420,7 +447,7 @@
             return (
               '<article class="cart-row">' +
               '<img src="' +
-              Jana.escapeHtml(item.image) +
+              Jana.escapeHtml(Jana.assetUrl(item.image)) +
               '" alt="">' +
               "<div><strong>" +
               Jana.escapeHtml(item.name) +
@@ -440,7 +467,7 @@
             );
           })
           .join("")
-      : '<p class="empty">Sua encomenda está vazia. Escolha um item da vitrine.</p>';
+      : '<p class="empty">Sua encomenda está vazia. Escolha um item do catálogo.</p>';
   }
 
   function openCart() {
@@ -454,14 +481,8 @@
     Jana.qs("#encomendas").hidden = true;
     Jana.qs(".backdrop").hidden = true;
     if (location.hash === "#encomendas") {
-      history.replaceState(null, "", "#catalogo");
+      clearPageHash();
     }
-  }
-
-  function setFilter(categoryId) {
-    state.filter = categoryId || "todas";
-    renderProducts();
-    Jana.qs("#catalogo").scrollIntoView({ behavior: "smooth" });
   }
 
   function readCheckoutForm(form) {
@@ -554,7 +575,6 @@
       if (action === "carousel-prev") goToSlide(state.slide - 1);
       if (action === "carousel-next") goToSlide(state.slide + 1);
       if (action === "carousel-goto") goToSlide(Number(target.getAttribute("data-index")));
-      if (action === "filter-category") setFilter(target.getAttribute("data-category"));
       if (action === "open-product") openProduct(target.getAttribute("data-slug"));
       if (action === "add-product") addProduct(target.getAttribute("data-slug"), 1);
       if (action === "add-from-modal" && state.currentProduct) {
@@ -581,18 +601,30 @@
       if (action === "carousel-link") {
         const slug = target.getAttribute("data-slug");
         const category = target.getAttribute("data-category");
-        if (slug) openProduct(slug);
-        else if (category) setFilter(category);
+        if (slug) {
+          openProduct(slug);
+        } else if (category) {
+          window.location.href = Jana.categoryUrl(category);
+        }
       }
     });
-    Jana.qs("#hero-carrossel").addEventListener("mouseenter", stopCarousel);
-    Jana.qs("#hero-carrossel").addEventListener("mouseleave", startCarousel);
-    Jana.qs("#checkout-form").addEventListener("submit", checkout);
-    Jana.qs("#produto-modal").addEventListener("close", function onClose() {
-      if (location.hash.indexOf("#produto:") === 0) {
-        history.replaceState(null, "", "#catalogo");
-      }
-    });
+    const hero = Jana.qs("#hero-carrossel");
+    if (hero) {
+      hero.addEventListener("mouseenter", stopCarousel);
+      hero.addEventListener("mouseleave", startCarousel);
+    }
+    const checkoutForm = Jana.qs("#checkout-form");
+    if (checkoutForm) {
+      checkoutForm.addEventListener("submit", checkout);
+    }
+    const productModal = Jana.qs("#produto-modal");
+    if (productModal) {
+      productModal.addEventListener("close", function onClose() {
+        if (location.hash.indexOf("#produto:") === 0) {
+          clearPageHash();
+        }
+      });
+    }
     window.addEventListener("hashchange", openFromHash);
   }
 
