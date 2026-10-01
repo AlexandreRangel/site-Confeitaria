@@ -3,7 +3,7 @@
 .painel-body {
   min-height: 100vh;
   color: var(--brown);
-  background: rgba(253, 246, 236, 0.88);
+  background: #fdf6ec;
 }
 
 .painel-shell {

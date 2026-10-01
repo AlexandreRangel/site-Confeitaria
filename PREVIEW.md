@@ -26,7 +26,7 @@ Servidor local: `http://127.0.0.1:8765/` (pasta `site-confeitaria-preview`).
 ### Brand & fundo
 - Logo oficial no topo (`assets/brand/logo-jana-abreu.png`), sem título tipográfico no hero.
 - Slogan: **A vida é mais doce quando compartilhada**.
-- Fundo: padronagem damask bem suave (`assets/brand/padronagem.svg`).
+- Fundo: padronagem damask real em tile (`assets/brand/padronagem.png` / `.webp`) sobre creme `#fdf6ec`.
 - Hydra **somente** dentro do botão **Adquirir agora** na página do produto. Painel sem Hydra.
 
 ### Área da loja (`/painel/`)

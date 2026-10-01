@@ -128,8 +128,11 @@ if (/feitos com carinho/i.test(home)) {
 if (!existsSync(join(root, "assets/brand/logo-jana-abreu.png"))) {
   errors.push("Missing official logo assets/brand/logo-jana-abreu.png");
 }
-if (!existsSync(join(root, "assets/brand/padronagem.svg"))) {
-  errors.push("Missing damask pattern assets/brand/padronagem.svg");
+if (!existsSync(join(root, "assets/brand/padronagem.png"))) {
+  errors.push("Missing damask pattern assets/brand/padronagem.png");
+}
+if (!existsSync(join(root, "assets/brand/padronagem.webp"))) {
+  errors.push("Missing damask pattern assets/brand/padronagem.webp");
 }
 if (!existsSync(join(root, "produto/index.html"))) {
   errors.push("Missing product detail page produto/index.html");
@@ -208,8 +211,17 @@ if (official.cream !== "#fdf6ec") {
 if (official.ink !== "#4c553a") {
   errors.push("site.json ink must be official olive #4c553a");
 }
+if (site.pattern !== "assets/brand/padronagem.png") {
+  errors.push("site.json pattern must point at the real damask PNG");
+}
 
 const baseCss = readFileSync(join(root, "css/base.css"), "utf8");
+if (!baseCss.includes("padronagem.png") || !baseCss.includes("padronagem.webp")) {
+  errors.push("base.css must tile the real damask PNG/WebP, not only an SVG approximation");
+}
+if (/body\s*\{[^}]*background:\s*rgba\(253,\s*246,\s*236,\s*0\.(7|8|9)/.test(baseCss.replace(/\n/g, " "))) {
+  errors.push("body must not wash out the damask with an opaque cream overlay");
+}
 if (!baseCss.includes("--primary: #b86e88")) {
   errors.push("base.css --primary must be #b86e88");
 }
