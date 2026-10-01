@@ -44,6 +44,10 @@
     <section id="tab-pedidos" class="painel-panel is-active" aria-labelledby="pedidos-titulo">
       <div class="painel-toolbar">
         <h2 id="pedidos-titulo">Pedidos</h2>
+        <div class="painel-toolbar__actions">
+          <button type="button" class="btn btn--solid" data-action="export-orders-csv">Baixar CSV</button>
+          <button type="button" class="btn btn--outline" data-action="export-orders-json">Baixar JSON</button>
+        </div>
       </div>
       <div class="painel-layout painel-layout--split">
         <div class="painel-table-wrap">
@@ -111,6 +115,7 @@
           </div>
           <div class="painel-detail__actions">
             <a class="btn btn--whatsapp" data-bind="detail-whatsapp" href="#" target="_blank" rel="noopener noreferrer">WhatsApp do cliente</a>
+            <button type="button" class="btn btn--solid" data-action="download-order-csv">Baixar CSV</button>
             <button type="button" class="btn btn--outline" data-action="download-order">Baixar JSON</button>
           </div>
         </aside>
@@ -120,7 +125,10 @@
     <section id="tab-clientes" class="painel-panel" aria-labelledby="clientes-titulo" hidden>
       <div class="painel-toolbar">
         <h2 id="clientes-titulo">Clientes</h2>
-        <button type="button" class="btn btn--solid" data-action="export-clients">Exportar CSV</button>
+        <div class="painel-toolbar__actions">
+          <button type="button" class="btn btn--solid" data-action="export-clients">Baixar CSV</button>
+          <button type="button" class="btn btn--outline" data-action="export-clients-json">Baixar JSON</button>
+        </div>
       </div>
       <div class="painel-table-wrap">
         <table class="painel-table" aria-describedby="clientes-titulo">

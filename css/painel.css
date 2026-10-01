@@ -119,6 +119,13 @@
   color: var(--brown);
 }
 
+.painel-toolbar__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
 .painel-note {
   margin: 0 0 1rem;
   padding: 0.75rem 1rem;

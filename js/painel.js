@@ -221,6 +221,88 @@
     // FUTURE: also write Clients sheet via Google Apps Script
   }
 
+  function exportClientsJSON() {
+    Jana.Store.downloadJSON("clientes-jana-abreu.json", state.clients);
+  }
+
+  function orderItemsSummary(order) {
+    return (order.items || [])
+      .map(function map(item) {
+        const qty = item.qty != null ? item.qty : item.quantidade;
+        const name = item.name || item.nome || "";
+        return (qty != null ? qty + "x " : "") + name;
+      })
+      .filter(Boolean)
+      .join("; ");
+  }
+
+  function orderToCsvRow(order) {
+    return [
+      order.number || order.id || "",
+      order.status || "",
+      order.createdAt || "",
+      order.desiredDate || "",
+      order.clientName || order.cliente || "",
+      order.clientPhone || order.telefone || "",
+      order.clientEmail || order.email || "",
+      order.address || order.endereco || "",
+      order.notes || order.observacoes || "",
+      orderItemsSummary(order),
+      order.subtotal != null ? order.subtotal : "",
+      order.frete != null ? order.frete : "",
+      order.total != null ? order.total : "",
+      order.source || "",
+    ];
+  }
+
+  function exportOrdersCSV() {
+    const header = [
+      "pedido",
+      "status",
+      "criado_em",
+      "data_desejada",
+      "nome",
+      "telefone",
+      "email",
+      "endereco",
+      "observacoes",
+      "itens",
+      "subtotal",
+      "frete",
+      "total",
+      "origem",
+    ];
+    const rows = [header].concat(state.orders.map(orderToCsvRow));
+    Jana.Store.downloadCSV("pedidos-jana-abreu.csv", rows);
+  }
+
+  function exportOrdersJSON() {
+    Jana.Store.downloadJSON("pedidos-jana-abreu.json", state.orders);
+  }
+
+  function downloadOrderCSV(order) {
+    const header = [
+      "pedido",
+      "status",
+      "criado_em",
+      "data_desejada",
+      "nome",
+      "telefone",
+      "email",
+      "endereco",
+      "observacoes",
+      "itens",
+      "subtotal",
+      "frete",
+      "total",
+      "origem",
+    ];
+    Jana.Store.downloadCSV(
+      "pedido-" + (order.number || order.id) + ".csv",
+      [header, orderToCsvRow(order)]
+    );
+  }
+
   function onStatusChange(event) {
     const select = event.target;
     const orderId = select.getAttribute("data-order-id");
@@ -260,6 +342,19 @@
       }
       if (action === "export-clients") {
         exportClientsCSV();
+      }
+      if (action === "export-clients-json") {
+        exportClientsJSON();
+      }
+      if (action === "export-orders-csv") {
+        exportOrdersCSV();
+      }
+      if (action === "export-orders-json") {
+        exportOrdersJSON();
+      }
+      if (action === "download-order-csv") {
+        const order = findOrder(state.selectedId);
+        if (order) downloadOrderCSV(order);
       }
       if (action === "download-order") {
         const order = findOrder(state.selectedId);
