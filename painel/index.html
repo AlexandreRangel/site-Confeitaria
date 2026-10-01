@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Painel · Jana Abreu Confeitaria</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/painel.css">
+</head>
+<body>
+  <header class="bar">
+    <a class="bar__brand" href="./">
+      <img src="../assets/brand/hero-logo-jana-abreu-confeitaria.webp" alt="Jana Abreu Confeitaria">
+      <span>Painel</span>
+    </a>
+    <nav class="bar__nav" aria-label="Painel">
+      <a href="#pedidos" data-view="pedidos">Pedidos</a>
+      <a href="#clientes" data-view="clientes">Clientes</a>
+      <a href="../">Ver vitrine</a>
+    </nav>
+  </header>
+
+  <main>
+    <p class="banner">Demonstração local: dados em JSON + localStorage. Google Sheets <strong>não</strong> está ligado.</p>
+
+    <section id="pedidos" class="view" data-panel="pedidos">
+      <div class="view__head">
+        <h1>Pedidos</h1>
+        <div class="view__actions">
+          <button type="button" class="btn" data-action="download-orders">Baixar JSON de pedidos</button>
+        </div>
+      </div>
+      <div class="order-list" data-bind="order-list"></div>
+    </section>
+
+    <section id="pedido-detalhe" class="view" data-panel="pedido" hidden>
+      <p><a href="#pedidos">← Todos os pedidos</a></p>
+      <article class="ticket" data-bind="order-detail"></article>
+    </section>
+
+    <section id="clientes" class="view" data-panel="clientes" hidden>
+      <div class="view__head">
+        <h1>Clientes</h1>
+        <div class="view__actions">
+          <button type="button" class="btn btn--solid" data-action="export-clients-csv">Baixar CSV</button>
+          <button type="button" class="btn" data-action="download-clients">Baixar JSON</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>E-mail</th>
+              <th>Telefone</th>
+              <th>Bairro</th>
+            </tr>
+          </thead>
+          <tbody data-bind="client-rows"></tbody>
+        </table>
+      </div>
+      <form id="client-form" class="form">
+        <h2>Novo cliente</h2>
+        <label>Nome <input name="nome" required autocomplete="name"></label>
+        <label>E-mail <input name="email" type="email" autocomplete="email"></label>
+        <label>Telefone <input name="telefone" required autocomplete="tel"></label>
+        <label>Bairro <input name="bairro"></label>
+        <button type="submit" class="btn btn--solid">Salvar no navegador</button>
+      </form>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <button type="button" class="btn" data-action="reset-demo">Restaurar semente JSON</button>
+    <span>v1 local · ver docs/PAINEL.md</span>
+  </footer>
+
+  <script src="../js/utils.js"></script>
+  <script src="../js/persist.js"></script>
+  <script src="js/sheets-stub.js"></script>
+  <script src="js/painel.js"></script>
+</body>
+</html>

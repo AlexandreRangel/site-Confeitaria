@@ -7,6 +7,8 @@ const site = JSON.parse(readFileSync(join(root, "data/site.json"), "utf8"));
 const categories = JSON.parse(readFileSync(join(root, "data/categories.json"), "utf8"));
 const carousel = JSON.parse(readFileSync(join(root, "data/carousel.json"), "utf8"));
 const products = JSON.parse(readFileSync(join(root, "data/products.json"), "utf8"));
+const orders = JSON.parse(readFileSync(join(root, "data/orders.json"), "utf8"));
+const clients = JSON.parse(readFileSync(join(root, "data/clients.json"), "utf8"));
 
 const errors = [];
 
@@ -57,6 +59,14 @@ products.forEach((product) => {
 });
 
 if (carousel.length < 3) errors.push("Carousel needs at least 3 slides");
+if (!orders.length) errors.push("Need sample orders");
+orders.forEach((order) => {
+  if (!order.id || !Array.isArray(order.items)) errors.push("Invalid order");
+});
+if (!clients.length) errors.push("Need sample clients");
+clients.forEach((client) => {
+  if (!client.nome || !client.telefone) errors.push("Client needs nome and telefone");
+});
 
 if (errors.length) {
   console.error(errors.join("\n"));

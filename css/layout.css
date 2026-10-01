@@ -140,7 +140,12 @@
   width: 100%;
   height: min(62vw, 340px);
   object-fit: cover;
-  object-position: right center;
+  object-position: center 20%;
+}
+
+.hero__slide--logo img {
+  object-fit: cover;
+  object-position: center;
 }
 
 .hero__caption {
@@ -199,6 +204,7 @@
   width: 100%;
   aspect-ratio: 1;
   object-fit: cover;
+  object-position: center 20%;
   border-radius: 16px;
   background: var(--secondary);
 }

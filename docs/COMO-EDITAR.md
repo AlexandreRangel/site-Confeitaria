@@ -53,6 +53,10 @@ Copie e adapte no chat:
 - `No rodape, atualize o endereço quando tivermos a rua definitiva.`
 - `Siga no Instagram: troque os placeholders pelas fotos reais, mas o link continua https://www.instagram.com/janaabreuconfeitaria/.`
 
+## Painel
+
+Abra `/painel/` para pedidos e clientes. Exporte CSV (colunas `nome,email,telefone`). Não há Google Sheets nesta versão — o stub está em `painel/js/sheets-stub.js`.
+
 ## Espelho Dropbox
 
 Pasta combinada: `/site-confeitaria`. Depois de editar e commitar, copie a mesma árvore para esse caminho se quiser backup visual fora do Git.

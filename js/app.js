@@ -109,20 +109,30 @@
           : slide.linkCategory
             ? "#categorias"
             : "#catalogo";
+        const isLogo = slide.id === "slide-marca";
+        const caption = isLogo
+          ? ""
+          : '<div class="hero__caption"><h2>' +
+            Jana.escapeHtml(slide.title) +
+            "</h2><p>" +
+            Jana.escapeHtml(slide.subtitle) +
+            '</p><button type="button" class="btn btn--outline" data-action="carousel-link" data-category="' +
+            Jana.escapeHtml(slide.linkCategory || "") +
+            '" data-slug="' +
+            Jana.escapeHtml(slide.productSlug || "") +
+            '" data-href="' +
+            target +
+            '">Ver opções</button></div>';
         return (
-          '<article class="hero__slide">' +
-          '<img src="' + Jana.escapeHtml(slide.image) + '" alt="">' +
-          '<div class="hero__caption">' +
-          "<h2>" + Jana.escapeHtml(slide.title) + "</h2>" +
-          "<p>" + Jana.escapeHtml(slide.subtitle) + "</p>" +
-          '<button type="button" class="btn btn--outline" data-action="carousel-link" data-category="' +
-          Jana.escapeHtml(slide.linkCategory || "") +
-          '" data-slug="' +
-          Jana.escapeHtml(slide.productSlug || "") +
-          '" data-href="' +
-          target +
-          '">Ver opções</button>' +
-          "</div></article>"
+          '<article class="hero__slide' +
+          (isLogo ? " hero__slide--logo" : "") +
+          '"><img src="' +
+          Jana.escapeHtml(slide.image) +
+          '" alt="' +
+          Jana.escapeHtml(slide.title) +
+          '">' +
+          caption +
+          "</article>"
         );
       })
       .join("");
@@ -446,6 +456,10 @@
       "*Cliente:* " + nome,
       "*Telefone:* " + telefone,
     ];
+    const email = String(data.get("email") || "").trim();
+    if (email) {
+      lines.push("*E-mail:* " + email);
+    }
     if (dataDesejada) {
       const [year, month, day] = dataDesejada.split("-");
       lines.push("*Data desejada:* " + day + "/" + month + "/" + year);
@@ -470,8 +484,65 @@
       return;
     }
     const number = state.site.contato.whatsapp;
-    const url = "https://wa.me/" + number + "?text=" + encodeURIComponent(buildWhatsAppMessage(event.target));
-    window.open(url, "_blank", "noopener");
+    saveCheckoutRecord(event.target).finally(function openWhatsApp() {
+      const url = "https://wa.me/" + number + "?text=" + encodeURIComponent(buildWhatsAppMessage(event.target));
+      window.open(url, "_blank", "noopener");
+    });
+  }
+
+  async function saveCheckoutRecord(form) {
+    if (!Jana.Persist) return Promise.resolve();
+    let seedOrders = [];
+    let seedClients = [];
+    try {
+      seedOrders = await Jana.loadJSON("data/orders.json");
+      seedClients = await Jana.loadJSON("data/clients.json");
+    } catch (err) {
+      seedOrders = [];
+      seedClients = [];
+    }
+    const data = new FormData(form);
+    const customer = {
+      nome: String(data.get("nome") || "").trim(),
+      email: String(data.get("email") || "").trim(),
+      telefone: String(data.get("telefone") || "").trim(),
+    };
+    const items = Jana.Cart.items().map(function mapItem(item) {
+      return {
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+        notes: "",
+      };
+    });
+    const subtotal = Jana.Cart.total();
+    const orders = Jana.Persist.loadOverlay(Jana.Persist.ORDERS_KEY, seedOrders);
+    const clients = Jana.Persist.loadOverlay(Jana.Persist.CLIENTS_KEY, seedClients);
+    const ids = Jana.Persist.nextOrderId(orders);
+    const client = Jana.Persist.upsertClient(clients, customer);
+    orders.push({
+      id: ids.id,
+      number: ids.number,
+      status: "novo",
+      createdAt: new Date().toISOString(),
+      desiredDate: String(data.get("data") || ""),
+      clientId: client.id,
+      customer: customer,
+      items: items,
+      subtotal: subtotal,
+      frete: 0,
+      total: subtotal,
+      address: {
+        tipo: "a-combinar",
+        line: "Combinar retirada ou entrega no WhatsApp",
+        bairro: "",
+        cidade: "Brasília–DF",
+      },
+      notes: String(data.get("observacoes") || "").trim(),
+      whatsapp: customer.telefone,
+    });
+    Jana.Persist.saveOrders(orders);
+    Jana.Persist.saveClients(clients);
   }
 
   function bindEvents() {

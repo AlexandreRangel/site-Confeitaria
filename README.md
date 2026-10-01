@@ -66,10 +66,15 @@ Caminho combinado para espelhar este site: **`/site-confeitaria`**.
 
 Copie a pasta publicada (HTML, CSS, JS, `data/`, `assets/`) para esse caminho no Dropbox quando quiser uma cópia fora do GitHub.
 
+## Painel (`/painel/`)
+
+Área interna de demonstração: pedidos estilo Vendizap e clientes. Dados em `data/orders.json` + `data/clients.json`, com overlay em `localStorage`. Exportar CSV de clientes (`nome,email,telefone`). **Google Sheets não está ligado** — ver [docs/PAINEL.md](docs/PAINEL.md).
+
 ## Documentação
 
 - [docs/NOMENCLATURA.md](docs/NOMENCLATURA.md) — nomes das áreas do site
 - [docs/COMO-EDITAR.md](docs/COMO-EDITAR.md) — edição de JSON e comandos para o assistente
+- [docs/PAINEL.md](docs/PAINEL.md) — plano do painel (JSON local, CSV, stub Sheets)
 
 ## O que este projeto não faz
 

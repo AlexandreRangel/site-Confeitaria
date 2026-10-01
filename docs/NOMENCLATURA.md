@@ -13,6 +13,10 @@ Use estes nomes ao pedir mudanças no site ou no chat com o assistente. Eles bat
 | `instagram` | `#instagram` | Seção “Siga no Instagram” |
 | `encomendas` | `#encomendas` | Gaveta do carrinho + formulário WhatsApp |
 | `rodape` | `#rodape` | Contato, endereço, pagamento e créditos |
+| `painel` | `/painel/` | Pedidos e clientes (JSON local, sem Sheets) |
+| `painel-pedidos` | `/painel/#pedidos` | Lista de pedidos |
+| `painel-pedido:id` | `/painel/#pedido:JA-1001` | Detalhe de um pedido |
+| `painel-clientes` | `/painel/#clientes` | Clientes + CSV |
 
 ## Slugs de categoria (bolinhas)
 
