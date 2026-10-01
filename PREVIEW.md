@@ -30,6 +30,13 @@ Servidor local: `http://127.0.0.1:8765/` (pasta `site-confeitaria-preview`).
 - UI palette is **dark on light**: ink `#2a1f24`, muted `#6b4f58`, panels `rgba(255,255,255,0.88)`, accent coral `#FC7E8E`.
 - Color notes: `scripts/sample-hydra-colors.html` (observed R/G/B soft pastels ~0.55–0.95).
 
+### Área da loja (`/painel/`)
+- Pedidos (lista + detalhe: itens, frete, total, endereço, obs, WhatsApp).
+- Clientes com **Exportar CSV** (`nome,email,telefone`).
+- Demo: `data/orders.json` + `data/clients.json`; novos pedidos do carrinho → `localStorage`.
+- Stubs comentados para Google Sheets futuro (sem integração live).
+- Link discreto no rodapé: **Área da loja**.
+
 ### Smoke checklist
 1. Abrir home → carrossel avança sozinho.
 2. Clicar categoria → filtra vitrine.

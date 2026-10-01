@@ -1,0 +1,338 @@
+/* Painel da loja — Vendizap-like admin for Jana Abreu */
+
+.painel-body {
+  min-height: 100vh;
+  color: var(--brown);
+  background: transparent;
+}
+
+.painel-shell {
+  position: relative;
+  z-index: 1;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: calc(var(--header-h) + 1.25rem) 1rem 3rem;
+}
+
+.painel-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem 1.2rem;
+  margin-bottom: 1.4rem;
+  padding: 1rem 1.15rem;
+  border-radius: var(--radius);
+  border: 1px solid rgba(228, 178, 193, 0.55);
+  background: var(--panel-strong);
+  box-shadow: var(--shadow);
+}
+
+.painel-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.painel-header__brand img {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(237, 93, 115, 0.35);
+}
+
+.painel-header__title {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 1.45rem;
+  color: var(--brown);
+}
+
+.painel-header__sub {
+  margin: 0.15rem 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.painel-header__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.painel-tabs {
+  display: flex;
+  gap: 0.45rem;
+  margin-bottom: 1.1rem;
+  padding: 0.35rem;
+  border-radius: 999px;
+  background: var(--panel);
+  border: 1px solid rgba(228, 178, 193, 0.45);
+  width: fit-content;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.painel-tabs button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--brown);
+  font: inherit;
+  font-weight: 500;
+  padding: 0.55rem 1.05rem;
+  border-radius: 999px;
+  min-height: 44px;
+  white-space: nowrap;
+}
+
+.painel-tabs button.is-active {
+  background: linear-gradient(135deg, #d94f68 0%, #b63e56 100%);
+  color: #fff;
+  box-shadow: 0 6px 14px rgba(214, 111, 139, 0.22);
+}
+
+.painel-panel {
+  display: none;
+}
+
+.painel-panel.is-active {
+  display: block;
+}
+
+.painel-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.9rem;
+}
+
+.painel-toolbar h2 {
+  margin: 0;
+  text-align: left;
+  font-size: clamp(1.35rem, 3vw, 1.85rem);
+  color: var(--brown);
+}
+
+.painel-note {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 16px;
+  background: rgba(255, 250, 248, 0.7);
+  border: 1px dashed rgba(201, 64, 90, 0.35);
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.painel-table-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius);
+  border: 1px solid rgba(228, 178, 193, 0.55);
+  background: var(--panel-strong);
+  box-shadow: var(--shadow);
+}
+
+.painel-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 560px;
+}
+
+.painel-table th,
+.painel-table td {
+  padding: 0.85rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(228, 178, 193, 0.4);
+  color: var(--brown);
+  vertical-align: middle;
+}
+
+.painel-table th {
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: rgba(255, 245, 247, 0.55);
+}
+
+.painel-table tbody tr {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.painel-table tbody tr:hover,
+.painel-table tbody tr:focus-visible,
+.painel-table tbody tr.is-selected {
+  background: rgba(249, 220, 228, 0.55);
+}
+
+.painel-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0.15rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: #f5e6ea;
+  color: var(--brown);
+}
+
+.badge--novo {
+  background: #ffe2e8;
+  color: #9b2f45;
+}
+
+.badge--em_preparo {
+  background: #fff0d6;
+  color: #8a5a12;
+}
+
+.badge--pronto {
+  background: #dff5e8;
+  color: #1f6b45;
+}
+
+.badge--entregue {
+  background: #e5eef8;
+  color: #2a4f78;
+}
+
+.badge--cancelado {
+  background: #ece7e8;
+  color: #6b5149;
+}
+
+.painel-layout {
+  display: grid;
+  gap: 1rem;
+}
+
+.painel-detail {
+  border-radius: var(--radius);
+  border: 1px solid rgba(228, 178, 193, 0.55);
+  background: var(--panel-strong);
+  box-shadow: var(--shadow);
+  padding: 1.15rem 1.2rem 1.35rem;
+}
+
+.painel-detail[hidden] {
+  display: none !important;
+}
+
+.painel-detail__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.painel-detail__head h3 {
+  margin: 0;
+  font-size: 1.35rem;
+  color: var(--brown);
+}
+
+.painel-detail__meta {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0 0 1rem;
+}
+
+.painel-detail__meta dt {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0;
+}
+
+.painel-detail__meta dd {
+  margin: 0.1rem 0 0;
+  color: var(--brown);
+}
+
+.painel-items {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+}
+
+.painel-items li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid rgba(228, 178, 193, 0.35);
+  color: var(--brown);
+}
+
+.painel-totals {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+  color: var(--brown);
+}
+
+.painel-totals strong {
+  font-size: 1.1rem;
+}
+
+.painel-detail__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.painel-empty {
+  margin: 0;
+  padding: 1.4rem 1rem;
+  text-align: center;
+  color: var(--muted);
+}
+
+.painel-status-select {
+  min-height: 40px;
+  border-radius: 999px;
+  border: 1px solid rgba(228, 178, 193, 0.7);
+  background: #fffaf7;
+  color: var(--brown);
+  padding: 0.35rem 0.8rem;
+}
+
+.rodape-loja-link {
+  display: inline-block;
+  margin-top: 0.55rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+  text-decoration: none;
+  opacity: 0.85;
+}
+
+.rodape-loja-link:hover,
+.rodape-loja-link:focus-visible {
+  color: var(--brown);
+  text-decoration: underline;
+}
+
+@media (min-width: 900px) {
+  .painel-layout--split {
+    grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+    align-items: start;
+  }
+
+  .painel-detail__meta {
+    grid-template-columns: 1fr 1fr;
+  }
+}

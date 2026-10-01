@@ -507,3 +507,19 @@
     height: 88px;
   }
 }
+
+.rodape-loja-link {
+  display: inline;
+  margin-left: 0.15rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+  text-decoration: none;
+  opacity: 0.8;
+}
+
+.rodape-loja-link:hover,
+.rodape-loja-link:focus-visible {
+  color: var(--brown);
+  text-decoration: underline;
+  opacity: 1;
+}

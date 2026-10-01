@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Área da loja — pedidos e clientes Jana Abreu Confeitaria.">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Área da loja · Jana Abreu Confeitaria</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/painel.css">
+</head>
+<body class="painel-body">
+  <canvas id="hydra-background" aria-hidden="true"></canvas>
+
+  <div class="painel-shell">
+    <header class="painel-header">
+      <a class="painel-header__brand" href="../index.html">
+        <img src="../assets/brand/logo.webp" alt="" width="44" height="44">
+        <span>
+          <p class="painel-header__title">Área da loja</p>
+          <p class="painel-header__sub">Jana Abreu Confeitaria · painel local</p>
+        </span>
+      </a>
+      <div class="painel-header__actions">
+        <a class="btn btn--outline" href="../index.html">Voltar à vitrine</a>
+      </div>
+    </header>
+
+    <nav class="painel-tabs" aria-label="Seções do painel">
+      <button type="button" class="is-active" data-tab="pedidos" aria-selected="true">Pedidos</button>
+      <button type="button" data-tab="clientes" aria-selected="false">Clientes</button>
+    </nav>
+
+    <p class="painel-note">
+      Dados demo em <code>data/orders.json</code> e <code>data/clients.json</code>.
+      Novos pedidos do carrinho ficam no <code>localStorage</code> deste navegador.
+      <!-- FUTURE: sync bidirectional with Google Sheets — see js/store.js stubs. NO live Google. -->
+    </p>
+
+    <section id="tab-pedidos" class="painel-panel is-active" aria-labelledby="pedidos-titulo">
+      <div class="painel-toolbar">
+        <h2 id="pedidos-titulo">Pedidos</h2>
+      </div>
+      <div class="painel-layout painel-layout--split">
+        <div class="painel-table-wrap">
+          <table class="painel-table" aria-describedby="pedidos-titulo">
+            <thead>
+              <tr>
+                <th scope="col">Pedido</th>
+                <th scope="col">Cliente</th>
+                <th scope="col">Status</th>
+                <th scope="col">Data</th>
+              </tr>
+            </thead>
+            <tbody data-bind="orders-body">
+              <tr><td colspan="4" class="painel-empty">Carregando…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <aside class="painel-detail" data-bind="order-detail" hidden>
+          <div class="painel-detail__head">
+            <div>
+              <h3 data-bind="detail-title">Pedido</h3>
+              <p class="eyebrow" data-bind="detail-status-label"></p>
+            </div>
+            <label class="sr-only" for="order-status">Status</label>
+            <select id="order-status" class="painel-status-select" data-bind="detail-status" aria-label="Alterar status">
+              <option value="novo">Novo</option>
+              <option value="em_preparo">Em preparo</option>
+              <option value="pronto">Pronto</option>
+              <option value="entregue">Entregue</option>
+              <option value="cancelado">Cancelado</option>
+            </select>
+          </div>
+          <dl class="painel-detail__meta">
+            <div>
+              <dt>Cliente</dt>
+              <dd data-bind="detail-client"></dd>
+            </div>
+            <div>
+              <dt>Telefone</dt>
+              <dd data-bind="detail-phone"></dd>
+            </div>
+            <div>
+              <dt>E-mail</dt>
+              <dd data-bind="detail-email"></dd>
+            </div>
+            <div>
+              <dt>Data desejada</dt>
+              <dd data-bind="detail-desired"></dd>
+            </div>
+            <div>
+              <dt>Endereço</dt>
+              <dd data-bind="detail-address"></dd>
+            </div>
+            <div>
+              <dt>Observações</dt>
+              <dd data-bind="detail-notes"></dd>
+            </div>
+          </dl>
+          <h3>Itens</h3>
+          <ul class="painel-items" data-bind="detail-items"></ul>
+          <div class="painel-totals">
+            <div>Subtotal: <span data-bind="detail-subtotal"></span></div>
+            <div>Frete: <span data-bind="detail-frete"></span></div>
+            <div><strong>Total: <span data-bind="detail-total"></span></strong></div>
+          </div>
+          <div class="painel-detail__actions">
+            <a class="btn btn--whatsapp" data-bind="detail-whatsapp" href="#" target="_blank" rel="noopener noreferrer">WhatsApp do cliente</a>
+            <button type="button" class="btn btn--outline" data-action="download-order">Baixar JSON</button>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="tab-clientes" class="painel-panel" aria-labelledby="clientes-titulo" hidden>
+      <div class="painel-toolbar">
+        <h2 id="clientes-titulo">Clientes</h2>
+        <button type="button" class="btn btn--solid" data-action="export-clients">Exportar CSV</button>
+      </div>
+      <div class="painel-table-wrap">
+        <table class="painel-table" aria-describedby="clientes-titulo">
+          <thead>
+            <tr>
+              <th scope="col">Nome</th>
+              <th scope="col">E-mail</th>
+              <th scope="col">Telefone</th>
+            </tr>
+          </thead>
+          <tbody data-bind="clients-body">
+            <tr><td colspan="3" class="painel-empty">Carregando…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script src="https://unpkg.com/hydra-synth@1.4.0/dist/hydra-synth.js"></script>
+  <script src="../js/background-hydra.js" defer></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/store.js"></script>
+  <script src="../js/painel.js"></script>
+</body>
+</html>

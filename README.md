@@ -30,6 +30,7 @@ Edite os JSON em `data/` e troque as imagens em `assets/`. Recarregue a página 
 | `data/categories.json` | Bolinhas de categoria (`categorias`) |
 | `data/carousel.json` | Slides do `hero-carrossel` |
 | `data/products.json` | Produtos da vitrine, preço, fotos, destaque |
+| `data/orders.json` / `data/clients.json` | Demo do painel (`/painel/`) — pedidos e clientes |
 
 Produtos com `"active": false` somem da vitrine. Itens de exemplo usam a tag `"exemplo"` e o selo **Exemplo**.
 

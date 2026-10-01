@@ -464,32 +464,46 @@
     Jana.qs("#catalogo").scrollIntoView({ behavior: "smooth" });
   }
 
-  function buildWhatsAppMessage(form) {
+  function readCheckoutForm(form) {
     const data = new FormData(form);
-    const nome = String(data.get("nome") || "").trim();
-    const telefone = String(data.get("telefone") || "").trim();
-    const dataDesejada = String(data.get("data") || "").trim();
-    const observacoes = String(data.get("observacoes") || "").trim();
-    const items = Jana.Cart.items();
+    return {
+      nome: String(data.get("nome") || "").trim(),
+      telefone: String(data.get("telefone") || "").trim(),
+      email: String(data.get("email") || "").trim(),
+      endereco: String(data.get("endereco") || "").trim(),
+      data: String(data.get("data") || "").trim(),
+      observacoes: String(data.get("observacoes") || "").trim(),
+      frete: 0,
+      items: Jana.Cart.items(),
+    };
+  }
+
+  function buildWhatsAppMessage(payload) {
     const lines = [
       "Olá! Gostaria de fazer uma encomenda na " + state.site.brandName + ".",
       "",
-      "*Cliente:* " + nome,
-      "*Telefone:* " + telefone,
+      "*Cliente:* " + payload.nome,
+      "*Telefone:* " + payload.telefone,
     ];
-    if (dataDesejada) {
-      const [year, month, day] = dataDesejada.split("-");
+    if (payload.email) {
+      lines.push("*E-mail:* " + payload.email);
+    }
+    if (payload.endereco) {
+      lines.push("*Endereço / retirada:* " + payload.endereco);
+    }
+    if (payload.data) {
+      const [year, month, day] = payload.data.split("-");
       lines.push("*Data desejada:* " + day + "/" + month + "/" + year);
     }
     lines.push("", "*Itens:*");
-    items.forEach(function pushItem(item) {
+    payload.items.forEach(function pushItem(item) {
       lines.push(
         "• " + item.quantity + "x " + item.name + " — " + Jana.formatBRL(item.price * item.quantity)
       );
     });
     lines.push("", "*Total:* " + Jana.formatBRL(Jana.Cart.total()));
-    if (observacoes) {
-      lines.push("", "*Observações:* " + observacoes);
+    if (payload.observacoes) {
+      lines.push("", "*Observações:* " + payload.observacoes);
     }
     lines.push("", state.site.paymentsNote);
     return lines.join("\n");
@@ -501,9 +515,25 @@
       openCart();
       return;
     }
+    const payload = readCheckoutForm(event.target);
+    // Persist order + client locally for /painel/ (optional Google Sheets later — see js/store.js).
+    const order = Jana.Store.saveCheckout(payload);
     const number = state.site.contato.whatsapp;
-    const url = "https://wa.me/" + number + "?text=" + encodeURIComponent(buildWhatsAppMessage(event.target));
+    const url =
+      "https://wa.me/" +
+      number +
+      "?text=" +
+      encodeURIComponent(buildWhatsAppMessage(payload));
     window.open(url, "_blank", "noopener");
+    if (
+      window.confirm(
+        "Pedido #" +
+          order.number +
+          " salvo neste navegador.\n\nDeseja baixar o JSON do pedido?"
+      )
+    ) {
+      Jana.Store.downloadJSON("pedido-" + order.number + ".json", order);
+    }
   }
 
   function bindEvents() {

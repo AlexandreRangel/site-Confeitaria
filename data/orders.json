@@ -9,8 +9,18 @@
     "createdAt": "2026-09-29T10:15:00-03:00",
     "desiredDate": "2026-10-04",
     "items": [
-      { "id": "p-cesta-manha-dos-sonhos", "name": "Cesta Manhã dos Sonhos", "quantity": 1, "price": 189.9 },
-      { "id": "p-caixa-parabens-kit-10", "name": "Caixa Parabéns Individual — Kit 10", "quantity": 1, "price": 320 }
+      {
+        "id": "p-cesta-manha-dos-sonhos",
+        "name": "Cesta Manhã dos Sonhos",
+        "quantity": 1,
+        "price": 189.9
+      },
+      {
+        "id": "p-caixa-parabens-kit-10",
+        "name": "Caixa Parabéns Individual — Kit 10",
+        "quantity": 1,
+        "price": 320
+      }
     ],
     "subtotal": 509.9,
     "frete": 25,
@@ -29,12 +39,22 @@
     "createdAt": "2026-09-28T16:40:00-03:00",
     "desiredDate": "2026-10-02",
     "items": [
-      { "id": "p-bolo-buttercream-m", "name": "Bolo Buttercream M", "quantity": 1, "price": 168 },
-      { "id": "p-combo-encanto", "name": "Combo Encanto", "quantity": 1, "price": 249.9 }
+      {
+        "id": "p-bolo-buttercream-m",
+        "name": "Bolo Buttercream M",
+        "quantity": 1,
+        "price": 158
+      },
+      {
+        "id": "p-combo-encanto",
+        "name": "Combo Encanto",
+        "quantity": 1,
+        "price": 249.9
+      }
     ],
-    "subtotal": 417.9,
+    "subtotal": 407.9,
     "frete": 20,
-    "total": 437.9,
+    "total": 427.9,
     "address": "CLS 403 Bloco B loja 12 — Asa Sul, Brasília-DF",
     "notes": "Tema floral rosa. Retirada preferencial se frete alto.",
     "source": "demo"
@@ -49,7 +69,12 @@
     "createdAt": "2026-09-27T11:05:00-03:00",
     "desiredDate": "2026-09-30",
     "items": [
-      { "id": "p-cesta-rubi", "name": "Cesta Rubi", "quantity": 1, "price": 259.9 }
+      {
+        "id": "p-cesta-rubi",
+        "name": "Cesta Rubi",
+        "quantity": 1,
+        "price": 259.9
+      }
     ],
     "subtotal": 259.9,
     "frete": 0,
@@ -68,7 +93,12 @@
     "createdAt": "2026-09-25T09:20:00-03:00",
     "desiredDate": "2026-09-26",
     "items": [
-      { "id": "p-caixa-parabens-kit-10", "name": "Caixa Parabéns Individual — Kit 10", "quantity": 2, "price": 320 }
+      {
+        "id": "p-caixa-parabens-kit-10",
+        "name": "Caixa Parabéns Individual — Kit 10",
+        "quantity": 2,
+        "price": 320
+      }
     ],
     "subtotal": 640,
     "frete": 35,
@@ -87,7 +117,12 @@
     "createdAt": "2026-09-24T18:10:00-03:00",
     "desiredDate": "2026-09-28",
     "items": [
-      { "id": "p-tabua-signature", "name": "Tábua Signature", "quantity": 1, "price": 179.9 }
+      {
+        "id": "p-tabua-signature",
+        "name": "Tábua Signature",
+        "quantity": 1,
+        "price": 179.9
+      }
     ],
     "subtotal": 179.9,
     "frete": 15,

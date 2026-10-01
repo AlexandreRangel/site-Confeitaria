@@ -170,7 +170,10 @@
         <p data-bind="payments"></p>
       </div>
     </div>
-    <p class="rodape__credits">© <span data-bind="year"></span> Jana Abreu Confeitaria</p>
+    <p class="rodape__credits">
+      © <span data-bind="year"></span> Jana Abreu Confeitaria
+      · <a class="rodape-loja-link" href="painel/">Área da loja</a>
+    </p>
   </footer>
 
   <dialog id="produto-modal" class="modal" aria-labelledby="produto-titulo">
@@ -205,6 +208,8 @@
       <form id="checkout-form" class="checkout">
         <label>Nome <input name="nome" type="text" required autocomplete="name"></label>
         <label>Telefone <input name="telefone" type="tel" required autocomplete="tel" placeholder="(61) 90000-0000"></label>
+        <label>E-mail <input name="email" type="email" autocomplete="email" placeholder="opcional"></label>
+        <label>Endereço / retirada <input name="endereco" type="text" autocomplete="street-address" placeholder="Bairro, cidade ou retirada na loja"></label>
         <label>Data desejada <input name="data" type="date"></label>
         <label>Observações <textarea name="observacoes" rows="3" placeholder="Sabores, tema, retirada ou entrega…"></textarea></label>
         <p class="checkout__note" data-bind="payments"></p>
@@ -218,6 +223,7 @@
   <script src="js/background-hydra.js" defer></script>
   <script src="js/utils.js"></script>
   <script src="js/cart.js"></script>
+  <script src="js/store.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
