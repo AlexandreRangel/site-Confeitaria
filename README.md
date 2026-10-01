@@ -51,7 +51,7 @@ Sketch atual: `speed=1.1`, `contrast=0.45`, `brightness=0.222`. Para trocar o vi
 
 ## Marca
 
-Cores da loja ao vivo: **#FC7E8E** (coral), **#F5D5E0** (blush), creme **#FFF6EF** e texto marrom **#3A2A2E**. Painéis em frosting translúcido (~50%) sobre o Hydra. Ajuste em `data/site.json` → `colors`.
+Cores da loja ao vivo: **#FC7E8E** (coral), **#F5D5E0** (blush), creme **#FFF6EF** e texto marrom **#5A3D36**. Painéis frosting translúcidos sobre o Hydra, com barras coral saturadas. Ajuste em `data/site.json` → `colors`.
 
 ## Instagram
 

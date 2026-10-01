@@ -95,10 +95,10 @@
 .bolinha span {
   display: block;
   font-family: var(--serif);
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   line-height: 1.25;
-  font-weight: 500;
-  color: var(--ink);
+  font-weight: 400;
+  color: #5a3d36;
 }
 
 .promo-card {
@@ -194,6 +194,7 @@
 }
 
 .card__price {
+  font-family: var(--serif);
   color: var(--mint-deep);
   font-weight: 600;
   margin-bottom: 0.7rem;
