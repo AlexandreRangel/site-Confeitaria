@@ -258,23 +258,23 @@
 
   function productsByCategory(categoryId) {
     return state.products.filter(function match(product) {
-      return product.categoryId === categoryId;
+      return (product.categoryIds && product.categoryIds.indexOf(categoryId) !== -1) || product.categoryId === categoryId;
     });
   }
 
   function featuredByTag(tag, categoryId) {
     return state.products.filter(function match(product) {
       const featured = product.featured || (product.tags && product.tags.indexOf(tag) !== -1);
-      return featured && (!categoryId || product.categoryId === categoryId);
+      return featured && (!categoryId || ((product.categoryIds && product.categoryIds.indexOf(categoryId) !== -1) || product.categoryId === categoryId));
     });
   }
 
   function renderDestaques() {
     const copy = state.site.destaquesCopy;
     const promos = [
-      { title: copy.kitsTitle, category: "cestas-presentes", cta: "Ver mais", image: "assets/products/cesta-rubi.webp" },
-      { title: copy.bolosTitle, category: "bolos", cta: "Confira", image: "assets/products/bolo-buttercream-g.webp" },
-      { title: copy.docesTitle, category: "doces-festa", cta: "Ver tudo", image: "assets/products/platter-amor-no-ar.webp" },
+      { title: copy.kitsTitle, category: "cestas-presentes", cta: "Ver mais", image: "assets/products/cesta-rubi/01.webp" },
+      { title: copy.bolosTitle, category: "bolos", cta: "Confira", image: "assets/products/bolo-2-andares-g-p/01.webp" },
+      { title: copy.docesTitle, category: "doces-festa", cta: "Ver tudo", image: "assets/products/caixa-parabens-individual-kit-com-10-und/01.webp" },
     ];
     Jana.qs('[data-bind="promo-cards"]').innerHTML = promos
       .map(function promoHtml(promo) {
@@ -313,7 +313,7 @@
       state.filter === "todas"
         ? state.products
         : state.products.filter(function match(product) {
-            return product.categoryId === state.filter;
+            return (product.categoryIds && product.categoryIds.indexOf(state.filter) !== -1) || product.categoryId === state.filter;
           });
     const category = state.categories.find(function findCat(item) {
       return item.id === state.filter;

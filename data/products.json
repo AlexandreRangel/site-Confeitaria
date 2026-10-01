@@ -1,185 +1,2253 @@
 [
   {
-    "id": "p-cesta-manha-dos-sonhos",
-    "slug": "cesta-manha-dos-sonhos",
-    "name": "Cesta Manhã dos Sonhos",
-    "description": "Cesta presentável com café da manhã especial. Combine sabores e data pelo WhatsApp.",
-    "categoryId": "cestas-presentes",
-    "price": 189.9,
-    "images": ["assets/products/cesta-manha-dos-sonhos.webp"],
-    "featured": true,
-    "active": true,
-    "tags": ["kit", "presente", "featured"]
-  },
-  {
-    "id": "p-cesta-parabens-pra-voce",
-    "slug": "cesta-parabens-pra-voce",
-    "name": "Cesta Parabéns pra Você",
-    "description": "Cesta festiva para celebrar. Ideal para presentear em datas especiais.",
-    "categoryId": "cestas-presentes",
-    "price": 219.9,
-    "images": ["assets/products/cesta-parabens-pra-voce.webp"],
-    "featured": true,
-    "active": true,
-    "tags": ["kit", "presente", "featured"]
-  },
-  {
-    "id": "p-cesta-rubi",
-    "slug": "cesta-rubi",
-    "name": "Cesta Rubi",
-    "description": "Seleção premium em cesta sofisticada. Encomende com antecedência.",
-    "categoryId": "cestas-presentes",
-    "price": 259.9,
-    "images": ["assets/products/cesta-rubi.webp"],
-    "featured": true,
-    "active": true,
-    "tags": ["kit", "presente", "featured"]
-  },
-  {
-    "id": "p-tabua-signature",
-    "slug": "tabua-signature",
-    "name": "Tábua Signature",
-    "description": "Tábua assinatura com doces e acompanhamentos selecionados.",
-    "categoryId": "cestas-presentes",
-    "price": 179.9,
-    "images": ["assets/products/tabua-signature.webp"],
+    "id": "p-bolo-2-andares-g-p",
+    "sourceId": "6819251ef948b87a26509524",
+    "slug": "bolo-2-andares-g-p",
+    "name": "Bolo 2 andares G + P",
+    "description": "Nosso bolo 2 andares é montado com base bolo G e topo bolo P (solicite orçamento personalizado para outros tamanhos). Feito com massa de pão de ló super leve, regada com nossa calda exclusiva de baunilha do cerrado, que reaça ainda mais o sabor. O recheio cremoso, que você escolhe entre nossas opções especiais, completa essa experiência única. Perfeito para celebrar momentos especiais com quem você ama. O tamanho serve até 70 fatiasA finalização é feita com nosso delicioso buttercream de merengue suíço, escolha entre a decoração básica, que é padrão e remete ao sabor do bolo ou acrescente personalizações de acordo com o tema de festa ( que serão cobradas a parte) escreva nas observações o tema e data da sua festa.Obs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp!",
+    "categoryId": "bolos",
+    "categoryIds": [
+      "bolos"
+    ],
+    "category": "Bolos",
+    "price": 630,
+    "images": [
+      "assets/products/bolo-2-andares-g-p/01.webp",
+      "assets/products/bolo-2-andares-g-p/02.webp"
+    ],
     "featured": false,
     "active": true,
-    "tags": ["presente", "tabua"]
+    "tags": []
   },
   {
-    "id": "p-caixa-parabens-kit-10",
-    "slug": "caixa-parabens-individual-kit-10",
-    "name": "Caixa Parabéns Individual — Kit 10",
-    "description": "Kit corporativo com 10 caixas individuais. Personalização sob consulta.",
-    "categoryId": "personalizado-empresas",
-    "price": 320,
-    "images": ["assets/products/caixa-parabens-individual-kit-10.webp"],
-    "featured": true,
-    "active": true,
-    "tags": ["empresas", "brinde"]
-  },
-  {
-    "id": "p-combo-encanto",
-    "slug": "combo-encanto",
-    "name": "Combo Encanto",
-    "description": "Combo festa Encanto — combinação de doces para celebrar. Quantidades sob consulta.",
-    "categoryId": "combos-festa",
-    "price": 249.9,
-    "images": ["assets/products/combo-encanto.webp"],
-    "featured": true,
-    "active": true,
-    "tags": ["festa", "combo"]
-  },
-  {
-    "id": "p-combo-prata",
-    "slug": "combo-prata",
-    "name": "Combo Prata",
-    "description": "Combo festa Prata com seleção especial da casa.",
-    "categoryId": "combos-festa",
-    "price": 289.9,
-    "images": ["assets/products/combo-prata.webp"],
-    "featured": true,
-    "active": true,
-    "tags": ["festa", "combo"]
-  },
-  {
-    "id": "p-bolo-buttercream-g",
-    "slug": "bolo-buttercream-g",
-    "name": "Bolo Buttercream G",
-    "description": "Bolo com cobertura buttercream no tamanho G. Sabores e decoração sob encomenda.",
-    "categoryId": "bolos",
-    "price": 198,
-    "images": ["assets/products/bolo-buttercream-g.webp"],
-    "featured": true,
-    "active": true,
-    "tags": ["bolo", "mais-pedidos"]
-  },
-  {
-    "id": "p-bolo-buttercream-m",
-    "slug": "bolo-buttercream-m",
-    "name": "Bolo Buttercream M",
-    "description": "Bolo buttercream tamanho M — perfeito para celebrações menores.",
-    "categoryId": "bolos",
-    "price": 158,
-    "images": ["assets/products/bolo-buttercream-m.webp"],
-    "featured": true,
-    "active": true,
-    "tags": ["bolo", "mais-pedidos"]
-  },
-  {
-    "id": "p-bolo-naked-g",
-    "slug": "bolo-naked-g",
-    "name": "Bolo Naked G",
-    "description": "Bolo naked cake tamanho G, visual artesanal e elegante.",
-    "categoryId": "bolos",
-    "price": 188,
-    "images": ["assets/products/bolo-naked-g.webp"],
-    "featured": true,
-    "active": true,
-    "tags": ["bolo", "mais-pedidos"]
-  },
-  {
-    "id": "p-bolo-2-andares-g-p",
-    "slug": "bolo-2-andares-g-p",
-    "name": "Bolo 2 Andares G / P",
-    "description": "Bolo de dois andares (G e P). Ideal para festas maiores.",
-    "categoryId": "bolos",
-    "price": 380,
-    "images": [
-      "assets/products/bolo-2-andares-g-p.webp",
-      "assets/products/bolo-2-andares-m-pp.webp"
+    "id": "p-caixa-parabens-individual-kit-com-10-und",
+    "sourceId": "68b0409df43ab05cbb1cf4c3",
+    "slug": "caixa-parabens-individual-kit-com-10-und",
+    "name": "Caixa parabéns individual KIT COM 10 UND",
+    "description": "Mini cake e 4 brigadeiros acompanha velinhaAdicione tag de parabéns com mensagem da empresa caso desejePersonalize com logo ou mensagens para presentear seus parceiros e colaboradores. Adicione uma tag com recado especial. Caixa embalada para presente com laço da cor da empresa KIT COM 10, perfeito para presentear a equipe",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas"
     ],
-    "featured": true,
+    "category": "Personalizado para Empresas",
+    "price": 610,
+    "images": [
+      "assets/products/caixa-parabens-individual-kit-com-10-und/01.webp",
+      "assets/products/caixa-parabens-individual-kit-com-10-und/02.webp"
+    ],
+    "featured": false,
     "active": true,
-    "tags": ["bolo", "mais-pedidos"]
+    "tags": []
   },
   {
     "id": "p-bolo-retangular-gg",
+    "sourceId": "6809214bacda76000561284e",
     "slug": "bolo-retangular-gg",
     "name": "Bolo Retangular GG",
-    "description": "Bolo retangular tamanho GG — ótimo rendimento para eventos.",
+    "description": "Nosso bolo decorado retangular tamanho GG, é feito com massa de pão de ló super leve, regada com nossa calda exclusiva de baunilha do cerrado, que reaça ainda mais o sabor. O recheio cremoso, que você escolhe entre nossas opções especiais, completa essa experiência única. Perfeito para celebrar momentos especiais com quem você ama. O tamanho GG serve aproximadamente 60 fatiasA finalização é feita com nosso delicioso buttercream de merengue suíço, escolha entre a decoração básica, que é padrão e remete ao sabor do bolo ou acrescente personalizações de acordo com o tema de festa ( que serão cobradas a parte) escreva nas observações o tema e data da sua festa.Obs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp!",
     "categoryId": "bolos",
-    "price": 280,
-    "images": ["assets/products/bolo-retangular-gg.webp"],
+    "categoryIds": [
+      "bolos"
+    ],
+    "category": "Bolos",
+    "price": 590,
+    "images": [
+      "assets/products/bolo-retangular-gg/01.webp",
+      "assets/products/bolo-retangular-gg/02.webp"
+    ],
     "featured": false,
     "active": true,
-    "tags": ["bolo"]
+    "tags": [
+      "bolo",
+      "bolo retangular",
+      "buttercream",
+      "torta"
+    ]
   },
   {
-    "id": "p-bolo-p-50-brigadeiros",
-    "slug": "bolo-p-50-brigadeiros-personalizados",
-    "name": "Bolo P + 50 Brigadeiros Personalizados",
-    "description": "Kit festa: bolo tamanho P com 50 brigadeiros personalizados no tema da celebração.",
-    "categoryId": "festa-personalizada",
-    "price": 320,
-    "images": ["assets/products/bolo-p-50-brigadeiros-personalizados.webp"],
-    "featured": true,
+    "id": "p-tabua-signature",
+    "sourceId": "699610393ca150cd6003c543",
+    "slug": "tabua-signature",
+    "name": "Tábua Signature",
+    "description": "Tábua ideal para compartilhar para até 4 pessoas incluindoCharcutaria, 5 tipos de queijo, nuts, frutas desidraatas, frutas frescas, geleia artesanal de morango, pão de fermentação natural, torradinhas, petit four de queijo parmesão e moeda de chocolatea seleção perfeita para acompanhar uma noite de vinhos,",
+    "categoryId": "cestas-presentes",
+    "categoryIds": [
+      "cestas-presentes"
+    ],
+    "category": "Cestas & Presentes",
+    "price": 467,
+    "images": [
+      "assets/products/tabua-signature/01.webp"
+    ],
+    "featured": false,
     "active": true,
-    "tags": ["festa", "personalizado"]
+    "tags": []
   },
   {
-    "id": "p-platter-amor-no-ar",
-    "slug": "platter-amor-no-ar",
-    "name": "Platter Amor no Ar",
-    "description": "Platter de doces finos — perfeito para mesa de festa e casamentos.",
-    "categoryId": "doces-festa",
-    "price": 165,
-    "images": ["assets/products/platter-amor-no-ar.webp"],
-    "featured": true,
+    "id": "p-bolo-2-andares-m-pp",
+    "sourceId": "67a66298839a1a34c61479ce",
+    "slug": "bolo-2-andares-m-pp",
+    "name": "Bolo 2 andares M+PP",
+    "description": "Nosso bolo 2 andares é montado com base bolo M e topo bolo PP (solicite orçamento personalizado para outros tamamhos). Feito com massa de pão de ló super leve, regada com nossa calda exclusiva de baunilha do cerrado, que reaça ainda mais o sabor. O recheio cremoso, que você escolhe entre nossas opções especiais, completa essa experiência única. Perfeito para celebrar momentos especiais com quem você ama. O tamanho serve aproximadamente 30 fatiasA finalização é feita com nosso delicioso buttercream de merengue suíço, escolha entre a decoração básica, que é padrão e remete ao sabor do bolo ou acrescente personalizações de acordo com o tema de festa ( que serão cobradas a parte) escreva nas observações o tema e data da sua festa.Obs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp!",
+    "categoryId": "bolos",
+    "categoryIds": [
+      "bolos"
+    ],
+    "category": "Bolos",
+    "price": 465,
+    "images": [
+      "assets/products/bolo-2-andares-m-pp/01.webp",
+      "assets/products/bolo-2-andares-m-pp/02.webp"
+    ],
+    "featured": false,
     "active": true,
-    "tags": ["doces", "casamento"]
+    "tags": []
+  },
+  {
+    "id": "p-combo-prata",
+    "sourceId": "68ee8297254dc56bfa061e08",
+    "slug": "combo-prata",
+    "name": "Combo prata",
+    "description": "Nosso combo prata incluiBolo P30 brigadeiros decorados12 mini brownies4 pirulitos biscoito decoradoserve até 12 pessoasObs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp!",
+    "categoryId": "combos-festa",
+    "categoryIds": [
+      "combos-festa"
+    ],
+    "category": "Combos festa",
+    "price": 460,
+    "images": [
+      "assets/products/combo-prata/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-cesta-manha-dos-sonhos",
+    "sourceId": "681a5d346ae3a75d7b4ede0a",
+    "slug": "cesta-manha-dos-sonhos",
+    "name": "Cesta Manhã dos sonhos ",
+    "description": "sanduíche ciabatta, pesto com mortadela def., mini baguette de fermentação natural, bolo 4/4 “quatre quarts” (amanteigado), mini alfajor doce de leiteamanteigado decorado, flores amanteigadas, belisco de goiaba, croissant, palmier, waffle, mel, suco, geléia, frutas, iogurte, café drip, queijo alpino &amp; biscoito personalizado (escolha o modelo)",
+    "categoryId": "cestas-presentes",
+    "categoryIds": [
+      "cestas-presentes"
+    ],
+    "category": "Cestas & Presentes",
+    "price": 440,
+    "images": [
+      "assets/products/cesta-manha-dos-sonhos/01.webp",
+      "assets/products/cesta-manha-dos-sonhos/02.webp",
+      "assets/products/cesta-manha-dos-sonhos/03.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-cesta-rubi",
+    "sourceId": "698a77b965eab52cfa086aca",
+    "slug": "cesta-rubi",
+    "name": "Cesta Rubi",
+    "description": "Cesta rubi incluiBolo de laranja com amendoasFrutas frescas2 croissantsalfajores PalmiersWaffles 2 biscoitos personalizadosminibombonier recheada de biscoitinho de açúcar com canelamelqueijo alpinoflores Garrafa de vinho Cartão escrito a mão Faça sua encomenda com no mínimo 48 horas de antecedência",
+    "categoryId": "cestas-presentes",
+    "categoryIds": [
+      "cestas-presentes"
+    ],
+    "category": "Cestas & Presentes",
+    "price": 437,
+    "images": [
+      "assets/products/cesta-rubi/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-bolo-buttercream-g",
+    "sourceId": "66f3110dec7b6d03457694e0",
+    "slug": "bolo-buttercream-g",
+    "name": "Bolo buttercream G",
+    "description": "Nosso bolo decorado tamanho G, é feito com massa de pão de ló super leve, regada com nossa calda exclusiva de baunilha do cerrado, que reaça ainda mais o sabor. O recheio cremoso, que você escolhe entre nossas opções especiais, completa essa experiência única. Perfeito para celebrar momentos especiais com quem você ama. O tamanho G serve aproximadamente 40 fatiasA finalização é feita com nosso delicioso buttercream de merengue suíço, escolha entre a decoração básica, que é padrão e remete ao sabor do bolo ou acrescente personalizações de acordo com o tema de festa ( que serão cobradas a parte) escreva nas observações o tema e data da sua festa.Obs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp!",
+    "categoryId": "bolos",
+    "categoryIds": [
+      "bolos"
+    ],
+    "category": "Bolos",
+    "price": 414,
+    "images": [
+      "assets/products/bolo-buttercream-g/01.webp",
+      "assets/products/bolo-buttercream-g/02.webp",
+      "assets/products/bolo-buttercream-g/03.webp",
+      "assets/products/bolo-buttercream-g/04.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-bolo-naked-g",
+    "sourceId": "66afb248ed2f3f465a4fcda6",
+    "slug": "bolo-naked-g",
+    "name": "Bolo Naked G",
+    "description": "Nosso Naked cake tamanho G, é feito com massa de pão de ló super leve, regada com nossa calda exclusiva de baunilha do cerrado, que reaça ainda mais o sabor. O recheio cremoso, que você escolhe entre nossas opções especiais, completa essa experiência única. Perfeito para celebrar momentos especiais com quem você ama. O tamanho G serve até 40 fatias.Obs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp!",
+    "categoryId": "bolos",
+    "categoryIds": [
+      "bolos"
+    ],
+    "category": "Bolos",
+    "price": 370,
+    "images": [
+      "assets/products/bolo-naked-g/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-bolo-p-50-brigs-personalizados",
+    "sourceId": "6873c3740fa91c3e9803b1e7",
+    "slug": "bolo-p-50-brigs-personalizados",
+    "name": "Bolo p + 50 brigs personalizados ",
+    "description": "Combo inclui bolo P (serve até 15 fatias) 50 brigadeiros personalizados Obs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp!",
+    "categoryId": "combos-festa",
+    "categoryIds": [
+      "combos-festa"
+    ],
+    "category": "Combos festa",
+    "price": 349,
+    "images": [
+      "assets/products/bolo-p-50-brigs-personalizados/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-cesta-parabens-pra-voce",
+    "sourceId": "670ed9f2c92b8b524f166fce",
+    "slug": "cesta-parabens-pra-voce",
+    "name": "Cesta Parabéns pra você",
+    "description": "Cesta de aniversário inclui2 croissants2 mini pães francêswafflebolo naked personalizado feliz aniversáriobiscoito parabénsqueijo briequeijo alpinoganache de chocolategeleia de morango artesanalbrowniescookies com gotas de chocolatefrutas frescassuco de uva integralcartão escrito a mãovelinha de aniversário",
+    "categoryId": "cestas-presentes",
+    "categoryIds": [
+      "cestas-presentes"
+    ],
+    "category": "Cestas & Presentes",
+    "price": 330,
+    "images": [
+      "assets/products/cesta-parabens-pra-voce/01.webp",
+      "assets/products/cesta-parabens-pra-voce/02.webp",
+      "assets/products/cesta-parabens-pra-voce/03.webp",
+      "assets/products/cesta-parabens-pra-voce/04.webp",
+      "assets/products/cesta-parabens-pra-voce/05.webp",
+      "assets/products/cesta-parabens-pra-voce/06.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
   },
   {
     "id": "p-cafe-parabens-fit",
+    "sourceId": "6a56beef69053d824007b1be",
     "slug": "cafe-parabens-fit",
-    "name": "Café Parabéns Fit",
-    "description": "Opção especial café da manhã / sobremesa fit para presentear.",
-    "categoryId": "sobremesas",
-    "price": 149.9,
-    "images": ["assets/products/cafe-parabens-fit.webp"],
-    "featured": true,
+    "name": "Café Parabéns Fit ",
+    "description": "Cesta de Parabéns Fit inclui2 croissants2 mini baguetebolo de frutawafflebiscoito parabénsqueijo briequeijo alpinoganache de chocolategeleia de morango artesanalbrownies com farinha de amendoas, sem glútencookies com gotas de chocolatefrutas frescasiogurte com granolasuco de uva integralcartão escrito a mãovelinha de aniversário",
+    "categoryId": "cestas-presentes",
+    "categoryIds": [
+      "cestas-presentes"
+    ],
+    "category": "Cestas & Presentes",
+    "price": 309,
+    "images": [
+      "assets/products/cafe-parabens-fit/01.webp"
+    ],
+    "featured": false,
     "active": true,
-    "tags": ["sobremesa", "presente"]
+    "tags": []
+  },
+  {
+    "id": "p-platter-amor-no-ar",
+    "sourceId": "698a79a03670f95bba08e387",
+    "slug": "platter-amor-no-ar",
+    "name": "Platter amor no ar",
+    "description": "essa platter inclui:queijo briecorações de queijoqueijo alpinofrutas frescas: morango uvas e laranja bahiacharcuratirabiscoitos decorados florais macarons geleia artesanalbiscoitos ideal para servir 2 pessasencomende com 48h de antecedência",
+    "categoryId": "cestas-presentes",
+    "categoryIds": [
+      "cestas-presentes"
+    ],
+    "category": "Cestas & Presentes",
+    "price": 299,
+    "images": [
+      "assets/products/platter-amor-no-ar/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-combo-encanto",
+    "sourceId": "690123b0e8f4836321110e1e",
+    "slug": "combo-encanto",
+    "name": "Combo encanto",
+    "description": "Combo inclui Bolo P com topo personalizadoCaixa 12 browniesCaixa 15 brigadeirosObs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp!",
+    "categoryId": "combos-festa",
+    "categoryIds": [
+      "combos-festa"
+    ],
+    "category": "Combos festa",
+    "price": 298,
+    "images": [
+      "assets/products/combo-encanto/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-bolo-buttercream-m",
+    "sourceId": "66f31177eba775500206dd2b",
+    "slug": "bolo-buttercream-m",
+    "name": "Bolo buttercream M ",
+    "description": "Nosso bolo decorado tamanho M, é feito com massa de pão de ló super leve, regada com nossa calda exclusiva de baunilha do cerrado, que reaça ainda mais o sabor. O recheio cremoso, que você escolhe entre nossas opções especiais, completa essa experiência única. Perfeito para celebrar momentos especiais com quem você ama. O tamanho M serve aproximadamente 20 fatiasA finalização é feita com nosso delicioso buttercream de merengue suíço, escolha entre a decoração básica, que é padrão e remete ao sabor do bolo ou acrescente personalizações de acordo com o tema de festa ( que serão cobradas a parte) escreva nas observações o tema e data da sua festa.Obs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp!",
+    "categoryId": "bolos",
+    "categoryIds": [
+      "bolos"
+    ],
+    "category": "Bolos",
+    "price": 297,
+    "images": [
+      "assets/products/bolo-buttercream-m/01.webp",
+      "assets/products/bolo-buttercream-m/02.webp",
+      "assets/products/bolo-buttercream-m/03.webp",
+      "assets/products/bolo-buttercream-m/04.webp",
+      "assets/products/bolo-buttercream-m/05.webp",
+      "assets/products/bolo-buttercream-m/06.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-cheesecake-frutas-vermelhas-g",
+    "sourceId": "69c04a73e136db240a08d227",
+    "slug": "cheesecake-frutas-vermelhas-g",
+    "name": "Cheesecake frutas vermelhas G",
+    "description": "Cheesecake com Frutas VermelhasUm clássico que atravessa gerações com elegância.A cremosidade da cheesecake encontra o frescor da geleia artesanal de morangos, finalizada com frutas vermelhas frescas que trazem acidez, brilho e leveza à composição.Equilibrada e sofisticada, é a escolha ideal para momentos de partilha à mesa, onde cada fatia encerra a refeição com delicadeza e intenção.G serve de 10 a 12 porções",
+    "categoryId": "sobremesas",
+    "categoryIds": [
+      "sobremesas"
+    ],
+    "category": "Sobremesas",
+    "price": 287,
+    "images": [
+      "assets/products/cheesecake-frutas-vermelhas-g/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-bolo-p-15-mini-alfajor-lembranca",
+    "sourceId": "681b5fc481187e4f6e2db690",
+    "slug": "bolo-p-15-mini-alfajor-lembranca",
+    "name": "Bolo P + 15 mini alfajor lembrança ",
+    "description": "Combo inclui:bolo P 15 mini alfajores personalizados no tema escolhidoObs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp!",
+    "categoryId": "combos-festa",
+    "categoryIds": [
+      "combos-festa"
+    ],
+    "category": "Combos festa",
+    "price": 280,
+    "images": [
+      "assets/products/bolo-p-15-mini-alfajor-lembranca/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-bolo-naked-m",
+    "sourceId": "66afae975e75e146ef5477b4",
+    "slug": "bolo-naked-m",
+    "name": "Bolo Naked M",
+    "description": "Nosso Naked cake tamanho M, é feito com massa de pão de ló super leve, regada com nossa calda exclusiva de baunilha do cerrado, que reaça ainda mais o sabor. O recheio cremoso, que você escolhe entre nossas opções especiais, completa essa experiência única. Perfeito para celebrar momentos especiais com quem você ama. O tamanho M serve até 20 fatias.Obs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp!",
+    "categoryId": "bolos",
+    "categoryIds": [
+      "bolos"
+    ],
+    "category": "Bolos",
+    "price": 260,
+    "images": [
+      "assets/products/bolo-naked-m/01.webp",
+      "assets/products/bolo-naked-m/02.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-cesta-dengo",
+    "sourceId": "670ec6cfdcb100010f561205",
+    "slug": "cesta-dengo",
+    "name": "Cesta Dengo ",
+    "description": "Cesta dengo incluibolo de cenoura com ganache, cookie recheado de nutellla, frutas frescasgeleia croissant queijo briewaffles",
+    "categoryId": "cestas-presentes",
+    "categoryIds": [
+      "cestas-presentes"
+    ],
+    "category": "Cestas & Presentes",
+    "price": 257,
+    "images": [
+      "assets/products/cesta-dengo/01.webp",
+      "assets/products/cesta-dengo/02.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-cesta-primavera",
+    "sourceId": "6a56bd9a3dc6695bd2026578",
+    "slug": "cesta-primavera",
+    "name": "Cesta primavera ",
+    "description": "",
+    "categoryId": "cestas-presentes",
+    "categoryIds": [
+      "cestas-presentes"
+    ],
+    "category": "Cestas & Presentes",
+    "price": 235,
+    "images": [
+      "assets/products/cesta-primavera/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-kit-festa-brownies-10-pessoas-bolo-p-e-12-brownies",
+    "sourceId": "68cad928dd0fd32cd76df712",
+    "slug": "kit-festa-brownies-10-pessoas-bolo-p-e-12-brownies",
+    "name": "Kit festa brownies 10 pessoas - Bolo P e 12 brownies",
+    "description": "Bolo P personalizadoCaixa 12 brownies personalizados com pasta de leite ninhoEsse combo e sugerido para 10 pessoasObs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp!",
+    "categoryId": "combos-festa",
+    "categoryIds": [
+      "combos-festa"
+    ],
+    "category": "Combos festa",
+    "price": 235,
+    "images": [
+      "assets/products/kit-festa-brownies-10-pessoas-bolo-p-e-12-brownies/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-cheesecake-frutas-vermelhas-m",
+    "sourceId": "69c04a2333a0dee01d0ec7ca",
+    "slug": "cheesecake-frutas-vermelhas-m",
+    "name": "Cheesecake frutas vermelhas M",
+    "description": "Cheesecake com Frutas VermelhasUm clássico que atravessa gerações com elegância.A cremosidade da cheesecake encontra o frescor da geleia artesanal de morangos, finalizada com frutas vermelhas frescas que trazem acidez, brilho e leveza à composição.Equilibrada e sofisticada, é a escolha ideal para momentos de partilha à mesa, onde cada fatia encerra a refeição com delicadeza e intenção.M serve até 8 porções",
+    "categoryId": "sobremesas",
+    "categoryIds": [
+      "sobremesas"
+    ],
+    "category": "Sobremesas",
+    "price": 230,
+    "images": [
+      "assets/products/cheesecake-frutas-vermelhas-m/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-combo-celebracao-bolo-pp-e-15-brigs",
+    "sourceId": "6a4cea68b9e0d1e580031910",
+    "slug": "combo-celebracao-bolo-pp-e-15-brigs",
+    "name": "Combo celebração  - Bolo PP e 15 brigs ",
+    "description": "Bolo pp + caixa 15 brigadeiros sortidos",
+    "categoryId": "combos-festa",
+    "categoryIds": [
+      "combos-festa"
+    ],
+    "category": "Combos festa",
+    "price": 219,
+    "images": [
+      "assets/products/combo-celebracao-bolo-pp-e-15-brigs/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-um-carinho-de-bom-dia",
+    "sourceId": "681a5ca6142d024bce0c494d",
+    "slug": "um-carinho-de-bom-dia",
+    "name": "Um carinho de bom dia ",
+    "description": "sanduíche ciabatta, pesto com mortadela defumada, bolo 4/4 “quatre quarts” (amanteigado), croissant, waffle, mel, frutas, iogurte, geleia artesanal",
+    "categoryId": "cestas-presentes",
+    "categoryIds": [
+      "cestas-presentes"
+    ],
+    "category": "Cestas & Presentes",
+    "price": 219,
+    "images": [
+      "assets/products/um-carinho-de-bom-dia/01.webp",
+      "assets/products/um-carinho-de-bom-dia/02.webp",
+      "assets/products/um-carinho-de-bom-dia/03.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-bolo-buttercream-p",
+    "sourceId": "66f31042c2795e0241230ff8",
+    "slug": "bolo-buttercream-p",
+    "name": "Bolo buttercream P",
+    "description": "Nosso bolo decorado tamanho P, é feito com massa de pão de ló super leve, regada com nossa calda exclusiva de baunilha do cerrado, que reaça ainda mais o sabor. O recheio cremoso, que você escolhe entre nossas opções especiais, completa essa experiência única. Perfeito para celebrar momentos especiais com quem você ama. O tamanho P serve entre 12 e 15 fatias.A finalização é feita com nosso delicioso buttercream de merengue suíço, escolha entre a decoração básica, que é padrão e remete ao sabor do bolo ou acrescente personalizações de acordo com o tema de festa ( que serão cobradas a parte) escreva nas observações o tema e data da sua festa.",
+    "categoryId": "bolos",
+    "categoryIds": [
+      "bolos"
+    ],
+    "category": "Bolos",
+    "price": 217,
+    "images": [
+      "assets/products/bolo-buttercream-p/01.webp",
+      "assets/products/bolo-buttercream-p/02.webp",
+      "assets/products/bolo-buttercream-p/03.webp",
+      "assets/products/bolo-buttercream-p/04.webp",
+      "assets/products/bolo-buttercream-p/05.webp",
+      "assets/products/bolo-buttercream-p/06.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-bolo-naked-p",
+    "sourceId": "66af07cf515d48168321afe5",
+    "slug": "bolo-naked-p",
+    "name": "Bolo Naked P",
+    "description": "Nosso Naked cake tamanho P, é feito com massa de pão de ló super leve, regada com nossa calda exclusiva de baunilha do cerrado, que reaça ainda mais o sabor. O recheio cremoso, que você escolhe entre nossas opções especiais, completa essa experiência única. Perfeito para celebrar momentos especiais com quem você ama. O tamanho P serve de 12 a 15 fatias.Obs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp!",
+    "categoryId": "bolos",
+    "categoryIds": [
+      "bolos"
+    ],
+    "category": "Bolos",
+    "price": 197,
+    "images": [
+      "assets/products/bolo-naked-p/01.webp",
+      "assets/products/bolo-naked-p/02.webp",
+      "assets/products/bolo-naked-p/03.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": [
+      "bolo",
+      "Naked cake"
+    ]
+  },
+  {
+    "id": "p-cafe-paris",
+    "sourceId": "6996253763405eef4500ddfe",
+    "slug": "cafe-paris",
+    "name": "Café Paris",
+    "description": "Café individual composto por: croissant, 2 mini pães francês, petit four de queijo, iogurte com frutas, queijo brie, geleia de morango artesanal, frutas frescas e coffee drip",
+    "categoryId": "cestas-presentes",
+    "categoryIds": [
+      "cestas-presentes"
+    ],
+    "category": "Cestas & Presentes",
+    "price": 196,
+    "images": [
+      "assets/products/cafe-paris/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-cheesecake-frutas-vermelhas-p",
+    "sourceId": "69bf38e304c56f59390e26b4",
+    "slug": "cheesecake-frutas-vermelhas-p",
+    "name": "Cheesecake frutas vermelhas P",
+    "description": "Cheesecake com Frutas VermelhasUm clássico que atravessa gerações com elegância.A cremosidade da cheesecake encontra o frescor da geleia artesanal de morangos, finalizada com frutas vermelhas frescas que trazem acidez, brilho e leveza à composição.Equilibrada e sofisticada, é a escolha ideal para momentos de partilha à mesa, onde cada fatia encerra a refeição com delicadeza e intenção.P serve até 6 porções",
+    "categoryId": "sobremesas",
+    "categoryIds": [
+      "sobremesas"
+    ],
+    "category": "Sobremesas",
+    "price": 190,
+    "images": [
+      "assets/products/cheesecake-frutas-vermelhas-p/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-caixa-com-50-brigadeiros-personalizados",
+    "sourceId": "67a16597b7d1513311546746",
+    "slug": "caixa-com-50-brigadeiros-personalizados",
+    "name": "Caixa com 50 brigadeiros personalizados ",
+    "description": "50 brigadeiros personalizados de acordo com o evento.Obs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp!",
+    "categoryId": "festa-personalizada",
+    "categoryIds": [
+      "festa-personalizada"
+    ],
+    "category": "Festa Personalizada",
+    "price": 189,
+    "images": [
+      "assets/products/caixa-com-50-brigadeiros-personalizados/01.webp",
+      "assets/products/caixa-com-50-brigadeiros-personalizados/02.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": [
+      "brigadeiros",
+      "personalizados"
+    ]
+  },
+  {
+    "id": "p-caixa-12-cupcakes-personalizados",
+    "sourceId": "67a2bf08c0b6e14e4c0c13b0",
+    "slug": "caixa-12-cupcakes-personalizados",
+    "name": "Caixa 12 cupcakes personalizados",
+    "description": "Feitos sob medida para o tema da sua festa, nossos cupcakes são a combinação perfeita de sabor e encanto. Com massa macia de chocolate, ganache e decorado com pasta de leite ninho, eles encantam pelo visual e pelo sabor.Perfeitos para qualquer celebraçãoObs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp!",
+    "categoryId": "festa-personalizada",
+    "categoryIds": [
+      "festa-personalizada"
+    ],
+    "category": "Festa Personalizada",
+    "price": 178,
+    "images": [
+      "assets/products/caixa-12-cupcakes-personalizados/01.webp",
+      "assets/products/caixa-12-cupcakes-personalizados/02.webp",
+      "assets/products/caixa-12-cupcakes-personalizados/03.webp",
+      "assets/products/caixa-12-cupcakes-personalizados/04.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": [
+      "cupcake"
+    ]
+  },
+  {
+    "id": "p-bolo-buttercream-pp",
+    "sourceId": "66fddc31c08bf4687408992a",
+    "slug": "bolo-buttercream-pp",
+    "name": "Bolo buttercream PP",
+    "description": "Nosso bolo decorado tamanho PP, é feito com massa de pão de ló super leve, regada com nossa calda exclusiva de baunilha do cerrado, que reaça ainda mais o sabor. O recheio cremoso, que você escolhe entre nossas opções especiais, completa essa experiência única. Perfeito para celebrar momentos especiais com quem você ama. O tamanho PP serve de 8 a 10 fatias.A finalização é feita com nosso delicioso buttercream de merengue suíço, escolha entre a decoração básica, que é padrão e remete ao sabor do bolo ou acrescente personalizações de acordo com o tema de festa ( que serão cobradas a parte) escreva nas observações o tema e data da sua festa.Obs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp!",
+    "categoryId": "bolos",
+    "categoryIds": [
+      "bolos"
+    ],
+    "category": "Bolos",
+    "price": 168,
+    "images": [
+      "assets/products/bolo-buttercream-pp/01.webp",
+      "assets/products/bolo-buttercream-pp/02.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-combo-cha-revelacao-bolo-mini-e-6-cupcakes",
+    "sourceId": "6a62b6c168bb5f0d7802c6c7",
+    "slug": "combo-cha-revelacao-bolo-mini-e-6-cupcakes",
+    "name": "Combo chá revelação - Bolo mini e 6 cupcakes",
+    "description": "Bolo mini + 6 cupcakesPersonalize o recheio de acordo com o resultado do exame do bebê (azul x rosa)",
+    "categoryId": "combos-festa",
+    "categoryIds": [
+      "combos-festa"
+    ],
+    "category": "Combos festa",
+    "price": 165,
+    "images": [
+      "assets/products/combo-cha-revelacao-bolo-mini-e-6-cupcakes/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-bolo-naked-pp",
+    "sourceId": "670ed4aa9cfb3375286f6b44",
+    "slug": "bolo-naked-pp",
+    "name": "Bolo Naked PP",
+    "description": "Nosso Naked cake tamanho PP, é feito com massa de pão de ló super leve, regada com nossa calda exclusiva de baunilha do cerrado, que reaça ainda mais o sabor. O recheio cremoso, que você escolhe entre nossas opções especiais, completa essa experiência única. Perfeito para celebrar momentos especiais com quem você ama. O tamanho PP serve até 10 fatias.Obs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp!",
+    "categoryId": "bolos",
+    "categoryIds": [
+      "bolos"
+    ],
+    "category": "Bolos",
+    "price": 150,
+    "images": [
+      "assets/products/bolo-naked-pp/01.webp",
+      "assets/products/bolo-naked-pp/02.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": [
+      "bolo",
+      "Naked cake"
+    ]
+  },
+  {
+    "id": "p-caixa-biscoitos-personalizados-presente",
+    "sourceId": "67eaede09a58787bfc0c442b",
+    "slug": "caixa-biscoitos-personalizados-presente",
+    "name": "Caixa biscoitos personalizados presente",
+    "description": "Kit perfeito para presentear a equipe e ações especiaisKit inclui: 10 biscoitos redondos de 6cm + 2 biscoitos maiores personalizadosPersonalize os biscoitos com logo ou mensagens para presentear seus parceiros e colaboradores. Adicione uma tag com recado especial. Caixa embalada para presente com laço da cor da empresaPedidos personalizados são confirmados mediante pagamentoFormas de pagamento: pix, dinheiro, cartão, consulte condições de faturamento. emitimos nota fiscal",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas"
+    ],
+    "category": "Personalizado para Empresas",
+    "price": 138,
+    "images": [
+      "assets/products/caixa-biscoitos-personalizados-presente/01.webp",
+      "assets/products/caixa-biscoitos-personalizados-presente/02.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": [
+      "kit",
+      "biscoitos",
+      "biscoito personalizado",
+      "lembranca"
+    ]
+  },
+  {
+    "id": "p-bolo-parabens-para-presente",
+    "sourceId": "6a62ad3902666ecf680a746b",
+    "slug": "bolo-parabens-para-presente",
+    "name": "Bolo Parabéns para presente",
+    "description": "",
+    "categoryId": "cestas-presentes",
+    "categoryIds": [
+      "cestas-presentes"
+    ],
+    "category": "Cestas & Presentes",
+    "price": 135,
+    "images": [
+      "assets/products/bolo-parabens-para-presente/01.webp",
+      "assets/products/bolo-parabens-para-presente/02.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-caixa-de-brownie-flores",
+    "sourceId": "68f8f4ad86d80464b0580a7f",
+    "slug": "caixa-de-brownie-flores",
+    "name": "Caixa de brownie + flores ",
+    "description": "Caixa especial de browniesUma lembrança delicada, sofisticada e cheia de significadoPerfeita para agradecer, homenagear ou presentear quem faz a diferença na sua vida — seja um parceiro de trabalho, cliente, profissional de saúde ou alguém querido.Produzida artesanalmente pela Jana Abreu Confeitaria, com acabamento impecável e embalagem pronta para presentear.Acompanha carta escrita a mão (mande sua mensagem) e vasinho de flores naturais.contém 20 brownies",
+    "categoryId": "cestas-presentes",
+    "categoryIds": [
+      "cestas-presentes"
+    ],
+    "category": "Cestas & Presentes",
+    "price": 129,
+    "images": [
+      "assets/products/caixa-de-brownie-flores/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-mini-bolo-cha-revelacao",
+    "sourceId": "6a4ce985cbc647b8c80f1e69",
+    "slug": "mini-bolo-cha-revelacao",
+    "name": "Mini bolo chá revelação ",
+    "description": "",
+    "categoryId": "bolos",
+    "categoryIds": [
+      "bolos"
+    ],
+    "category": "Bolos",
+    "price": 89,
+    "images": [
+      "assets/products/mini-bolo-cha-revelacao/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-caixa-20-mini-brownies",
+    "sourceId": "68dbeba1f74f9268830a95d9",
+    "slug": "caixa-20-mini-brownies",
+    "name": "Caixa 20 mini brownies ",
+    "description": "Caixa de brownies personalizados com 20 unidades, o presente perfeito para encantar, escolha o tema e cores da personalização,",
+    "categoryId": "cestas-presentes",
+    "categoryIds": [
+      "cestas-presentes"
+    ],
+    "category": "Cestas & Presentes",
+    "price": 88,
+    "images": [
+      "assets/products/caixa-20-mini-brownies/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-kit-5-biscoitos-personalizados",
+    "sourceId": "698a7c8b716b4e168c0f5711",
+    "slug": "kit-5-biscoitos-personalizados",
+    "name": "Kit 5 biscoitos personalizados ",
+    "description": "Combo de 5 biscoitos personalizados com glacê para decorar a mesa de bolo",
+    "categoryId": "festa-personalizada",
+    "categoryIds": [
+      "festa-personalizada",
+      "combos-festa"
+    ],
+    "category": "Festa Personalizada",
+    "price": 85,
+    "images": [
+      "assets/products/kit-5-biscoitos-personalizados/01.webp",
+      "assets/products/kit-5-biscoitos-personalizados/02.webp",
+      "assets/products/kit-5-biscoitos-personalizados/03.webp",
+      "assets/products/kit-5-biscoitos-personalizados/04.webp",
+      "assets/products/kit-5-biscoitos-personalizados/05.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-amanteigados-carimbado-logo-400g",
+    "sourceId": "68506a4c8492260099754685",
+    "slug": "amanteigados-carimbado-logo-400g",
+    "name": "Amanteigados carimbado logo 400g",
+    "description": "pote 400g (aprox 40 unidades)No primeiro pedido é cobrada taxa de produção do carimbo personalizado no valor de R$35Personalize os biscoitos com logo ou mensagens para presentear seus parceiros e colaboradores. Adicione uma tag com recado especial. Caixa embalada para presente com laço da cor da empresaPedidos personalizados são confirmados mediante pagamentoFormas de pagamento: pix, dinheiro, cartão, consulte condições de faturamento. emitimos nota fiscal",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas"
+    ],
+    "category": "Personalizado para Empresas",
+    "price": 76,
+    "images": [
+      "assets/products/amanteigados-carimbado-logo-400g/01.webp",
+      "assets/products/amanteigados-carimbado-logo-400g/02.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-alfajores-doce-deleite-550g",
+    "sourceId": "689a77a26ab2e9264f41aee0",
+    "slug": "alfajores-doce-deleite-550g",
+    "name": "Alfajores doce deleite 550g",
+    "description": "Perfeito para acompanhar a pausa do café da tarde, nossos alfajores arrancam suspiros. O pote é perfeito para dar de presente ou para ter em casa para aquele momento especial de pausa em que você quer beliscar algo delicioso, dificil é comer um só.Recomendamos o consumo em até 20 dias ou conservar em geladeira",
+    "categoryId": "cestas-presentes",
+    "categoryIds": [
+      "cestas-presentes"
+    ],
+    "category": "Cestas & Presentes",
+    "price": 73,
+    "images": [
+      "assets/products/alfajores-doce-deleite-550g/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-buque-de-flores",
+    "sourceId": "69a58f4fbcece8e79402f0f4",
+    "slug": "buque-de-flores",
+    "name": "Buquê de flores ",
+    "description": "Biscoitos amanteigados decorados para celebrar a dia da mulher",
+    "categoryId": null,
+    "categoryIds": [],
+    "category": null,
+    "price": 72,
+    "images": [
+      "assets/products/buque-de-flores/01.webp",
+      "assets/products/buque-de-flores/02.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-bento-cake",
+    "sourceId": "6abe5eccac6b6ae29e0551bb",
+    "slug": "bento-cake",
+    "name": "Bentô cake ",
+    "description": "",
+    "categoryId": "bolos",
+    "categoryIds": [
+      "bolos"
+    ],
+    "category": "Bolos",
+    "price": 68,
+    "images": [
+      "assets/products/bento-cake/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-palha-italiana-pistache-e-limao",
+    "sourceId": "67ddc93978f1ba1e8773e5b0",
+    "slug": "palha-italiana-pistache-e-limao",
+    "name": "Palha Italiana - pistache e limão",
+    "description": "A união perfeita entre o azedinho do limão e o toque especial do pistache em uma palha italiana irresistível. Para quem busca um presente refinado ou surpreender à mesaLata com 280g",
+    "categoryId": "cestas-presentes",
+    "categoryIds": [
+      "cestas-presentes"
+    ],
+    "category": "Cestas & Presentes",
+    "price": 68,
+    "images": [
+      "assets/products/palha-italiana-pistache-e-limao/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": [
+      "presente",
+      "palha italiana",
+      "pistache",
+      "limao"
+    ]
+  },
+  {
+    "id": "p-caixa-15-brigadeiros",
+    "sourceId": "68cb2f9d79e20d34ee72b8de",
+    "slug": "caixa-15-brigadeiros",
+    "name": "Caixa 15 brigadeiros ",
+    "description": "Caixa com 15 unidades do nosso irresistível brigadeiro de chocolate nobre",
+    "categoryId": "doces-festa",
+    "categoryIds": [
+      "doces-festa"
+    ],
+    "category": "Doces festa",
+    "price": 60,
+    "images": [
+      "assets/products/caixa-15-brigadeiros/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-caixa-20-brownies-com-doce-deleite",
+    "sourceId": "699652e4a5804a32310c4d57",
+    "slug": "caixa-20-brownies-com-doce-deleite",
+    "name": "Caixa 20 brownies com doce deleite",
+    "description": "Caixa contendo 20 brownies finalizados com doce de leite artesanal",
+    "categoryId": "doces-festa",
+    "categoryIds": [
+      "doces-festa"
+    ],
+    "category": "Doces festa",
+    "price": 59,
+    "images": [
+      "assets/products/caixa-20-brownies-com-doce-deleite/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-caixa-4-brownies-personalizados-tag",
+    "sourceId": "6873b67b1a6b7d410a6f8bb3",
+    "slug": "caixa-4-brownies-personalizados-tag",
+    "name": "Caixa 4 brownies personalizados +tag ",
+    "description": "Caixa contendo 4 brownies com moeda de leite ninho personalizada com a logo da empresa, e tag de agradecimento Personalize os biscoitos com logo ou mensagens para presentear seus parceiros e colaboradores. Adicione uma tag com recado especial. Caixa embalada para presente com laço da cor da empresaPedidos personalizados são confirmados mediante pagamentoFormas de pagamento: pix, dinheiro, cartão, consulte condições de faturamento. emitimos nota fiscal",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas"
+    ],
+    "category": "Personalizado para Empresas",
+    "price": 57,
+    "images": [
+      "assets/products/caixa-4-brownies-personalizados-tag/01.webp",
+      "assets/products/caixa-4-brownies-personalizados-tag/02.webp",
+      "assets/products/caixa-4-brownies-personalizados-tag/03.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-caixa-4-cupcakes",
+    "sourceId": "6a62aacb19dd8bcd6304363f",
+    "slug": "caixa-4-cupcakes",
+    "name": "Caixa 4 cupcakes ",
+    "description": "",
+    "categoryId": "festa-personalizada",
+    "categoryIds": [
+      "festa-personalizada"
+    ],
+    "category": "Festa Personalizada",
+    "price": 56,
+    "images": [
+      "assets/products/caixa-4-cupcakes/01.webp",
+      "assets/products/caixa-4-cupcakes/02.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-lata-brownie-bites",
+    "sourceId": "6914cc25d1181117be0e465b",
+    "slug": "lata-brownie-bites",
+    "name": "Lata Brownie bites",
+    "description": "Lata de Brownie Bites de Natal – Um presente que adoça com sofisticaçãoSurpreenda neste fim de ano com nossa lata natalina recheada de brownie bites, pequenos pedaços de brownie artesanal com textura macia e sabor intenso de chocolate.Embalados com todo o cuidado e apresentados em uma lata temática de Natal, são perfeitos para presentear com elegância, agradecer clientes e parceiros ou compartilhar momentos doces em família.Um presente delicioso, artesanal e cheio de encanto natalino.lata de 120gFaça seu pedido pelo site e entre em contato pelo WhatsApp para agendar a data",
+    "categoryId": null,
+    "categoryIds": [],
+    "category": null,
+    "price": 55,
+    "images": [
+      "assets/products/lata-brownie-bites/01.webp",
+      "assets/products/lata-brownie-bites/02.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": [
+      "lata brownie de natal ",
+      "brownie de natal ",
+      "natal ",
+      "brownie natalino "
+    ]
+  },
+  {
+    "id": "p-petit-parmesan",
+    "sourceId": "69962fdc1443b6bc2302895e",
+    "slug": "petit-parmesan",
+    "name": "Petit Parmesan",
+    "description": "Porção de 300g do nosso delicioso petit four de queijo parmesão",
+    "categoryId": "cestas-presentes",
+    "categoryIds": [
+      "cestas-presentes"
+    ],
+    "category": "Cestas & Presentes",
+    "price": 46,
+    "images": [
+      "assets/products/petit-parmesan/01.webp",
+      "assets/products/petit-parmesan/02.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-aniversariantes-do-mes-bento-cake",
+    "sourceId": "6a4cff369d081c71b708b352",
+    "slug": "aniversariantes-do-mes-bento-cake",
+    "name": "Aniversariantes do mês Bentô cake",
+    "description": "",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas"
+    ],
+    "category": "Personalizado para Empresas",
+    "price": 42,
+    "images": [
+      "assets/products/aniversariantes-do-mes-bento-cake/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-lata-amanteigados-personalizados",
+    "sourceId": "689a58a10ff2882a57368b51",
+    "slug": "lata-amanteigados-personalizados",
+    "name": "Lata amanteigados personalizados ",
+    "description": "Lata com rótulo personalizado, contendo 200g de biscoito amanteigado carimbado com sua marca. no primeiro pedido é cobrada taxa de produção do carimbo no valor de R$35 Formas de pagamento disponíveis: pix, boleto ou crédito conta Pj, emitimos nota fiscal e consulte condições de faturamento",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas"
+    ],
+    "category": "Personalizado para Empresas",
+    "price": 40,
+    "images": [
+      "assets/products/lata-amanteigados-personalizados/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-kit-festa-pequeno-artista",
+    "sourceId": "6a63bd2256a8618e5e0bc628",
+    "slug": "kit-festa-pequeno-artista",
+    "name": "Kit festa Pequeno Artista ",
+    "description": "Pedido mínimo 5 unidades",
+    "categoryId": "festa-personalizada",
+    "categoryIds": [
+      "festa-personalizada"
+    ],
+    "category": "Festa Personalizada",
+    "price": 32,
+    "images": [
+      "assets/products/kit-festa-pequeno-artista/01.webp",
+      "assets/products/kit-festa-pequeno-artista/02.webp",
+      "assets/products/kit-festa-pequeno-artista/03.webp",
+      "assets/products/kit-festa-pequeno-artista/04.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-caixa-4-alfajores-logo",
+    "sourceId": "6991c31d51eed94a0a099f68",
+    "slug": "caixa-4-alfajores-logo",
+    "name": "Caixa 4 alfajores logo ",
+    "description": "",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas"
+    ],
+    "category": "Personalizado para Empresas",
+    "price": 25,
+    "images": [
+      "assets/products/caixa-4-alfajores-logo/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-pao-de-mel-3d",
+    "sourceId": "686efbefc6b0195a305d7c81",
+    "slug": "pao-de-mel-3d",
+    "name": "Pão de mel 3D",
+    "description": "",
+    "categoryId": "festa-personalizada",
+    "categoryIds": [
+      "festa-personalizada"
+    ],
+    "category": "Festa Personalizada",
+    "price": 25,
+    "images": [
+      "assets/products/pao-de-mel-3d/01.webp",
+      "assets/products/pao-de-mel-3d/02.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-cone-trufado",
+    "sourceId": "6887feacff7147681c717f04",
+    "slug": "cone-trufado",
+    "name": "Cone trufado",
+    "description": "Cone trufado com recheio cremoso de bolo e decoração em pasta de leite ninho no tema a escolha",
+    "categoryId": "festa-personalizada",
+    "categoryIds": [
+      "festa-personalizada"
+    ],
+    "category": "Festa Personalizada",
+    "price": 24,
+    "images": [
+      "assets/products/cone-trufado/01.webp",
+      "assets/products/cone-trufado/02.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-picoles-de-brownie",
+    "sourceId": "681926239ad56b59d86f6eac",
+    "slug": "picoles-de-brownie",
+    "name": "Picolés de brownie",
+    "description": "Deliciosos brownies em formato de picolés, decorados com a temática do eventoPedido mínimo: 6 unidadesObs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp!",
+    "categoryId": "festa-personalizada",
+    "categoryIds": [
+      "festa-personalizada"
+    ],
+    "category": "Festa Personalizada",
+    "price": 23,
+    "images": [
+      "assets/products/picoles-de-brownie/01.webp",
+      "assets/products/picoles-de-brownie/02.webp",
+      "assets/products/picoles-de-brownie/03.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": [
+      "picoles de brownie",
+      "chocolate"
+    ]
+  },
+  {
+    "id": "p-pao-de-mel-no-palito",
+    "sourceId": "6a590cce52c358f26809825c",
+    "slug": "pao-de-mel-no-palito",
+    "name": "Pão de mel no palito",
+    "description": "",
+    "categoryId": "festa-personalizada",
+    "categoryIds": [
+      "festa-personalizada"
+    ],
+    "category": "Festa Personalizada",
+    "price": 23,
+    "images": [
+      "assets/products/pao-de-mel-no-palito/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-kit-biscoito-aquarela-bob-goods",
+    "sourceId": "686679d9ccdd851bfa4de418",
+    "slug": "kit-biscoito-aquarela-bob-goods",
+    "name": "Kit Biscoito aquarela bob goods ",
+    "description": "Kit pintura aquarela em biscoito Tema bob goods Pincel incluso",
+    "categoryId": "festa-personalizada",
+    "categoryIds": [
+      "festa-personalizada"
+    ],
+    "category": "Festa Personalizada",
+    "price": 22,
+    "images": [
+      "assets/products/kit-biscoito-aquarela-bob-goods/01.webp",
+      "assets/products/kit-biscoito-aquarela-bob-goods/02.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-pao-de-mel-caixa-individual-com-laco-e-tag",
+    "sourceId": "6a62aa669c2103c6a4026fe5",
+    "slug": "pao-de-mel-caixa-individual-com-laco-e-tag",
+    "name": "Pão de mel - Caixa individual com laço e tag",
+    "description": "",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas"
+    ],
+    "category": "Personalizado para Empresas",
+    "price": 21,
+    "images": [
+      "assets/products/pao-de-mel-caixa-individual-com-laco-e-tag/01.webp",
+      "assets/products/pao-de-mel-caixa-individual-com-laco-e-tag/02.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-aniversariantes-do-mes-cupcake",
+    "sourceId": "681b61b988ee04738177e6cd",
+    "slug": "aniversariantes-do-mes-cupcake",
+    "name": "Aniversariantes do mês Cupcake",
+    "description": "Cupcakes personalizados com a logo da empresa ou inicial de cada colaboradorCada caixa inclui um cartão com vela para parabéns Obs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp!",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas"
+    ],
+    "category": "Personalizado para Empresas",
+    "price": 20,
+    "images": [
+      "assets/products/aniversariantes-do-mes-cupcake/01.webp",
+      "assets/products/aniversariantes-do-mes-cupcake/02.webp",
+      "assets/products/aniversariantes-do-mes-cupcake/03.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": [
+      "cupcake"
+    ]
+  },
+  {
+    "id": "p-festinha-na-escola",
+    "sourceId": "6a8c5c13f954d3b4a60fe6b1",
+    "slug": "festinha-na-escola",
+    "name": "Festinha na escola ",
+    "description": "Kit para festa na escola contendo fatia de bolo personalizado + 3 brigadeiros",
+    "categoryId": "combos-festa",
+    "categoryIds": [
+      "combos-festa"
+    ],
+    "category": "Combos festa",
+    "price": 19,
+    "images": [
+      "assets/products/festinha-na-escola/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-amanteigado-decorado-com-glace",
+    "sourceId": "670ecfd32b425c5b3a72e94d",
+    "slug": "amanteigado-decorado-com-glace",
+    "name": "Amanteigado decorado com glacê ",
+    "description": "Celebre momentos especiais com nossos biscoitos amanteigados personalizados, criados exclusivamente para combinar com o tema da sua festa.Cada detalhe é pensado para encantar seus convidados e transformar a celebração em algo inesquecível.Perfeitos para compor a mesa, presentear convidados ou eternizar o momento com um toque especial!Pedido mínimo 6 unidadesObs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp!",
+    "categoryId": "festa-personalizada",
+    "categoryIds": [
+      "festa-personalizada"
+    ],
+    "category": "Festa Personalizada",
+    "price": 17,
+    "images": [
+      "assets/products/amanteigado-decorado-com-glace/01.webp",
+      "assets/products/amanteigado-decorado-com-glace/02.webp",
+      "assets/products/amanteigado-decorado-com-glace/03.webp",
+      "assets/products/amanteigado-decorado-com-glace/04.webp",
+      "assets/products/amanteigado-decorado-com-glace/05.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": [
+      "amanteigado",
+      "biscoito"
+    ]
+  },
+  {
+    "id": "p-alfajor-no-palito",
+    "sourceId": "66f322139292c074af10bca0",
+    "slug": "alfajor-no-palito",
+    "name": "Alfajor no palito ",
+    "description": "Nossos alfajores no palito são a combinação perfeita de sabor e beleza! Deliciosamente recheados e decorados com detalhes em pasta de leite ninho, que encantam e adicionam um toque especial a qualquer festa.Além de deliciosos, são perfeitos para enfeitar mesas de doces e surpreender seus convidados. Ideais para qualquer tipo de celebração!Pedido mínimo 6 unidades Obs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp!",
+    "categoryId": "festa-personalizada",
+    "categoryIds": [
+      "festa-personalizada"
+    ],
+    "category": "Festa Personalizada",
+    "price": 16,
+    "images": [
+      "assets/products/alfajor-no-palito/01.webp",
+      "assets/products/alfajor-no-palito/02.webp",
+      "assets/products/alfajor-no-palito/03.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-amanteigado-personalizado-caixinha",
+    "sourceId": "688dadbd524bfb4e7d7373c3",
+    "slug": "amanteigado-personalizado-caixinha",
+    "name": "Amanteigado personalizado caixinha",
+    "description": "Caixinha de acrílico recheada de biscoitos amanteigados com carimbo personalizado e tag Solicite orçamento pelo WhatsApp",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas"
+    ],
+    "category": "Personalizado para Empresas",
+    "price": 16,
+    "images": [
+      "assets/products/amanteigado-personalizado-caixinha/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-amanteigados-emoji",
+    "sourceId": "6873c61a69180e76c77910ff",
+    "slug": "amanteigados-emoji",
+    "name": "Amanteigados Emoji",
+    "description": "Biscoito personalizado em glacê real com emojis a escolha",
+    "categoryId": "festa-personalizada",
+    "categoryIds": [
+      "festa-personalizada"
+    ],
+    "category": "Festa Personalizada",
+    "price": 15,
+    "images": [
+      "assets/products/amanteigados-emoji/01.webp",
+      "assets/products/amanteigados-emoji/02.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-amanteigado-decorado-obrigado",
+    "sourceId": "6873b9710bc0716c1d77f35f",
+    "slug": "amanteigado-decorado-obrigado",
+    "name": "Amanteigado decorado obrigado",
+    "description": "Um gesto especial de agradecimento em nosso biscoito “obrigado” Consulte personalizações disponíveis",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas"
+    ],
+    "category": "Personalizado para Empresas",
+    "price": 14.5,
+    "images": [
+      "assets/products/amanteigado-decorado-obrigado/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-pirulito-biscoito",
+    "sourceId": "68cb2f060d25b81dde742078",
+    "slug": "pirulito-biscoito",
+    "name": "Pirulito biscoito",
+    "description": "Biscoito amanteigado decorado com pasta de leite ninho",
+    "categoryId": "festa-personalizada",
+    "categoryIds": [
+      "festa-personalizada"
+    ],
+    "category": "Festa Personalizada",
+    "price": 14,
+    "images": [
+      "assets/products/pirulito-biscoito/01.webp",
+      "assets/products/pirulito-biscoito/02.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-caixa-2-alfajores-logo",
+    "sourceId": "6991c2badd346c1be7068fea",
+    "slug": "caixa-2-alfajores-logo",
+    "name": "Caixa 2 alfajores logo ",
+    "description": "",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas"
+    ],
+    "category": "Personalizado para Empresas",
+    "price": 12.5,
+    "images": [
+      "assets/products/caixa-2-alfajores-logo/01.webp",
+      "assets/products/caixa-2-alfajores-logo/02.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-brownie-personalizado-caixinha",
+    "sourceId": "687151c12b688a10b508c9f7",
+    "slug": "brownie-personalizado-caixinha",
+    "name": "Brownie personalizado caixinha",
+    "description": "",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas"
+    ],
+    "category": "Personalizado para Empresas",
+    "price": 12,
+    "images": [
+      "assets/products/brownie-personalizado-caixinha/01.webp",
+      "assets/products/brownie-personalizado-caixinha/02.webp",
+      "assets/products/brownie-personalizado-caixinha/03.webp",
+      "assets/products/brownie-personalizado-caixinha/04.webp",
+      "assets/products/brownie-personalizado-caixinha/05.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-mini-cupcake-caixa",
+    "sourceId": "6aa048e920af1e79b8054699",
+    "slug": "mini-cupcake-caixa",
+    "name": "Mini cupcake caixa ",
+    "description": "",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas"
+    ],
+    "category": "Personalizado para Empresas",
+    "price": 11.5,
+    "images": [
+      "assets/products/mini-cupcake-caixa/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-amanteigado-decorado-ninho",
+    "sourceId": "68532590dec27d7b3605409f",
+    "slug": "amanteigado-decorado-ninho",
+    "name": "Amanteigado decorado Ninho",
+    "description": "",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas"
+    ],
+    "category": "Personalizado para Empresas",
+    "price": 11,
+    "images": [
+      "assets/products/amanteigado-decorado-ninho/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-amanteigado-ninho-personalizado",
+    "sourceId": "6873c2fe15adf910a40f90c9",
+    "slug": "amanteigado-ninho-personalizado",
+    "name": "Amanteigado ninho personalizado ",
+    "description": "",
+    "categoryId": "festa-personalizada",
+    "categoryIds": [
+      "festa-personalizada"
+    ],
+    "category": "Festa Personalizada",
+    "price": 11,
+    "images": [
+      "assets/products/amanteigado-ninho-personalizado/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-amanteigados-tema-9cm-glace",
+    "sourceId": "6873ba49a9b7945fd67eaf92",
+    "slug": "amanteigados-tema-9cm-glace",
+    "name": "Amanteigados tema 9cm glacê",
+    "description": "apenas texturas e temas, para personagens complexos e rostos, solicite orçamento",
+    "categoryId": "festa-personalizada",
+    "categoryIds": [
+      "festa-personalizada"
+    ],
+    "category": "Festa Personalizada",
+    "price": 11,
+    "images": [
+      "assets/products/amanteigados-tema-9cm-glace/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-biscoito-agradecimento",
+    "sourceId": "691a458b17133149560305f5",
+    "slug": "biscoito-agradecimento",
+    "name": "Biscoito agradecimento ",
+    "description": "",
+    "categoryId": null,
+    "categoryIds": [],
+    "category": null,
+    "price": 10,
+    "images": [
+      "assets/products/biscoito-agradecimento/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-amanteigado-decorado-corte-personalizado-tag",
+    "sourceId": "67ba0625b6d984714f233510",
+    "slug": "amanteigado-decorado-corte-personalizado-tag",
+    "name": "Amanteigado decorado corte personalizado + tag",
+    "description": "Personalize a tag e modelo do biscoito de acordo com a identidade visual do seu evento/empresa.Formas de pagamento disponíveis: pix, boleto ou link de pagamento no cartão de crédito. Emitimos nota fiscal, solicite condições de faturamento",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas"
+    ],
+    "category": "Personalizado para Empresas",
+    "price": 9.5,
+    "images": [
+      "assets/products/amanteigado-decorado-corte-personalizado-tag/01.webp",
+      "assets/products/amanteigado-decorado-corte-personalizado-tag/02.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-biscoito-decorado-logo",
+    "sourceId": "691a37b1469a5d92c50ddaf7",
+    "slug": "biscoito-decorado-logo",
+    "name": "Biscoito decorado logo ",
+    "description": "Faça sua cotação pelo WhatsApp, valores a partir de R$9 a unidade",
+    "categoryId": null,
+    "categoryIds": [],
+    "category": null,
+    "price": 9,
+    "images": [
+      "assets/products/biscoito-decorado-logo/01.webp",
+      "assets/products/biscoito-decorado-logo/02.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-amanteigado-personalizado-6cm",
+    "sourceId": "66f31cb0adf9c514fc50670f",
+    "slug": "amanteigado-personalizado-6cm",
+    "name": "Amanteigado Personalizado - 6cm",
+    "description": "Pedido mínimo 20 unidades. Biscoito redondo de 6cm, feito com nossa massa especial amanteigada.Formas de pagamento disponíveis: boleto ou crédito conta Pj, emitimos nota fiscal e faturamos com até 30 dias de prazoObs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp!",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas"
+    ],
+    "category": "Personalizado para Empresas",
+    "price": 8,
+    "images": [
+      "assets/products/amanteigado-personalizado-6cm/01.webp",
+      "assets/products/amanteigado-personalizado-6cm/02.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": [
+      "biscoito ",
+      "amanteigado",
+      "personalizado"
+    ]
+  },
+  {
+    "id": "p-bem-casado-personalizado-logo-com-tag",
+    "sourceId": "6aa049167a31094340038ad2",
+    "slug": "bem-casado-personalizado-logo-com-tag",
+    "name": "Bem casado personalizado logo com tag ",
+    "description": "",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas"
+    ],
+    "category": "Personalizado para Empresas",
+    "price": 8,
+    "images": [
+      "assets/products/bem-casado-personalizado-logo-com-tag/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-bem-casado-personalizado-tag",
+    "sourceId": "685324e4bd31a74e315ac42e",
+    "slug": "bem-casado-personalizado-tag",
+    "name": "Bem casado personalizado tag",
+    "description": "Tradicional para casamentos, batizados e chá de bebê, nosso bem casado une massa fofinha de pão de ló, recheio cremoso de doce de leite e decoração personalizada de acordo com a identidade do evento. Adicione tag personalizada de acordo. Obs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp!Pedido mínimo 20 unidades",
+    "categoryId": "festa-personalizada",
+    "categoryIds": [
+      "festa-personalizada"
+    ],
+    "category": "Festa Personalizada",
+    "price": 7.5,
+    "images": [
+      "assets/products/bem-casado-personalizado-tag/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-mini-alfajor-personalizado-foto-tag",
+    "sourceId": "6887fd823c3f9104d703bc15",
+    "slug": "mini-alfajor-personalizado-foto-tag",
+    "name": "Mini alfajor personalizado foto + tag",
+    "description": "Mini alfajor personalizado com foto, a lembrança perfeita para marcar uma data especial Obs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp!pedido mínimo 20 unidades",
+    "categoryId": "festa-personalizada",
+    "categoryIds": [
+      "festa-personalizada"
+    ],
+    "category": "Festa Personalizada",
+    "price": 6.8,
+    "images": [
+      "assets/products/mini-alfajor-personalizado-foto-tag/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-alfajor-personalizado-logo-tag",
+    "sourceId": "6873b4f27b047d6b5e0fcd9d",
+    "slug": "alfajor-personalizado-logo-tag",
+    "name": "Alfajor personalizado logo + tag ",
+    "description": "",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas"
+    ],
+    "category": "Personalizado para Empresas",
+    "price": 6.5,
+    "images": [
+      "assets/products/alfajor-personalizado-logo-tag/01.webp",
+      "assets/products/alfajor-personalizado-logo-tag/02.webp",
+      "assets/products/alfajor-personalizado-logo-tag/03.webp",
+      "assets/products/alfajor-personalizado-logo-tag/04.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-bem-casado-tag",
+    "sourceId": "699c5cec6b6a268d9204bb80",
+    "slug": "bem-casado-tag",
+    "name": "Bem casado tag",
+    "description": "Tradicional para casamentos, batizados e chá de bebê, nosso bem casado une massa fofinha de pão de ló, recheio cremoso e casquinha crocante com um toque cítrico especial. Adicione tag personalizada de acordo com seu evento Pedido mínimo 20 unidades",
+    "categoryId": "festa-personalizada",
+    "categoryIds": [
+      "festa-personalizada"
+    ],
+    "category": "Festa Personalizada",
+    "price": 6.5,
+    "images": [
+      "assets/products/bem-casado-tag/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-mini-alfajor-personalizado-tag",
+    "sourceId": "6853242bf1a47b0d6a41edfb",
+    "slug": "mini-alfajor-personalizado-tag",
+    "name": "Mini alfajor personalizado + tag ",
+    "description": "",
+    "categoryId": "festa-personalizada",
+    "categoryIds": [
+      "festa-personalizada"
+    ],
+    "category": "Festa Personalizada",
+    "price": 6.5,
+    "images": [
+      "assets/products/mini-alfajor-personalizado-tag/01.webp",
+      "assets/products/mini-alfajor-personalizado-tag/02.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-alfajor-personalizado-logo",
+    "sourceId": "6873b4a6f7968f2c8538db47",
+    "slug": "alfajor-personalizado-logo",
+    "name": "Alfajor personalizado logo",
+    "description": "",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas"
+    ],
+    "category": "Personalizado para Empresas",
+    "price": 6,
+    "images": [
+      "assets/products/alfajor-personalizado-logo/01.webp",
+      "assets/products/alfajor-personalizado-logo/02.webp",
+      "assets/products/alfajor-personalizado-logo/03.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-mini-alfajor-impresso-lembranca",
+    "sourceId": "6a62aca9f66578d90208ff57",
+    "slug": "mini-alfajor-impresso-lembranca",
+    "name": "Mini alfajor impresso - Lembrança",
+    "description": "Envie sua arte ou foto pelo WhatsApp",
+    "categoryId": "festa-personalizada",
+    "categoryIds": [
+      "festa-personalizada"
+    ],
+    "category": "Festa Personalizada",
+    "price": 6,
+    "images": [
+      "assets/products/mini-alfajor-impresso-lembranca/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-mini-alfajor-personalizado-lembranca",
+    "sourceId": "67a38aaff2b4097098351b16",
+    "slug": "mini-alfajor-personalizado-lembranca",
+    "name": "Mini alfajor personalizado - Lembrança",
+    "description": "O toque especial que a sua festa merece! Nosso mini alfajor combina o sabor amanteigado com recheio cremoso de doce de leite e uma cobertura delicada de pasta de leite ninho, personalizada no tema do seu evento. Perfeito para presentear seus convidados com uma lembrançaa sofisticada e irresistível. Faça seu pedido e torne sua celebração ainda mais especial!Ideal para aniversários, chás de bebê e qualquer ou qualquer celebração especial!Pedido minha 15 unidades",
+    "categoryId": "festa-personalizada",
+    "categoryIds": [
+      "festa-personalizada"
+    ],
+    "category": "Festa Personalizada",
+    "price": 6,
+    "images": [
+      "assets/products/mini-alfajor-personalizado-lembranca/01.webp",
+      "assets/products/mini-alfajor-personalizado-lembranca/02.webp",
+      "assets/products/mini-alfajor-personalizado-lembranca/03.webp",
+      "assets/products/mini-alfajor-personalizado-lembranca/04.webp",
+      "assets/products/mini-alfajor-personalizado-lembranca/05.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-camafeu-de-nozes",
+    "sourceId": "68d187363298d10f05588627",
+    "slug": "camafeu-de-nozes",
+    "name": "camafeu de nozes",
+    "description": "Camafeu de nozes tradicional feito com nozes e gemas, e cobertura de glacêpedido mínimo 20 unidades",
+    "categoryId": "doces-festa",
+    "categoryIds": [
+      "doces-festa"
+    ],
+    "category": "Doces festa",
+    "price": 4.9,
+    "images": [
+      "assets/products/camafeu-de-nozes/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-biscoito-logo-carimbado-ninho",
+    "sourceId": "6866cbeef5e2f06c7161154d",
+    "slug": "biscoito-logo-carimbado-ninho",
+    "name": "Biscoito logo carimbado ninho",
+    "description": "No primeiro pedido é cobrada a taxa de produção do carimbo personalizado, no valor de 40 reais, mande sua logo pelo whatsapp",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas"
+    ],
+    "category": "Personalizado para Empresas",
+    "price": 4.5,
+    "images": [
+      "assets/products/biscoito-logo-carimbado-ninho/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-bombom-de-uva",
+    "sourceId": "68d1875972dfed50aa55537c",
+    "slug": "bombom-de-uva",
+    "name": "bombom de uva",
+    "description": "Bombom de uva tamanho festa, uva thompson fresco envolto em brigadeiro branco e cobertura de chocolatePedido mínimo 20 unidades",
+    "categoryId": "doces-festa",
+    "categoryIds": [
+      "doces-festa"
+    ],
+    "category": "Doces festa",
+    "price": 4.5,
+    "images": [
+      "assets/products/bombom-de-uva/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-brownie-tag",
+    "sourceId": "68e8075456710e16fd61b252",
+    "slug": "brownie-tag",
+    "name": "Brownie tag ",
+    "description": "Mini brownie com tag personalizada",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas"
+    ],
+    "category": "Personalizado para Empresas",
+    "price": 4.5,
+    "images": [
+      "assets/products/brownie-tag/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-mini-brownies-decorados",
+    "sourceId": "686ef8af5d519d29763e3a01",
+    "slug": "mini-brownies-decorados",
+    "name": "Mini brownies decorados ",
+    "description": "",
+    "categoryId": "festa-personalizada",
+    "categoryIds": [
+      "festa-personalizada"
+    ],
+    "category": "Festa Personalizada",
+    "price": 4.5,
+    "images": [
+      "assets/products/mini-brownies-decorados/01.webp",
+      "assets/products/mini-brownies-decorados/02.webp",
+      "assets/products/mini-brownies-decorados/03.webp",
+      "assets/products/mini-brownies-decorados/04.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-bombom-de-morango",
+    "sourceId": "688ffd45c75c540c6a0ef066",
+    "slug": "bombom-de-morango",
+    "name": "Bombom de morango ",
+    "description": "Bombom de morango tamanho festa, morango fresco envolto em brigadeiro branco e cobertura de chocolatePedido mínimo 20 unidades",
+    "categoryId": "doces-festa",
+    "categoryIds": [
+      "doces-festa"
+    ],
+    "category": "Doces festa",
+    "price": 4.2,
+    "images": [
+      "assets/products/bombom-de-morango/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-obrigadinho-biscoito-personalizado-mini",
+    "sourceId": "69c444eb08622082ad049405",
+    "slug": "obrigadinho-biscoito-personalizado-mini",
+    "name": "Obrigadinho - Biscoito personalizado mini ",
+    "description": "Solicite cotação personalizada para pedidos em atacado",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas"
+    ],
+    "category": "Personalizado para Empresas",
+    "price": 4,
+    "images": [
+      "assets/products/obrigadinho-biscoito-personalizado-mini/01.webp",
+      "assets/products/obrigadinho-biscoito-personalizado-mini/02.webp",
+      "assets/products/obrigadinho-biscoito-personalizado-mini/03.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-beijinho",
+    "sourceId": "69965433e6f05bdadb069ab2",
+    "slug": "beijinho",
+    "name": "Beijinho",
+    "description": "Nossos clássicos docinhos da linha festa. Monte seu combo com diferentes sabores, pedido mínimo de cada sabor: 25 unidades",
+    "categoryId": "doces-festa",
+    "categoryIds": [
+      "doces-festa"
+    ],
+    "category": "Doces festa",
+    "price": 3.9,
+    "images": [
+      "assets/products/beijinho/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-brigadeiro",
+    "sourceId": "68a753b91bc06b35de0332e1",
+    "slug": "brigadeiro",
+    "name": "Brigadeiro",
+    "description": "Brigadeiro gourmet de chocolate com granulado de chocolate nobre, sabor e cremosidade no equilibrio perfeitopedido mínimo 15 unidades",
+    "categoryId": "doces-festa",
+    "categoryIds": [
+      "doces-festa"
+    ],
+    "category": "Doces festa",
+    "price": 3.9,
+    "images": [
+      "assets/products/brigadeiro/01.webp",
+      "assets/products/brigadeiro/02.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-brigadeiro-brulee",
+    "sourceId": "6996512f55926f203405249c",
+    "slug": "brigadeiro-brulee",
+    "name": "Brigadeiro Bruleé",
+    "description": "Nossos clássicos docinhos da linha festa. Monte seu combo com diferentes sabores, pedido mínimo de cada sabor: 25 unidades",
+    "categoryId": "doces-festa",
+    "categoryIds": [
+      "doces-festa"
+    ],
+    "category": "Doces festa",
+    "price": 3.9,
+    "images": [
+      "assets/products/brigadeiro-brulee/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-brigadeiro-chocolate-banco",
+    "sourceId": "699650fd21f8dba646051e5e",
+    "slug": "brigadeiro-chocolate-banco",
+    "name": "Brigadeiro chocolate banco",
+    "description": "Nossos clássicos docinhos da linha festa. Monte seu combo com diferentes sabores, pedido mínimo de cada sabor: 25 unidades",
+    "categoryId": "doces-festa",
+    "categoryIds": [
+      "doces-festa"
+    ],
+    "category": "Doces festa",
+    "price": 3.9,
+    "images": [
+      "assets/products/brigadeiro-chocolate-banco/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-brigadeiro-churros",
+    "sourceId": "6996515f0ea8284b20011aa4",
+    "slug": "brigadeiro-churros",
+    "name": "Brigadeiro churros",
+    "description": "Nossos clássicos docinhos da linha festa. Monte seu combo com diferentes sabores, pedido mínimo de cada sabor: 25 unidades",
+    "categoryId": "doces-festa",
+    "categoryIds": [
+      "doces-festa"
+    ],
+    "category": "Doces festa",
+    "price": 3.9,
+    "images": [
+      "assets/products/brigadeiro-churros/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-brigadeiro-nesquik",
+    "sourceId": "699650297b66c5f676021828",
+    "slug": "brigadeiro-nesquik",
+    "name": "Brigadeiro Nesquik",
+    "description": "Nossos clássicos docinhos da linha festa. Monte seu combo com diferentes sabores, pedido mínimo de cada sabor: 25 unidades",
+    "categoryId": "doces-festa",
+    "categoryIds": [
+      "doces-festa"
+    ],
+    "category": "Doces festa",
+    "price": 3.9,
+    "images": [
+      "assets/products/brigadeiro-nesquik/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-brigadeiro-ninho-nutella",
+    "sourceId": "69965184aefc2bbc370ebca8",
+    "slug": "brigadeiro-ninho-nutella",
+    "name": "Brigadeiro ninho & nutella",
+    "description": "Nossos clássicos docinhos da linha festa. Monte seu combo com diferentes sabores, pedido mínimo de cada sabor: 25 unidades",
+    "categoryId": "doces-festa",
+    "categoryIds": [
+      "doces-festa"
+    ],
+    "category": "Doces festa",
+    "price": 3.9,
+    "images": [
+      "assets/products/brigadeiro-ninho-nutella/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-amanteigados-carimbados",
+    "sourceId": "689e0adc487bc741fe7feea5",
+    "slug": "amanteigados-carimbados",
+    "name": "Amanteigados carimbados",
+    "description": "Embalados individualmente",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas"
+    ],
+    "category": "Personalizado para Empresas",
+    "price": 3,
+    "images": [
+      "assets/products/amanteigados-carimbados/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-adicione-esculturas-de-ninho",
+    "sourceId": "6873bd1356cff535432aa0b6",
+    "slug": "adicione-esculturas-de-ninho",
+    "name": "Adicione esculturas de ninho ",
+    "description": "A finalização é feita com nosso delicioso buttercream de merengue suíço, escolha entre a decoração básica, que é padrão e remete ao sabor do bolo ou acrescente personalizações de acordo com o tema de festa ( que serão cobradas a parte) escreva nas observações o tema e data da sua festa.Obs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp!",
+    "categoryId": "bolos",
+    "categoryIds": [
+      "bolos"
+    ],
+    "category": "Bolos",
+    "price": 0,
+    "images": [
+      "assets/products/adicione-esculturas-de-ninho/01.webp",
+      "assets/products/adicione-esculturas-de-ninho/02.webp",
+      "assets/products/adicione-esculturas-de-ninho/03.webp",
+      "assets/products/adicione-esculturas-de-ninho/04.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-alfajor-3d",
+    "sourceId": "670ecef4e30c4444d4388e13",
+    "slug": "alfajor-3d",
+    "name": "Alfajor 3D",
+    "description": "Nosso tão amado alfajor de doce de leite artesanal, na versão 3D, com decorações que saltam aos olhos, e encantam o paladar.Obs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp!",
+    "categoryId": "festa-personalizada",
+    "categoryIds": [
+      "festa-personalizada"
+    ],
+    "category": "Festa Personalizada",
+    "price": 0,
+    "images": [
+      "assets/products/alfajor-3d/01.webp",
+      "assets/products/alfajor-3d/02.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": [
+      "alfajor",
+      "doce 3d",
+      "chocolate",
+      "doce de leite"
+    ]
+  },
+  {
+    "id": "p-bolos-3d",
+    "sourceId": "6873bbe3aefd54242f1b774c",
+    "slug": "bolos-3d",
+    "name": "Bolos 3D",
+    "description": "Bolos esculpidos em formatos de personagens ou objeto, podendo ser necessária estrutura em mdf, solicite seu orçamento personalizado pelo whatsapp",
+    "categoryId": "bolos",
+    "categoryIds": [
+      "bolos"
+    ],
+    "category": "Bolos",
+    "price": 0,
+    "images": [
+      "assets/products/bolos-3d/01.webp",
+      "assets/products/bolos-3d/02.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-bolos-personalizados",
+    "sourceId": "67ba0d4b446cc57175512d3c",
+    "slug": "bolos-personalizados",
+    "name": "Bolos personalizados",
+    "description": "Imagem e valor meramente ilustrativos.Faça seu pedido personalizado por Whatsapp com tamanho e detalhamento da logomarca.",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas"
+    ],
+    "category": "Personalizado para Empresas",
+    "price": 0,
+    "images": [
+      "assets/products/bolos-personalizados/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": [
+      "bolo empresa"
+    ]
+  },
+  {
+    "id": "p-coffee-break-corporativo",
+    "sourceId": "6a62a54f0143fac716071115",
+    "slug": "coffee-break-corporativo",
+    "name": "Coffee Break corporativo ",
+    "description": "Nossos coffee breaks são sempre muito elogiados pela variedade de itens, sempre frescos e de alta qualidade, conheça nossos pacotes que podem incluir opções salgadas, bolos e itens de confeitaria, além de frutas, suco, café, chá. Temos opções de itens sem glúten e sem leite.Solicite seu orçamento de acordo com o número de convidados",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas"
+    ],
+    "category": "Personalizado para Empresas",
+    "price": 0,
+    "images": [
+      "assets/products/coffee-break-corporativo/01.webp",
+      "assets/products/coffee-break-corporativo/02.webp",
+      "assets/products/coffee-break-corporativo/03.webp",
+      "assets/products/coffee-break-corporativo/04.webp",
+      "assets/products/coffee-break-corporativo/05.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-desenvolvemos-projetos-personalizados",
+    "sourceId": "699645559402adbd3309a227",
+    "slug": "desenvolvemos-projetos-personalizados",
+    "name": "Desenvolvemos projetos personalizados",
+    "description": "Traga suas referências e criamos um projeto exclusivo para seu evento",
+    "categoryId": "festa-personalizada",
+    "categoryIds": [
+      "festa-personalizada"
+    ],
+    "category": "Festa Personalizada",
+    "price": 0,
+    "images": [
+      "assets/products/desenvolvemos-projetos-personalizados/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-torre-de-macarons",
+    "sourceId": "68d18d4e6ce5e94fbe2c275a",
+    "slug": "torre-de-macarons",
+    "name": "Torre de macarons",
+    "description": "A Torre de Macarons é uma opção sofisticada para encantar seus convidados. Os macarons — tradicionais doces franceses feitos à base de farinha de amêndoas, com casquinha crocante por fora e recheio delicado por dentro — ganham destaque quando apresentados em formato de torre. Uma peça elegante que, além de deliciosa, se transforma em ponto central da mesa de doces. Solicite orçamento personalizado de acordo com a quantidade de andares da torre Sabores e cores personalizados de acordo com o evento.Sabores disponíveis: chocolate, morango, doce de leite, pistache, chocolate com menta, caféEscolha as cores de acordo com a identidade visual do evento, Adicional de pintura personalizada disponível",
+    "categoryId": null,
+    "categoryIds": [],
+    "category": null,
+    "price": 0,
+    "images": [
+      "assets/products/torre-de-macarons/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
+    "id": "p-eclair-experience",
+    "sourceId": "68d162940fc8371cd842258a",
+    "slug": "eclair-experience",
+    "name": "Éclair Experience ",
+    "description": "Leve para o seu evento uma experiência gastronômica interativa e sofisticada. Nessa estação exclusiva, seus convidados poderão escolher entre diferentes recheios e toppings para montar sua própria éclair, criando combinações únicas e inesquecíveis. Mais do que um doce, é um momento de diversão, encantamento e sabor que transforma sua celebração em algo ainda mais especial.Solicite seu orçamento personalizado de acordo com o número de convidados.",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas"
+    ],
+    "category": "Personalizado para Empresas",
+    "price": 0,
+    "images": [
+      "assets/products/eclair-experience/01.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
   }
 ]

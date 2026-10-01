@@ -1,38 +1,38 @@
 [
   {
-    "id": "slide-vitrine",
-    "title": "Doces artesanais",
-    "subtitle": "Feitos com carinho em Brasília",
-    "image": "assets/carousel/slide-vitrine.webp",
+    "id": "slide-bolo-2-andares-g-p",
+    "title": "Bolo 2 andares G + P",
+    "subtitle": "Bolos",
+    "image": "assets/products/bolo-2-andares-g-p/01.webp",
     "linkCategory": "bolos",
-    "productSlug": null,
+    "productSlug": "bolo-2-andares-g-p",
     "order": 1
   },
   {
-    "id": "slide-kits",
-    "title": "Kits para presentear",
-    "subtitle": "Cestas e caixas prontas para surpreender",
-    "image": "assets/carousel/slide-kits.webp",
-    "linkCategory": "cestas-presentes",
-    "productSlug": null,
+    "id": "slide-caixa-parabens-individual-kit-com-10-und",
+    "title": "Caixa parabéns individual KIT COM 10 UND",
+    "subtitle": "Personalizado para Empresas",
+    "image": "assets/products/caixa-parabens-individual-kit-com-10-und/01.webp",
+    "linkCategory": "personalizado-para-empresas",
+    "productSlug": "caixa-parabens-individual-kit-com-10-und",
     "order": 2
   },
   {
-    "id": "slide-doces",
-    "title": "Bolos e doces finos",
-    "subtitle": "Casamentos, festas e momentos especiais",
-    "image": "assets/carousel/slide-doces.webp",
+    "id": "slide-bolo-retangular-gg",
+    "title": "Bolo Retangular GG",
+    "subtitle": "Bolos",
+    "image": "assets/products/bolo-retangular-gg/01.webp",
     "linkCategory": "bolos",
-    "productSlug": null,
+    "productSlug": "bolo-retangular-gg",
     "order": 3
   },
   {
-    "id": "slide-encomendas",
-    "title": "Encomende pelo WhatsApp",
-    "subtitle": "Pix, cartão ou boleto — combinamos após a confirmação",
-    "image": "assets/carousel/slide-encomendas.webp",
-    "linkCategory": null,
-    "productSlug": "combo-prata",
+    "id": "slide-tabua-signature",
+    "title": "Tábua Signature",
+    "subtitle": "Cestas & Presentes",
+    "image": "assets/products/tabua-signature/01.webp",
+    "linkCategory": "cestas-presentes",
+    "productSlug": "tabua-signature",
     "order": 4
   }
 ]
