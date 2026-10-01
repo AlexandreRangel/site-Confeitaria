@@ -8,12 +8,13 @@
   --blush: #f5d5e0;
   --copper: #fc7e8e;
   --copper-deep: #e45d70;
-  --cream: #ffffff;
-  --ink: #3a2a2e;
-  --muted: #8a6f76;
-  --line: #f0d6dc;
+  --cream: #fffdfd;
+  --ink: #1c1416;
+  --muted: #4a3840;
+  --line: #e4d0d6;
+  --frost: rgba(255, 253, 253, 0.92);
   --whatsapp: #128c7e;
-  --shadow: 0 10px 32px rgba(252, 126, 142, 0.12);
+  --shadow: 0 10px 32px rgba(28, 20, 22, 0.08);
   --radius: 18px;
   --header-h: 68px;
   --content: 1160px;
@@ -36,11 +37,34 @@ html {
 body {
   margin: 0;
   color: var(--ink);
-  background: var(--cream);
+  background: #efe6ea;
   font-family: var(--sans);
   font-size: 1rem;
   line-height: 1.55;
   overflow-x: hidden;
+}
+
+.hydra-bg {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  display: block;
+}
+
+.page {
+  position: relative;
+  z-index: 1;
+}
+
+.frost {
+  background: var(--frost);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
 }
 
 img {
@@ -79,7 +103,7 @@ h2 {
 
 h3 {
   font-size: 1.05rem;
-  color: var(--primary);
+  color: var(--ink);
   margin: 0 0 0.45rem;
 }
 
@@ -143,8 +167,9 @@ button {
   padding: 0.65rem 1.15rem;
   border-radius: 999px;
   border: 1px solid var(--primary);
-  background: transparent;
-  color: var(--primary);
+  background: #fff;
+  color: var(--ink);
+  font-weight: 600;
   transition: background 0.2s, color 0.2s;
 }
 

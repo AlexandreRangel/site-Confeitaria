@@ -2,8 +2,8 @@
   position: sticky;
   top: 0;
   z-index: 40;
-  background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(12px);
+  background: rgba(255, 253, 253, 0.96);
+  backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--line);
 }
 
@@ -188,16 +188,15 @@
 .catalogo,
 .instagram,
 .rodape {
-  width: min(var(--content), calc(100% - 2rem));
-  margin: 0 auto;
-  padding: 2rem 0;
+  width: min(var(--content), calc(100% - 1.25rem));
+  margin: 1rem auto;
+  padding: 1.35rem 1rem;
 }
 
 .visita {
   display: grid;
   gap: 1.1rem;
   text-align: center;
-  border-bottom: 1px solid var(--line);
 }
 
 .visita__photo img {
@@ -259,7 +258,8 @@
 }
 
 .featured-block {
-  margin: 2.2rem 0;
+  margin: 1.1rem 0;
+  padding: 1.2rem 1rem 1.3rem;
 }
 
 .catalogo__head {

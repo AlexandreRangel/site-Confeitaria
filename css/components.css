@@ -87,8 +87,10 @@
 
 .bolinha span {
   display: block;
-  font-size: 0.75rem;
+  font-size: 0.825rem;
   line-height: 1.25;
+  font-weight: 600;
+  color: var(--ink);
 }
 
 .promo-card {
@@ -134,7 +136,7 @@
 
 .card {
   background: #fff;
-  border: 1px solid var(--line);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   border-radius: var(--radius);
   overflow: hidden;
   box-shadow: var(--shadow);

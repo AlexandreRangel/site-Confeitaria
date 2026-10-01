@@ -43,6 +43,12 @@ Produtos com `"active": false` somem da vitrine. Itens de exemplo usam a tag `"e
 
 A mensagem inclui nome, telefone, data desejada, itens, quantidades, total e observações. O texto na interface lembra: *Após confirmar no WhatsApp, combinamos Pix, cartão ou boleto.*
 
+## Fundo Hydra
+
+Canvas fullscreen (`#jana-hydra`) com o mesmo padrão de otimização do portfólio (MAX_DIM 768, MAX_DPR 1.5, DPR 1 em save-data / low-memory / coarse pointer, resize com throttle, estático se `prefers-reduced-motion`, `detectAudio: false`).
+
+Para trocar o visual: edite **`js/hydra-sketch.js`** → `runHydraSketch()`.
+
 ## Marca
 
 Cores da loja ao vivo: **#FC7E8E** (coral/rosa) e **#F5D5E0** (rosa claro), fundo branco. Ajuste em `data/site.json` → `colors`.

@@ -14,8 +14,10 @@
   <link rel="stylesheet" href="css/components.css">
 </head>
 <body>
+  <canvas id="jana-hydra" class="hydra-bg" aria-hidden="true" data-static-color="#efe6ea"></canvas>
   <a class="skip-link" href="#catalogo">Ir para o catálogo</a>
 
+  <div class="page">
   <header id="topo" class="topo">
     <div class="topo__inner">
       <button class="topo__menu" type="button" aria-expanded="false" aria-controls="menu-principal" data-action="toggle-menu">
@@ -57,7 +59,7 @@
       </div>
     </section>
 
-    <section class="visita" aria-labelledby="visita-titulo">
+    <section class="visita frost" aria-labelledby="visita-titulo">
       <figure class="visita__photo">
         <img src="assets/products/tabua-signature/01.webp" alt="Tábua Signature da confeitaria">
       </figure>
@@ -74,7 +76,7 @@
       </figure>
     </section>
 
-    <section id="categorias" class="categorias" aria-labelledby="categorias-titulo">
+    <section id="categorias" class="categorias frost" aria-labelledby="categorias-titulo">
       <h2 id="categorias-titulo">Categorias</h2>
       <div class="categorias__row" data-bind="categories"></div>
     </section>
@@ -86,7 +88,7 @@
         <figure>
           <img src="assets/products/cheesecake-frutas-vermelhas-g/01.webp" alt="Sobremesa da vitrine">
         </figure>
-        <div class="sobremesas-band__copy">
+        <div class="sobremesas-band__copy frost">
           <h2 data-bind="sobremesas-title">Sobremesas inesquecíveis</h2>
           <p data-bind="sobremesas-text"></p>
           <button type="button" class="btn btn--outline" data-action="filter-category" data-category="sobremesas">
@@ -97,17 +99,17 @@
           <img src="assets/products/bolo-2-andares-g-p/01.webp" alt="Bolo dois andares da vitrine">
         </figure>
       </div>
-      <div class="featured-block">
+      <div class="featured-block frost">
         <h2 data-bind="presentes-title">Presentes que fazem sucesso</h2>
         <div class="product-grid" data-bind="featured-gifts"></div>
       </div>
-      <div class="featured-block">
+      <div class="featured-block frost">
         <h2 data-bind="bolos-title">Os bolos mais pedidos</h2>
         <div class="product-grid" data-bind="featured-cakes"></div>
       </div>
     </section>
 
-    <section id="catalogo" class="catalogo" aria-labelledby="catalogo-titulo">
+    <section id="catalogo" class="catalogo frost" aria-labelledby="catalogo-titulo">
       <div class="catalogo__head">
         <h2 id="catalogo-titulo">Vitrine</h2>
         <p class="catalogo__note">Preços e disponibilidade sob confirmação no WhatsApp.</p>
@@ -116,7 +118,7 @@
       <div class="product-grid" data-bind="products"></div>
     </section>
 
-    <section id="instagram" class="instagram" aria-labelledby="instagram-titulo">
+    <section id="instagram" class="instagram frost" aria-labelledby="instagram-titulo">
       <h2 id="instagram-titulo">Siga no Instagram</h2>
       <p>
         <a data-bind="instagram-link" href="https://www.instagram.com/janaabreuconfeitaria/" target="_blank" rel="noopener noreferrer">
@@ -127,7 +129,7 @@
     </section>
   </main>
 
-  <footer id="rodape" class="rodape">
+  <footer id="rodape" class="rodape frost">
     <div class="rodape__grid">
       <div>
         <p class="rodape__brand" data-bind="brandName">Jana Abreu Confeitaria</p>
@@ -204,6 +206,10 @@
   </aside>
   <div class="backdrop" data-action="close-cart" hidden></div>
 
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/hydra-synth@1.3.29/dist/hydra-synth.js"></script>
+  <script src="js/hydra-sketch.js"></script>
+  <script src="js/background-hydra.js"></script>
   <script src="js/utils.js"></script>
   <script src="js/persist.js"></script>
   <script src="js/cart.js"></script>

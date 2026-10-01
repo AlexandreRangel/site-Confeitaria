@@ -53,6 +53,10 @@ Copie e adapte no chat:
 - `No rodape, atualize o endereço quando tivermos a rua definitiva.`
 - `Siga no Instagram: troque os placeholders pelas fotos reais, mas o link continua https://www.instagram.com/janaabreuconfeitaria/.`
 
+## Fundo Hydra
+
+O fundo animado vive em `js/hydra-sketch.js` (`runHydraSketch`). Cole um novo sketch Hydra nessa função. O motor otimizado (`js/background-hydra.js`) usa canvas fullscreen, `MAX_DIM 768`, `MAX_DPR 1.5`, DPR 1 em save-data / pouca memória / pointer coarse, resize com throttle e fundo estático se `prefers-reduced-motion`.
+
 ## Painel
 
 Abra `/painel/` para pedidos e clientes. Exporte CSV (colunas `nome,email,telefone`). Não há Google Sheets nesta versão — o stub está em `painel/js/sheets-stub.js`.

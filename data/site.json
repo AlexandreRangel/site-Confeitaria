@@ -19,6 +19,12 @@
     "assets/instagram/ig-5.webp",
     "assets/instagram/ig-6.webp"
   ],
+  "hydra": {
+    "canvasId": "jana-hydra",
+    "staticFallback": "#efe6ea",
+    "sketchFile": "js/hydra-sketch.js",
+    "note": "Cole um novo sketch em js/hydra-sketch.js → runHydraSketch()"
+  },
   "colors": {
     "primary": "#FC7E8E",
     "secondary": "#F5D5E0",
