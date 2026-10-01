@@ -527,10 +527,10 @@ a.promo-card:focus-visible {
   max-width: var(--container);
   margin: 1rem auto;
   padding: 1.4rem 1rem;
-  background: var(--panel-solid);
-  border-radius: var(--radius);
-  border: 1px solid rgba(184, 110, 136, 0.28);
-  box-shadow: var(--shadow);
+  background: transparent;
+  border-radius: 0;
+  border: 0;
+  box-shadow: none;
 }
 
 .produto-detalhe__layout {
