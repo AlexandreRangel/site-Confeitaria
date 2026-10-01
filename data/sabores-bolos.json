@@ -1,7 +1,8 @@
 {
-  "source": "https://chefjanaabreu.vendizap.com/",
+  "source": "vendizap",
+  "selector": "recheio bolo",
+  "product": "Bolo buttercream G",
   "label": "Recheio do bolo",
-  "note": "Mesmas opções de recheio da vitrine Vendizap. Escolha um sabor para o bolo.",
   "flavors": [
     "Chocolatudo",
     "Pink Lemonade",

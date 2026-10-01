@@ -30,6 +30,10 @@ Em `data/site.json` → `colors` (e tokens em `css/base.css`):
 
 Não usar o coral antigo `#FC7E8E`. O Hydra fica só no botão **Adquirir agora**.
 
+## Recheios de bolo
+
+Os 11 sabores da vitrine Vendizap (Bolos → Bolo buttercream G → «recheio bolo») ficam em `data/sabores-bolos.json`. A página do produto mostra o mesmo menu + lista de rádios. Troque só essa lista se o Vendizap mudar.
+
 ## Trocar um produto
 
 1. Abra `data/products.json`.

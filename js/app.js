@@ -43,7 +43,7 @@
         Jana.loadJSON("data/categories.json"),
         Jana.loadJSON("data/carousel.json"),
         Jana.loadJSON("data/products.json"),
-        Jana.loadJSON("data/cake-flavors.json").catch(function noFlavors() {
+        Jana.loadJSON("data/sabores-bolos.json").catch(function noFlavors() {
           return { flavors: [] };
         }),
       ]);

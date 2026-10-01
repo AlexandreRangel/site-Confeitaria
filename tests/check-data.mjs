@@ -122,19 +122,38 @@ if (!existsSync(join(root, "produto/index.html"))) {
   }
 }
 
-const flavorsPath = join(root, "data/cake-flavors.json");
+const flavorsPath = join(root, "data/sabores-bolos.json");
+const expectedFlavors = [
+  "Chocolatudo",
+  "Pink Lemonade",
+  "Cookies and cream",
+  "Doce de leite com nozes",
+  "Doce de Leite e Chocolate Branco",
+  "Torta de limão",
+  "2 Amores (Brigadeiro Preto e Branco)",
+  "Bombom de Uva",
+  "Creme com Morangos",
+  "Capuccino",
+  "Pistache",
+];
 if (!existsSync(flavorsPath)) {
-  errors.push("Missing data/cake-flavors.json");
+  errors.push("Missing data/sabores-bolos.json");
 } else {
   const flavors = JSON.parse(readFileSync(flavorsPath, "utf8"));
-  if (!Array.isArray(flavors.flavors) || flavors.flavors.length < 8) {
-    errors.push("cake-flavors.json needs the Vendizap bolo flavor list");
+  if (!Array.isArray(flavors.flavors) || flavors.flavors.length !== expectedFlavors.length) {
+    errors.push("sabores-bolos.json must list the 11 Vendizap bolo recheios");
   }
-  ["Chocolatudo", "Pistache", "Pink Lemonade"].forEach((name) => {
-    if (!flavors.flavors.includes(name)) {
-      errors.push("Missing cake flavor " + name);
+  expectedFlavors.forEach((name, index) => {
+    if (!flavors.flavors || flavors.flavors[index] !== name) {
+      errors.push("sabor " + (index + 1) + " must be " + name);
     }
   });
+}
+if (existsSync(join(root, "js/app.js"))) {
+  const app = readFileSync(join(root, "js/app.js"), "utf8");
+  if (!app.includes("data/sabores-bolos.json")) {
+    errors.push("app.js must load data/sabores-bolos.json");
+  }
 }
 
 const painel = readFileSync(join(root, "painel/index.html"), "utf8");
