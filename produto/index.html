@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Bolos artesanais da Jana Abreu Confeitaria em Brasília.">
-  <title>Bolos · Jana Abreu Confeitaria</title>
+  <meta name="description" content="Detalhes do produto Jana Abreu Confeitaria.">
+  <title>Produto · Jana Abreu Confeitaria</title>
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,8 +13,8 @@
   <link rel="stylesheet" href="../css/layout.css">
   <link rel="stylesheet" href="../css/components.css">
 </head>
-<body data-page="category" data-category="bolos" data-root="../">
-  <a class="skip-link" href="#catalogo">Ir para os produtos</a>
+<body data-page="product" data-root="../">
+  <a class="skip-link" href="#produto">Ir para o produto</a>
   <header id="topo" class="topo">
     <div class="topo__inner">
       <button class="topo__menu" type="button" aria-expanded="false" aria-controls="menu-principal" data-action="toggle-menu">
@@ -44,19 +44,36 @@
     </div>
   </header>
   <main>
-    <section id="catalogo" class="catalogo" aria-labelledby="categoria-titulo">
-      <div class="catalogo__head">
-        <p class="catalogo__crumb">
-          <a href="../">Início</a>
-          <span aria-hidden="true"> · </span>
-          <span data-bind="category-title">Bolos</span>
-        </p>
-        <h1 id="categoria-titulo" data-bind="category-title">Bolos</h1>
-        <p class="catalogo__note">Fotos reais do catálogo · preços sob confirmação no WhatsApp.</p>
+    <article id="produto" class="produto-detalhe" data-bind="product-page">
+      <p class="catalogo__crumb">
+        <a href="../">Início</a>
+        <span aria-hidden="true"> · </span>
+        <a data-bind="product-category-link" href="../bolos/"><span data-bind="product-category">Categoria</span></a>
+      </p>
+      <div class="produto-detalhe__layout">
+        <div class="produto-detalhe__gallery">
+          <img data-bind="product-image" alt="">
+          <div class="modal__thumbs" data-bind="product-thumbs"></div>
+        </div>
+        <div class="produto-detalhe__info">
+          <p class="eyebrow" data-bind="product-category"></p>
+          <h1 data-bind="product-name">Produto</h1>
+          <p class="modal__price" data-bind="product-price"></p>
+          <button type="button" class="btn btn--outline" data-action="more-info">Mais informações sobre este produto</button>
+          <p data-bind="product-description"></p>
+          <fieldset class="flavor-picker" data-bind="flavor-picker" hidden></fieldset>
+          <div class="qty-row">
+            <label for="product-qty">Quantidade</label>
+            <input id="product-qty" type="number" min="1" value="1" inputmode="numeric">
+          </div>
+          <div class="produto-actions">
+            <button type="button" class="btn btn--acquire" data-action="add-from-product">
+              <span class="btn__label">Adquirir agora</span>
+            </button>
+          </div>
+        </div>
       </div>
-      <div class="categorias__row" data-bind="categories"></div>
-      <div class="product-grid" data-bind="products"></div>
-    </section>
+    </article>
   </main>
   <footer id="rodape" class="rodape">
     <div class="rodape__grid">
@@ -117,6 +134,8 @@
   </aside>
   <div class="backdrop" data-action="close-cart" hidden></div>
 
+  <script src="https://unpkg.com/hydra-synth@1.4.0/dist/hydra-synth.js"></script>
+  <script src="../js/background-hydra.js" defer></script>
   <script src="../js/utils.js"></script>
   <script src="../js/cart.js"></script>
   <script src="../js/store.js"></script>

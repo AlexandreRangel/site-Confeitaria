@@ -1,7 +1,9 @@
 {
   "brandName": "Jana Abreu Confeitaria",
-  "tagline": "Doces artesanais feitos com carinho em Brasília",
-  "logo": "assets/brand/logo.webp",
+  "tagline": "A vida é mais doce quando compartilhada",
+  "slogan": "A vida é mais doce quando compartilhada",
+  "logo": "assets/brand/logo-jana-abreu.png",
+  "pattern": "assets/brand/padronagem.svg",
   "contato": {
     "whatsapp": "5561981246112",
     "whatsappLabel": "(61) 98124-6112",

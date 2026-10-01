@@ -25,8 +25,9 @@
   --brown: #5c4033;
   --muted: #6b5149;
   --line: #e4b2c1;
-  --panel: rgba(255, 248, 247, 0.5);
-  --panel-strong: rgba(255, 250, 248, 0.5);
+  --panel: rgba(255, 250, 248, 0.94);
+  --panel-strong: rgba(255, 252, 250, 0.97);
+  --panel-solid: #fffdfb;
   --whatsapp: #25d366;
   --shadow: 0 16px 42px rgba(214, 111, 139, 0.16), 0 4px 12px rgba(42, 31, 36, 0.05);
   --radius: 26px;
@@ -46,13 +47,16 @@ html {
   scroll-behavior: smooth;
   scroll-padding-top: calc(var(--header-h) + 12px);
   overflow-x: hidden;
-  background: #e8d4dc;
+  background-color: #fff8f6;
+  background-image: url("../assets/brand/padronagem.svg");
+  background-repeat: repeat;
+  background-size: 420px 420px;
 }
 
 body {
   margin: 0;
   color: var(--ink);
-  background: transparent;
+  background: rgba(255, 250, 248, 0.72);
   font-family: var(--sans);
   font-size: 1rem;
   line-height: 1.6;
@@ -175,11 +179,34 @@ button {
   box-shadow: 0 8px 18px rgba(214, 111, 139, 0.2);
 }
 
-.btn--solid {
+.btn--solid,
+.btn--acquire {
   background: linear-gradient(135deg, #d94f68 0%, #b63e56 100%);
   color: #fff;
   border-color: transparent;
   box-shadow: 0 8px 18px rgba(214, 111, 139, 0.2);
+}
+
+.btn--acquire {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.btn--acquire .hydra-button-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.55;
+  mix-blend-mode: soft-light;
+}
+
+.btn--acquire .btn__label {
+  position: relative;
+  z-index: 1;
 }
 
 .btn--solid:hover,

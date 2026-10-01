@@ -3,7 +3,7 @@
 .painel-body {
   min-height: 100vh;
   color: var(--brown);
-  background: transparent;
+  background: rgba(255, 250, 248, 0.86);
 }
 
 .painel-shell {
@@ -37,11 +37,11 @@
 }
 
 .painel-header__brand img {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid rgba(237, 93, 115, 0.35);
+  width: auto;
+  height: 48px;
+  border-radius: 0;
+  object-fit: contain;
+  border: 0;
 }
 
 .painel-header__title {

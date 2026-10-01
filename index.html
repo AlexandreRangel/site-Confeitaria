@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Jana Abreu Confeitaria — doces artesanais feitos com carinho em Brasília. Encomendas pelo WhatsApp.">
+  <meta name="description" content="Jana Abreu Confeitaria — A vida é mais doce quando compartilhada. Encomendas pelo WhatsApp.">
   <title>Jana Abreu Confeitaria</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,8 +14,6 @@
   <link rel="stylesheet" href="css/components.css">
 </head>
 <body data-page="home" data-root="">
-  <canvas id="hydra-background" aria-hidden="true"></canvas>
-
   <a class="skip-link" href="#categorias">Ir para as categorias</a>
 
   <header id="topo" class="topo">
@@ -25,11 +23,8 @@
         <span class="topo__menu-bar" aria-hidden="true"></span>
       </button>
       <a class="topo__brand" href="./">
-        <img class="topo__brand-logo" data-bind="logo" src="assets/brand/logo.webp" alt="" width="48" height="48">
-        <span>
-          <span class="topo__brand-name" data-bind="brandName">Jana Abreu Confeitaria</span>
-          <span class="topo__brand-tag" data-bind="tagline">Doces artesanais em Brasília</span>
-        </span>
+        <img class="topo__brand-logo" data-bind="logo" src="assets/brand/logo-jana-abreu.png" alt="Jana Abreu Confeitaria" width="220" height="84">
+        <span class="topo__brand-tag" data-bind="slogan">A vida é mais doce quando compartilhada</span>
       </a>
       <nav id="menu-principal" class="topo__nav" aria-label="Principal">
         <a href="./">Início</a>
@@ -56,7 +51,8 @@
         <div class="hero__track" data-bind="carousel"></div>
       </div>
       <div class="hero__below">
-        <h1 class="hero__brand-title" data-bind="brandName">Jana Abreu Confeitaria</h1>
+        <h1 class="sr-only">Jana Abreu Confeitaria</h1>
+        <p class="hero__slogan" data-bind="slogan">A vida é mais doce quando compartilhada</p>
         <div class="hero__caption" data-bind="hero-caption">
           <div class="hero__caption-inner" data-bind="hero-caption-inner">
             <h2 data-bind="hero-slide-title"></h2>
@@ -129,7 +125,7 @@
     <div class="rodape__grid">
       <div>
         <p class="rodape__brand" data-bind="brandName">Jana Abreu Confeitaria</p>
-        <p data-bind="tagline"></p>
+        <p data-bind="slogan"></p>
       </div>
       <div>
         <h3>Contato</h3>
@@ -162,27 +158,6 @@
     </p>
   </footer>
 
-  <dialog id="produto-modal" class="modal" aria-labelledby="produto-titulo">
-    <div class="modal__inner">
-      <button type="button" class="modal__close" data-action="close-modal" aria-label="Fechar produto">×</button>
-      <div class="modal__gallery">
-        <img data-bind="modal-image" alt="">
-        <div class="modal__thumbs" data-bind="modal-thumbs"></div>
-      </div>
-      <div class="modal__info">
-        <p class="eyebrow" data-bind="modal-category"></p>
-        <h2 id="produto-titulo" data-bind="modal-name"></h2>
-        <p class="modal__price" data-bind="modal-price"></p>
-        <p data-bind="modal-description"></p>
-        <div class="qty-row">
-          <label for="modal-qty">Quantidade</label>
-          <input id="modal-qty" type="number" min="1" value="1" inputmode="numeric">
-        </div>
-        <button type="button" class="btn btn--solid" data-action="add-from-modal">Adicionar à encomenda</button>
-      </div>
-    </div>
-  </dialog>
-
   <aside id="encomendas" class="drawer" aria-labelledby="encomendas-titulo" hidden>
     <div class="drawer__panel">
       <header class="drawer__head">
@@ -205,8 +180,6 @@
   </aside>
   <div class="backdrop" data-action="close-cart" hidden></div>
 
-  <script src="https://unpkg.com/hydra-synth@1.4.0/dist/hydra-synth.js"></script>
-  <script src="js/background-hydra.js" defer></script>
   <script src="js/utils.js"></script>
   <script src="js/cart.js"></script>
   <script src="js/store.js"></script>

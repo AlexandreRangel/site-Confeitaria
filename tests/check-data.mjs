@@ -23,6 +23,12 @@ if (site.contato.instagram.handle !== "@janaabreuconfeitaria") {
 if (site.contato.instagram.url !== "https://www.instagram.com/janaabreuconfeitaria/") {
   errors.push("Instagram URL mismatch");
 }
+if (!/A vida é mais doce quando compartilhada/.test(site.slogan || site.tagline || "")) {
+  errors.push("Slogan must be «A vida é mais doce quando compartilhada»");
+}
+if (/feitos com carinho/i.test(JSON.stringify(site))) {
+  errors.push("Remove «doces feitos com carinho» from site copy");
+}
 if (!Array.isArray(site.instagramGallery) || site.instagramGallery.length < 6) {
   errors.push("instagramGallery needs 6 placeholders");
 }
@@ -91,6 +97,50 @@ products.forEach((product) => {
 });
 
 if (carousel.length < 3) errors.push("Carousel needs at least 3 slides");
+
+if (home.includes("hydra-background") || home.includes("hero__brand-title")) {
+  errors.push("Home must not use Hydra page background or a typed hero brand title");
+}
+if (/feitos com carinho/i.test(home)) {
+  errors.push("Home still mentions «feitos com carinho»");
+}
+if (!existsSync(join(root, "assets/brand/logo-jana-abreu.png"))) {
+  errors.push("Missing official logo assets/brand/logo-jana-abreu.png");
+}
+if (!existsSync(join(root, "assets/brand/padronagem.svg"))) {
+  errors.push("Missing damask pattern assets/brand/padronagem.svg");
+}
+if (!existsSync(join(root, "produto/index.html"))) {
+  errors.push("Missing product detail page produto/index.html");
+} else {
+  const productPage = readFileSync(join(root, "produto/index.html"), "utf8");
+  if (!productPage.includes("Mais informações sobre este produto")) {
+    errors.push("Product page needs «Mais informações sobre este produto»");
+  }
+  if (!productPage.includes("Adquirir agora")) {
+    errors.push("Product page needs «Adquirir agora»");
+  }
+}
+
+const flavorsPath = join(root, "data/cake-flavors.json");
+if (!existsSync(flavorsPath)) {
+  errors.push("Missing data/cake-flavors.json");
+} else {
+  const flavors = JSON.parse(readFileSync(flavorsPath, "utf8"));
+  if (!Array.isArray(flavors.flavors) || flavors.flavors.length < 8) {
+    errors.push("cake-flavors.json needs the Vendizap bolo flavor list");
+  }
+  ["Chocolatudo", "Pistache", "Pink Lemonade"].forEach((name) => {
+    if (!flavors.flavors.includes(name)) {
+      errors.push("Missing cake flavor " + name);
+    }
+  });
+}
+
+const painel = readFileSync(join(root, "painel/index.html"), "utf8");
+if (painel.includes("hydra")) {
+  errors.push("Painel must not load Hydra");
+}
 
 if (errors.length) {
   console.error(errors.join("\n"));

@@ -10,6 +10,9 @@
     timer: null,
     currentProduct: null,
     galleryIndex: 0,
+    flavors: [],
+    flavorLabel: "Recheio do bolo",
+    selectedFlavor: "",
   };
 
   function isCategoryPage() {
@@ -18,6 +21,15 @@
 
   function pageCategoryId() {
     return document.body.getAttribute("data-category") || "";
+  }
+
+  function isProductPage() {
+    return document.body.getAttribute("data-page") === "product";
+  }
+
+  function pageProductSlug() {
+    const params = new URLSearchParams(location.search);
+    return params.get("slug") || "";
   }
 
   function clearPageHash() {
@@ -31,6 +43,9 @@
         Jana.loadJSON("data/categories.json"),
         Jana.loadJSON("data/carousel.json"),
         Jana.loadJSON("data/products.json"),
+        Jana.loadJSON("data/cake-flavors.json").catch(function noFlavors() {
+          return { flavors: [] };
+        }),
       ]);
       state.site = loaded[0];
       state.categories = loaded[1].slice().sort(byOrder);
@@ -38,6 +53,9 @@
       state.products = loaded[3].filter(function isActive(product) {
         return product.active !== false;
       });
+      state.flavors = loaded[4].flavors || [];
+      state.flavorLabel = loaded[4].label || "Recheio do bolo";
+      state.selectedFlavor = state.flavors[0] || "";
       if (isCategoryPage()) {
         state.filter = pageCategoryId() || "todas";
       }
@@ -73,7 +91,8 @@
       .filter(Boolean)
       .join(", ");
     Jana.bindText("brandName", site.brandName);
-    Jana.bindText("tagline", site.tagline);
+    Jana.bindText("tagline", site.slogan || site.tagline);
+    Jana.bindText("slogan", site.slogan || site.tagline);
     Jana.bindText("visit-title", site.heroVisitTitle);
     Jana.bindText("visit-subtitle", site.heroVisitSubtitle);
     Jana.bindText("address", address);
@@ -90,6 +109,7 @@
     Jana.bindText("year", String(new Date().getFullYear()));
     document.title = site.brandName;
     applyCategoryTitle();
+    applyProductPage();
     if (site.logo) {
       Jana.qsa('[data-bind="logo"]').forEach(function setLogo(img) {
         img.src = Jana.assetUrl(site.logo);
@@ -284,12 +304,16 @@
       Jana.formatBRL(product.price) +
       "</p>" +
       '<div class="card__actions">' +
-      '<button type="button" class="btn btn--outline" data-action="open-product" data-slug="' +
-      Jana.escapeHtml(product.slug) +
-      '">Ver mais</button>' +
-      '<button type="button" class="btn btn--solid" data-action="add-product" data-slug="' +
-      Jana.escapeHtml(product.slug) +
-      '">Adicionar</button>' +
+      '<a class="btn btn--outline" href="' +
+      Jana.escapeHtml(Jana.productUrl(product.slug)) +
+      '">Ver mais</a>' +
+      (Jana.isCakeProduct(product)
+        ? '<a class="btn btn--solid" href="' +
+          Jana.escapeHtml(Jana.productUrl(product.slug)) +
+          '">Adquirir agora</a>'
+        : '<button type="button" class="btn btn--solid" data-action="add-product" data-slug="' +
+          Jana.escapeHtml(product.slug) +
+          '">Adquirir agora</button>') +
       "</div></div></article>"
     );
   }
@@ -377,34 +401,135 @@
     });
   }
 
-  function openProduct(slug) {
-    const product = findProduct(slug);
-    if (!product) return;
+  function applyProductPage() {
+    if (!isProductPage()) {
+      return;
+    }
+    const product = findProduct(pageProductSlug());
+    const article = Jana.qs("[data-bind='product-page']");
+    if (!product) {
+      if (article) {
+        article.innerHTML = '<p class="empty">Produto não encontrado. <a href="' + Jana.escapeHtml(Jana.homeUrl()) + '">Voltar ao início</a></p>';
+      }
+      return;
+    }
     state.currentProduct = product;
     state.galleryIndex = 0;
     const category = state.categories.find(function findCat(item) {
-      return item.id === product.categoryId;
+      return item.id === product.categoryId || item.slug === product.categoryId;
     });
-    Jana.bindText("modal-name", product.name);
-    Jana.bindText("modal-description", product.description);
-    Jana.bindText("modal-price", Jana.formatBRL(product.price));
-    Jana.bindText("modal-category", category ? category.name : "");
-    Jana.qs("#modal-qty").value = "1";
-    updateModalImage();
-    const modal = Jana.qs("#produto-modal");
-    if (typeof modal.showModal === "function") {
-      modal.showModal();
+    Jana.bindText("product-name", product.name);
+    Jana.bindText("product-description", product.description);
+    Jana.bindText("product-price", Jana.formatBRL(product.price));
+    Jana.bindText("product-category", category ? category.name : "");
+    Jana.bindHref("product-category-link", category ? Jana.categoryUrl(Jana.categorySlug(category)) : Jana.homeUrl());
+    if (state.site && state.site.brandName) {
+      document.title = product.name + " · " + state.site.brandName;
     }
-    history.replaceState(null, "", "#produto:" + product.slug);
+    const qty = Jana.qs("#product-qty") || Jana.qs("#modal-qty");
+    if (qty) {
+      qty.value = "1";
+    }
+    renderFlavorPicker(product);
+    updateModalImage();
+    const img = Jana.qs('[data-bind="product-image"]');
+    if (img) {
+      img.src = Jana.assetUrl(product.images[0]);
+      img.alt = product.name;
+    }
+  }
+
+  function renderFlavorPicker(product) {
+    const boxes = Jana.qsa("[data-bind='flavor-picker']");
+    if (!boxes.length) {
+      return;
+    }
+    const show = Jana.isCakeProduct(product) && state.flavors.length;
+    boxes.forEach(function fill(box) {
+      box.hidden = !show;
+      if (!show) {
+        box.innerHTML = "";
+        return;
+      }
+      if (!state.selectedFlavor) {
+        state.selectedFlavor = state.flavors[0];
+      }
+      const options = state.flavors
+        .map(function option(flavor) {
+          const selected = flavor === state.selectedFlavor ? " selected" : "";
+          return (
+            '<option value="' +
+            Jana.escapeHtml(flavor) +
+            '"' +
+            selected +
+            ">" +
+            Jana.escapeHtml(flavor) +
+            "</option>"
+          );
+        })
+        .join("");
+      const radios = state.flavors
+        .map(function radio(flavor, index) {
+          const id = "sabor-" + index;
+          const checked = flavor === state.selectedFlavor ? " checked" : "";
+          return (
+            '<label for="' +
+            id +
+            '"><input id="' +
+            id +
+            '" type="radio" name="sabor-bolo" value="' +
+            Jana.escapeHtml(flavor) +
+            '"' +
+            checked +
+            "> " +
+            Jana.escapeHtml(flavor) +
+            "</label>"
+          );
+        })
+        .join("");
+      box.innerHTML =
+        "<legend>" +
+        Jana.escapeHtml(state.flavorLabel) +
+        "</legend>" +
+        '<label class="flavor-picker__select">Escolha no menu' +
+        '<select data-action="set-flavor">' +
+        options +
+        "</select></label>" +
+        '<div class="flavor-radios">' +
+        radios +
+        "</div>";
+    });
+  }
+
+  function selectedFlavor() {
+    return state.selectedFlavor || "";
+  }
+
+  function openProduct(slug) {
+    if (!slug) {
+      return;
+    }
+    window.location.href = Jana.productUrl(slug);
   }
 
   function updateModalImage() {
     const product = state.currentProduct;
     if (!product) return;
     const image = Jana.qs('[data-bind="modal-image"]');
-    image.src = Jana.assetUrl(product.images[state.galleryIndex]);
-    image.alt = product.name;
-    Jana.qs('[data-bind="modal-thumbs"]').innerHTML = product.images
+    if (image) {
+      image.src = Jana.assetUrl(product.images[state.galleryIndex]);
+      image.alt = product.name;
+    }
+    const pageImage = Jana.qs('[data-bind="product-image"]');
+    if (pageImage) {
+      pageImage.src = Jana.assetUrl(product.images[state.galleryIndex]);
+      pageImage.alt = product.name;
+    }
+    const thumbs = Jana.qs('[data-bind="modal-thumbs"]') || Jana.qs('[data-bind="product-thumbs"]');
+    if (!thumbs) {
+      return;
+    }
+    thumbs.innerHTML = product.images
       .map(function thumb(src, index) {
         return (
           '<button type="button" class="' +
@@ -421,7 +546,7 @@
 
   function closeModal() {
     const modal = Jana.qs("#produto-modal");
-    if (modal.open) {
+    if (modal && modal.open) {
       modal.close();
     }
     if (location.hash.indexOf("#produto:") === 0) {
@@ -430,10 +555,29 @@
   }
 
   function addProduct(slug, quantity) {
-    const product = findProduct(slug);
+    const product = findProduct(slug) || (state.currentProduct && state.currentProduct.slug === slug ? state.currentProduct : null);
     if (!product) return;
-    Jana.Cart.add(product, quantity);
+    if (Jana.isCakeProduct(product) && !selectedFlavor()) {
+      window.location.href = Jana.productUrl(product.slug);
+      return;
+    }
+    Jana.Cart.add(product, quantity, { flavor: Jana.isCakeProduct(product) ? selectedFlavor() : "" });
     renderCart();
+    openCart();
+  }
+
+  function openMoreInfo(product) {
+    if (!product) {
+      return;
+    }
+    const notes = Jana.qs('#checkout-form [name="observacoes"]');
+    if (notes) {
+      notes.value =
+        "Olá! Gostaria de mais informações sobre este produto: " +
+        product.name +
+        (Jana.isCakeProduct(product) && selectedFlavor() ? " (recheio: " + selectedFlavor() + ")" : "") +
+        ".";
+    }
     openCart();
   }
 
@@ -451,7 +595,9 @@
               '" alt="">' +
               "<div><strong>" +
               Jana.escapeHtml(item.name) +
-              "</strong><p>" +
+              "</strong>" +
+              (item.flavor ? '<p class="cart-row__flavor">Recheio: ' + Jana.escapeHtml(item.flavor) + "</p>" : "") +
+              "<p>" +
               Jana.formatBRL(item.price) +
               '</p></div><div class="cart-row__qty">' +
               '<button type="button" data-action="qty-minus" data-id="' +
@@ -517,11 +663,21 @@
       lines.push("*Data desejada:* " + day + "/" + month + "/" + year);
     }
     lines.push("", "*Itens:*");
-    payload.items.forEach(function pushItem(item) {
-      lines.push(
-        "• " + item.quantity + "x " + item.name + " — " + Jana.formatBRL(item.price * item.quantity)
-      );
-    });
+    if (payload.items.length) {
+      payload.items.forEach(function pushItem(item) {
+        lines.push(
+          "• " +
+            item.quantity +
+            "x " +
+            item.name +
+            (item.flavor ? " (recheio: " + item.flavor + ")" : "") +
+            " — " +
+            Jana.formatBRL(item.price * item.quantity)
+        );
+      });
+    } else if (payload.observacoes) {
+      lines.push("• Pedido de informações sobre produto");
+    }
     lines.push("", "*Total:* " + Jana.formatBRL(Jana.Cart.total()));
     if (payload.observacoes) {
       lines.push("", "*Observações:* " + payload.observacoes);
@@ -532,7 +688,8 @@
 
   function checkout(event) {
     event.preventDefault();
-    if (!Jana.Cart.items().length) {
+    const payloadPreview = readCheckoutForm(event.target);
+    if (!Jana.Cart.items().length && !payloadPreview.observacoes) {
       openCart();
       return;
     }
@@ -578,7 +735,17 @@
       if (action === "open-product") openProduct(target.getAttribute("data-slug"));
       if (action === "add-product") addProduct(target.getAttribute("data-slug"), 1);
       if (action === "add-from-modal" && state.currentProduct) {
-        addProduct(state.currentProduct.slug, Jana.qs("#modal-qty").value);
+        addProduct(state.currentProduct.slug, (Jana.qs("#modal-qty") || Jana.qs("#product-qty")).value);
+      }
+      if (action === "add-from-product" && state.currentProduct) {
+        addProduct(state.currentProduct.slug, (Jana.qs("#product-qty") || Jana.qs("#modal-qty")).value);
+      }
+      if (action === "more-info") {
+        openMoreInfo(state.currentProduct || findProduct(target.getAttribute("data-slug")));
+      }
+      if (action === "set-flavor") {
+        state.selectedFlavor = target.value || target.getAttribute("data-flavor") || "";
+        renderFlavorPicker(state.currentProduct);
       }
       if (action === "gallery-goto") {
         state.galleryIndex = Number(target.getAttribute("data-index"));
@@ -625,13 +792,21 @@
         }
       });
     }
+    document.addEventListener("change", function onChange(event) {
+      const flavorControl = event.target.closest("[data-action='set-flavor']") || event.target;
+      if (flavorControl && (flavorControl.getAttribute("data-action") === "set-flavor" || flavorControl.name === "sabor-bolo")) {
+        state.selectedFlavor = flavorControl.value || "";
+        renderFlavorPicker(state.currentProduct);
+      }
+    });
     window.addEventListener("hashchange", openFromHash);
   }
 
   function openFromHash() {
     const hash = decodeURIComponent(location.hash || "");
     if (hash.indexOf("#produto:") === 0) {
-      openProduct(hash.replace("#produto:", ""));
+      window.location.replace(Jana.productUrl(hash.replace("#produto:", "")));
+      return;
     }
     if (hash === "#encomendas") {
       openCart();

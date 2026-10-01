@@ -62,6 +62,20 @@
     return category.slug || category.id || "";
   };
 
+  Jana.productUrl = function productUrl(slug) {
+    return Jana.assetUrl("produto/?slug=" + encodeURIComponent(String(slug || "")));
+  };
+
+  Jana.isCakeProduct = function isCakeProduct(product) {
+    if (!product) {
+      return false;
+    }
+    if (product.categoryId === "bolos") {
+      return true;
+    }
+    return !!(product.categoryIds && product.categoryIds.indexOf("bolos") !== -1);
+  };
+
   Jana.loadJSON = async function loadJSON(path) {
     const response = await fetch(Jana.assetUrl(path), { cache: "no-store" });
     if (!response.ok) {

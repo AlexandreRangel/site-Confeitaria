@@ -311,16 +311,28 @@ a.promo-card:focus-visible {
 }
 
 .modal::backdrop {
-  background: rgba(61, 46, 41, 0.45);
+  background: rgba(61, 46, 41, 0.55);
 }
 
 .modal__inner {
   position: relative;
-  background: var(--panel-strong);
+  background: var(--panel-solid);
   border-radius: 28px;
   display: grid;
   gap: 1rem;
   padding: 1.2rem;
+}
+
+.modal__info,
+.produto-detalhe__info {
+  background: var(--panel-solid);
+}
+
+.modal__info [data-bind="modal-description"],
+.produto-detalhe__info [data-bind="product-description"] {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: var(--brown);
 }
 
 .modal__close {
@@ -400,7 +412,7 @@ a.promo-card:focus-visible {
   right: 0;
   width: min(420px, 100%);
   height: 100%;
-  background: var(--panel-strong);
+  background: var(--panel-solid);
   box-shadow: var(--shadow);
   border-radius: 28px 0 0 28px;
   overflow: auto;
@@ -498,10 +510,15 @@ a.promo-card:focus-visible {
 }
 
 @media (min-width: 720px) {
-  .modal__inner {
+  .modal__inner,
+  .produto-detalhe__layout {
     grid-template-columns: 1fr 1fr;
     padding: 1.6rem;
     position: relative;
+  }
+
+  .produto-detalhe__layout {
+    padding: 0.4rem 0 0;
   }
 
   .promo-card__media {
@@ -521,6 +538,87 @@ a.promo-card:focus-visible {
     width: 88px;
     height: 88px;
   }
+}
+
+.produto-detalhe {
+  max-width: var(--container);
+  margin: 1rem auto;
+  padding: 1.4rem 1rem;
+  background: var(--panel-solid);
+  border-radius: var(--radius);
+  border: 1px solid rgba(228, 178, 193, 0.55);
+  box-shadow: var(--shadow);
+}
+
+.produto-detalhe__layout {
+  display: grid;
+  gap: 1.4rem;
+}
+
+.produto-detalhe__info {
+  padding: 0.2rem 0 0;
+}
+
+.produto-detalhe__info h1 {
+  margin: 0.35rem 0 0.5rem;
+  color: var(--brown);
+}
+
+.flavor-picker {
+  margin: 1rem 0 0.4rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #fff;
+}
+
+.flavor-picker legend {
+  font-family: var(--serif);
+  font-weight: 600;
+  color: var(--brown);
+  padding: 0 0.35rem;
+}
+
+.flavor-picker select {
+  width: 100%;
+  min-height: 44px;
+  margin: 0.35rem 0 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.5rem 0.7rem;
+  background: var(--cream);
+  color: var(--ink);
+}
+
+.flavor-radios {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.flavor-radios label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  min-height: 44px;
+  padding: 0.35rem 0.15rem;
+  color: var(--brown);
+}
+
+.flavor-radios input {
+  margin-top: 0.3rem;
+}
+
+.produto-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.cart-row__flavor {
+  margin: 0.15rem 0 0;
+  font-size: 0.88rem;
+  color: var(--brown);
 }
 
 .rodape-loja-link {
