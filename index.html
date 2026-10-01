@@ -54,6 +54,14 @@
   <main>
     <section id="hero-carrossel" class="hero" aria-roledescription="carrossel" aria-label="Destaques">
       <div class="hero__track" data-bind="carousel"></div>
+      <h1 class="hero__brand-title" data-bind="brandName">Jana Abreu Confeitaria</h1>
+      <div class="hero__caption" data-bind="hero-caption">
+        <div class="hero__caption-inner" data-bind="hero-caption-inner">
+          <h2 data-bind="hero-slide-title"></h2>
+          <p data-bind="hero-slide-subtitle"></p>
+          <button type="button" class="btn btn--outline" data-bind="hero-slide-cta" data-action="carousel-link">Ver opções</button>
+        </div>
+      </div>
       <div class="hero__controls">
         <button type="button" class="hero__arrow" data-action="carousel-prev" aria-label="Slide anterior">‹</button>
         <div class="hero__dots" data-bind="carousel-dots"></div>
@@ -162,7 +170,7 @@
         <p data-bind="payments"></p>
       </div>
     </div>
-    <p class="rodape__credits">© <span data-bind="year"></span> Jana Abreu Confeitaria · vitrine estática · fotos reais da loja</p>
+    <p class="rodape__credits">© <span data-bind="year"></span> Jana Abreu Confeitaria</p>
   </footer>
 
   <dialog id="produto-modal" class="modal" aria-labelledby="produto-titulo">
