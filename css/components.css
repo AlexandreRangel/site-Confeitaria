@@ -8,7 +8,7 @@
 
 .cart-button img {
   margin: 0 auto;
-  filter: invert(32%) sepia(20%) saturate(800%) hue-rotate(340deg);
+  filter: invert(48%) sepia(34%) saturate(900%) hue-rotate(314deg);
 }
 
 .cart-button__count {
@@ -33,8 +33,8 @@
 }
 
 .hero__arrow {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   font-size: 1.4rem;
 }
@@ -57,13 +57,14 @@
 }
 
 .bolinha {
-  flex: 0 0 92px;
-  width: 92px;
+  flex: 0 0 86px;
+  width: 86px;
   border: 0;
   background: transparent;
   text-align: center;
   scroll-snap-align: start;
   color: var(--ink);
+  min-height: 44px;
 }
 
 .bolinha img {
@@ -185,7 +186,7 @@
 
 .card__actions .btn {
   flex: 1;
-  min-height: 40px;
+  min-height: 44px;
   padding: 0.45rem 0.7rem;
   font-size: 0.85rem;
 }
@@ -335,11 +336,11 @@
 }
 
 .cart-row__qty button {
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   border: 1px solid var(--line);
   background: #fff;
-  border-radius: 6px;
+  border-radius: 8px;
 }
 
 .drawer__total {
@@ -397,5 +398,32 @@
 
   .promo-card img {
     min-height: 420px;
+  }
+
+  .bolinha {
+    flex: 0 0 108px;
+    width: 108px;
+  }
+
+  .bolinha img {
+    width: 92px;
+    height: 92px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .bolinha {
+    flex: 0 0 118px;
+    width: 118px;
+  }
+
+  .bolinha img {
+    width: 100px;
+    height: 100px;
+  }
+
+  .promo-card,
+  .promo-card img {
+    min-height: 460px;
   }
 }

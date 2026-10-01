@@ -73,7 +73,8 @@
     },
     total: function total() {
       return loadItems().reduce(function sum(value, item) {
-        return value + item.price * item.quantity;
+        const price = typeof item.price === "number" ? item.price : 0;
+        return value + price * item.quantity;
       }, 0);
     },
   };

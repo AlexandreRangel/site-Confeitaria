@@ -3,49 +3,49 @@
     "id": "cestas-presentes",
     "name": "Cestas & Presentes",
     "slug": "cestas-presentes",
-    "image": "assets/categories/cestas-presentes.svg",
+    "image": "assets/categories/categoria-cestas-presentes.webp",
     "order": 1
   },
   {
     "id": "personalizado-empresas",
     "name": "Personalizado para Empresas",
     "slug": "personalizado-empresas",
-    "image": "assets/categories/personalizado-empresas.svg",
+    "image": "assets/categories/categoria-personalizado-empresas.webp",
     "order": 2
   },
   {
     "id": "combos-festa",
     "name": "Combos festa",
     "slug": "combos-festa",
-    "image": "assets/categories/combos-festa.svg",
+    "image": "assets/categories/categoria-combos-festa.webp",
     "order": 3
   },
   {
     "id": "bolos",
     "name": "Bolos",
     "slug": "bolos",
-    "image": "assets/categories/bolos.svg",
+    "image": "assets/categories/categoria-bolos.webp",
     "order": 4
   },
   {
     "id": "festa-personalizada",
     "name": "Festa Personalizada",
     "slug": "festa-personalizada",
-    "image": "assets/categories/festa-personalizada.svg",
+    "image": "assets/categories/categoria-festa-personalizada.webp",
     "order": 5
   },
   {
     "id": "doces-festa",
     "name": "Doces festa",
     "slug": "doces-festa",
-    "image": "assets/categories/doces-festa.svg",
+    "image": "assets/categories/categoria-doces-festa.webp",
     "order": 6
   },
   {
     "id": "sobremesas",
     "name": "Sobremesas",
     "slug": "sobremesas",
-    "image": "assets/categories/sobremesas.svg",
+    "image": "assets/categories/categoria-sobremesas.webp",
     "order": 7
   }
 ]

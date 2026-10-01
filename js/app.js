@@ -63,7 +63,9 @@
     Jana.bindText("visit-subtitle", site.heroVisitSubtitle);
     Jana.bindText("address", address);
     Jana.bindText("hours", site.hours);
+    Jana.bindText("delivery", site.deliveryNote);
     Jana.bindText("payments", site.paymentsNote);
+    Jana.bindSrc("logo", site.logo);
     Jana.bindText("whatsapp-label", site.contato.whatsappLabel);
     Jana.bindHref("whatsapp-link", "https://wa.me/" + whatsapp);
     Jana.bindText("instagram-handle", handle);
@@ -76,6 +78,16 @@
     document.title = site.brandName;
     if (site.colors) {
       const root = document.documentElement;
+      if (site.colors.primary) {
+        root.style.setProperty("--primary", site.colors.primary);
+        root.style.setProperty("--copper", site.colors.primary);
+        root.style.setProperty("--mint", site.colors.primary);
+      }
+      if (site.colors.secondary) {
+        root.style.setProperty("--secondary", site.colors.secondary);
+        root.style.setProperty("--blush", site.colors.secondary);
+        root.style.setProperty("--mint-light", site.colors.secondary);
+      }
       if (site.colors.mint) root.style.setProperty("--mint", site.colors.mint);
       if (site.colors.mintLight) root.style.setProperty("--mint-light", site.colors.mintLight);
       if (site.colors.blush) root.style.setProperty("--blush", site.colors.blush);
@@ -229,9 +241,9 @@
   function renderDestaques() {
     const copy = state.site.destaquesCopy;
     const promos = [
-      { title: copy.kitsTitle, category: "cestas-presentes", cta: "Ver mais", image: "assets/products/kit-delicadeza-1.svg" },
-      { title: copy.bolosTitle, category: "bolos", cta: "Confira", image: "assets/products/bolo-baunilha-1.svg" },
-      { title: copy.docesTitle, category: "doces-festa", cta: "Ver tudo", image: "assets/products/brigadeiros-1.svg" },
+      { title: copy.kitsTitle, category: "cestas-presentes", cta: "Ver mais", image: "assets/products/cestas-presentes/01.webp" },
+      { title: copy.bolosTitle, category: "bolos", cta: "Confira", image: "assets/products/bolos/01.webp" },
+      { title: copy.docesTitle, category: "doces-festa", cta: "Ver tudo", image: "assets/products/doces-festa/01.webp" },
     ];
     Jana.qs('[data-bind="promo-cards"]').innerHTML = promos
       .map(function promoHtml(promo) {
@@ -253,7 +265,7 @@
       .join("");
     const gifts = featuredByTag("presente", "cestas-presentes");
     Jana.qs('[data-bind="featured-gifts"]').innerHTML = (gifts.length ? gifts : productsByCategory("cestas-presentes"))
-      .slice(0, 1)
+      .slice(0, 2)
       .map(productCard)
       .join("");
     const cakes = featuredByTag("mais-pedidos", "bolos");
@@ -438,9 +450,8 @@
     }
     lines.push("", "*Itens:*");
     items.forEach(function pushItem(item) {
-      lines.push(
-        "• " + item.quantity + "x " + item.name + " — " + Jana.formatBRL(item.price * item.quantity)
-      );
+      const lineTotal = typeof item.price === "number" ? item.price * item.quantity : null;
+      lines.push("• " + item.quantity + "x " + item.name + " — " + Jana.formatBRL(lineTotal));
     });
     lines.push("", "*Total:* " + Jana.formatBRL(Jana.Cart.total()));
     if (observacoes) {

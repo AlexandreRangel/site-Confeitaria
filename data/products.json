@@ -1,122 +1,167 @@
 [
   {
-    "id": "p-kit-delicadeza",
-    "slug": "kit-presente-delicadeza",
-    "name": "Kit presente Delicadeza (exemplo)",
-    "description": "Produto de exemplo para a vitrine. Caixa presenteável com seleção de doces artesanais. Substitua este item pelo catálogo real da loja.",
+    "id": "p-cesta-dengo",
+    "slug": "cesta-dengo",
+    "name": "Cesta Dengo",
+    "description": "Cesta presenteável da vitrine Jana Abreu. Combine montagem e data pelo WhatsApp.",
     "categoryId": "cestas-presentes",
-    "price": 129.9,
+    "price": 257,
     "images": [
-      "assets/products/kit-delicadeza-1.svg",
-      "assets/products/kit-delicadeza-2.svg"
+      "assets/products/cesta-dengo/01.webp",
+      "assets/products/cesta-dengo/02.webp"
     ],
     "featured": true,
     "active": true,
-    "tags": ["exemplo", "kit", "presente", "featured"]
+    "tags": ["presente", "featured"]
   },
   {
-    "id": "p-caixa-corporativa",
-    "slug": "caixa-corporativa-agradecimento",
-    "name": "Caixa corporativa Agradecimento (exemplo)",
-    "description": "Produto de exemplo para a vitrine. Caixa personalizável para brindes empresariais. Substitua pelos itens reais de Personalizado para Empresas.",
+    "id": "p-tabua-signature",
+    "slug": "tabua-signature",
+    "name": "Tábua Signature",
+    "description": "Tábua Signature para presentear. Disponibilidade e horários pelo WhatsApp.",
+    "categoryId": "cestas-presentes",
+    "price": 467,
+    "images": [
+      "assets/products/tabua-signature/01.webp",
+      "assets/products/tabua-signature/02.webp"
+    ],
+    "featured": true,
+    "active": true,
+    "tags": ["presente"]
+  },
+  {
+    "id": "p-caixa-parabens-10",
+    "slug": "caixa-parabens-individual-kit-10",
+    "name": "Caixa parabéns individual KIT COM 10 UND",
+    "description": "Kit corporativo com 10 caixas individuais. Ideal para empresas.",
     "categoryId": "personalizado-empresas",
-    "price": 189,
+    "price": 610,
     "images": [
-      "assets/products/caixa-corporativa-1.svg",
-      "assets/products/caixa-corporativa-2.svg"
+      "assets/products/caixa-parabens-individual-kit-10/01.webp",
+      "assets/products/caixa-parabens-individual-kit-10/02.webp"
     ],
     "featured": true,
     "active": true,
-    "tags": ["exemplo", "empresas", "brinde"]
+    "tags": ["empresas"]
   },
   {
-    "id": "p-combo-festa",
-    "slug": "combo-festa-50-doces",
-    "name": "Combo festa 50 doces (exemplo)",
-    "description": "Produto de exemplo para a vitrine. Combo ilustrativo com doces sortidos para festa. Ajuste quantidade, sabores e preço no JSON.",
+    "id": "p-combo-prata",
+    "slug": "combo-prata",
+    "name": "Combo prata",
+    "description": "Combo festa prata. Quantidades e tema combinados no pedido.",
     "categoryId": "combos-festa",
-    "price": 220,
+    "price": 460,
     "images": [
-      "assets/products/combo-festa-1.svg",
-      "assets/products/combo-festa-2.svg"
+      "assets/products/combo-prata/01.webp",
+      "assets/products/combo-prata/02.webp"
     ],
     "featured": true,
     "active": true,
-    "tags": ["exemplo", "festa", "combo"]
+    "tags": ["festa", "combo"]
   },
   {
-    "id": "p-bolo-chocolate",
-    "slug": "bolo-chocolate-meio-amargo",
-    "name": "Bolo de chocolate meio amargo (exemplo)",
-    "description": "Produto de exemplo para a vitrine. Bolo de chocolate com ganache. Não representa um item real do catálogo Vendizap — substitua foto, nome e preço.",
-    "categoryId": "bolos",
-    "price": 168,
+    "id": "p-combo-encanto",
+    "slug": "combo-encanto",
+    "name": "Combo encanto",
+    "description": "Combo festa Encanto. Preço sob consulta — confirme no WhatsApp.",
+    "categoryId": "combos-festa",
+    "price": null,
     "images": [
-      "assets/products/bolo-chocolate-1.svg",
-      "assets/products/bolo-chocolate-2.svg"
-    ],
-    "featured": true,
-    "active": true,
-    "tags": ["exemplo", "bolo", "chocolate", "mais-pedidos"]
-  },
-  {
-    "id": "p-bolo-baunilha",
-    "slug": "bolo-baunilha-frutas-vermelhas",
-    "name": "Bolo de baunilha com frutas (exemplo)",
-    "description": "Produto de exemplo para a vitrine. Massa clara com cobertura e frutas vermelhas ilustrativas. Substitua pelo bolo real da confeitaria.",
-    "categoryId": "bolos",
-    "price": 178,
-    "images": [
-      "assets/products/bolo-baunilha-1.svg",
-      "assets/products/bolo-baunilha-2.svg"
-    ],
-    "featured": true,
-    "active": true,
-    "tags": ["exemplo", "bolo", "mais-pedidos"]
-  },
-  {
-    "id": "p-festa-personalizada",
-    "slug": "kit-festa-personalizada",
-    "name": "Kit festa personalizada (exemplo)",
-    "description": "Produto de exemplo para a vitrine. Sugestão de kit com docinhos e bolo no tema da festa. Personalize cores e quantidades no pedido via WhatsApp.",
-    "categoryId": "festa-personalizada",
-    "price": 320,
-    "images": [
-      "assets/products/festa-personalizada-1.svg",
-      "assets/products/festa-personalizada-2.svg"
+      "assets/products/combo-encanto/01.webp",
+      "assets/products/combo-encanto/02.webp"
     ],
     "featured": false,
     "active": true,
-    "tags": ["exemplo", "festa", "personalizado"]
+    "tags": ["festa", "combo", "sob-consulta"]
   },
   {
-    "id": "p-brigadeiros",
-    "slug": "doces-festa-brigadeiros",
-    "name": "Doces festa — brigadeiros (exemplo)",
-    "description": "Produto de exemplo para a vitrine. Bandeja ilustrativa de brigadeiros gourmet. Informe a quantidade desejada nas observações do pedido.",
+    "id": "p-bolo-2-andares",
+    "slug": "bolo-2-andares-g-p",
+    "name": "Bolo 2 andares G + P",
+    "description": "Bolo de dois andares (G + P). Sabor e cobertura combinados no pedido.",
+    "categoryId": "bolos",
+    "price": 630,
+    "images": [
+      "assets/products/bolo-2-andares-g-p/01.webp",
+      "assets/products/bolo-2-andares-g-p/02.webp"
+    ],
+    "featured": true,
+    "active": true,
+    "tags": ["bolo", "mais-pedidos"]
+  },
+  {
+    "id": "p-bolo-buttercream",
+    "slug": "bolo-buttercream",
+    "name": "Bolo buttercream G/M",
+    "description": "Bolo buttercream nos tamanhos G ou M. Preço sob consulta.",
+    "categoryId": "bolos",
+    "price": null,
+    "images": [
+      "assets/products/bolo-buttercream/01.webp",
+      "assets/products/bolo-buttercream/02.webp"
+    ],
+    "featured": true,
+    "active": true,
+    "tags": ["bolo", "mais-pedidos", "sob-consulta"]
+  },
+  {
+    "id": "p-bolo-naked",
+    "slug": "bolo-naked-g",
+    "name": "Bolo naked G",
+    "description": "Bolo naked tamanho G. Preço sob consulta no WhatsApp.",
+    "categoryId": "bolos",
+    "price": null,
+    "images": [
+      "assets/products/bolo-naked-g/01.webp",
+      "assets/products/bolo-naked-g/02.webp"
+    ],
+    "featured": true,
+    "active": true,
+    "tags": ["bolo", "mais-pedidos", "sob-consulta"]
+  },
+  {
+    "id": "p-caixa-50-brigadeiros",
+    "slug": "caixa-50-brigadeiros-personalizados",
+    "name": "Caixa com 50 brigadeiros personalizados",
+    "description": "Caixa com 50 brigadeiros personalizados para festa.",
+    "categoryId": "festa-personalizada",
+    "price": 189,
+    "images": [
+      "assets/products/caixa-50-brigadeiros-personalizados/01.webp",
+      "assets/products/caixa-50-brigadeiros-personalizados/02.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": ["festa", "personalizado"]
+  },
+  {
+    "id": "p-caixa-15-brigadeiros",
+    "slug": "caixa-15-brigadeiros",
+    "name": "Caixa 15 brigadeiros",
+    "description": "Caixa com 15 brigadeiros. Informe sabores nas observações.",
     "categoryId": "doces-festa",
-    "price": 96,
+    "price": 60,
     "images": [
-      "assets/products/brigadeiros-1.svg",
-      "assets/products/brigadeiros-2.svg"
+      "assets/products/caixa-15-brigadeiros/01.webp",
+      "assets/products/caixa-15-brigadeiros/02.webp"
     ],
     "featured": true,
     "active": true,
-    "tags": ["exemplo", "doces", "casamento"]
+    "tags": ["doces", "casamento"]
   },
   {
-    "id": "p-torta-limao",
-    "slug": "torta-limao-siciliano",
-    "name": "Torta de limão siciliano (exemplo)",
-    "description": "Produto de exemplo para a vitrine. Sobremesa ilustrativa de limão com merengue. Substitua pela receita e foto reais da loja.",
+    "id": "p-cheesecake",
+    "slug": "cheesecake-frutas-vermelhas-g",
+    "name": "Cheesecake frutas vermelhas G",
+    "description": "Cheesecake de frutas vermelhas tamanho G.",
     "categoryId": "sobremesas",
-    "price": 92,
+    "price": 287,
     "images": [
-      "assets/products/torta-limao-1.svg",
-      "assets/products/torta-limao-2.svg"
+      "assets/products/cheesecake-frutas-vermelhas-g/01.webp",
+      "assets/products/cheesecake-frutas-vermelhas-g/02.webp"
     ],
     "featured": true,
     "active": true,
-    "tags": ["exemplo", "sobremesa"]
+    "tags": ["sobremesa"]
   }
 ]

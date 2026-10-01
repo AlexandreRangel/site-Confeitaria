@@ -22,8 +22,11 @@ if (site.contato.instagram.handle !== "@janaabreuconfeitaria") {
 if (site.contato.instagram.url !== "https://www.instagram.com/janaabreuconfeitaria/") {
   errors.push("Instagram URL mismatch");
 }
+if (site.colors.primary !== "#FC7E8E" || site.colors.secondary !== "#F5D5E0") {
+  errors.push("Brand colors must be #FC7E8E / #F5D5E0");
+}
 if (!Array.isArray(site.instagramGallery) || site.instagramGallery.length < 6) {
-  errors.push("instagramGallery needs 6 placeholders");
+  errors.push("instagramGallery needs 6 images");
 }
 
 const categoryIds = new Set(categories.map((item) => item.id));
@@ -40,19 +43,16 @@ expected.forEach((id) => {
   if (!categoryIds.has(id)) errors.push("Missing category " + id);
 });
 
-if (products.length < 6) errors.push("Need at least 6 example products");
+if (products.length < 6) errors.push("Need at least 6 products");
 products.forEach((product) => {
   if (!categoryIds.has(product.categoryId)) {
     errors.push("Unknown category on " + product.slug);
   }
-  if (typeof product.price !== "number") {
-    errors.push("Price must be a number: " + product.slug);
+  if (product.price !== null && typeof product.price !== "number") {
+    errors.push("Price must be a number or null: " + product.slug);
   }
   if (!Array.isArray(product.images) || product.images.length < 2) {
     errors.push("Need a gallery on " + product.slug);
-  }
-  if (!product.tags.includes("exemplo")) {
-    errors.push("Example product must be tagged: " + product.slug);
   }
 });
 
@@ -66,3 +66,4 @@ if (errors.length) {
 console.log("data files ok");
 console.log("whatsapp", site.contato.whatsapp);
 console.log("instagram", site.contato.instagram.handle);
+console.log("colors", site.colors.primary, site.colors.secondary);

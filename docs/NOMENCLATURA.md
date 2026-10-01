@@ -24,16 +24,19 @@ Use estes nomes ao pedir mudanças no site ou no chat com o assistente. Eles bat
 - `doces-festa` — Doces festa
 - `sobremesas` — Sobremesas
 
-## Slugs de produto (exemplos da vitrine)
+## Slugs de produto (vitrine atual)
 
-- `kit-presente-delicadeza`
-- `caixa-corporativa-agradecimento`
-- `combo-festa-50-doces`
-- `bolo-chocolate-meio-amargo`
-- `bolo-baunilha-frutas-vermelhas`
-- `kit-festa-personalizada`
-- `doces-festa-brigadeiros`
-- `torta-limao-siciliano`
+- `cesta-dengo`
+- `tabua-signature`
+- `caixa-parabens-individual-kit-10`
+- `combo-prata`
+- `combo-encanto`
+- `bolo-2-andares-g-p`
+- `bolo-buttercream`
+- `bolo-naked-g`
+- `caixa-50-brigadeiros-personalizados`
+- `caixa-15-brigadeiros`
+- `cheesecake-frutas-vermelhas-g`
 
 ## Contatos canônicos
 

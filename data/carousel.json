@@ -1,38 +1,38 @@
 [
   {
-    "id": "slide-vitrine",
+    "id": "slide-marca",
     "title": "Jana Abreu Confeitaria",
-    "subtitle": "Doces artesanais feitos com carinho em Brasília",
-    "image": "assets/carousel/slide-vitrine.svg",
+    "subtitle": "Doces artesanais em Brasília–DF",
+    "image": "assets/carousel/slide-bolos.webp",
     "linkCategory": "bolos",
     "productSlug": null,
     "order": 1
   },
   {
     "id": "slide-kits",
-    "title": "Kits para presentear",
-    "subtitle": "Cestas e caixas prontas para surpreender",
-    "image": "assets/carousel/slide-kits.svg",
+    "title": "Cestas & presentes",
+    "subtitle": "Para surpreender quem você ama",
+    "image": "assets/carousel/slide-cestas-presentes.webp",
     "linkCategory": "cestas-presentes",
     "productSlug": null,
     "order": 2
   },
   {
     "id": "slide-doces",
-    "title": "Doces finos para celebrações",
-    "subtitle": "Casamentos, festas e momentos especiais",
-    "image": "assets/carousel/slide-doces.svg",
+    "title": "Doces festa",
+    "subtitle": "Brigadeiros e finos para celebrações",
+    "image": "assets/carousel/slide-doces-festa.webp",
     "linkCategory": "doces-festa",
     "productSlug": null,
     "order": 3
   },
   {
-    "id": "slide-encomendas",
-    "title": "Encomende pelo WhatsApp",
-    "subtitle": "Pix, cartão ou boleto — combinamos após a confirmação",
-    "image": "assets/carousel/slide-encomendas.svg",
-    "linkCategory": null,
-    "productSlug": "kit-presente-delicadeza",
+    "id": "slide-sobremesas",
+    "title": "Sobremesas",
+    "subtitle": "Cheesecakes e tortas sob encomenda",
+    "image": "assets/carousel/slide-sobremesas.webp",
+    "linkCategory": "sobremesas",
+    "productSlug": null,
     "order": 4
   }
 ]

@@ -43,6 +43,10 @@ Produtos com `"active": false` somem da vitrine. Itens de exemplo usam a tag `"e
 
 A mensagem inclui nome, telefone, data desejada, itens, quantidades, total e observações. O texto na interface lembra: *Após confirmar no WhatsApp, combinamos Pix, cartão ou boleto.*
 
+## Marca
+
+Cores da loja ao vivo: **#FC7E8E** (coral/rosa) e **#F5D5E0** (rosa claro), fundo branco. Ajuste em `data/site.json` → `colors`.
+
 ## Instagram
 
 `data/site.json` → `contato.instagram`:
