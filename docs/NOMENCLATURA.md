@@ -26,16 +26,12 @@ Use estes nomes ao pedir mudanças no site ou no chat com o assistente. Eles bat
 
 ## Slugs de produto (vitrine atual)
 
-- `cesta-dengo`
-- `tabua-signature`
+- `cesta-dengo`, `cesta-rubi`, `cesta-manha-dos-sonhos`, `cesta-parabens-pra-voce`
+- `tabua-signature`, `platter-amor-no-ar`, `cafe-parabens-fit`
 - `caixa-parabens-individual-kit-10`
-- `combo-prata`
-- `combo-encanto`
-- `bolo-2-andares-g-p`
-- `bolo-buttercream`
-- `bolo-naked-g`
-- `caixa-50-brigadeiros-personalizados`
-- `caixa-15-brigadeiros`
+- `combo-prata`, `combo-encanto`
+- `bolo-2-andares-g-p`, `bolo-buttercream`, `bolo-naked-g`, `bolo-retangular-gg`, `bolo-p-50-brigadeiros-personalizados`
+- `caixa-50-brigadeiros-personalizados`, `caixa-15-brigadeiros`
 - `cheesecake-frutas-vermelhas-g`
 
 ## Contatos canônicos

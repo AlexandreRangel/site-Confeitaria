@@ -243,9 +243,9 @@
   function renderDestaques() {
     const copy = state.site.destaquesCopy;
     const promos = [
-      { title: copy.kitsTitle, category: "cestas-presentes", cta: "Ver mais", image: "assets/products/cestas-presentes/01.webp" },
-      { title: copy.bolosTitle, category: "bolos", cta: "Confira", image: "assets/products/bolos/01.webp" },
-      { title: copy.docesTitle, category: "doces-festa", cta: "Ver tudo", image: "assets/products/doces-festa/01.webp" },
+      { title: copy.kitsTitle, category: "cestas-presentes", cta: "Ver mais", image: "assets/products/cesta-rubi/01.webp" },
+      { title: copy.bolosTitle, category: "bolos", cta: "Confira", image: "assets/products/bolo-2-andares-g-p/01.webp" },
+      { title: copy.docesTitle, category: "doces-festa", cta: "Ver tudo", image: "assets/products/combo-prata/01.webp" },
     ];
     Jana.qs('[data-bind="promo-cards"]').innerHTML = promos
       .map(function promoHtml(promo) {
@@ -267,12 +267,12 @@
       .join("");
     const gifts = featuredByTag("presente", "cestas-presentes");
     Jana.qs('[data-bind="featured-gifts"]').innerHTML = (gifts.length ? gifts : productsByCategory("cestas-presentes"))
-      .slice(0, 2)
+      .slice(0, 4)
       .map(productCard)
       .join("");
     const cakes = featuredByTag("mais-pedidos", "bolos");
     Jana.qs('[data-bind="featured-cakes"]').innerHTML = (cakes.length ? cakes : productsByCategory("bolos"))
-      .slice(0, 4)
+      .slice(0, 5)
       .map(productCard)
       .join("");
   }

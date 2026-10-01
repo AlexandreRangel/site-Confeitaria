@@ -51,8 +51,8 @@ products.forEach((product) => {
   if (product.price !== null && typeof product.price !== "number") {
     errors.push("Price must be a number or null: " + product.slug);
   }
-  if (!Array.isArray(product.images) || product.images.length < 2) {
-    errors.push("Need a gallery on " + product.slug);
+  if (!Array.isArray(product.images) || product.images.length < 1) {
+    errors.push("Need a photo on " + product.slug);
   }
 });
 

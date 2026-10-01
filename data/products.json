@@ -3,7 +3,7 @@
     "id": "p-cesta-dengo",
     "slug": "cesta-dengo",
     "name": "Cesta Dengo",
-    "description": "Cesta presenteável da vitrine Jana Abreu. Combine montagem e data pelo WhatsApp.",
+    "description": "Cesta presenteável da vitrine. Foto ilustrativa da linha de cestas (Rubi / Parabéns). Confirme montagem no WhatsApp.",
     "categoryId": "cestas-presentes",
     "price": 257,
     "images": [
@@ -15,6 +15,48 @@
     "tags": ["presente", "featured"]
   },
   {
+    "id": "p-cesta-rubi",
+    "slug": "cesta-rubi",
+    "name": "Cesta Rubi",
+    "description": "Cesta Rubi para presentear. Combine conteúdo e data pelo WhatsApp.",
+    "categoryId": "cestas-presentes",
+    "price": null,
+    "images": [
+      "assets/products/cesta-rubi/01.webp"
+    ],
+    "featured": true,
+    "active": true,
+    "tags": ["presente", "featured", "sob-consulta"]
+  },
+  {
+    "id": "p-cesta-manha",
+    "slug": "cesta-manha-dos-sonhos",
+    "name": "Cesta Manhã dos Sonhos",
+    "description": "Cesta café da manhã. Preço sob consulta.",
+    "categoryId": "cestas-presentes",
+    "price": null,
+    "images": [
+      "assets/products/cesta-manha-dos-sonhos/01.webp"
+    ],
+    "featured": true,
+    "active": true,
+    "tags": ["presente", "featured", "sob-consulta"]
+  },
+  {
+    "id": "p-cesta-parabens",
+    "slug": "cesta-parabens-pra-voce",
+    "name": "Cesta Parabéns pra você",
+    "description": "Cesta comemorativa Parabéns pra você.",
+    "categoryId": "cestas-presentes",
+    "price": null,
+    "images": [
+      "assets/products/cesta-parabens-pra-voce/01.webp"
+    ],
+    "featured": true,
+    "active": true,
+    "tags": ["presente", "featured", "sob-consulta"]
+  },
+  {
     "id": "p-tabua-signature",
     "slug": "tabua-signature",
     "name": "Tábua Signature",
@@ -22,12 +64,39 @@
     "categoryId": "cestas-presentes",
     "price": 467,
     "images": [
-      "assets/products/tabua-signature/01.webp",
-      "assets/products/tabua-signature/02.webp"
+      "assets/products/tabua-signature/01.webp"
     ],
     "featured": true,
     "active": true,
-    "tags": ["presente"]
+    "tags": ["presente", "featured"]
+  },
+  {
+    "id": "p-platter-amor",
+    "slug": "platter-amor-no-ar",
+    "name": "Platter Amor no ar",
+    "description": "Platter Amor no ar. Preço sob consulta.",
+    "categoryId": "cestas-presentes",
+    "price": null,
+    "images": [
+      "assets/products/platter-amor-no-ar/01.webp"
+    ],
+    "featured": true,
+    "active": true,
+    "tags": ["presente", "featured", "sob-consulta"]
+  },
+  {
+    "id": "p-cafe-parabens-fit",
+    "slug": "cafe-parabens-fit",
+    "name": "Café parabéns fit",
+    "description": "Café parabéns fit. Combine itens e data no WhatsApp.",
+    "categoryId": "cestas-presentes",
+    "price": null,
+    "images": [
+      "assets/products/cafe-parabens-fit/01.webp"
+    ],
+    "featured": true,
+    "active": true,
+    "tags": ["presente", "featured", "sob-consulta"]
   },
   {
     "id": "p-caixa-parabens-10",
@@ -37,8 +106,7 @@
     "categoryId": "personalizado-empresas",
     "price": 610,
     "images": [
-      "assets/products/caixa-parabens-individual-kit-10/01.webp",
-      "assets/products/caixa-parabens-individual-kit-10/02.webp"
+      "assets/products/caixa-parabens-individual-kit-10/01.webp"
     ],
     "featured": true,
     "active": true,
@@ -52,8 +120,7 @@
     "categoryId": "combos-festa",
     "price": 460,
     "images": [
-      "assets/products/combo-prata/01.webp",
-      "assets/products/combo-prata/02.webp"
+      "assets/products/combo-prata/01.webp"
     ],
     "featured": true,
     "active": true,
@@ -67,10 +134,9 @@
     "categoryId": "combos-festa",
     "price": null,
     "images": [
-      "assets/products/combo-encanto/01.webp",
-      "assets/products/combo-encanto/02.webp"
+      "assets/products/combo-encanto/01.webp"
     ],
-    "featured": false,
+    "featured": true,
     "active": true,
     "tags": ["festa", "combo", "sob-consulta"]
   },
@@ -78,7 +144,7 @@
     "id": "p-bolo-2-andares",
     "slug": "bolo-2-andares-g-p",
     "name": "Bolo 2 andares G + P",
-    "description": "Bolo de dois andares (G + P). Sabor e cobertura combinados no pedido.",
+    "description": "Bolo de dois andares (G + P). Segunda foto: linha M + PP.",
     "categoryId": "bolos",
     "price": 630,
     "images": [
@@ -93,7 +159,7 @@
     "id": "p-bolo-buttercream",
     "slug": "bolo-buttercream",
     "name": "Bolo buttercream G/M",
-    "description": "Bolo buttercream nos tamanhos G ou M. Preço sob consulta.",
+    "description": "Bolo buttercream nos tamanhos G e M. Preço sob consulta.",
     "categoryId": "bolos",
     "price": null,
     "images": [
@@ -112,12 +178,39 @@
     "categoryId": "bolos",
     "price": null,
     "images": [
-      "assets/products/bolo-naked-g/01.webp",
-      "assets/products/bolo-naked-g/02.webp"
+      "assets/products/bolo-naked-g/01.webp"
     ],
     "featured": true,
     "active": true,
     "tags": ["bolo", "mais-pedidos", "sob-consulta"]
+  },
+  {
+    "id": "p-bolo-retangular",
+    "slug": "bolo-retangular-gg",
+    "name": "Bolo retangular GG",
+    "description": "Bolo retangular tamanho GG. Preço sob consulta.",
+    "categoryId": "bolos",
+    "price": null,
+    "images": [
+      "assets/products/bolo-retangular-gg/01.webp"
+    ],
+    "featured": true,
+    "active": true,
+    "tags": ["bolo", "mais-pedidos", "sob-consulta"]
+  },
+  {
+    "id": "p-bolo-p-50",
+    "slug": "bolo-p-50-brigadeiros-personalizados",
+    "name": "Bolo P + 50 brigadeiros personalizados",
+    "description": "Bolo P acompanhado de 50 brigadeiros personalizados.",
+    "categoryId": "bolos",
+    "price": null,
+    "images": [
+      "assets/products/bolo-p-50-brigadeiros-personalizados/01.webp"
+    ],
+    "featured": true,
+    "active": true,
+    "tags": ["bolo", "festa", "sob-consulta"]
   },
   {
     "id": "p-caixa-50-brigadeiros",
@@ -147,13 +240,13 @@
     ],
     "featured": true,
     "active": true,
-    "tags": ["doces", "casamento"]
+    "tags": ["doces"]
   },
   {
     "id": "p-cheesecake",
     "slug": "cheesecake-frutas-vermelhas-g",
     "name": "Cheesecake frutas vermelhas G",
-    "description": "Cheesecake de frutas vermelhas tamanho G.",
+    "description": "Cheesecake de frutas vermelhas tamanho G. Foto da categoria Sobremesas até a foto oficial do item.",
     "categoryId": "sobremesas",
     "price": 287,
     "images": [

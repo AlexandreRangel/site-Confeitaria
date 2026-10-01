@@ -26,8 +26,10 @@
 }
 
 .topo__logo {
-  width: min(220px, 58vw);
-  height: auto;
+  width: auto;
+  max-width: min(200px, 52vw);
+  height: 46px;
+  object-fit: contain;
   margin: 0 auto;
 }
 
@@ -329,7 +331,8 @@
   }
 
   .topo__logo {
-    width: 240px;
+    max-width: 260px;
+    height: 58px;
   }
 
   .icon-link__label {
