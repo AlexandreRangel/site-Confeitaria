@@ -79,6 +79,9 @@ categories.forEach((category) => {
 if (home.includes('id="catalogo"') || home.includes('data-bind="products"')) {
   errors.push("Home must not include the mixed product vitrine");
 }
+if (home.includes('class="visita"') || /venha nos visitar/i.test(home) || /<h3>Endereço<\/h3>/.test(home)) {
+  errors.push("Home must not include the visit/address block");
+}
 if (home.includes('data-action="filter-category"')) {
   errors.push("Home must link to category pages instead of filtering in place");
 }

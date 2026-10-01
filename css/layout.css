@@ -251,7 +251,6 @@ main,
   background: transparent;
 }
 
-.visita,
 .categorias,
 .destaques,
 .catalogo,
@@ -273,29 +272,6 @@ main,
 
 .rodape {
   margin-bottom: 1.35rem;
-}
-
-.visita {
-  display: grid;
-  gap: 1.25rem;
-  text-align: center;
-  border-bottom: 1px solid var(--line);
-}
-
-.visita__photo img {
-  width: 100%;
-  aspect-ratio: 4/3;
-  object-fit: cover;
-  border-radius: 20px;
-  border: 1px solid var(--line);
-}
-
-.visita__pin {
-  display: flex;
-  gap: 0.4rem;
-  justify-content: center;
-  align-items: flex-start;
-  color: var(--muted);
 }
 
 .categorias__carousel {
@@ -535,11 +511,6 @@ main,
     max-width: 36rem;
   }
 
-  .visita {
-    grid-template-columns: 1fr 0.85fr 1fr;
-    align-items: center;
-  }
-
   .promo-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
@@ -618,7 +589,6 @@ main,
 }
 
 @media (min-width: 1280px) {
-  .visita,
   .categorias,
   .destaques,
   .catalogo,
