@@ -25,8 +25,8 @@
   --brown: #5c4033;
   --muted: #6b5149;
   --line: #e4b2c1;
-  --panel: rgba(255, 248, 247, 0.52);
-  --panel-strong: rgba(255, 250, 248, 0.62);
+  --panel: rgba(255, 248, 247, 0.5);
+  --panel-strong: rgba(255, 250, 248, 0.5);
   --whatsapp: #25d366;
   --shadow: 0 16px 42px rgba(214, 111, 139, 0.16), 0 4px 12px rgba(42, 31, 36, 0.05);
   --radius: 26px;
