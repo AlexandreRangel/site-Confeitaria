@@ -53,19 +53,23 @@
 
   <main>
     <section id="hero-carrossel" class="hero" aria-roledescription="carrossel" aria-label="Destaques">
-      <div class="hero__track" data-bind="carousel"></div>
-      <h1 class="hero__brand-title" data-bind="brandName">Jana Abreu Confeitaria</h1>
-      <div class="hero__caption" data-bind="hero-caption">
-        <div class="hero__caption-inner" data-bind="hero-caption-inner">
-          <h2 data-bind="hero-slide-title"></h2>
-          <p data-bind="hero-slide-subtitle"></p>
-          <button type="button" class="btn btn--outline" data-bind="hero-slide-cta" data-action="carousel-link">Ver opções</button>
-        </div>
+      <div class="hero__media">
+        <div class="hero__track" data-bind="carousel"></div>
       </div>
-      <div class="hero__controls">
-        <button type="button" class="hero__arrow" data-action="carousel-prev" aria-label="Slide anterior">‹</button>
-        <div class="hero__dots" data-bind="carousel-dots"></div>
-        <button type="button" class="hero__arrow" data-action="carousel-next" aria-label="Próximo slide">›</button>
+      <div class="hero__below">
+        <h1 class="hero__brand-title" data-bind="brandName">Jana Abreu Confeitaria</h1>
+        <div class="hero__caption" data-bind="hero-caption">
+          <div class="hero__caption-inner" data-bind="hero-caption-inner">
+            <h2 data-bind="hero-slide-title"></h2>
+            <p data-bind="hero-slide-subtitle"></p>
+            <button type="button" class="btn btn--outline" data-bind="hero-slide-cta" data-action="carousel-link">Ver opções</button>
+          </div>
+        </div>
+        <div class="hero__controls">
+          <button type="button" class="hero__arrow" data-action="carousel-prev" aria-label="Slide anterior">‹</button>
+          <div class="hero__dots" data-bind="carousel-dots"></div>
+          <button type="button" class="hero__arrow" data-action="carousel-next" aria-label="Próximo slide">›</button>
+        </div>
       </div>
     </section>
 

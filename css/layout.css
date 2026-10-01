@@ -155,7 +155,7 @@ main,
   display: none;
 }
 
-/* Full-bleed carousel */
+/* Full-bleed carousel — photo alone; copy/CTA live under the image */
 .hero {
   position: relative;
   overflow: hidden;
@@ -163,6 +163,14 @@ main,
   width: 100vw;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
+  display: flex;
+  flex-direction: column;
+}
+
+.hero__media {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
 }
 
 .hero__track {
@@ -181,48 +189,54 @@ main,
   width: 100%;
   height: min(72vw, 420px);
   object-fit: cover;
+  display: block;
 }
 
-/* Persistent company title overlaid on hero images (not in caption bubble) */
+/* Brand + caption + controls sit below the photo — never painted on it */
+.hero__below {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 1rem 1.15rem 0.85rem;
+  background: rgba(255, 248, 247, 0.92);
+  backdrop-filter: blur(14px) saturate(1.05);
+  -webkit-backdrop-filter: blur(14px) saturate(1.05);
+  border-top: 1px solid rgba(255, 255, 255, 0.65);
+}
+
 .hero__brand-title {
-  position: absolute;
-  z-index: 3;
-  left: 50%;
-  top: 8%;
-  transform: translateX(-50%);
+  position: static;
   margin: 0;
-  width: min(92%, 40rem);
+  width: 100%;
   text-align: center;
   font-family: var(--serif);
   font-weight: 600;
-  font-size: clamp(2rem, 6.5vw, 3.75rem);
-  line-height: 1.1;
+  font-size: clamp(1.55rem, 4.5vw, 2.35rem);
+  line-height: 1.15;
   letter-spacing: 0.01em;
-  color: #fff;
-  text-shadow:
-    0 2px 18px rgba(42, 31, 36, 0.55),
-    0 1px 3px rgba(42, 31, 36, 0.45),
-    0 0 40px rgba(42, 31, 36, 0.25);
+  color: var(--brown);
+  text-shadow: none;
   pointer-events: none;
 }
 
-/* Fixed-position caption bubble — stays put; only inner text fades */
 .hero__caption {
-  position: absolute;
-  z-index: 3;
-  left: 5%;
-  bottom: 12%;
-  max-width: 22rem;
-  width: calc(100% - 10%);
+  position: static;
+  z-index: auto;
+  left: auto;
+  bottom: auto;
+  max-width: 40rem;
+  width: 100%;
+  margin: 0 auto;
   color: var(--ink);
-  background: var(--panel);
-  backdrop-filter: blur(14px) saturate(1.05);
-  -webkit-backdrop-filter: blur(14px) saturate(1.05);
-  padding: 1rem 1.15rem;
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  border-radius: 24px;
-  box-shadow: var(--shadow);
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
   pointer-events: auto;
+  text-align: center;
 }
 
 .hero__caption-inner {
@@ -234,7 +248,7 @@ main,
 }
 
 .hero__caption h2 {
-  text-align: left;
+  text-align: center;
   margin-bottom: 0.35rem;
   font-size: clamp(1.35rem, 4vw, 2rem);
   color: var(--brown);
@@ -251,8 +265,8 @@ main,
   justify-content: center;
   align-items: center;
   gap: 0.8rem;
-  padding: 0.75rem 1rem 1rem;
-  background: var(--panel);
+  padding: 0.35rem 0 0.15rem;
+  background: transparent;
 }
 
 .visita,
@@ -458,16 +472,15 @@ main,
   }
 
   .hero__brand-title {
-    top: 10%;
-    font-size: clamp(2.6rem, 5vw, 4rem);
+    font-size: clamp(1.85rem, 3.5vw, 2.6rem);
+  }
+
+  .hero__below {
+    padding: 1.15rem 1.5rem 1rem;
   }
 
   .hero__caption {
-    left: 8%;
-    bottom: 14%;
-    max-width: 28rem;
-    width: auto;
-    padding: 1.25rem 1.4rem;
+    max-width: 36rem;
   }
 
   .visita {
