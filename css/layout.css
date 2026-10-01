@@ -38,8 +38,8 @@ main,
 
 .topo__brand-logo {
   width: auto;
-  height: 48px;
-  max-width: min(220px, 58vw);
+  height: 56px;
+  max-width: min(240px, 56vw);
   border-radius: 0;
   object-fit: contain;
   border: 0;
@@ -460,19 +460,14 @@ main,
   }
 
   .topo__brand-logo {
-    height: 58px;
-    max-width: 260px;
-  }
-
-  .topo__brand-tag {
-    display: block;
+    height: 72px;
+    max-width: 320px;
   }
 
   .topo__nav {
     display: flex;
   }
 
-  .topo__brand-tag,
   .icon-link__label {
     display: block;
   }
