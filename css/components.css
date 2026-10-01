@@ -57,9 +57,9 @@
   border-color: var(--copper);
 }
 
-.bolinha {
-  flex: 0 0 96px;
-  width: 96px;
+.categoria-card {
+  flex: 0 0 calc((100% - 2 * var(--cat-gap, 0.5rem)) / 3);
+  min-width: 0;
   min-height: 44px;
   border: 0;
   background: transparent;
@@ -68,32 +68,27 @@
   color: var(--brown);
   font-family: var(--serif);
   font-weight: 600;
-  padding: 0.2rem;
+  padding: 0;
   text-decoration: none;
   cursor: pointer;
 }
 
-a.bolinha:hover,
-a.bolinha:focus-visible {
+a.categoria-card:hover,
+a.categoria-card:focus-visible {
   color: var(--brown);
 }
 
-.bolinha__media {
+.categoria-card__media {
   display: block;
-  width: 76px;
-  height: 76px;
-  margin: 0 auto 0.45rem;
-  border-radius: 50%;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 18px;
   overflow: hidden;
-  border: 5px solid var(--cream);
-  background: var(--cream);
-  outline: 1px solid rgba(184, 110, 136, 0.35);
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.58), 0 10px 20px rgba(184, 110, 136, 0.17);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, outline-color 0.2s ease;
+  background: var(--secondary);
+  box-shadow: 0 10px 22px rgba(184, 110, 136, 0.14);
 }
 
-.bolinha__media img,
-.bolinha > img {
+.categoria-card__media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -101,57 +96,37 @@ a.bolinha:focus-visible {
   transform: scale(1);
   transform-origin: center center;
   transition: transform 0.45s ease;
-  will-change: transform;
 }
 
-/* Legacy: if img is direct child without wrapper, keep circle size */
-.bolinha > img {
-  width: 76px;
-  height: 76px;
-  margin: 0 auto 0.45rem;
-  border-radius: 50%;
-  border: 5px solid var(--cream);
-  outline: 1px solid rgba(184, 110, 136, 0.35);
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.58), 0 10px 20px rgba(184, 110, 136, 0.17);
+.categoria-card.is-active .categoria-card__media,
+.categoria-card:hover .categoria-card__media,
+.categoria-card:focus-visible .categoria-card__media {
+  box-shadow: 0 0 0 3px var(--primary), 0 12px 24px rgba(184, 110, 136, 0.2);
 }
 
-/* Zoom photo inside fixed circle frame */
-.bolinha.is-active .bolinha__media,
-.bolinha:hover .bolinha__media,
-.bolinha:focus-visible .bolinha__media {
-  border-color: var(--mint);
-  outline-color: var(--primary);
-  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.7), 0 12px 24px rgba(184, 110, 136, 0.24);
-}
-
-.bolinha.is-active .bolinha__media img,
-.bolinha:hover .bolinha__media img,
-.bolinha:focus-visible .bolinha__media img,
-.bolinha.is-active > img,
-.bolinha:hover > img,
-.bolinha:focus-visible > img {
-  transform: scale(1.33);
+.categoria-card.is-active .categoria-card__media img,
+.categoria-card:hover .categoria-card__media img,
+.categoria-card:focus-visible .categoria-card__media img {
+  transform: scale(1.06);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bolinha__media img,
-  .bolinha > img {
+  .categoria-card__media img {
     transition: none;
   }
-  .bolinha.is-active .bolinha__media img,
-  .bolinha:hover .bolinha__media img,
-  .bolinha:focus-visible .bolinha__media img,
-  .bolinha.is-active > img,
-  .bolinha:hover > img,
-  .bolinha:focus-visible > img {
+  .categoria-card.is-active .categoria-card__media img,
+  .categoria-card:hover .categoria-card__media img,
+  .categoria-card:focus-visible .categoria-card__media img {
     transform: none;
   }
 }
 
-.bolinha span {
+.categoria-card__label {
   display: block;
-  font-size: 0.88rem;
+  margin-top: 0.5rem;
+  font-size: 0.86rem;
   line-height: 1.25;
+  color: var(--brown);
 }
 
 .promo-card {
@@ -527,16 +502,24 @@ a.promo-card:focus-visible {
 }
 
 
-@media (min-width: 1024px) {
-  .bolinha {
-    flex: 0 0 110px;
-    width: 110px;
+@media (min-width: 720px) {
+  .categoria-card {
+    flex-basis: calc((100% - 3 * var(--cat-gap, 0.75rem)) / 4);
   }
 
-  .bolinha__media,
-  .bolinha > img {
-    width: 88px;
-    height: 88px;
+  .categoria-card__label {
+    font-size: 1rem;
+    margin-top: 0.65rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .categorias__row {
+    --cat-gap: 0.85rem;
+  }
+
+  .categoria-card {
+    flex-basis: calc((100% - 4 * var(--cat-gap, 0.85rem)) / 5);
   }
 }
 

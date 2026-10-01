@@ -82,6 +82,13 @@ if (home.includes('id="catalogo"') || home.includes('data-bind="products"')) {
 if (home.includes('data-action="filter-category"')) {
   errors.push("Home must link to category pages instead of filtering in place");
 }
+const appJs = readFileSync(join(root, "js/app.js"), "utf8");
+if (appJs.includes("bolinha") || /class="bolinha/.test(home)) {
+  errors.push("Category nav must use square cards, not circular bolinhas");
+}
+if (!appJs.includes("categoria-card") || !appJs.includes("categories-next")) {
+  errors.push("Category nav needs GoldKo-style cards and a next-arrow control");
+}
 
 if (products.length < 6) errors.push("Need at least 6 products");
 products.forEach((product) => {

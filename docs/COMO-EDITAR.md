@@ -45,10 +45,10 @@ Preço exemplo: `168` vira **R$ 168,00**. Use `168.9` para **R$ 168,90`.
 
 Marque vitrine de teste com `"exemplo"` em `tags`. Quando o item for real, remova essa tag e o texto “(exemplo)” do nome.
 
-## Nova categoria (bolinha)
+## Nova categoria (card quadrado)
 
 1. Adicione um objeto em `data/categories.json` com `id`, `name`, `slug`, `image`, `order`.
-2. Ponha a arte circular em `assets/categories/`.
+2. Ponha a foto quadrada em `assets/categories/`.
 3. Nos produtos, use o mesmo `categoryId`.
 4. Crie a pasta `{slug}/index.html` (cópia de outra categoria) com `data-category="{slug}"` para a URL `/slug/` funcionar no GitHub Pages. Slug em minúsculas, hífens, sem acento e sem underscore.
 
@@ -62,7 +62,7 @@ Copie e adapte no chat:
 
 - `Atualize o topo: deixe o Instagram @janaabreuconfeitaria visível no mobile.`
 - `No hero-carrossel, troque o primeiro slide para a categoria bolos.`
-- `Nas categorias, reordene as bolinhas: Bolos primeiro.`
+- `Nas categorias, reordene os cards: Bolos primeiro.`
 - `Abra o produto:bolo-chocolate-meio-amargo e troque o preço para 190.`
 - `Nos destaques, o card de kits deve filtrar cestas-presentes.`
 - `Nas encomendas, o WhatsApp deve continuar 5561981246112.`

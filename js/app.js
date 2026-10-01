@@ -270,22 +270,97 @@
         const slug = Jana.categorySlug(category);
         const active = current === category.id || current === slug ? " is-active" : "";
         return (
-          '<a class="bolinha' +
+          '<a class="categoria-card' +
           active +
           '" href="' +
           Jana.escapeHtml(Jana.categoryUrl(slug)) +
           '"' +
           (active ? ' aria-current="page"' : "") +
           ">" +
-          '<span class="bolinha__media"><img src="' +
+          '<span class="categoria-card__media"><img src="' +
           Jana.escapeHtml(Jana.assetUrl(category.image)) +
           '" alt=""></span>' +
-          "<span>" +
+          '<span class="categoria-card__label">' +
           Jana.escapeHtml(category.name) +
           "</span></a>"
         );
       })
       .join("");
+    bindCategoryCarousel(row);
+  }
+
+  function bindCategoryCarousel(row) {
+    ensureCategoryCarousel(row);
+    requestAnimationFrame(function afterLayout() {
+      updateCategoryArrows(row);
+    });
+    if (row.dataset.carouselBound === "true") {
+      return;
+    }
+    row.dataset.carouselBound = "true";
+    row.addEventListener(
+      "scroll",
+      function onCategoryScroll() {
+        updateCategoryArrows(row);
+      },
+      { passive: true }
+    );
+    window.addEventListener("resize", function onCategoryResize() {
+      updateCategoryArrows(row);
+    });
+  }
+
+  function ensureCategoryCarousel(row) {
+    if (row.parentElement && row.parentElement.classList.contains("categorias__carousel")) {
+      return row.parentElement;
+    }
+    const shell = document.createElement("div");
+    shell.className = "categorias__carousel";
+    const prev = document.createElement("button");
+    prev.type = "button";
+    prev.className = "categorias__arrow categorias__arrow--prev";
+    prev.setAttribute("data-action", "categories-prev");
+    prev.setAttribute("aria-label", "Ver categorias anteriores");
+    prev.innerHTML = '<span aria-hidden="true">‹</span>';
+    const next = document.createElement("button");
+    next.type = "button";
+    next.className = "categorias__arrow categorias__arrow--next";
+    next.setAttribute("data-action", "categories-next");
+    next.setAttribute("aria-label", "Ver mais categorias");
+    next.innerHTML = '<span aria-hidden="true">›</span>';
+    row.parentNode.insertBefore(shell, row);
+    shell.appendChild(prev);
+    shell.appendChild(row);
+    shell.appendChild(next);
+    return shell;
+  }
+
+  function scrollCategories(row, direction) {
+    const card = row.querySelector(".categoria-card");
+    const styles = window.getComputedStyle(row);
+    const gap = parseFloat(styles.columnGap || styles.gap) || 8;
+    const cardWidth = card ? card.getBoundingClientRect().width : row.clientWidth / 3;
+    const step = (cardWidth + gap) * 2;
+    row.scrollBy({ left: direction * step, behavior: "smooth" });
+  }
+
+  function updateCategoryArrows(row) {
+    const shell = row.closest(".categorias__carousel");
+    if (!shell) {
+      return;
+    }
+    const prev = shell.querySelector('[data-action="categories-prev"]');
+    const next = shell.querySelector('[data-action="categories-next"]');
+    const max = row.scrollWidth - row.clientWidth;
+    const hasOverflow = max > 4;
+    if (prev) {
+      prev.hidden = !hasOverflow;
+      prev.disabled = row.scrollLeft <= 4;
+    }
+    if (next) {
+      next.hidden = !hasOverflow;
+      next.disabled = row.scrollLeft >= max - 4;
+    }
   }
 
   function productCard(product) {
@@ -737,6 +812,13 @@
       if (action === "close-modal") closeModal();
       if (action === "carousel-prev") goToSlide(state.slide - 1);
       if (action === "carousel-next") goToSlide(state.slide + 1);
+      if (action === "categories-prev" || action === "categories-next") {
+        const row = Jana.qs('[data-bind="categories"]');
+        if (row) {
+          event.preventDefault();
+          scrollCategories(row, action === "categories-next" ? 1 : -1);
+        }
+      }
       if (action === "carousel-goto") goToSlide(Number(target.getAttribute("data-index")));
       if (action === "open-product") openProduct(target.getAttribute("data-slug"));
       if (action === "add-product") addProduct(target.getAttribute("data-slug"), 1);
