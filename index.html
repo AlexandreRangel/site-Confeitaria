@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Jana Abreu Confeitaria — doces artesanais feitos com carinho em Brasília. Encomendas pelo WhatsApp.">
+  <title>Jana Abreu Confeitaria</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+  <a class="skip-link" href="#catalogo">Ir para o catálogo</a>
+
+  <header id="topo" class="topo">
+    <div class="topo__inner">
+      <button class="topo__menu" type="button" aria-expanded="false" aria-controls="menu-principal" data-action="toggle-menu">
+        <span class="sr-only">Abrir menu</span>
+        <span class="topo__menu-bar" aria-hidden="true"></span>
+      </button>
+      <a class="topo__brand" href="#topo">
+        <span class="topo__brand-name" data-bind="brandName">Jana Abreu Confeitaria</span>
+        <span class="topo__brand-tag" data-bind="tagline">Doces artesanais em Brasília</span>
+      </a>
+      <nav id="menu-principal" class="topo__nav" aria-label="Principal">
+        <a href="#topo">Início</a>
+        <a href="#categorias">Categorias</a>
+        <a href="#destaques">Destaques</a>
+        <a href="#encomendas" data-action="open-cart">Encomendas</a>
+      </nav>
+      <div class="topo__actions">
+        <a class="icon-link" data-bind="instagram-link" href="https://www.instagram.com/janaabreuconfeitaria/" target="_blank" rel="noopener noreferrer" aria-label="Instagram @janaabreuconfeitaria">
+          <img src="assets/icons/instagram.svg" alt="" width="22" height="22">
+          <span class="icon-link__label" data-bind="instagram-handle">@janaabreuconfeitaria</span>
+        </a>
+        <button class="cart-button" type="button" data-action="open-cart" aria-controls="encomendas">
+          <img src="assets/icons/cart.svg" alt="" width="22" height="22">
+          <span class="sr-only">Abrir encomendas</span>
+          <span class="cart-button__count" data-bind="cart-count" aria-live="polite">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="hero-carrossel" class="hero" aria-roledescription="carrossel" aria-label="Destaques">
+      <div class="hero__track" data-bind="carousel"></div>
+      <div class="hero__controls">
+        <button type="button" class="hero__arrow" data-action="carousel-prev" aria-label="Slide anterior">‹</button>
+        <div class="hero__dots" data-bind="carousel-dots"></div>
+        <button type="button" class="hero__arrow" data-action="carousel-next" aria-label="Próximo slide">›</button>
+      </div>
+    </section>
+
+    <section class="visita" aria-labelledby="visita-titulo">
+      <figure class="visita__photo">
+        <img src="assets/carousel/slide-vitrine.svg" alt="Fachada ilustrativa da confeitaria">
+      </figure>
+      <div class="visita__copy">
+        <p class="eyebrow" id="visita-titulo" data-bind="visit-title">Estamos em Brasília</p>
+        <p data-bind="visit-subtitle">Venha nos visitar!</p>
+        <p class="visita__pin">
+          <img src="assets/icons/pin.svg" alt="" width="20" height="20">
+          <span data-bind="address"></span>
+        </p>
+      </div>
+      <figure class="visita__photo">
+        <img src="assets/carousel/slide-doces.svg" alt="Balcão ilustrativo de doces">
+      </figure>
+    </section>
+
+    <section id="categorias" class="categorias" aria-labelledby="categorias-titulo">
+      <h2 id="categorias-titulo">Categorias</h2>
+      <div class="categorias__row" data-bind="categories"></div>
+    </section>
+
+    <section id="destaques" class="destaques" aria-labelledby="destaques-titulo">
+      <h2 id="destaques-titulo" class="sr-only">Destaques</h2>
+      <div class="promo-grid" data-bind="promo-cards"></div>
+      <div class="sobremesas-band">
+        <figure>
+          <img src="assets/products/torta-limao-1.svg" alt="Sobremesa ilustrativa">
+        </figure>
+        <div class="sobremesas-band__copy">
+          <h2 data-bind="sobremesas-title">Sobremesas inesquecíveis</h2>
+          <p data-bind="sobremesas-text"></p>
+          <button type="button" class="btn btn--outline" data-action="filter-category" data-category="sobremesas">
+            Confira nossas opções
+          </button>
+        </div>
+        <figure>
+          <img src="assets/products/bolo-chocolate-2.svg" alt="Fatia de bolo ilustrativa">
+        </figure>
+      </div>
+      <div class="featured-block">
+        <h2 data-bind="presentes-title">Presentes que fazem sucesso</h2>
+        <div class="product-grid product-grid--center" data-bind="featured-gifts"></div>
+      </div>
+      <div class="featured-block">
+        <h2 data-bind="bolos-title">Os bolos mais pedidos</h2>
+        <div class="product-grid" data-bind="featured-cakes"></div>
+      </div>
+    </section>
+
+    <section id="catalogo" class="catalogo" aria-labelledby="catalogo-titulo">
+      <div class="catalogo__head">
+        <h2 id="catalogo-titulo">Vitrine</h2>
+        <p class="catalogo__note">Itens marcados como <strong>exemplo</strong> são placeholders da vitrine — substitua no JSON.</p>
+        <p class="catalogo__filter" data-bind="filter-label">Todas as categorias</p>
+      </div>
+      <div class="product-grid" data-bind="products"></div>
+    </section>
+
+    <section id="instagram" class="instagram" aria-labelledby="instagram-titulo">
+      <h2 id="instagram-titulo">Siga no Instagram</h2>
+      <p>
+        <a data-bind="instagram-link" href="https://www.instagram.com/janaabreuconfeitaria/" target="_blank" rel="noopener noreferrer">
+          <span data-bind="instagram-handle">@janaabreuconfeitaria</span>
+        </a>
+      </p>
+      <div class="instagram__grid" data-bind="instagram-grid"></div>
+    </section>
+  </main>
+
+  <footer id="rodape" class="rodape">
+    <div class="rodape__grid">
+      <div>
+        <p class="rodape__brand" data-bind="brandName">Jana Abreu Confeitaria</p>
+        <p data-bind="tagline"></p>
+      </div>
+      <div>
+        <h3>Contato</h3>
+        <p>
+          WhatsApp:
+          <a data-bind="whatsapp-link" href="https://wa.me/5561981246112">
+            <span data-bind="whatsapp-label">(61) 98124-6112</span>
+          </a>
+        </p>
+        <p>
+          Instagram:
+          <a data-bind="instagram-link" href="https://www.instagram.com/janaabreuconfeitaria/" target="_blank" rel="noopener noreferrer">
+            <span data-bind="instagram-handle">@janaabreuconfeitaria</span>
+          </a>
+        </p>
+      </div>
+      <div>
+        <h3>Endereço</h3>
+        <p data-bind="address"></p>
+        <p data-bind="hours"></p>
+      </div>
+      <div>
+        <h3>Pagamento</h3>
+        <p data-bind="payments"></p>
+      </div>
+    </div>
+    <p class="rodape__credits">© <span data-bind="year"></span> Jana Abreu Confeitaria · vitrine estática · créditos de placeholders ilustrativos</p>
+  </footer>
+
+  <dialog id="produto-modal" class="modal" aria-labelledby="produto-titulo">
+    <div class="modal__inner">
+      <button type="button" class="modal__close" data-action="close-modal" aria-label="Fechar produto">×</button>
+      <div class="modal__gallery">
+        <img data-bind="modal-image" alt="">
+        <div class="modal__thumbs" data-bind="modal-thumbs"></div>
+      </div>
+      <div class="modal__info">
+        <p class="eyebrow" data-bind="modal-category"></p>
+        <h2 id="produto-titulo" data-bind="modal-name"></h2>
+        <p class="modal__price" data-bind="modal-price"></p>
+        <p data-bind="modal-description"></p>
+        <div class="qty-row">
+          <label for="modal-qty">Quantidade</label>
+          <input id="modal-qty" type="number" min="1" value="1" inputmode="numeric">
+        </div>
+        <button type="button" class="btn btn--solid" data-action="add-from-modal">Adicionar à encomenda</button>
+      </div>
+    </div>
+  </dialog>
+
+  <aside id="encomendas" class="drawer" aria-labelledby="encomendas-titulo" hidden>
+    <div class="drawer__panel">
+      <header class="drawer__head">
+        <h2 id="encomendas-titulo">Encomendas</h2>
+        <button type="button" class="modal__close" data-action="close-cart" aria-label="Fechar encomendas">×</button>
+      </header>
+      <div class="drawer__items" data-bind="cart-items"></div>
+      <p class="drawer__total">Total: <strong data-bind="cart-total">R$ 0,00</strong></p>
+      <form id="checkout-form" class="checkout">
+        <label>Nome <input name="nome" type="text" required autocomplete="name"></label>
+        <label>Telefone <input name="telefone" type="tel" required autocomplete="tel" placeholder="(61) 90000-0000"></label>
+        <label>Data desejada <input name="data" type="date"></label>
+        <label>Observações <textarea name="observacoes" rows="3" placeholder="Sabores, tema, retirada ou entrega…"></textarea></label>
+        <p class="checkout__note" data-bind="payments"></p>
+        <button type="submit" class="btn btn--solid btn--whatsapp">Enviar encomenda no WhatsApp</button>
+      </form>
+    </div>
+  </aside>
+  <div class="backdrop" data-action="close-cart" hidden></div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

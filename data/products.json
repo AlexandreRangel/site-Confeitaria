@@ -1,0 +1,122 @@
+[
+  {
+    "id": "p-kit-delicadeza",
+    "slug": "kit-presente-delicadeza",
+    "name": "Kit presente Delicadeza (exemplo)",
+    "description": "Produto de exemplo para a vitrine. Caixa presenteável com seleção de doces artesanais. Substitua este item pelo catálogo real da loja.",
+    "categoryId": "cestas-presentes",
+    "price": 129.9,
+    "images": [
+      "assets/products/kit-delicadeza-1.svg",
+      "assets/products/kit-delicadeza-2.svg"
+    ],
+    "featured": true,
+    "active": true,
+    "tags": ["exemplo", "kit", "presente", "featured"]
+  },
+  {
+    "id": "p-caixa-corporativa",
+    "slug": "caixa-corporativa-agradecimento",
+    "name": "Caixa corporativa Agradecimento (exemplo)",
+    "description": "Produto de exemplo para a vitrine. Caixa personalizável para brindes empresariais. Substitua pelos itens reais de Personalizado para Empresas.",
+    "categoryId": "personalizado-empresas",
+    "price": 189,
+    "images": [
+      "assets/products/caixa-corporativa-1.svg",
+      "assets/products/caixa-corporativa-2.svg"
+    ],
+    "featured": true,
+    "active": true,
+    "tags": ["exemplo", "empresas", "brinde"]
+  },
+  {
+    "id": "p-combo-festa",
+    "slug": "combo-festa-50-doces",
+    "name": "Combo festa 50 doces (exemplo)",
+    "description": "Produto de exemplo para a vitrine. Combo ilustrativo com doces sortidos para festa. Ajuste quantidade, sabores e preço no JSON.",
+    "categoryId": "combos-festa",
+    "price": 220,
+    "images": [
+      "assets/products/combo-festa-1.svg",
+      "assets/products/combo-festa-2.svg"
+    ],
+    "featured": true,
+    "active": true,
+    "tags": ["exemplo", "festa", "combo"]
+  },
+  {
+    "id": "p-bolo-chocolate",
+    "slug": "bolo-chocolate-meio-amargo",
+    "name": "Bolo de chocolate meio amargo (exemplo)",
+    "description": "Produto de exemplo para a vitrine. Bolo de chocolate com ganache. Não representa um item real do catálogo Vendizap — substitua foto, nome e preço.",
+    "categoryId": "bolos",
+    "price": 168,
+    "images": [
+      "assets/products/bolo-chocolate-1.svg",
+      "assets/products/bolo-chocolate-2.svg"
+    ],
+    "featured": true,
+    "active": true,
+    "tags": ["exemplo", "bolo", "chocolate", "mais-pedidos"]
+  },
+  {
+    "id": "p-bolo-baunilha",
+    "slug": "bolo-baunilha-frutas-vermelhas",
+    "name": "Bolo de baunilha com frutas (exemplo)",
+    "description": "Produto de exemplo para a vitrine. Massa clara com cobertura e frutas vermelhas ilustrativas. Substitua pelo bolo real da confeitaria.",
+    "categoryId": "bolos",
+    "price": 178,
+    "images": [
+      "assets/products/bolo-baunilha-1.svg",
+      "assets/products/bolo-baunilha-2.svg"
+    ],
+    "featured": true,
+    "active": true,
+    "tags": ["exemplo", "bolo", "mais-pedidos"]
+  },
+  {
+    "id": "p-festa-personalizada",
+    "slug": "kit-festa-personalizada",
+    "name": "Kit festa personalizada (exemplo)",
+    "description": "Produto de exemplo para a vitrine. Sugestão de kit com docinhos e bolo no tema da festa. Personalize cores e quantidades no pedido via WhatsApp.",
+    "categoryId": "festa-personalizada",
+    "price": 320,
+    "images": [
+      "assets/products/festa-personalizada-1.svg",
+      "assets/products/festa-personalizada-2.svg"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": ["exemplo", "festa", "personalizado"]
+  },
+  {
+    "id": "p-brigadeiros",
+    "slug": "doces-festa-brigadeiros",
+    "name": "Doces festa — brigadeiros (exemplo)",
+    "description": "Produto de exemplo para a vitrine. Bandeja ilustrativa de brigadeiros gourmet. Informe a quantidade desejada nas observações do pedido.",
+    "categoryId": "doces-festa",
+    "price": 96,
+    "images": [
+      "assets/products/brigadeiros-1.svg",
+      "assets/products/brigadeiros-2.svg"
+    ],
+    "featured": true,
+    "active": true,
+    "tags": ["exemplo", "doces", "casamento"]
+  },
+  {
+    "id": "p-torta-limao",
+    "slug": "torta-limao-siciliano",
+    "name": "Torta de limão siciliano (exemplo)",
+    "description": "Produto de exemplo para a vitrine. Sobremesa ilustrativa de limão com merengue. Substitua pela receita e foto reais da loja.",
+    "categoryId": "sobremesas",
+    "price": 92,
+    "images": [
+      "assets/products/torta-limao-1.svg",
+      "assets/products/torta-limao-2.svg"
+    ],
+    "featured": true,
+    "active": true,
+    "tags": ["exemplo", "sobremesa"]
+  }
+]

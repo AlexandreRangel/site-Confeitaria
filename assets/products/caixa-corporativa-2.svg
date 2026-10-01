@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800">
+  <rect width="800" height="800" fill="#EEF7F5"/>
+  <rect x="220" y="260" width="360" height="280" rx="8" fill="#3D2E29"/>
+  <rect x="250" y="290" width="300" height="220" rx="6" fill="#FFFCF8"/>
+  <text x="400" y="410" text-anchor="middle" font-family="Georgia, serif" font-size="28" fill="#A66B4A">Jana Abreu</text>
+</svg>

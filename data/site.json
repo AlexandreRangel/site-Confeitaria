@@ -1,0 +1,49 @@
+{
+  "brandName": "Jana Abreu Confeitaria",
+  "tagline": "Doces artesanais feitos com carinho em Brasília",
+  "contato": {
+    "whatsapp": "5561981246112",
+    "whatsappLabel": "(61) 98124-6112",
+    "email": "contato@janaabreu.exemplo",
+    "instagram": {
+      "handle": "@janaabreuconfeitaria",
+      "url": "https://www.instagram.com/janaabreuconfeitaria/"
+    }
+  },
+  "instagramGallery": [
+    "assets/instagram/ig-1.svg",
+    "assets/instagram/ig-2.svg",
+    "assets/instagram/ig-3.svg",
+    "assets/instagram/ig-4.svg",
+    "assets/instagram/ig-5.svg",
+    "assets/instagram/ig-6.svg"
+  ],
+  "colors": {
+    "mint": "#7EB8B3",
+    "mintLight": "#D4EEEC",
+    "blush": "#F6E4E6",
+    "copper": "#A66B4A",
+    "cream": "#FFFCF8",
+    "ink": "#3D2E29"
+  },
+  "address": {
+    "street": "[TODO: rua e número]",
+    "neighborhood": "[TODO: bairro]",
+    "city": "Brasília",
+    "state": "DF",
+    "note": "Venha nos visitar! Confirme o endereço pelo WhatsApp."
+  },
+  "hours": "Encomendas sob consulta · combine data e horário pelo WhatsApp",
+  "paymentsNote": "Após confirmar no WhatsApp, combinamos Pix, cartão ou boleto.",
+  "heroVisitTitle": "Estamos em Brasília",
+  "heroVisitSubtitle": "Venha nos visitar!",
+  "destaquesCopy": {
+    "kitsTitle": "Kits para presentear",
+    "bolosTitle": "Bolos deliciosos",
+    "docesTitle": "Doces finos para casamentos",
+    "sobremesasTitle": "Sobremesas inesquecíveis",
+    "sobremesasText": "Confira diversas opções para surpreender seus convidados. Combine a data da encomenda pelo WhatsApp e deixe sua entrega agendada!",
+    "presentesTitle": "Presentes que fazem sucesso",
+    "bolosPedidosTitle": "Os bolos mais pedidos"
+  }
+}
