@@ -32,7 +32,7 @@ Não usar o coral antigo `#FC7E8E`. O Hydra fica só no botão **Adquirir agora*
 
 ## Recheios de bolo
 
-Os 11 sabores da vitrine Vendizap (Bolos → Bolo buttercream G → «recheio bolo») ficam em `data/sabores-bolos.json`. A página do produto mostra o mesmo menu + lista de rádios. Troque só essa lista se o Vendizap mudar.
+Os 17 recheios oficiais da cliente ficam em `data/sabores-bolos.json` (`nome` + `descricao`). A página do bolo mostra o mesmo menu + lista de rádios. Troque só essa lista se os sabores mudarem.
 
 ## Trocar um produto
 

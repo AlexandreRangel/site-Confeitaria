@@ -53,9 +53,9 @@
       state.products = loaded[3].filter(function isActive(product) {
         return product.active !== false;
       });
-      state.flavors = loaded[4].flavors || [];
+      state.flavors = (loaded[4].flavors || []).map(normalizeFlavor);
       state.flavorLabel = loaded[4].label || "Recheio do bolo";
-      state.selectedFlavor = state.flavors[0] || "";
+      state.selectedFlavor = flavorName(state.flavors[0]);
       if (isCategoryPage()) {
         state.filter = pageCategoryId() || "todas";
       }
@@ -79,6 +79,35 @@
 
   function byOrder(a, b) {
     return (a.order || 0) - (b.order || 0);
+  }
+
+  function normalizeFlavor(flavor) {
+    if (!flavor) {
+      return { nome: "", descricao: "" };
+    }
+    if (typeof flavor === "string") {
+      return { nome: flavor, descricao: "" };
+    }
+    return {
+      nome: flavor.nome || flavor.name || "",
+      descricao: flavor.descricao || flavor.description || "",
+    };
+  }
+
+  function flavorName(flavor) {
+    return normalizeFlavor(flavor).nome;
+  }
+
+  function flavorDescription(flavor) {
+    return normalizeFlavor(flavor).descricao;
+  }
+
+  function flavorOptionLabel(flavor) {
+    const item = normalizeFlavor(flavor);
+    if (!item.descricao) {
+      return item.nome;
+    }
+    return item.nome + " — " + item.descricao;
   }
 
   function applyBrand() {
@@ -533,18 +562,19 @@
         return;
       }
       if (!state.selectedFlavor) {
-        state.selectedFlavor = state.flavors[0];
+        state.selectedFlavor = flavorName(state.flavors[0]);
       }
       const options = state.flavors
         .map(function option(flavor) {
-          const selected = flavor === state.selectedFlavor ? " selected" : "";
+          const name = flavorName(flavor);
+          const selected = name === state.selectedFlavor ? " selected" : "";
           return (
             '<option value="' +
-            Jana.escapeHtml(flavor) +
+            Jana.escapeHtml(name) +
             '"' +
             selected +
             ">" +
-            Jana.escapeHtml(flavor) +
+            Jana.escapeHtml(flavorOptionLabel(flavor)) +
             "</option>"
           );
         })
@@ -552,19 +582,25 @@
       const radios = state.flavors
         .map(function radio(flavor, index) {
           const id = "sabor-" + index;
-          const checked = flavor === state.selectedFlavor ? " checked" : "";
+          const name = flavorName(flavor);
+          const description = flavorDescription(flavor);
+          const checked = name === state.selectedFlavor ? " checked" : "";
           return (
             '<label for="' +
             id +
             '"><input id="' +
             id +
             '" type="radio" name="sabor-bolo" value="' +
-            Jana.escapeHtml(flavor) +
+            Jana.escapeHtml(name) +
             '"' +
             checked +
-            "> " +
-            Jana.escapeHtml(flavor) +
-            "</label>"
+            '><span class="flavor-radios__copy"><span class="flavor-radios__name">' +
+            Jana.escapeHtml(name) +
+            "</span>" +
+            (description
+              ? '<span class="flavor-radios__desc">' + Jana.escapeHtml(description) + "</span>"
+              : "") +
+            "</span></label>"
           );
         })
         .join("");

@@ -39,5 +39,5 @@ Servidor local: `http://127.0.0.1:8765/` (pasta `site-confeitaria-preview`).
 ### Smoke checklist
 1. Abrir home → carrossel avança sozinho; **não** há grade mista de produtos.
 2. Clicar categoria → abre URL limpa (`/bolos/`, `/cestas-presentes/`, …); hard-refresh mantém a página.
-3. Clicar produto → `/produto/?slug=…`. No bolo, escolher recheio em `data/sabores-bolos.json` (menu + rádios). «Mais informações» abre a gaveta WhatsApp. «Adquirir agora» tem Hydra miúdo.
+3. Clicar produto → `/produto/?slug=…`. No bolo, escolher um dos 17 recheios oficiais (`data/sabores-bolos.json`, nome + descrição no menu e nos rádios). «Mais informações» abre a gaveta WhatsApp. «Adquirir agora» tem Hydra miúdo.
 4. Conferir 375px e 1280px (DevTools) sem barra horizontal.

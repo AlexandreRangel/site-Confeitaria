@@ -583,12 +583,27 @@ a.promo-card:focus-visible {
   align-items: flex-start;
   gap: 0.55rem;
   min-height: 44px;
-  padding: 0.35rem 0.15rem;
+  padding: 0.4rem 0.15rem;
   color: var(--brown);
 }
 
 .flavor-radios input {
-  margin-top: 0.3rem;
+  margin-top: 0.35rem;
+}
+
+.flavor-radios__copy {
+  display: grid;
+  gap: 0.12rem;
+}
+
+.flavor-radios__name {
+  font-weight: 600;
+}
+
+.flavor-radios__desc {
+  font-size: 0.88rem;
+  color: var(--muted);
+  font-weight: 400;
 }
 
 .produto-actions {

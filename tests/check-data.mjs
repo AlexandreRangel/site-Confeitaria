@@ -131,28 +131,38 @@ if (!existsSync(join(root, "produto/index.html"))) {
 
 const flavorsPath = join(root, "data/sabores-bolos.json");
 const expectedFlavors = [
-  "Chocolatudo",
-  "Pink Lemonade",
-  "Cookies and cream",
-  "Doce de leite com nozes",
-  "Doce de Leite e Chocolate Branco",
-  "Torta de limão",
-  "2 Amores (Brigadeiro Preto e Branco)",
-  "Bombom de Uva",
-  "Creme com Morangos",
-  "Capuccino",
-  "Pistache",
+  { nome: "Chocolatudo", descricao: "Massa de chocolate e recheio chocolatudo" },
+  { nome: "Pink lemonade", descricao: "Creme de limão & cerejas ao marrasquino" },
+  { nome: "Cookies & Cream", descricao: "Creme com pedaços de cookie de baunilha com chocolate" },
+  { nome: "Doce de leite com nozes", descricao: "" },
+  { nome: "Doce de leite com nozes e chocolate", descricao: "" },
+  { nome: "Doce de leite com chocolate", descricao: "" },
+  { nome: "Torta de limão", descricao: "Creme de limão com pedaços de biscoito amanteigado" },
+  { nome: "Maracujá", descricao: "" },
+  { nome: "Prestígio", descricao: "Coco & chocolate" },
+  { nome: "Creme de chocolate", descricao: "Massa baunilha, com recheio chocolatudo" },
+  { nome: "2 Amores", descricao: "Chocolate branco & preto" },
+  { nome: "Bombom de uva", descricao: "Uvas frescas, creme & ganache de chocolate" },
+  { nome: "Morangos com creme (sazonal)", descricao: "" },
+  { nome: "Geleia de morango", descricao: "Recheio de creme com geleia de morango" },
+  { nome: "Capuccino", descricao: "Ganache de chocolate, doce de leite e café" },
+  { nome: "Pistache", descricao: "Creme de pistache com pedaços" },
+  { nome: "Ninho com Nutella", descricao: "" },
 ];
 if (!existsSync(flavorsPath)) {
   errors.push("Missing data/sabores-bolos.json");
 } else {
   const flavors = JSON.parse(readFileSync(flavorsPath, "utf8"));
   if (!Array.isArray(flavors.flavors) || flavors.flavors.length !== expectedFlavors.length) {
-    errors.push("sabores-bolos.json must list the 11 Vendizap bolo recheios");
+    errors.push("sabores-bolos.json must list the 17 official client bolo flavors");
   }
-  expectedFlavors.forEach((name, index) => {
-    if (!flavors.flavors || flavors.flavors[index] !== name) {
-      errors.push("sabor " + (index + 1) + " must be " + name);
+  expectedFlavors.forEach((expected, index) => {
+    const actual = flavors.flavors && flavors.flavors[index];
+    if (!actual || actual.nome !== expected.nome) {
+      errors.push("sabor " + (index + 1) + " must be " + expected.nome);
+    }
+    if (actual && (actual.descricao || "") !== expected.descricao) {
+      errors.push("sabor " + expected.nome + " description mismatch");
     }
   });
 }
@@ -160,6 +170,9 @@ if (existsSync(join(root, "js/app.js"))) {
   const app = readFileSync(join(root, "js/app.js"), "utf8");
   if (!app.includes("data/sabores-bolos.json")) {
     errors.push("app.js must load data/sabores-bolos.json");
+  }
+  if (!app.includes("flavor-radios__desc") || !app.includes("flavorOptionLabel")) {
+    errors.push("Flavor picker must show official name + description");
   }
 }
 
