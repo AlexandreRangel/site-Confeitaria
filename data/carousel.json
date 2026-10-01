@@ -1,0 +1,38 @@
+[
+  {
+    "id": "slide-marca",
+    "title": "Jana Abreu Confeitaria",
+    "subtitle": "Doces artesanais em Brasília–DF",
+    "image": "assets/carousel/slide-logo.webp",
+    "linkCategory": "bolos",
+    "productSlug": null,
+    "order": 1
+  },
+  {
+    "id": "slide-combo",
+    "title": "Combos festa",
+    "subtitle": "Bolo, doces e personalizados",
+    "image": "assets/carousel/slide-combo-prata.webp",
+    "linkCategory": "combos-festa",
+    "productSlug": "combo-prata",
+    "order": 2
+  },
+  {
+    "id": "slide-bolos",
+    "title": "Bolos sob encomenda",
+    "subtitle": "Dois andares, buttercream, naked e mais",
+    "image": "assets/carousel/slide-bolo-2-andares.webp",
+    "linkCategory": "bolos",
+    "productSlug": "bolo-2-andares-g-p",
+    "order": 3
+  },
+  {
+    "id": "slide-presentes",
+    "title": "Presentes que fazem sucesso",
+    "subtitle": "Tábuas, cestas e platters",
+    "image": "assets/carousel/slide-tabua.webp",
+    "linkCategory": "cestas-presentes",
+    "productSlug": "tabua-signature",
+    "order": 4
+  }
+]

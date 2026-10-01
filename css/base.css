@@ -1,0 +1,249 @@
+:root {
+  --primary: #fc7e8e;
+  --primary-deep: #e45d70;
+  --secondary: #f5d5e0;
+  --mint: #fc7e8e;
+  --mint-light: #f5d5e0;
+  --mint-deep: #e45d70;
+  --blush: #f5d5e0;
+  --copper: #fc7e8e;
+  --copper-deep: #e45d70;
+  --cream: #fff6ef;
+  --cream-deep: #ffe8dc;
+  --ink: #3d2e29;
+  --brown: #5c4033;
+  --muted: #6b5149;
+  --line: #f0cfd8;
+  --panel: rgba(255, 246, 239, 0.5);
+  --frost: var(--panel);
+  --accent-bar: linear-gradient(90deg, #d63b55, #fc7e8e, #d63b55);
+  --whatsapp: #128c7e;
+  --shadow: 0 14px 34px rgba(252, 126, 142, 0.22);
+  --shadow-soft: 0 8px 22px rgba(252, 126, 142, 0.16);
+  --radius: 28px;
+  --header-h: 68px;
+  --content: 1160px;
+  --serif: "Cormorant Garamond", Georgia, serif;
+  --sans: "DM Sans", system-ui, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-h) + 12px);
+  overflow-x: hidden;
+  background: #efe6ea;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background: transparent;
+  font-family: var(--sans);
+  font-size: 1rem;
+  line-height: 1.55;
+  overflow-x: hidden;
+}
+
+.hydra-bg {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  display: block;
+}
+
+.page {
+  position: relative;
+  z-index: 1;
+}
+
+.frost {
+  background: var(--panel);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  border-radius: var(--radius);
+  box-shadow: inset 0 6px 0 #e0455c, var(--shadow-soft);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+a {
+  color: var(--primary);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+a:hover,
+a:focus-visible {
+  color: var(--primary-deep);
+}
+
+h1,
+h2,
+h3,
+.topo__brand-name {
+  font-family: var(--serif);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+}
+
+h2 {
+  font-size: clamp(1.85rem, 5.5vw, 2.9rem);
+  font-weight: 700;
+  color: var(--primary);
+  text-align: center;
+  margin: 0 0 0.45rem;
+}
+
+h2::after {
+  content: "";
+  display: block;
+  width: 5.4rem;
+  height: 10px;
+  margin: 0.32rem auto 0;
+  border-radius: 999px;
+  background: var(--accent-bar);
+}
+
+h3 {
+  font-size: 1.05rem;
+  color: var(--ink);
+  margin: 0 0 0.45rem;
+}
+
+p {
+  margin: 0 0 0.7rem;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -3rem;
+  z-index: 80;
+  background: var(--ink);
+  color: #fff;
+  padding: 0.5rem 0.8rem;
+}
+
+.skip-link:focus {
+  top: 0.6rem;
+}
+
+.eyebrow {
+  font-family: var(--serif);
+  font-size: 0.86rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin-bottom: 0.28rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.65rem 1.15rem;
+  border-radius: 999px;
+  border: 1px solid rgba(252, 126, 142, 0.35);
+  background: var(--cream);
+  color: var(--ink);
+  font-weight: 600;
+  box-shadow: var(--shadow-soft);
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn:hover,
+.btn:focus-visible {
+  background: var(--primary);
+  color: #fff;
+}
+
+.btn--solid {
+  background: var(--primary);
+  color: #fff;
+}
+
+.btn--solid:hover,
+.btn--solid:focus-visible {
+  background: var(--primary-deep);
+}
+
+.btn--whatsapp {
+  background: var(--whatsapp);
+  border-color: var(--whatsapp);
+  width: 100%;
+}
+
+.btn--outline {
+  background: var(--cream);
+}
+
+.icon-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  color: var(--ink);
+  text-decoration: none;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.icon-link img {
+  filter: invert(48%) sepia(34%) saturate(900%) hue-rotate(314deg);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.wrap {
+  width: min(var(--content), calc(100% - 2rem));
+  margin-inline: auto;
+}
+
+@media (min-width: 720px) {
+  :root {
+    --header-h: 78px;
+  }
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "c-001",
+    "nome": "Ana Souza",
+    "email": "ana.souza@exemplo.com",
+    "telefone": "61988880001",
+    "bairro": "Lago Sul",
+    "notas": "Prefere entrega no fim da tarde"
+  },
+  {
+    "id": "c-002",
+    "nome": "Bruno Lima",
+    "email": "bruno.lima@exemplo.com",
+    "telefone": "61988880002",
+    "bairro": "Águas Claras",
+    "notas": "Retirada"
+  },
+  {
+    "id": "c-003",
+    "nome": "Carla Menezes",
+    "email": "carla.menezes@exemplo.com",
+    "telefone": "61988880003",
+    "bairro": "Guará",
+    "notas": "Aniversário da filha"
+  }
+]

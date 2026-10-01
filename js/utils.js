@@ -1,0 +1,80 @@
+(function createUtils(global) {
+  const Jana = global.Jana || {};
+
+  Jana.formatBRL = function formatBRL(value) {
+    if (value === null || value === undefined || value === "") {
+      return "Sob consulta";
+    }
+    return Number(value).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    });
+  };
+
+  Jana.escapeHtml = function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  };
+
+  Jana.qs = function qs(selector, root) {
+    return (root || document).querySelector(selector);
+  };
+
+  Jana.qsa = function qsa(selector, root) {
+    return Array.from((root || document).querySelectorAll(selector));
+  };
+
+  Jana.loadJSON = async function loadJSON(path) {
+    const response = await fetch(path, { cache: "no-store" });
+    if (!response.ok) {
+      throw new Error("Não foi possível carregar " + path);
+    }
+    return response.json();
+  };
+
+  Jana.bindText = function bindText(key, value) {
+    Jana.qsa('[data-bind="' + key + '"]').forEach(function setText(node) {
+      node.textContent = value || "";
+    });
+  };
+
+  Jana.bindHref = function bindHref(key, href) {
+    Jana.qsa('[data-bind="' + key + '"]').forEach(function setHref(node) {
+      node.setAttribute("href", href);
+    });
+  };
+
+  Jana.bindSrc = function bindSrc(key, src) {
+    Jana.qsa('[data-bind="' + key + '"]').forEach(function setSrc(node) {
+      if (src) node.setAttribute("src", src);
+    });
+  };
+
+  Jana.instagramUrl = function instagramUrl(instagram) {
+    if (!instagram) {
+      return "https://www.instagram.com/janaabreuconfeitaria/";
+    }
+    if (typeof instagram === "string") {
+      if (instagram.indexOf("http") === 0) {
+        return instagram;
+      }
+      return "https://www.instagram.com/" + instagram.replace(/^@/, "") + "/";
+    }
+    return instagram.url || "https://www.instagram.com/janaabreuconfeitaria/";
+  };
+
+  Jana.instagramHandle = function instagramHandle(instagram) {
+    if (!instagram) {
+      return "@janaabreuconfeitaria";
+    }
+    if (typeof instagram === "string") {
+      return instagram.indexOf("http") === 0 ? "@janaabreuconfeitaria" : instagram;
+    }
+    return instagram.handle || "@janaabreuconfeitaria";
+  };
+
+  global.Jana = Jana;
+})(window);

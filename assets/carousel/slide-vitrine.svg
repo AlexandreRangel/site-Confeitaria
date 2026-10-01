@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 720">
+  <defs>
+    <linearGradient id="vitrine" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#D4EEEC"/>
+      <stop offset="55%" stop-color="#FFFCF8"/>
+      <stop offset="100%" stop-color="#F6E4E6"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="720" fill="url(#vitrine)"/>
+  <ellipse cx="1180" cy="430" rx="280" ry="28" fill="#E4D4C4" opacity=".45"/>
+  <rect x="980" y="250" width="400" height="180" rx="16" fill="#FFFCF8" stroke="#C9A27A" stroke-width="4"/>
+  <rect x="1010" y="280" width="80" height="80" rx="40" fill="#6B3E2E"/>
+  <rect x="1110" y="290" width="80" height="70" rx="12" fill="#F7F0E8"/>
+  <rect x="1210" y="275" width="80" height="85" rx="40" fill="#7EB8B3"/>
+  <rect x="1310" y="300" width="40" height="60" rx="8" fill="#E8A0B0"/>
+  <path d="M200 520c80-160 220-240 380-220 140 16 220 120 360 110" fill="none" stroke="#7EB8B3" stroke-width="3" opacity=".5"/>
+  <circle cx="280" cy="200" r="70" fill="#7EB8B3" opacity=".25"/>
+  <circle cx="420" cy="140" r="36" fill="#E8A0B0" opacity=".35"/>
+</svg>

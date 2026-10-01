@@ -1,0 +1,271 @@
+:root {
+  --primary: #fc7e8e;
+  --primary-deep: #e45d70;
+  --secondary: #f5d5e0;
+  --ink: #3a2a2e;
+  --muted: #8a6f76;
+  --line: #f0d6dc;
+  --bg: #fff;
+  --serif: "Cormorant Garamond", Georgia, serif;
+  --sans: "DM Sans", system-ui, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: var(--sans);
+  color: var(--ink);
+  background: #fffafb;
+  line-height: 1.5;
+}
+
+a {
+  color: var(--primary);
+}
+
+h1,
+h2 {
+  font-family: var(--serif);
+  font-weight: 500;
+  color: var(--primary);
+  margin: 0 0 0.8rem;
+}
+
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.55rem 1rem;
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+}
+
+.bar__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.bar__brand img {
+  height: 42px;
+  width: auto;
+}
+
+.bar__nav {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.bar__nav a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.banner {
+  margin: 0;
+  padding: 0.7rem 1rem;
+  background: var(--secondary);
+  font-size: 0.9rem;
+}
+
+main {
+  width: min(1100px, calc(100% - 1.5rem));
+  margin: 1.2rem auto 2rem;
+}
+
+.view__head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.view__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.btn {
+  min-height: 44px;
+  padding: 0.5rem 0.95rem;
+  border-radius: 999px;
+  border: 1px solid var(--primary);
+  background: #fff;
+  color: var(--primary);
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn--solid,
+.btn--whatsapp {
+  background: var(--primary);
+  color: #fff;
+}
+
+.btn--whatsapp {
+  background: #128c7e;
+  border-color: #128c7e;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.order-card,
+.ticket {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 0.9rem 1rem;
+  margin-bottom: 0.7rem;
+}
+
+.order-card {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.order-card__top,
+.ticket__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6rem;
+  align-items: baseline;
+}
+
+.order-card strong,
+.ticket__id {
+  font-family: var(--serif);
+  font-size: 1.25rem;
+}
+
+.status {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.75rem;
+  background: var(--secondary);
+}
+
+.status--em-producao {
+  background: #ffe7c7;
+}
+
+.status--pronto {
+  background: #d8f3dc;
+}
+
+.status--entregue {
+  background: #e8e8e8;
+}
+
+.ticket__grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.ticket table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.ticket th,
+.ticket td {
+  text-align: left;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.ticket__totals {
+  margin-left: auto;
+  max-width: 16rem;
+}
+
+.ticket__totals p {
+  display: flex;
+  justify-content: space-between;
+  margin: 0.25rem 0;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  min-width: 520px;
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: 0.65rem 0.5rem;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.92rem;
+}
+
+.form {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 1.4rem;
+  max-width: 28rem;
+}
+
+.form label {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.form input {
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.45rem 0.7rem;
+  font: inherit;
+}
+
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+@media (min-width: 800px) {
+  .ticket__grid {
+    grid-template-columns: 1.2fr 0.8fr;
+  }
+}

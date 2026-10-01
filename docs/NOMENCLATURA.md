@@ -1,0 +1,53 @@
+# Nomenclatura das áreas
+
+Use estes nomes ao pedir mudanças no site ou no chat com o assistente. Eles batem com os `id` do HTML.
+
+| Área | Seletor | O que é |
+| --- | --- | --- |
+| `topo` | `#topo` | Cabeçalho fixo: marca, menu, Instagram, carrinho |
+| `hero-carrossel` | `#hero-carrossel` | Carrossel automático; título da marca em overlay e legendas que surgem em fade |
+| `categorias` | `#categorias` | Fileira de bolinhas circulares; o clique filtra a vitrine |
+| `destaques` | `#destaques` | Cards de kits/bolos/doces, faixa de sobremesas, presentes e bolos |
+| `catalogo` | `#catalogo` | Grade de produtos (vitrine filtrável) |
+| `produto:slug` | `#produto:slug` ou hash `#produto:slug` | Um produto específico, ex. `produto:bolo-chocolate-meio-amargo` |
+| `instagram` | `#instagram` | Seção “Siga no Instagram” |
+| `encomendas` | `#encomendas` | Gaveta do carrinho + formulário WhatsApp |
+| `rodape` | `#rodape` | Contato, endereço, pagamento e créditos |
+| `painel` | `/painel/` | Pedidos e clientes (JSON local, sem Sheets) |
+| `painel-pedidos` | `/painel/#pedidos` | Lista de pedidos |
+| `painel-pedido:id` | `/painel/#pedido:JA-1001` | Detalhe de um pedido |
+| `painel-clientes` | `/painel/#clientes` | Clientes + CSV |
+
+## Slugs de categoria (bolinhas)
+
+- `cestas-presentes` — Cestas & Presentes
+- `personalizado-empresas` — Personalizado para Empresas
+- `combos-festa` — Combos festa
+- `bolos` — Bolos
+- `festa-personalizada` — Festa Personalizada
+- `doces-festa` — Doces festa
+- `sobremesas` — Sobremesas
+
+## Slugs de produto (vitrine atual)
+
+- `cesta-dengo`, `cesta-rubi`, `cesta-manha-dos-sonhos`, `cesta-parabens-pra-voce`
+- `tabua-signature`, `platter-amor-no-ar`, `cafe-parabens-fit`
+- `caixa-parabens-individual-kit-10`
+- `combo-prata`, `combo-encanto`
+- `bolo-2-andares-g-p`, `bolo-buttercream`, `bolo-naked-g`, `bolo-retangular-gg`, `bolo-p-50-brigadeiros-personalizados`
+- `caixa-50-brigadeiros-personalizados`, `caixa-15-brigadeiros`
+- `cheesecake-frutas-vermelhas-g`
+
+## Atalhos de chat
+
+- `hero` → `#hero-carrossel` (fotos sem texto; título da marca em overlay; legenda em fade **sem** o nome da empresa)
+- `categoria:{slug}` → bolinha + filtro da vitrine
+- `produto:{slug}` → card / modal
+- `kits` / `presentes` → bloco Presentes (`featured-gifts`)
+- `encomendar` → `#encomendas` + WhatsApp `5561981246112`
+- `painel-csv` → `/painel/` exporta CSV de clientes (`nome,email,telefone`) e de pedidos
+
+## Contatos canônicos
+
+- WhatsApp (wa.me): `5561981246112` — exibição `(61) 98124-6112`
+- Instagram: `@janaabreuconfeitaria` — https://www.instagram.com/janaabreuconfeitaria/

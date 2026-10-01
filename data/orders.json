@@ -1,0 +1,110 @@
+[
+  {
+    "id": "JA-1001",
+    "number": 1001,
+    "status": "novo",
+    "createdAt": "2026-09-28T14:20:00-03:00",
+    "desiredDate": "2026-10-05",
+    "clientId": "c-001",
+    "customer": {
+      "nome": "Ana Souza",
+      "email": "ana.souza@exemplo.com",
+      "telefone": "61988880001"
+    },
+    "items": [
+      {
+        "name": "Bolo 2 andares G + P",
+        "quantity": 1,
+        "price": 630,
+        "notes": "Tema jardim"
+      },
+      {
+        "name": "Caixa 15 brigadeiros",
+        "quantity": 1,
+        "price": 60,
+        "notes": ""
+      }
+    ],
+    "subtotal": 690,
+    "frete": 25,
+    "total": 715,
+    "address": {
+      "tipo": "entrega",
+      "line": "QI 15, conjunto exemplo",
+      "bairro": "Lago Sul",
+      "cidade": "Brasília–DF"
+    },
+    "notes": "Entregar com cartão escrito: Parabéns, Maria",
+    "whatsapp": "61988880001"
+  },
+  {
+    "id": "JA-1002",
+    "number": 1002,
+    "status": "em-producao",
+    "createdAt": "2026-09-30T09:10:00-03:00",
+    "desiredDate": "2026-10-03",
+    "clientId": "c-002",
+    "customer": {
+      "nome": "Bruno Lima",
+      "email": "bruno.lima@exemplo.com",
+      "telefone": "61988880002"
+    },
+    "items": [
+      {
+        "name": "Combo prata",
+        "quantity": 1,
+        "price": 460,
+        "notes": ""
+      }
+    ],
+    "subtotal": 460,
+    "frete": 0,
+    "total": 460,
+    "address": {
+      "tipo": "retirada",
+      "line": "Combinar retirada pelo WhatsApp",
+      "bairro": "Águas Claras",
+      "cidade": "Brasília–DF"
+    },
+    "notes": "Cliente retira às 16h",
+    "whatsapp": "61988880002"
+  },
+  {
+    "id": "JA-1003",
+    "number": 1003,
+    "status": "pronto",
+    "createdAt": "2026-09-26T18:40:00-03:00",
+    "desiredDate": "2026-09-27",
+    "clientId": "c-003",
+    "customer": {
+      "nome": "Carla Menezes",
+      "email": "carla.menezes@exemplo.com",
+      "telefone": "61988880003"
+    },
+    "items": [
+      {
+        "name": "Tábua Signature",
+        "quantity": 1,
+        "price": 467,
+        "notes": ""
+      },
+      {
+        "name": "Cesta Dengo",
+        "quantity": 1,
+        "price": 257,
+        "notes": ""
+      }
+    ],
+    "subtotal": 724,
+    "frete": 30,
+    "total": 754,
+    "address": {
+      "tipo": "entrega",
+      "line": "QE 38, casa exemplo",
+      "bairro": "Guará",
+      "cidade": "Brasília–DF"
+    },
+    "notes": "Portão dos fundos",
+    "whatsapp": "61988880003"
+  }
+]

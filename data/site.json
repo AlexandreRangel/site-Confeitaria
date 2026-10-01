@@ -1,0 +1,60 @@
+{
+  "brandName": "Jana Abreu Confeitaria",
+  "tagline": "Doces artesanais feitos com carinho em Brasília",
+  "logo": "assets/brand/hero-logo-jana-abreu-confeitaria.webp",
+  "contato": {
+    "whatsapp": "5561981246112",
+    "whatsappLabel": "(61) 98124-6112",
+    "email": "contato@janaabreu.exemplo",
+    "instagram": {
+      "handle": "@janaabreuconfeitaria",
+      "url": "https://www.instagram.com/janaabreuconfeitaria/"
+    }
+  },
+  "instagramGallery": [
+    "assets/instagram/ig-1.webp",
+    "assets/instagram/ig-2.webp",
+    "assets/instagram/ig-3.webp",
+    "assets/instagram/ig-4.webp",
+    "assets/instagram/ig-5.webp",
+    "assets/instagram/ig-6.webp"
+  ],
+  "hydra": {
+    "canvasId": "jana-hydra",
+    "staticFallback": "#efe6ea",
+    "sketchFile": "js/hydra-sketch.js",
+    "note": "Cole um novo sketch em js/hydra-sketch.js → runHydraSketch(). Padrão atual: speed=1.1 contrast=0.45 brightness=0.222"
+  },
+  "colors": {
+    "primary": "#FC7E8E",
+    "secondary": "#F5D5E0",
+    "mint": "#FC7E8E",
+    "mintLight": "#F5D5E0",
+    "blush": "#F5D5E0",
+    "copper": "#FC7E8E",
+    "cream": "#FFF6EF",
+    "ink": "#3D2E29"
+  },
+  "address": {
+    "display": "Brasília–DF",
+    "street": "",
+    "neighborhood": "",
+    "city": "Brasília",
+    "state": "DF",
+    "note": "Combine retirada ou entrega pelo WhatsApp."
+  },
+  "hours": "Encomendas sob consulta · combine data e horário pelo WhatsApp",
+  "deliveryNote": "Entregas em Águas Claras, Lago Sul, Guará e Plano Piloto. Retirada ou entrega — confirme no WhatsApp.",
+  "paymentsNote": "Após confirmar no WhatsApp, combinamos Pix ou cartão (Visa, Mastercard, Hipercard, Elo).",
+  "heroVisitTitle": "Estamos em Brasília–DF",
+  "heroVisitSubtitle": "Retirada ou entrega sob encomenda",
+  "destaquesCopy": {
+    "kitsTitle": "Kits para presentear",
+    "bolosTitle": "Bolos deliciosos",
+    "docesTitle": "Doces finos para celebrações",
+    "sobremesasTitle": "Sobremesas inesquecíveis",
+    "sobremesasText": "Confira opções para surpreender. Combine a data da encomenda pelo WhatsApp e deixe a entrega ou retirada agendada.",
+    "presentesTitle": "Presentes que fazem sucesso",
+    "bolosPedidosTitle": "Os bolos mais pedidos"
+  }
+}
