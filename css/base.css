@@ -9,23 +9,24 @@
   - --cream: soft cream for inputs / solid cards
 */
 :root {
-  --primary: #fc7e8e;
-  --primary-deep: #e85a6d;
-  --secondary: #f8dfe6;
-  --secondary-deep: #edb9cb;
-  --mint: #fc7e8e;
-  --mint-light: #fae8eb;
-  --mint-deep: #d9536b;
-  --blush: #f9dfe6;
-  --blush-deep: #e9b7c8;
-  --copper: #fc7e8e;
-  --copper-deep: #e85a6d;
+  --primary: #ed5d73;
+  --primary-deep: #c9405a;
+  --secondary: #f6c7d3;
+  --secondary-deep: #df8da5;
+  --mint: #ed5d73;
+  --mint-light: #f9dce4;
+  --mint-deep: #c9405a;
+  --blush: #f6cbd7;
+  --blush-deep: #df8da5;
+  --copper: #ed5d73;
+  --copper-deep: #c9405a;
   --cream: #fffaf7;
   --ink: #2a1f24;
-  --muted: #6b4f58;
-  --line: #edd5dc;
-  --panel: rgba(255, 248, 247, 0.9);
-  --panel-strong: rgba(255, 250, 248, 0.96);
+  --brown: #5c4033;
+  --muted: #6b5149;
+  --line: #e4b2c1;
+  --panel: rgba(255, 248, 247, 0.78);
+  --panel-strong: rgba(255, 250, 248, 0.82);
   --whatsapp: #25d366;
   --shadow: 0 16px 42px rgba(214, 111, 139, 0.16), 0 4px 12px rgba(42, 31, 36, 0.05);
   --radius: 26px;
@@ -80,21 +81,21 @@ h2,
 h3,
 .topo__brand-name {
   font-family: var(--serif);
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0.01em;
   line-height: 1.2;
 }
 
 h2 {
-  font-size: clamp(1.8rem, 4vw, 2.6rem);
-  color: var(--ink);
+  font-size: clamp(1.9rem, 4.2vw, 2.75rem);
+  color: var(--brown);
   text-align: center;
-  margin: 0 0 1.2rem;
+  margin: 0 0 1.05rem;
 }
 
 h3 {
   font-size: 1.05rem;
-  color: var(--ink);
+  color: var(--brown);
   margin: 0 0 0.5rem;
 }
 
@@ -143,7 +144,9 @@ button {
 }
 
 .eyebrow {
-  font-size: 0.78rem;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 0.84rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--muted);

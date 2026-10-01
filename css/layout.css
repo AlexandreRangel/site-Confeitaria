@@ -68,8 +68,9 @@ main,
 
 .topo__brand-tag {
   display: none;
-  font-size: 0.72rem;
-  color: var(--muted);
+  font-family: var(--serif);
+  font-size: 0.82rem;
+  color: var(--brown);
 }
 
 .topo__nav {
@@ -78,9 +79,11 @@ main,
 }
 
 .topo__nav a {
-  color: var(--ink);
+  color: var(--brown);
+  font-family: var(--serif);
+  font-weight: 600;
   text-decoration: none;
-  font-size: 0.92rem;
+  font-size: 1rem;
   min-height: 44px;
   display: inline-flex;
   align-items: center;
@@ -185,7 +188,7 @@ main,
   inset: auto 5% 10%;
   max-width: 22rem;
   color: var(--ink);
-  background: rgba(255, 248, 247, 0.92);
+  background: rgba(255, 248, 247, 0.8);
   backdrop-filter: blur(14px) saturate(1.05);
   padding: 1rem 1.15rem;
   border: 1px solid rgba(255, 255, 255, 0.72);
@@ -200,8 +203,9 @@ main,
 }
 
 .hero__caption p {
+  font-family: var(--serif);
   margin-bottom: 0.75rem;
-  font-size: 0.92rem;
+  font-size: 1rem;
 }
 
 .hero__controls {
@@ -221,7 +225,7 @@ main,
 .rodape {
   max-width: var(--container);
   margin: 1rem auto;
-  padding: 2.25rem 1rem;
+  padding: 2rem 1rem;
   background: var(--panel);
   backdrop-filter: blur(16px) saturate(1.05);
   border-radius: var(--radius);
@@ -229,8 +233,12 @@ main,
   box-shadow: var(--shadow);
 }
 
+.categorias {
+  border-top: 3px solid var(--primary);
+}
+
 .rodape {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.35rem;
 }
 
 .visita {
@@ -262,7 +270,7 @@ main,
   gap: 0.85rem;
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 0.5rem 0.15rem 1.1rem;
+  padding: 0.45rem 0.15rem 1rem;
   scroll-snap-type: x proximity;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
@@ -290,10 +298,10 @@ main,
 .sobremesas-band {
   display: grid;
   gap: 1.4rem;
-  margin: 2.5rem 0;
-  padding: 2rem 0;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
+  margin: 2.25rem 0;
+  padding: 1.8rem 0;
+  border-top: 1px solid var(--secondary-deep);
+  border-bottom: 1px solid var(--secondary-deep);
   text-align: center;
 }
 
@@ -310,13 +318,14 @@ main,
 
 .catalogo__head {
   text-align: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.35rem;
 }
 
 .catalogo__note,
 .catalogo__filter {
-  color: var(--muted);
-  font-size: 0.92rem;
+  color: var(--brown);
+  font-family: var(--serif);
+  font-size: 1rem;
 }
 
 .product-grid {
@@ -333,7 +342,7 @@ main,
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 0.55rem;
-  margin-top: 1.2rem;
+  margin-top: 1.05rem;
 }
 
 .instagram__grid img {
@@ -346,7 +355,8 @@ main,
 .rodape {
   border-top: 1px solid var(--line);
   color: var(--muted);
-  font-size: 0.92rem;
+  font-family: var(--serif);
+  font-size: 0.98rem;
 }
 
 .rodape__grid {
