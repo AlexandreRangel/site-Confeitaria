@@ -1,0 +1,38 @@
+[
+  {
+    "id": "cli-001",
+    "nome": "Camila Ferreira",
+    "email": "camila.ferreira@email.com",
+    "telefone": "(61) 99876-5432"
+  },
+  {
+    "id": "cli-002",
+    "nome": "Rafael Mendes",
+    "email": "rafael.mendes@email.com",
+    "telefone": "(61) 99123-4567"
+  },
+  {
+    "id": "cli-003",
+    "nome": "Juliana Costa",
+    "email": "ju.costa@email.com",
+    "telefone": "(61) 98765-4321"
+  },
+  {
+    "id": "cli-004",
+    "nome": "Empresa Nova Aurora",
+    "email": "compras@novaurora.com.br",
+    "telefone": "(61) 3333-4444"
+  },
+  {
+    "id": "cli-005",
+    "nome": "Pedro Almeida",
+    "email": "pedro.almeida@email.com",
+    "telefone": "(61) 99555-1234"
+  },
+  {
+    "id": "cli-006",
+    "nome": "Larissa Souza",
+    "email": "larissa.souza@email.com",
+    "telefone": "(61) 98444-2211"
+  }
+]

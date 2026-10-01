@@ -1,0 +1,99 @@
+[
+  {
+    "id": "PED-1042",
+    "number": "1042",
+    "clientName": "Camila Ferreira",
+    "clientPhone": "61998765432",
+    "clientEmail": "camila.ferreira@email.com",
+    "status": "novo",
+    "createdAt": "2026-09-29T10:15:00-03:00",
+    "desiredDate": "2026-10-04",
+    "items": [
+      { "id": "p-cesta-manha-dos-sonhos", "name": "Cesta Manhã dos Sonhos", "quantity": 1, "price": 189.9 },
+      { "id": "p-caixa-parabens-kit-10", "name": "Caixa Parabéns Individual — Kit 10", "quantity": 1, "price": 320 }
+    ],
+    "subtotal": 509.9,
+    "frete": 25,
+    "total": 534.9,
+    "address": "SQN 208 Bloco C apto 302 — Asa Norte, Brasília-DF",
+    "notes": "Entrega no sábado de manhã. Cartão com nome Camila.",
+    "source": "demo"
+  },
+  {
+    "id": "PED-1041",
+    "number": "1041",
+    "clientName": "Rafael Mendes",
+    "clientPhone": "61991234567",
+    "clientEmail": "rafael.mendes@email.com",
+    "status": "em_preparo",
+    "createdAt": "2026-09-28T16:40:00-03:00",
+    "desiredDate": "2026-10-02",
+    "items": [
+      { "id": "p-bolo-buttercream-m", "name": "Bolo Buttercream M", "quantity": 1, "price": 168 },
+      { "id": "p-combo-encanto", "name": "Combo Encanto", "quantity": 1, "price": 249.9 }
+    ],
+    "subtotal": 417.9,
+    "frete": 20,
+    "total": 437.9,
+    "address": "CLS 403 Bloco B loja 12 — Asa Sul, Brasília-DF",
+    "notes": "Tema floral rosa. Retirada preferencial se frete alto.",
+    "source": "demo"
+  },
+  {
+    "id": "PED-1040",
+    "number": "1040",
+    "clientName": "Juliana Costa",
+    "clientPhone": "61987654321",
+    "clientEmail": "ju.costa@email.com",
+    "status": "pronto",
+    "createdAt": "2026-09-27T11:05:00-03:00",
+    "desiredDate": "2026-09-30",
+    "items": [
+      { "id": "p-cesta-rubi", "name": "Cesta Rubi", "quantity": 1, "price": 259.9 }
+    ],
+    "subtotal": 259.9,
+    "frete": 0,
+    "total": 259.9,
+    "address": "Retirada na loja — Brasília-DF",
+    "notes": "Aniversário da mãe. Embalagem para presente.",
+    "source": "demo"
+  },
+  {
+    "id": "PED-1039",
+    "number": "1039",
+    "clientName": "Empresa Nova Aurora",
+    "clientPhone": "6133334444",
+    "clientEmail": "compras@novaurora.com.br",
+    "status": "entregue",
+    "createdAt": "2026-09-25T09:20:00-03:00",
+    "desiredDate": "2026-09-26",
+    "items": [
+      { "id": "p-caixa-parabens-kit-10", "name": "Caixa Parabéns Individual — Kit 10", "quantity": 2, "price": 320 }
+    ],
+    "subtotal": 640,
+    "frete": 35,
+    "total": 675,
+    "address": "SCS Quadra 2 Bloco A — Brasília-DF",
+    "notes": "Pedido corporativo. Nota fiscal para CNPJ.",
+    "source": "demo"
+  },
+  {
+    "id": "PED-1038",
+    "number": "1038",
+    "clientName": "Pedro Almeida",
+    "clientPhone": "61995551234",
+    "clientEmail": "pedro.almeida@email.com",
+    "status": "cancelado",
+    "createdAt": "2026-09-24T18:10:00-03:00",
+    "desiredDate": "2026-09-28",
+    "items": [
+      { "id": "p-tabua-signature", "name": "Tábua Signature", "quantity": 1, "price": 179.9 }
+    ],
+    "subtotal": 179.9,
+    "frete": 15,
+    "total": 194.9,
+    "address": "Sudoeste SQSW 104 — Brasília-DF",
+    "notes": "Cliente cancelou por mudança de data.",
+    "source": "demo"
+  }
+]
