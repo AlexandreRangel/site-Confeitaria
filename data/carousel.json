@@ -1,0 +1,38 @@
+[
+  {
+    "id": "slide-vitrine",
+    "title": "Jana Abreu Confeitaria",
+    "subtitle": "Doces artesanais feitos com carinho em Brasília",
+    "image": "assets/carousel/slide-vitrine.webp",
+    "linkCategory": "bolos",
+    "productSlug": null,
+    "order": 1
+  },
+  {
+    "id": "slide-kits",
+    "title": "Kits para presentear",
+    "subtitle": "Cestas e caixas prontas para surpreender",
+    "image": "assets/carousel/slide-kits.webp",
+    "linkCategory": "cestas-presentes",
+    "productSlug": null,
+    "order": 2
+  },
+  {
+    "id": "slide-doces",
+    "title": "Bolos e doces finos",
+    "subtitle": "Casamentos, festas e momentos especiais",
+    "image": "assets/carousel/slide-doces.webp",
+    "linkCategory": "bolos",
+    "productSlug": null,
+    "order": 3
+  },
+  {
+    "id": "slide-encomendas",
+    "title": "Encomende pelo WhatsApp",
+    "subtitle": "Pix, cartão ou boleto — combinamos após a confirmação",
+    "image": "assets/carousel/slide-encomendas.webp",
+    "linkCategory": null,
+    "productSlug": "combo-prata",
+    "order": 4
+  }
+]

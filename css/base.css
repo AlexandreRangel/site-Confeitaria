@@ -1,0 +1,231 @@
+/*
+  Palette tokens (Jana Abreu Confeitaria) — tuned for a LIGHT Hydra RGB soft field.
+  Observed Hydra ranges (soft pastels, high luminance): R/G/B channels ~0.55–0.95
+  after contrast(0.4)+brightness(0.2); reduced-motion fill #e8d4dc.
+  - --ink: dark chocolate for body/headings on light animated bg
+  - --muted: medium brown-rose (not light gray) for secondary text
+  - --primary / coral: accent only (CTAs, brand name, links) — avoid for large body text
+  - --panel: frosted white panels over Hydra
+  - --cream: soft cream for inputs / solid cards
+*/
+:root {
+  --primary: #fc7e8e;
+  --primary-deep: #e85a6d;
+  --secondary: #f8dfe6;
+  --secondary-deep: #edb9cb;
+  --mint: #fc7e8e;
+  --mint-light: #fae8eb;
+  --mint-deep: #d9536b;
+  --blush: #f9dfe6;
+  --blush-deep: #e9b7c8;
+  --copper: #fc7e8e;
+  --copper-deep: #e85a6d;
+  --cream: #fffaf7;
+  --ink: #2a1f24;
+  --muted: #6b4f58;
+  --line: #edd5dc;
+  --panel: rgba(255, 248, 247, 0.9);
+  --panel-strong: rgba(255, 250, 248, 0.96);
+  --whatsapp: #25d366;
+  --shadow: 0 16px 42px rgba(214, 111, 139, 0.16), 0 4px 12px rgba(42, 31, 36, 0.05);
+  --radius: 26px;
+  --header-h: 72px;
+  --container: 1120px;
+  --serif: "Cormorant Garamond", Georgia, serif;
+  --sans: "DM Sans", system-ui, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-h) + 12px);
+  overflow-x: hidden;
+  background: #e8d4dc;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background: transparent;
+  font-family: var(--sans);
+  font-size: 1rem;
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: var(--primary-deep);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+a:hover,
+a:focus-visible {
+  color: var(--ink);
+}
+
+h1,
+h2,
+h3,
+.topo__brand-name {
+  font-family: var(--serif);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+}
+
+h2 {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  color: var(--ink);
+  text-align: center;
+  margin: 0 0 1.2rem;
+}
+
+h3 {
+  font-size: 1.05rem;
+  color: var(--ink);
+  margin: 0 0 0.5rem;
+}
+
+p {
+  margin: 0 0 0.75rem;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -3rem;
+  z-index: 80;
+  background: var(--ink);
+  color: #fff;
+  padding: 0.5rem 0.8rem;
+}
+
+.skip-link:focus {
+  top: 0.6rem;
+}
+
+.eyebrow {
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0.7rem 1.4rem;
+  border-radius: 999px;
+  border: 1px solid rgba(232, 90, 109, 0.4);
+  background: linear-gradient(135deg, #fff8f4 0%, #ffe1e8 100%);
+  color: var(--ink);
+  box-shadow: 0 6px 16px rgba(214, 111, 139, 0.12);
+  transition: background 0.2s, color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.btn:hover,
+.btn:focus-visible {
+  background: linear-gradient(135deg, #d94f68 0%, #b63e56 100%);
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(214, 111, 139, 0.2);
+}
+
+.btn--solid {
+  background: linear-gradient(135deg, #d94f68 0%, #b63e56 100%);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 8px 18px rgba(214, 111, 139, 0.2);
+}
+
+.btn--solid:hover,
+.btn--solid:focus-visible {
+  background: linear-gradient(135deg, #b63e56 0%, #96344a 100%);
+  border-color: transparent;
+  box-shadow: 0 10px 22px rgba(201, 71, 97, 0.24);
+}
+
+.btn--whatsapp {
+  background: var(--whatsapp);
+  border-color: var(--whatsapp);
+  color: #fff;
+  width: 100%;
+}
+
+.btn--whatsapp:hover,
+.btn--whatsapp:focus-visible {
+  background: #1ebe57;
+  border-color: #1ebe57;
+  color: #fff;
+}
+
+.btn--outline {
+  background: var(--panel-strong);
+}
+
+.icon-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--ink);
+  text-decoration: none;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 0.2rem;
+}
+
+.icon-link img {
+  filter: invert(48%) sepia(48%) saturate(800%) hue-rotate(314deg) brightness(101%) contrast(98%);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.container {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
