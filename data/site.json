@@ -22,14 +22,14 @@
     "assets/instagram/ig-6.webp"
   ],
   "colors": {
-    "primary": "#FC7E8E",
-    "secondary": "#F5D5E0",
-    "mint": "#FC7E8E",
-    "mintLight": "#F5D5E0",
-    "blush": "#F5D5E0",
-    "copper": "#FC7E8E",
-    "cream": "#FFFFFF",
-    "ink": "#3D2E29"
+    "primary": "#b86e88",
+    "secondary": "#f5d5e0",
+    "mint": "#b86e88",
+    "mintLight": "#f5d5e0",
+    "blush": "#f5d5e0",
+    "copper": "#b86e88",
+    "cream": "#fdf6ec",
+    "ink": "#4c553a"
   },
   "address": {
     "street": "[TODO: rua e número]",

@@ -133,8 +133,14 @@
       if (c.mintLight) root.style.setProperty("--mint-light", c.mintLight);
       if (c.blush) root.style.setProperty("--blush", c.blush);
       if (c.copper) root.style.setProperty("--copper", c.copper);
-      if (c.cream) root.style.setProperty("--cream", c.cream);
-      if (c.ink) root.style.setProperty("--ink", c.ink);
+      if (c.cream) {
+        root.style.setProperty("--cream", c.cream);
+        root.style.setProperty("--panel-solid", c.cream);
+      }
+      if (c.ink) {
+        root.style.setProperty("--ink", c.ink);
+        root.style.setProperty("--brown", c.ink);
+      }
     }
   }
 

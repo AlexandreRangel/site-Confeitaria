@@ -8,7 +8,7 @@
 
 .cart-button img {
   margin: 0 auto;
-  filter: invert(48%) sepia(48%) saturate(800%) hue-rotate(314deg) brightness(101%) contrast(98%);
+  filter: invert(47%) sepia(12%) saturate(900%) hue-rotate(300deg) brightness(90%) contrast(86%);
 }
 
 .cart-button__count {
@@ -30,7 +30,7 @@
   border: 1px solid var(--line);
   background: var(--cream);
   color: var(--ink);
-  box-shadow: 0 5px 14px rgba(214, 111, 139, 0.12);
+  box-shadow: 0 5px 14px rgba(184, 110, 136, 0.12);
 }
 
 .hero__arrow {
@@ -87,8 +87,8 @@ a.bolinha:focus-visible {
   overflow: hidden;
   border: 5px solid var(--cream);
   background: var(--cream);
-  outline: 1px solid rgba(232, 184, 200, 0.85);
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.58), 0 10px 20px rgba(214, 111, 139, 0.17);
+  outline: 1px solid rgba(184, 110, 136, 0.35);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.58), 0 10px 20px rgba(184, 110, 136, 0.17);
   transition: border-color 0.2s ease, box-shadow 0.2s ease, outline-color 0.2s ease;
 }
 
@@ -111,8 +111,8 @@ a.bolinha:focus-visible {
   margin: 0 auto 0.45rem;
   border-radius: 50%;
   border: 5px solid var(--cream);
-  outline: 1px solid rgba(232, 184, 200, 0.85);
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.58), 0 10px 20px rgba(214, 111, 139, 0.17);
+  outline: 1px solid rgba(184, 110, 136, 0.35);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.58), 0 10px 20px rgba(184, 110, 136, 0.17);
 }
 
 /* Zoom photo inside fixed circle frame */
@@ -121,7 +121,7 @@ a.bolinha:focus-visible {
 .bolinha:focus-visible .bolinha__media {
   border-color: var(--mint);
   outline-color: var(--primary);
-  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.7), 0 12px 24px rgba(214, 111, 139, 0.24);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.7), 0 12px 24px rgba(184, 110, 136, 0.24);
 }
 
 .bolinha.is-active .bolinha__media img,
@@ -206,7 +206,7 @@ a.promo-card:focus-visible {
   gap: 0.55rem;
   margin: 0;
   padding: 0.9rem 1rem 1.05rem;
-  background: rgba(255, 248, 247, 0.94);
+  background: rgba(253, 246, 236, 0.96);
   backdrop-filter: blur(12px) saturate(1.05);
   -webkit-backdrop-filter: blur(12px) saturate(1.05);
   border-top: 1px solid rgba(255, 255, 255, 0.7);
@@ -230,11 +230,11 @@ a.promo-card:focus-visible {
   align-items: center;
   justify-content: center;
   transform: none;
-  background: linear-gradient(135deg, #fffaf7 0%, #ffe6ec 100%);
+  background: var(--cream);
   border: 1px solid var(--line);
   border-radius: 999px;
   color: var(--ink);
-  box-shadow: 0 5px 14px rgba(214, 111, 139, 0.12);
+  box-shadow: 0 5px 14px rgba(184, 110, 136, 0.12);
   padding: 0.45rem 1rem;
   font-size: 0.75rem;
   letter-spacing: 0.08em;
@@ -247,7 +247,7 @@ a.promo-card:focus-visible {
   border-radius: var(--radius);
   overflow: hidden;
   box-shadow: var(--shadow);
-  border-color: rgba(232, 184, 200, 0.72);
+  border-color: rgba(184, 110, 136, 0.28);
 }
 
 .card__media {
@@ -546,7 +546,7 @@ a.promo-card:focus-visible {
   padding: 1.4rem 1rem;
   background: var(--panel-solid);
   border-radius: var(--radius);
-  border: 1px solid rgba(228, 178, 193, 0.55);
+  border: 1px solid rgba(184, 110, 136, 0.28);
   box-shadow: var(--shadow);
 }
 

@@ -142,6 +142,49 @@ if (painel.includes("hydra")) {
   errors.push("Painel must not load Hydra");
 }
 
+const official = site.colors || {};
+if (official.primary !== "#b86e88") {
+  errors.push("site.json primary must be official dusty rose #b86e88");
+}
+if (official.secondary !== "#f5d5e0") {
+  errors.push("site.json secondary must be official light pink #f5d5e0");
+}
+if (official.cream !== "#fdf6ec") {
+  errors.push("site.json cream must be official #fdf6ec");
+}
+if (official.ink !== "#4c553a") {
+  errors.push("site.json ink must be official olive #4c553a");
+}
+
+const baseCss = readFileSync(join(root, "css/base.css"), "utf8");
+if (!baseCss.includes("--primary: #b86e88")) {
+  errors.push("base.css --primary must be #b86e88");
+}
+if (!baseCss.includes("--ink: #4c553a")) {
+  errors.push("base.css --ink must be #4c553a");
+}
+if (!baseCss.includes("--cream: #fdf6ec")) {
+  errors.push("base.css --cream must be #fdf6ec");
+}
+
+const coralSources = [
+  "css/base.css",
+  "css/layout.css",
+  "css/components.css",
+  "css/painel.css",
+  "data/site.json",
+  "js/app.js",
+  "scripts/sample-hydra-colors.html",
+  "assets/brand/padronagem.svg",
+  "assets/favicon.svg",
+];
+coralSources.forEach((rel) => {
+  const text = readFileSync(join(root, rel), "utf8");
+  if (/#fc7e8e/i.test(text)) {
+    errors.push(rel + " still contains coral #FC7E8E");
+  }
+});
+
 if (errors.length) {
   console.error(errors.join("\n"));
   process.exit(1);

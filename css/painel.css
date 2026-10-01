@@ -3,7 +3,7 @@
 .painel-body {
   min-height: 100vh;
   color: var(--brown);
-  background: rgba(255, 250, 248, 0.86);
+  background: rgba(253, 246, 236, 0.88);
 }
 
 .painel-shell {
@@ -23,7 +23,7 @@
   margin-bottom: 1.4rem;
   padding: 1rem 1.15rem;
   border-radius: var(--radius);
-  border: 1px solid rgba(228, 178, 193, 0.55);
+  border: 1px solid rgba(184, 110, 136, 0.55);
   background: var(--panel-strong);
   box-shadow: var(--shadow);
 }
@@ -70,7 +70,7 @@
   padding: 0.35rem;
   border-radius: 999px;
   background: var(--panel);
-  border: 1px solid rgba(228, 178, 193, 0.45);
+  border: 1px solid rgba(184, 110, 136, 0.45);
   width: fit-content;
   max-width: 100%;
   overflow-x: auto;
@@ -90,9 +90,9 @@
 }
 
 .painel-tabs button.is-active {
-  background: linear-gradient(135deg, #d94f68 0%, #b63e56 100%);
+  background: var(--primary);
   color: #fff;
-  box-shadow: 0 6px 14px rgba(214, 111, 139, 0.22);
+  box-shadow: 0 6px 14px rgba(184, 110, 136, 0.22);
 }
 
 .painel-panel {
@@ -130,8 +130,8 @@
   margin: 0 0 1rem;
   padding: 0.75rem 1rem;
   border-radius: 16px;
-  background: rgba(255, 250, 248, 0.7);
-  border: 1px dashed rgba(201, 64, 90, 0.35);
+  background: rgba(253, 246, 236, 0.8);
+  border: 1px dashed rgba(184, 110, 136, 0.4);
   color: var(--muted);
   font-size: 0.9rem;
 }
@@ -139,7 +139,7 @@
 .painel-table-wrap {
   overflow-x: auto;
   border-radius: var(--radius);
-  border: 1px solid rgba(228, 178, 193, 0.55);
+  border: 1px solid rgba(184, 110, 136, 0.55);
   background: var(--panel-strong);
   box-shadow: var(--shadow);
 }
@@ -154,7 +154,7 @@
 .painel-table td {
   padding: 0.85rem 1rem;
   text-align: left;
-  border-bottom: 1px solid rgba(228, 178, 193, 0.4);
+  border-bottom: 1px solid rgba(184, 110, 136, 0.4);
   color: var(--brown);
   vertical-align: middle;
 }
@@ -164,7 +164,7 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);
-  background: rgba(255, 245, 247, 0.55);
+  background: rgba(245, 213, 224, 0.45);
 }
 
 .painel-table tbody tr {
@@ -175,7 +175,7 @@
 .painel-table tbody tr:hover,
 .painel-table tbody tr:focus-visible,
 .painel-table tbody tr.is-selected {
-  background: rgba(249, 220, 228, 0.55);
+  background: rgba(245, 213, 224, 0.55);
 }
 
 .painel-table tbody tr:last-child td {
@@ -196,15 +196,15 @@
 }
 
 .btn--danger {
-  border-color: rgba(157, 47, 69, 0.35);
-  background: #fff1f3;
-  color: #9b2f45;
+  border-color: rgba(154, 88, 112, 0.4);
+  background: #f5d5e0;
+  color: #4c553a;
 }
 
 .btn--danger:hover,
 .btn--danger:focus-visible {
   border-color: transparent;
-  background: #b63e56;
+  background: #9a5870;
   color: #fff;
 }
 
@@ -216,13 +216,13 @@
   border-radius: 999px;
   font-size: 0.78rem;
   font-weight: 600;
-  background: #f5e6ea;
+  background: #f5d5e0;
   color: var(--brown);
 }
 
 .badge--novo {
-  background: #ffe2e8;
-  color: #9b2f45;
+  background: #f5d5e0;
+  color: #4c553a;
 }
 
 .badge--em_preparo {
@@ -252,7 +252,7 @@
 
 .painel-detail {
   border-radius: var(--radius);
-  border: 1px solid rgba(228, 178, 193, 0.55);
+  border: 1px solid rgba(184, 110, 136, 0.55);
   background: var(--panel-strong);
   box-shadow: var(--shadow);
   padding: 1.15rem 1.2rem 1.35rem;
@@ -288,8 +288,8 @@
   margin-bottom: 1rem;
   padding: 0.9rem;
   border-radius: 18px;
-  background: rgba(255, 245, 247, 0.62);
-  border: 1px solid rgba(228, 178, 193, 0.45);
+  background: rgba(245, 213, 224, 0.45);
+  border: 1px solid rgba(184, 110, 136, 0.45);
 }
 
 .painel-edit-form__grid {
@@ -308,10 +308,10 @@
 .painel-edit-form input,
 .painel-edit-form textarea {
   width: 100%;
-  border: 1px solid rgba(228, 178, 193, 0.75);
+  border: 1px solid rgba(184, 110, 136, 0.75);
   border-radius: 12px;
   padding: 0.6rem 0.7rem;
-  background: #fffaf7;
+  background: #fdf6ec;
   color: var(--brown);
 }
 
@@ -354,7 +354,7 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 0.55rem 0;
-  border-bottom: 1px solid rgba(228, 178, 193, 0.35);
+  border-bottom: 1px solid rgba(184, 110, 136, 0.35);
   color: var(--brown);
 }
 
@@ -385,8 +385,8 @@
 .painel-status-select {
   min-height: 40px;
   border-radius: 999px;
-  border: 1px solid rgba(228, 178, 193, 0.7);
-  background: #fffaf7;
+  border: 1px solid rgba(184, 110, 136, 0.7);
+  background: #fdf6ec;
   color: var(--brown);
   padding: 0.35rem 0.8rem;
 }

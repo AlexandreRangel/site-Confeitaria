@@ -5,7 +5,7 @@ Servidor local: `http://127.0.0.1:8765/` (pasta `site-confeitaria-preview`).
 ## O que olhar
 
 ### Mobile (~375px)
-- Header sticky com logo circular + nome; menu hamburger e carrinho com alvo ≥ 44px.
+- Header sticky com wordmark oficial; menu hamburger e carrinho com alvo ≥ 44px.
 - Carrossel full-bleed com fotos reais e caption em card translúcido.
 - Fileira de **categorias** em scroll horizontal (bolinhas com fotos WebP) que abrem páginas próprias (`/bolos/`, `/sobremesas/`, …).
 - Home **sem** vitrine mista: só hero, visita, círculos/cards de categoria, Instagram e rodapé.
@@ -18,7 +18,7 @@ Servidor local: `http://127.0.0.1:8765/` (pasta `site-confeitaria-preview`).
 - Carrossel alto (~520px) full-bleed só na home.
 
 ### Brand & conteúdo
-- Cores: ink `#2A1F24`, muted `#6B4F58`, primary `#FC7E8E`, panels frosted white over Hydra.
+- Cores oficiais: texto `#4c553a`, creme `#fdf6ec`, botões/acento `#b86e88`, rosa claro `#f5d5e0`. Sem coral `#FC7E8E`. Hydra só no botão **Adquirir agora**.
 - WhatsApp `5561981246112` · Instagram `@janaabreuconfeitaria`.
 - Fotos reais Vendizap em categorias, produtos, carrossel, Instagram e logo (`assets/brand/logo.webp`).
 - 15 produtos reais (cestas, bolos, combos, festa personalizada, platter, café fit).

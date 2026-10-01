@@ -19,6 +19,17 @@ Em `data/site.json`:
 
 O checkout sempre usa `https://wa.me/{whatsapp}?text=...`. Troque só os dígitos se o número mudar. O rótulo é só visual.
 
+## Cores oficiais
+
+Em `data/site.json` → `colors` (e tokens em `css/base.css`):
+
+- texto `#4c553a`
+- creme `#fdf6ec`
+- acento e botões `#b86e88`
+- rosa claro `#f5d5e0`
+
+Não usar o coral antigo `#FC7E8E`. O Hydra fica só no botão **Adquirir agora**.
+
 ## Trocar um produto
 
 1. Abra `data/products.json`.

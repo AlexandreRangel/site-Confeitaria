@@ -1,35 +1,33 @@
 /*
-  Palette tokens (Jana Abreu Confeitaria) — tuned for a LIGHT Hydra RGB soft field.
-  Observed Hydra ranges (soft pastels, high luminance): R/G/B channels ~0.55–0.95
-  after contrast(0.4)+brightness(0.2); reduced-motion fill #e8d4dc.
-  - --ink: dark chocolate for body/headings on light animated bg
-  - --muted: medium brown-rose (not light gray) for secondary text
-  - --primary / coral: accent only (CTAs, brand name, links) — avoid for large body text
-  - --panel: frosted white panels over Hydra
-  - --cream: soft cream for inputs / solid cards
+  Official brand palette (Jana Abreu Confeitaria)
+  - --ink / --brown: olive dark #4c553a for text
+  - --cream: #fdf6ec
+  - --primary: dusty rose #b86e88 for accents and normal buttons
+  - --secondary: light pink #f5d5e0
+  Hydra lives only inside .btn--acquire (Adquirir agora).
 */
 :root {
-  --primary: #ed5d73;
-  --primary-deep: #c9405a;
-  --secondary: #f6c7d3;
-  --secondary-deep: #df8da5;
-  --mint: #ed5d73;
-  --mint-light: #f9dce4;
-  --mint-deep: #c9405a;
-  --blush: #f6cbd7;
-  --blush-deep: #df8da5;
-  --copper: #ed5d73;
-  --copper-deep: #c9405a;
-  --cream: #fffaf7;
-  --ink: #2a1f24;
-  --brown: #5c4033;
-  --muted: #6b5149;
-  --line: #e4b2c1;
-  --panel: rgba(255, 250, 248, 0.94);
-  --panel-strong: rgba(255, 252, 250, 0.97);
-  --panel-solid: #fffdfb;
+  --primary: #b86e88;
+  --primary-deep: #9a5870;
+  --secondary: #f5d5e0;
+  --secondary-deep: #d4a3b5;
+  --mint: #b86e88;
+  --mint-light: #f5d5e0;
+  --mint-deep: #9a5870;
+  --blush: #f5d5e0;
+  --blush-deep: #d4a3b5;
+  --copper: #b86e88;
+  --copper-deep: #9a5870;
+  --cream: #fdf6ec;
+  --ink: #4c553a;
+  --brown: #4c553a;
+  --muted: #6b7358;
+  --line: #e4c4ce;
+  --panel: rgba(253, 246, 236, 0.94);
+  --panel-strong: rgba(253, 246, 236, 0.97);
+  --panel-solid: #fdf6ec;
   --whatsapp: #25d366;
-  --shadow: 0 16px 42px rgba(214, 111, 139, 0.16), 0 4px 12px rgba(42, 31, 36, 0.05);
+  --shadow: 0 16px 42px rgba(184, 110, 136, 0.16), 0 4px 12px rgba(76, 85, 58, 0.06);
   --radius: 26px;
   --header-h: 88px;
   --container: 1120px;
@@ -47,7 +45,7 @@ html {
   scroll-behavior: smooth;
   scroll-padding-top: calc(var(--header-h) + 12px);
   overflow-x: hidden;
-  background-color: #fff8f6;
+  background-color: #fdf6ec;
   background-image: url("../assets/brand/padronagem.svg");
   background-repeat: repeat;
   background-size: 420px 420px;
@@ -56,7 +54,7 @@ html {
 body {
   margin: 0;
   color: var(--ink);
-  background: rgba(255, 250, 248, 0.72);
+  background: rgba(253, 246, 236, 0.72);
   font-family: var(--sans);
   font-size: 1rem;
   line-height: 1.6;
@@ -165,26 +163,32 @@ button {
   min-width: 44px;
   padding: 0.7rem 1.4rem;
   border-radius: 999px;
-  border: 1px solid rgba(232, 90, 109, 0.4);
-  background: linear-gradient(135deg, #fff8f4 0%, #ffe1e8 100%);
+  border: 1px solid rgba(184, 110, 136, 0.45);
+  background: var(--cream);
   color: var(--ink);
-  box-shadow: 0 6px 16px rgba(214, 111, 139, 0.12);
+  box-shadow: 0 6px 16px rgba(184, 110, 136, 0.12);
   transition: background 0.2s, color 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 
 .btn:hover,
 .btn:focus-visible {
-  background: linear-gradient(135deg, #d94f68 0%, #b63e56 100%);
+  background: var(--primary);
   color: #fff;
-  box-shadow: 0 8px 18px rgba(214, 111, 139, 0.2);
+  box-shadow: 0 8px 18px rgba(184, 110, 136, 0.2);
 }
 
-.btn--solid,
-.btn--acquire {
-  background: linear-gradient(135deg, #d94f68 0%, #b63e56 100%);
+.btn--solid {
+  background: var(--primary);
   color: #fff;
   border-color: transparent;
-  box-shadow: 0 8px 18px rgba(214, 111, 139, 0.2);
+  box-shadow: 0 8px 18px rgba(184, 110, 136, 0.2);
+}
+
+.btn--acquire {
+  background: var(--ink);
+  color: var(--cream);
+  border-color: transparent;
+  box-shadow: 0 8px 18px rgba(76, 85, 58, 0.22);
 }
 
 .btn--acquire {
@@ -211,9 +215,17 @@ button {
 
 .btn--solid:hover,
 .btn--solid:focus-visible {
-  background: linear-gradient(135deg, #b63e56 0%, #96344a 100%);
+  background: var(--primary-deep);
   border-color: transparent;
-  box-shadow: 0 10px 22px rgba(201, 71, 97, 0.24);
+  box-shadow: 0 10px 22px rgba(154, 88, 112, 0.24);
+}
+
+.btn--acquire:hover,
+.btn--acquire:focus-visible {
+  background: #3d4430;
+  color: var(--cream);
+  border-color: transparent;
+  box-shadow: 0 10px 22px rgba(76, 85, 58, 0.28);
 }
 
 .btn--whatsapp {
@@ -246,7 +258,7 @@ button {
 }
 
 .icon-link img {
-  filter: invert(48%) sepia(48%) saturate(800%) hue-rotate(314deg) brightness(101%) contrast(98%);
+  filter: invert(47%) sepia(12%) saturate(900%) hue-rotate(300deg) brightness(90%) contrast(86%);
 }
 
 [hidden] {

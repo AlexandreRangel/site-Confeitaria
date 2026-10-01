@@ -183,7 +183,7 @@ main,
   flex-direction: column;
   gap: 0.65rem;
   padding: 1rem 1.15rem 0.85rem;
-  background: rgba(255, 248, 247, 0.92);
+  background: rgba(253, 246, 236, 0.94);
   backdrop-filter: blur(14px) saturate(1.05);
   -webkit-backdrop-filter: blur(14px) saturate(1.05);
   border-top: 1px solid rgba(255, 255, 255, 0.65);
