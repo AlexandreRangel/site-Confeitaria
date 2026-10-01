@@ -47,11 +47,11 @@ A mensagem inclui nome, telefone, data desejada, itens, quantidades, total e obs
 
 Canvas fullscreen (`#jana-hydra`) com o mesmo padrão de otimização do portfólio (MAX_DIM 768, MAX_DPR 1.5, DPR 1 em save-data / low-memory / coarse pointer, resize com throttle, estático se `prefers-reduced-motion`, `detectAudio: false`).
 
-Para trocar o visual: edite **`js/hydra-sketch.js`** → `runHydraSketch()`.
+Sketch atual: `speed=1.1`, `contrast=0.45`, `brightness=0.222`. Para trocar o visual: edite **`js/hydra-sketch.js`** → `runHydraSketch()`.
 
 ## Marca
 
-Cores da loja ao vivo: **#FC7E8E** (coral/rosa) e **#F5D5E0** (rosa claro), fundo branco. Ajuste em `data/site.json` → `colors`.
+Cores da loja ao vivo: **#FC7E8E** (coral), **#F5D5E0** (blush), creme **#FFF6EF** e texto marrom **#3A2A2E**. Painéis em frosting translúcido (~50%) sobre o Hydra. Ajuste em `data/site.json` → `colors`.
 
 ## Instagram
 

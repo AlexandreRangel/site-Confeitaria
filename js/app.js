@@ -112,7 +112,7 @@
         const isLogo = slide.id === "slide-marca";
         const caption = isLogo
           ? ""
-          : '<div class="hero__caption"><h2>' +
+          : '<div class="hero__caption is-fading"><h2>' +
             Jana.escapeHtml(slide.title) +
             "</h2><p>" +
             Jana.escapeHtml(slide.subtitle) +
@@ -158,6 +158,15 @@
     Jana.qs('[data-bind="carousel"]').style.transform = "translateX(-" + state.slide * 100 + "%)";
     Jana.qsa(".hero__dot").forEach(function mark(dot, i) {
       dot.classList.toggle("is-active", i === state.slide);
+    });
+    replayCaptionFade();
+  }
+
+  function replayCaptionFade() {
+    Jana.qsa(".hero__caption").forEach(function replay(caption) {
+      caption.classList.remove("is-fading");
+      void caption.offsetWidth;
+      caption.classList.add("is-fading");
     });
   }
 

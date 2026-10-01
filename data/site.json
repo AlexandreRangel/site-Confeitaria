@@ -23,7 +23,7 @@
     "canvasId": "jana-hydra",
     "staticFallback": "#efe6ea",
     "sketchFile": "js/hydra-sketch.js",
-    "note": "Cole um novo sketch em js/hydra-sketch.js → runHydraSketch()"
+    "note": "Cole um novo sketch em js/hydra-sketch.js → runHydraSketch(). Padrão atual: speed=1.1 contrast=0.45 brightness=0.222"
   },
   "colors": {
     "primary": "#FC7E8E",
@@ -32,7 +32,7 @@
     "mintLight": "#F5D5E0",
     "blush": "#F5D5E0",
     "copper": "#FC7E8E",
-    "cream": "#FFFFFF",
+    "cream": "#FFF6EF",
     "ink": "#3A2A2E"
   },
   "address": {

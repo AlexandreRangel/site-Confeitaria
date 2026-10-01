@@ -5,7 +5,7 @@ Use estes nomes ao pedir mudanças no site ou no chat com o assistente. Eles bat
 | Área | Seletor | O que é |
 | --- | --- | --- |
 | `topo` | `#topo` | Cabeçalho fixo: marca, menu, Instagram, carrinho |
-| `hero-carrossel` | `#hero-carrossel` | Carrossel automático no topo da página |
+| `hero-carrossel` | `#hero-carrossel` | Carrossel automático; título da marca em overlay e legendas que surgem em fade |
 | `categorias` | `#categorias` | Fileira de bolinhas circulares; o clique filtra a vitrine |
 | `destaques` | `#destaques` | Cards de kits/bolos/doces, faixa de sobremesas, presentes e bolos |
 | `catalogo` | `#catalogo` | Grade de produtos (vitrine filtrável) |

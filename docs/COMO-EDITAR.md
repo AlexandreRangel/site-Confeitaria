@@ -57,6 +57,8 @@ Copie e adapte no chat:
 
 O fundo animado vive em `js/hydra-sketch.js` (`runHydraSketch`). Cole um novo sketch Hydra nessa função. O motor otimizado (`js/background-hydra.js`) usa canvas fullscreen, `MAX_DIM 768`, `MAX_DPR 1.5`, DPR 1 em save-data / pouca memória / pointer coarse, resize com throttle e fundo estático se `prefers-reduced-motion`.
 
+Valores atuais do sketch: `speed=1.1`, `contrast=0.45`, `brightness=0.222`. A vitrine usa painéis creme/blush a 50% de opacidade, cartões bem redondos e sombra rosa — texto marrom escuro (`#3A2A2E`) para contraste no Hydra claro.
+
 ## Painel
 
 Abra `/painel/` para pedidos e clientes. Exporte CSV (colunas `nome,email,telefone`). Não há Google Sheets nesta versão — o stub está em `painel/js/sheets-stub.js`.
