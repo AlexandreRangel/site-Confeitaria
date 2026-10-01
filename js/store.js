@@ -17,6 +17,7 @@
 (function createStore(global) {
   const Jana = global.Jana || {};
   const ORDERS_KEY = "jana-abreu-orders-v1";
+  const DELETED_ORDERS_KEY = "jana-abreu-deleted-orders-v1";
   const CLIENTS_KEY = "jana-abreu-clients-v1";
   const SEQ_KEY = "jana-abreu-order-seq-v1";
 
@@ -32,6 +33,12 @@
 
   function writeList(key, list) {
     localStorage.setItem(key, JSON.stringify(list));
+  }
+
+  function deletedOrderIds() {
+    return readList(DELETED_ORDERS_KEY).filter(function onlyIds(id) {
+      return typeof id === "string" && id;
+    });
   }
 
   function digitsOnly(value) {
@@ -186,9 +193,14 @@
       return readList(CLIENTS_KEY);
     },
     mergeOrders: function mergeOrders(demo) {
-      return mergeById(demo || [], readList(ORDERS_KEY)).sort(function byDate(a, b) {
-        return String(b.createdAt || "").localeCompare(String(a.createdAt || ""));
-      });
+      const deleted = new Set(deletedOrderIds());
+      return mergeById(demo || [], readList(ORDERS_KEY))
+        .filter(function notDeleted(order) {
+          return !deleted.has(order.id);
+        })
+        .sort(function byDate(a, b) {
+          return String(b.createdAt || "").localeCompare(String(a.createdAt || ""));
+        });
     },
     mergeClients: function mergeClients(demo) {
       return mergeById(demo || [], readList(CLIENTS_KEY)).sort(function byName(a, b) {
@@ -205,6 +217,22 @@
       });
       return order;
     },
+    updateOrder: function updateOrder(order) {
+      if (!order || !order.id) return null;
+      const list = readList(ORDERS_KEY);
+      const index = list.findIndex(function find(item) {
+        return item.id === order.id;
+      });
+      const saved = Object.assign({}, order);
+      if (index === -1) {
+        list.unshift(saved);
+      } else {
+        list[index] = saved;
+      }
+      writeList(ORDERS_KEY, list);
+      // FUTURE: update order row in Google Sheets
+      return saved;
+    },
     updateOrderStatus: function updateOrderStatus(orderId, status) {
       const list = readList(ORDERS_KEY);
       const row = list.find(function find(item) {
@@ -217,6 +245,20 @@
         return row;
       }
       return null;
+    },
+    deleteOrder: function deleteOrder(orderId) {
+      if (!orderId) return false;
+      const list = readList(ORDERS_KEY);
+      writeList(ORDERS_KEY, list.filter(function keep(item) {
+        return item.id !== orderId;
+      }));
+      const deleted = deletedOrderIds();
+      if (deleted.indexOf(orderId) === -1) {
+        deleted.push(orderId);
+        writeList(DELETED_ORDERS_KEY, deleted);
+      }
+      // FUTURE: delete order row in Google Sheets
+      return true;
     },
     downloadJSON: downloadJSON,
     downloadCSV: downloadCSV,

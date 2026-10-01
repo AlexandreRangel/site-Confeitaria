@@ -58,10 +58,11 @@
                 <th scope="col">Cliente</th>
                 <th scope="col">Status</th>
                 <th scope="col">Data</th>
+                <th scope="col">Ações</th>
               </tr>
             </thead>
             <tbody data-bind="orders-body">
-              <tr><td colspan="4" class="painel-empty">Carregando…</td></tr>
+              <tr><td colspan="5" class="painel-empty">Carregando…</td></tr>
             </tbody>
           </table>
         </div>
@@ -79,8 +80,48 @@
               <option value="entregue">Entregue</option>
               <option value="cancelado">Cancelado</option>
             </select>
+            <div class="painel-detail__head-actions">
+              <button type="button" class="btn btn--outline" data-action="edit-order">Editar</button>
+              <button type="button" class="btn btn--danger" data-action="delete-order">Excluir</button>
+            </div>
           </div>
-          <dl class="painel-detail__meta">
+          <form class="painel-edit-form" data-bind="detail-edit-form" hidden>
+            <div class="painel-edit-form__grid">
+              <label>
+                Nome
+                <input type="text" name="clientName" data-bind="edit-client-name" required autocomplete="name">
+              </label>
+              <label>
+                Telefone
+                <input type="tel" name="clientPhone" data-bind="edit-client-phone" autocomplete="tel">
+              </label>
+              <label>
+                E-mail
+                <input type="email" name="clientEmail" data-bind="edit-client-email" autocomplete="email">
+              </label>
+              <label>
+                Data desejada
+                <input type="date" name="desiredDate" data-bind="edit-desired-date">
+              </label>
+              <label>
+                Frete (R$)
+                <input type="number" name="frete" data-bind="edit-frete" min="0" step="0.01" inputmode="decimal">
+              </label>
+              <label class="painel-edit-form__wide">
+                Endereço
+                <input type="text" name="address" data-bind="edit-address" autocomplete="street-address">
+              </label>
+              <label class="painel-edit-form__wide">
+                Observações
+                <textarea name="notes" data-bind="edit-notes" rows="3"></textarea>
+              </label>
+            </div>
+            <div class="painel-detail__actions painel-edit-form__actions">
+              <button type="submit" class="btn btn--solid">Salvar</button>
+              <button type="button" class="btn btn--outline" data-action="cancel-edit">Cancelar</button>
+            </div>
+          </form>
+          <dl class="painel-detail__meta" data-bind="detail-meta">
             <div>
               <dt>Cliente</dt>
               <dd data-bind="detail-client"></dd>

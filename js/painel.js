@@ -12,6 +12,7 @@
     orders: [],
     clients: [],
     selectedId: null,
+    editingId: null,
     siteWhatsApp: "5561981246112",
   };
 
@@ -83,7 +84,7 @@
     const body = Jana.qs('[data-bind="orders-body"]');
     if (!state.orders.length) {
       body.innerHTML =
-        '<tr><td colspan="4" class="painel-empty">Nenhum pedido ainda.</td></tr>';
+        '<tr><td colspan="5" class="painel-empty">Nenhum pedido ainda.</td></tr>';
       return;
     }
     body.innerHTML = state.orders
@@ -106,6 +107,18 @@
           "</td>" +
           "<td>" +
           Jana.escapeHtml(formatDate(order.createdAt)) +
+          "</td>" +
+          '<td class="painel-row-actions">' +
+          '<button type="button" class="btn btn--small btn--outline" data-action="edit-order" data-id="' +
+          Jana.escapeHtml(order.id) +
+          '" aria-label="Editar pedido #' +
+          Jana.escapeHtml(order.number || order.id) +
+          '">Editar</button>' +
+          '<button type="button" class="btn btn--small btn--danger" data-action="delete-order" data-id="' +
+          Jana.escapeHtml(order.id) +
+          '" aria-label="Excluir pedido #' +
+          Jana.escapeHtml(order.number || order.id) +
+          '">Excluir</button>' +
           "</td>" +
           "</tr>"
         );
@@ -139,6 +152,51 @@
       .join("");
   }
 
+  function calculateSubtotal(order) {
+    if (Array.isArray(order.items)) {
+      return order.items.reduce(function sum(total, item) {
+        const quantity = Number(item.quantity != null ? item.quantity : item.qty || item.quantidade) || 0;
+        return total + (Number(item.price) || 0) * quantity;
+      }, 0);
+    }
+    return Number(order.subtotal) || 0;
+  }
+
+  function setEditMode(editing) {
+    const form = Jana.qs('[data-bind="detail-edit-form"]');
+    const meta = Jana.qs('[data-bind="detail-meta"]');
+    const editButton = Jana.qs('[data-action="edit-order"]', Jana.qs('[data-bind="order-detail"]'));
+    if (!form || !meta) return;
+    form.hidden = !editing;
+    meta.hidden = editing;
+    if (editButton) editButton.hidden = editing;
+  }
+
+  function populateEditForm(order) {
+    const values = {
+      "edit-client-name": order.clientName || "",
+      "edit-client-phone": order.clientPhone || "",
+      "edit-client-email": order.clientEmail || "",
+      "edit-desired-date": order.desiredDate || "",
+      "edit-address": order.address || "",
+      "edit-notes": order.notes || "",
+      "edit-frete": Number(order.frete) || 0,
+    };
+    Object.keys(values).forEach(function setValue(key) {
+      const field = Jana.qs('[data-bind="' + key + '"]');
+      if (field) field.value = values[key];
+    });
+  }
+
+  function syncEditTotals() {
+    const order = findOrder(state.editingId);
+    const field = Jana.qs('[data-bind="edit-frete"]');
+    if (!order || !field) return;
+    const frete = Math.max(0, Number(field.value) || 0);
+    Jana.bindText("detail-frete", Jana.formatBRL(frete));
+    Jana.bindText("detail-total", Jana.formatBRL(calculateSubtotal(order) + frete));
+  }
+
   function renderDetail(order) {
     const panel = Jana.qs('[data-bind="order-detail"]');
     if (!order) {
@@ -146,6 +204,9 @@
       return;
     }
     panel.hidden = false;
+    state.editingId = null;
+    setEditMode(false);
+    populateEditForm(order);
     Jana.bindText("detail-title", "Pedido #" + (order.number || order.id));
     Jana.bindText("detail-status-label", STATUS_LABELS[order.status] || order.status);
     Jana.bindText("detail-client", order.clientName || "—");
@@ -154,9 +215,11 @@
     Jana.bindText("detail-desired", formatDesired(order.desiredDate));
     Jana.bindText("detail-address", order.address || "—");
     Jana.bindText("detail-notes", order.notes || "—");
-    Jana.bindText("detail-subtotal", Jana.formatBRL(order.subtotal || 0));
-    Jana.bindText("detail-frete", Jana.formatBRL(order.frete || 0));
-    Jana.bindText("detail-total", Jana.formatBRL(order.total || 0));
+    const subtotal = calculateSubtotal(order);
+    const frete = Number(order.frete) || 0;
+    Jana.bindText("detail-subtotal", Jana.formatBRL(subtotal));
+    Jana.bindText("detail-frete", Jana.formatBRL(frete));
+    Jana.bindText("detail-total", Jana.formatBRL(subtotal + frete));
 
     const select = Jana.qs('[data-bind="detail-status"]');
     select.value = STATUS_LABELS[order.status] ? order.status : "novo";
@@ -310,21 +373,98 @@
     const order = findOrder(orderId);
     if (!order) return;
 
-    order.status = status;
-    // Demo JSON orders are not writable on disk; persist override in localStorage.
-    const local = Jana.Store.localOrders();
-    const existing = local.find(function find(item) {
-      return item.id === orderId;
+    const saved = Jana.Store.updateOrder(
+      Object.assign({}, order, {
+        status: status,
+        source: order.source === "demo" ? "demo-edit" : order.source || "painel-edit",
+      })
+    );
+    if (!saved) return;
+    state.orders = state.orders.map(function replace(row) {
+      return row.id === orderId ? saved : row;
     });
-    if (existing) {
-      Jana.Store.updateOrderStatus(orderId, status);
-    } else {
-      local.unshift(Object.assign({}, order, { source: order.source || "demo-edit" }));
-      localStorage.setItem(Jana.Store.ORDERS_KEY, JSON.stringify(local));
-      // FUTURE: PATCH status in Google Sheets
+    renderOrders();
+    renderDetail(saved);
+  }
+
+  function startEditing(orderId) {
+    const order = findOrder(orderId);
+    if (!order) return;
+    if (state.selectedId !== orderId) {
+      selectOrder(orderId);
+    }
+    state.editingId = orderId;
+    populateEditForm(order);
+    setEditMode(true);
+    const nameField = Jana.qs('[data-bind="edit-client-name"]');
+    if (nameField) nameField.focus();
+  }
+
+  function cancelEditing() {
+    const order = findOrder(state.selectedId);
+    state.editingId = null;
+    if (order) {
+      renderDetail(order);
+    }
+  }
+
+  function saveEditing(event) {
+    event.preventDefault();
+    const order = findOrder(state.editingId);
+    if (!order) return;
+    const getValue = function getValue(key) {
+      const field = Jana.qs('[data-bind="' + key + '"]');
+      return field ? field.value.trim() : "";
+    };
+    const name = getValue("edit-client-name");
+    const nameField = Jana.qs('[data-bind="edit-client-name"]');
+    if (!name) {
+      if (nameField) nameField.focus();
+      return;
+    }
+    const freteField = Jana.qs('[data-bind="edit-frete"]');
+    const frete = Math.max(0, Number(freteField && freteField.value) || 0);
+    const subtotal = calculateSubtotal(order);
+    const saved = Jana.Store.updateOrder(
+      Object.assign({}, order, {
+        clientName: name,
+        clientPhone: Jana.Store.digitsOnly(getValue("edit-client-phone")),
+        clientEmail: getValue("edit-client-email"),
+        desiredDate: getValue("edit-desired-date"),
+        address: getValue("edit-address"),
+        notes: getValue("edit-notes"),
+        subtotal: subtotal,
+        frete: frete,
+        total: subtotal + frete,
+        source: order.source === "demo" ? "demo-edit" : order.source || "painel-edit",
+      })
+    );
+    if (!saved) return;
+    state.orders = state.orders.map(function replace(row) {
+      return row.id === saved.id ? saved : row;
+    });
+    state.editingId = null;
+    renderOrders();
+    renderDetail(saved);
+  }
+
+  function deleteOrder(orderId) {
+    const order = findOrder(orderId);
+    if (!order) return;
+    const label = order.number || order.id;
+    if (!window.confirm("Excluir o pedido #" + label + "?\nEssa ação não poderá ser desfeita.")) {
+      return;
+    }
+    Jana.Store.deleteOrder(orderId);
+    state.orders = state.orders.filter(function keep(row) {
+      return row.id !== orderId;
+    });
+    state.editingId = null;
+    if (state.selectedId === orderId) {
+      state.selectedId = null;
+      renderDetail(null);
     }
     renderOrders();
-    renderDetail(order);
   }
 
   function bindEvents() {
@@ -339,6 +479,19 @@
       const action = actionEl.getAttribute("data-action");
       if (action === "open-order") {
         selectOrder(actionEl.getAttribute("data-id"));
+        return;
+      }
+      if (action === "edit-order") {
+        startEditing(actionEl.getAttribute("data-id") || state.selectedId);
+        return;
+      }
+      if (action === "delete-order") {
+        deleteOrder(actionEl.getAttribute("data-id") || state.selectedId);
+        return;
+      }
+      if (action === "cancel-edit") {
+        cancelEditing();
+        return;
       }
       if (action === "export-clients") {
         exportClientsCSV();
@@ -369,13 +522,23 @@
 
     document.addEventListener("keydown", function onKey(event) {
       const row = event.target.closest('[data-action="open-order"]');
-      if (!row) return;
+      if (!row || event.target !== row) return;
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
         selectOrder(row.getAttribute("data-id"));
       }
     });
 
+    document.addEventListener("submit", function onSubmit(event) {
+      if (event.target.matches('[data-bind="detail-edit-form"]')) {
+        saveEditing(event);
+      }
+    });
+    document.addEventListener("input", function onInput(event) {
+      if (event.target.matches('[data-bind="edit-frete"]')) {
+        syncEditTotals();
+      }
+    });
     Jana.qs('[data-bind="detail-status"]').addEventListener("change", onStatusChange);
   }
 

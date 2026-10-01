@@ -182,6 +182,32 @@
   border-bottom: 0;
 }
 
+.painel-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  min-width: 150px;
+}
+
+.btn--small {
+  min-height: 36px;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.82rem;
+}
+
+.btn--danger {
+  border-color: rgba(157, 47, 69, 0.35);
+  background: #fff1f3;
+  color: #9b2f45;
+}
+
+.btn--danger:hover,
+.btn--danger:focus-visible {
+  border-color: transparent;
+  background: #b63e56;
+  color: #fff;
+}
+
 .badge {
   display: inline-flex;
   align-items: center;
@@ -249,6 +275,53 @@
   margin: 0;
   font-size: 1.35rem;
   color: var(--brown);
+}
+
+.painel-detail__head-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-left: auto;
+}
+
+.painel-edit-form {
+  margin-bottom: 1rem;
+  padding: 0.9rem;
+  border-radius: 18px;
+  background: rgba(255, 245, 247, 0.62);
+  border: 1px solid rgba(228, 178, 193, 0.45);
+}
+
+.painel-edit-form__grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.painel-edit-form label {
+  display: grid;
+  gap: 0.25rem;
+  color: var(--brown);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.painel-edit-form input,
+.painel-edit-form textarea {
+  width: 100%;
+  border: 1px solid rgba(228, 178, 193, 0.75);
+  border-radius: 12px;
+  padding: 0.6rem 0.7rem;
+  background: #fffaf7;
+  color: var(--brown);
+}
+
+.painel-edit-form textarea {
+  resize: vertical;
+}
+
+.painel-edit-form__actions {
+  margin-top: 0.85rem;
+  margin-bottom: 0;
 }
 
 .painel-detail__meta {
@@ -341,5 +414,13 @@
 
   .painel-detail__meta {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .painel-edit-form__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .painel-edit-form__wide {
+    grid-column: 1 / -1;
   }
 }
