@@ -54,9 +54,11 @@
     const handle = Jana.instagramHandle(instagram);
     const instaUrl = Jana.instagramUrl(instagram);
     const whatsapp = site.contato.whatsapp;
-    const address = [site.address.street, site.address.neighborhood, site.address.city + " - " + site.address.state]
-      .filter(Boolean)
-      .join(", ");
+    const address =
+      site.address.display ||
+      [site.address.street, site.address.neighborhood, site.address.city, site.address.state]
+        .filter(Boolean)
+        .join(" · ");
     Jana.bindText("brandName", site.brandName);
     Jana.bindText("tagline", site.tagline);
     Jana.bindText("visit-title", site.heroVisitTitle);

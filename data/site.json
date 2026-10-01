@@ -30,8 +30,9 @@
     "ink": "#3A2A2E"
   },
   "address": {
-    "street": "Retirada ou entrega",
-    "neighborhood": "Brasília–DF",
+    "display": "Brasília–DF",
+    "street": "",
+    "neighborhood": "",
     "city": "Brasília",
     "state": "DF",
     "note": "Combine retirada ou entrega pelo WhatsApp."
