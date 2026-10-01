@@ -8,7 +8,7 @@ Servidor local: `http://127.0.0.1:8765/` (pasta `site-confeitaria-preview`).
 - Header sticky com wordmark oficial; menu hamburger e carrinho com alvo ≥ 44px.
 - Carrossel full-bleed com fotos reais e caption em card translúcido.
 - Fileira de **categorias** em carrossel de cards quadrados grandes (estilo GoldKo): ~3 visíveis no mobile, seta para o restante, rótulo embaixo, URL limpa (`/bolos/`, `/sobremesas/`, …).
-- Home **sem** vitrine mista e **sem** bloco «venha nos visitar»/endereço: só hero, cards de categoria, Instagram e rodapé.
+- Home **sem** vitrine mista e **sem** bloco «venha nos visitar»/endereço: só hero, cards de categoria, Instagram e rodapé (WhatsApp, Instagram, pagamento — sem Endereço).
 - Sem overflow horizontal (body/`html` com `overflow-x: hidden`).
 
 ### Desktop (~1280px)

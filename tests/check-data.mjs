@@ -79,9 +79,20 @@ categories.forEach((category) => {
 if (home.includes('id="catalogo"') || home.includes('data-bind="products"')) {
   errors.push("Home must not include the mixed product vitrine");
 }
-if (home.includes('class="visita"') || /venha nos visitar/i.test(home) || /<h3>Endereço<\/h3>/.test(home)) {
+if (home.includes('class="visita"') || /venha nos visitar/i.test(home)) {
   errors.push("Home must not include the visit/address block");
 }
+const storefrontPages = [
+  "index.html",
+  "produto/index.html",
+  ...expected.map((id) => id + "/index.html"),
+];
+storefrontPages.forEach((rel) => {
+  const html = readFileSync(join(root, rel), "utf8");
+  if (/<h3>Endereço<\/h3>/.test(html) || /data-bind="address"/.test(html) || /data-bind="hours"/.test(html)) {
+    errors.push(rel + " footer must not show Endereço / hours stubs");
+  }
+});
 if (home.includes('data-action="filter-category"')) {
   errors.push("Home must link to category pages instead of filtering in place");
 }
