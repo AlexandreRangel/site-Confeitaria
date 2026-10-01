@@ -3,107 +3,61 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Jana Abreu Confeitaria — A vida é mais doce quando compartilhada. Encomendas pelo WhatsApp.">
-  <title>Jana Abreu Confeitaria</title>
-  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <meta name="description" content="Combos festa da Jana Abreu Confeitaria em Brasília.">
+  <title>Combos festa · Jana Abreu Confeitaria</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/layout.css">
-  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
 </head>
-<body data-page="home" data-root="">
-  <a class="skip-link" href="#categorias">Ir para as categorias</a>
-
+<body data-page="category" data-category="combos-festa" data-root="../">
+  <a class="skip-link" href="#catalogo">Ir para os produtos</a>
   <header id="topo" class="topo">
     <div class="topo__inner">
       <button class="topo__menu" type="button" aria-expanded="false" aria-controls="menu-principal" data-action="toggle-menu">
         <span class="sr-only">Abrir menu</span>
         <span class="topo__menu-bar" aria-hidden="true"></span>
       </button>
-      <a class="topo__brand" href="./">
-        <img class="topo__brand-logo" data-bind="logo" src="assets/brand/logo-jana-abreu.png" alt="Jana Abreu Confeitaria" width="220" height="84">
+      <a class="topo__brand" href="../">
+        <img class="topo__brand-logo" data-bind="logo" src="../assets/brand/logo-jana-abreu.png" alt="Jana Abreu Confeitaria" width="220" height="84">
         <span class="topo__brand-tag" data-bind="slogan">A vida é mais doce quando compartilhada</span>
       </a>
       <nav id="menu-principal" class="topo__nav" aria-label="Principal">
-        <a href="./">Início</a>
-        <a href="#categorias">Categorias</a>
+        <a href="../">Início</a>
+        <a href="../#categorias">Categorias</a>
         <a href="#encomendas" data-action="open-cart">Encomendas</a>
       </nav>
       <div class="topo__actions">
         <a class="icon-link" data-bind="instagram-link" href="https://www.instagram.com/janaabreuconfeitaria/" target="_blank" rel="noopener noreferrer" aria-label="Instagram @janaabreuconfeitaria">
-          <img src="assets/icons/instagram.svg" alt="" width="22" height="22">
+          <img src="../assets/icons/instagram.svg" alt="" width="22" height="22">
           <span class="icon-link__label" data-bind="instagram-handle">@janaabreuconfeitaria</span>
         </a>
         <button class="cart-button" type="button" data-action="open-cart" aria-controls="encomendas">
-          <img src="assets/icons/cart.svg" alt="" width="22" height="22">
+          <img src="../assets/icons/cart.svg" alt="" width="22" height="22">
           <span class="sr-only">Abrir encomendas</span>
           <span class="cart-button__count" data-bind="cart-count" aria-live="polite">0</span>
         </button>
       </div>
     </div>
   </header>
-
   <main>
-    <section id="hero-carrossel" class="hero" aria-roledescription="carrossel" aria-label="Destaques">
-      <div class="hero__media">
-        <div class="hero__track" data-bind="carousel"></div>
+    <section id="catalogo" class="catalogo" aria-labelledby="categoria-titulo">
+      <div class="catalogo__head">
+        <p class="catalogo__crumb">
+          <a href="../">Início</a>
+          <span aria-hidden="true"> · </span>
+          <span data-bind="category-title">Combos festa</span>
+        </p>
+        <h1 id="categoria-titulo" data-bind="category-title">Combos festa</h1>
+        <p class="catalogo__note">Fotos reais do catálogo · preços sob confirmação no WhatsApp.</p>
       </div>
-      <div class="hero__below">
-        <h1 class="sr-only">Jana Abreu Confeitaria</h1>
-        <p class="hero__slogan" data-bind="slogan">A vida é mais doce quando compartilhada</p>
-        <div class="hero__caption" data-bind="hero-caption">
-          <div class="hero__caption-inner" data-bind="hero-caption-inner">
-            <h2 data-bind="hero-slide-title"></h2>
-            <p data-bind="hero-slide-subtitle"></p>
-            <button type="button" class="btn btn--outline" data-bind="hero-slide-cta" data-action="carousel-link">Ver opções</button>
-          </div>
-        </div>
-        <div class="hero__controls">
-          <button type="button" class="hero__arrow" data-action="carousel-prev" aria-label="Slide anterior">‹</button>
-          <div class="hero__dots" data-bind="carousel-dots"></div>
-          <button type="button" class="hero__arrow" data-action="carousel-next" aria-label="Próximo slide">›</button>
-        </div>
-      </div>
-    </section>
-
-    <section id="categorias" class="categorias" aria-labelledby="categorias-titulo">
-      <h2 id="categorias-titulo">Categorias</h2>
       <div class="categorias__row" data-bind="categories"></div>
-    </section>
-
-    <section id="destaques" class="destaques" aria-labelledby="destaques-titulo">
-      <h2 id="destaques-titulo" class="sr-only">Destaques</h2>
-      <div class="promo-grid" data-bind="promo-cards"></div>
-      <div class="sobremesas-band">
-        <figure>
-          <img src="assets/products/cafe-parabens-fit/01.webp" alt="Café Parabéns Fit">
-        </figure>
-        <div class="sobremesas-band__copy">
-          <h2 data-bind="sobremesas-title">Sobremesas inesquecíveis</h2>
-          <p data-bind="sobremesas-text"></p>
-          <a class="btn btn--outline" href="sobremesas/">
-            Confira nossas opções
-          </a>
-        </div>
-        <figure>
-          <img src="assets/products/bolo-naked-g/01.webp" alt="Bolo Naked">
-        </figure>
-      </div>
-    </section>
-
-    <section id="instagram" class="instagram" aria-labelledby="instagram-titulo">
-      <h2 id="instagram-titulo">Siga no Instagram</h2>
-      <p>
-        <a data-bind="instagram-link" href="https://www.instagram.com/janaabreuconfeitaria/" target="_blank" rel="noopener noreferrer">
-          <span data-bind="instagram-handle">@janaabreuconfeitaria</span>
-        </a>
-      </p>
-      <div class="instagram__grid" data-bind="instagram-grid"></div>
+      <div class="product-grid" data-bind="products"></div>
     </section>
   </main>
-
   <footer id="rodape" class="rodape">
     <div class="rodape__grid">
       <div>
@@ -132,7 +86,7 @@
     </div>
     <p class="rodape__credits">
       © <span data-bind="year"></span> Jana Abreu Confeitaria
-      · <a class="rodape-loja-link" href="painel/">Área da loja</a>
+      · <a class="rodape-loja-link" href="../painel/">Área da loja</a>
     </p>
   </footer>
 
@@ -158,9 +112,9 @@
   </aside>
   <div class="backdrop" data-action="close-cart" hidden></div>
 
-  <script src="js/utils.js"></script>
-  <script src="js/cart.js"></script>
-  <script src="js/store.js"></script>
-  <script src="js/app.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/cart.js"></script>
+  <script src="../js/store.js"></script>
+  <script src="../js/app.js"></script>
 </body>
 </html>

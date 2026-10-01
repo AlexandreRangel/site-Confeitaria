@@ -25,7 +25,7 @@ site-Confeitaria/
 ├── encomendar.html            # Fluxo de encomenda (v1: WhatsApp / formulário)
 ├── crop.html                  # (opcional) crop simples no browser
 ├── css/
-│   ├── tokens.css             # Cores pastel mint/pink/copper, tipografia
+│   ├── tokens.css             # Paleta oficial olive/cream/dusty rose, tipografia
 │   ├── base.css
 │   ├── layout.css
 │   └── components.css         # carrossel, cards, chips de categoria
@@ -147,7 +147,7 @@ GitHub Pages (1–2 min)
 
 ## Estilo visual (referência)
 
-- Paleta boutique: **mint pastel**, **rosa suave**, acentos **cobre/rose-gold**
+- Paleta oficial: texto **#4c553a**, fundo **#fdf6ec**, acento/botões **#b86e88**, rosa claro **#f5d5e0**
 - Hero com **carrossel**
 - Fileira de **categorias circulares**
 - Grades de produtos + seções dedicadas (kits/presentes, bolos, doces de festa/casamento)

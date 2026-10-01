@@ -1,14 +1,3 @@
-/* Hydra fullscreen background (performance-capped in js/background-hydra.js) */
-#hydra-background {
-  position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100%;
-  z-index: 0;
-  pointer-events: none;
-  display: block;
-}
-
 .topo,
 main,
 .rodape {
@@ -48,22 +37,18 @@ main,
 }
 
 .topo__brand-logo {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--secondary);
-  box-shadow: 0 2px 10px rgba(252, 126, 142, 0.2);
+  width: auto;
+  height: 56px;
+  max-width: min(240px, 56vw);
+  border-radius: 0;
+  object-fit: contain;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
 }
 
 .topo__brand-name {
-  display: block;
-  font-size: clamp(1rem, 2.8vw, 1.55rem);
-  color: var(--primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
+  display: none;
 }
 
 .topo__brand-tag {
@@ -198,25 +183,22 @@ main,
   flex-direction: column;
   gap: 0.65rem;
   padding: 1rem 1.15rem 0.85rem;
-  background: rgba(255, 248, 247, 0.92);
+  background: rgba(253, 246, 236, 0.94);
   backdrop-filter: blur(14px) saturate(1.05);
   -webkit-backdrop-filter: blur(14px) saturate(1.05);
   border-top: 1px solid rgba(255, 255, 255, 0.65);
 }
 
-.hero__brand-title {
-  position: static;
+.hero__slogan {
   margin: 0;
   width: 100%;
   text-align: center;
   font-family: var(--serif);
-  font-weight: 600;
-  font-size: clamp(1.55rem, 4.5vw, 2.35rem);
-  line-height: 1.15;
-  letter-spacing: 0.01em;
+  font-weight: 500;
+  font-style: italic;
+  font-size: clamp(1.2rem, 3.2vw, 1.7rem);
+  line-height: 1.35;
   color: var(--brown);
-  text-shadow: none;
-  pointer-events: none;
 }
 
 .hero__caption {
@@ -269,7 +251,6 @@ main,
   background: transparent;
 }
 
-.visita,
 .categorias,
 .destaques,
 .catalogo,
@@ -293,37 +274,18 @@ main,
   margin-bottom: 1.35rem;
 }
 
-.visita {
-  display: grid;
-  gap: 1.25rem;
-  text-align: center;
-  border-bottom: 1px solid var(--line);
+.categorias__carousel {
+  position: relative;
 }
 
-.visita__photo img {
-  width: 100%;
-  aspect-ratio: 4/3;
-  object-fit: cover;
-  border-radius: 20px;
-  border: 1px solid var(--line);
-}
-
-.visita__pin {
-  display: flex;
-  gap: 0.4rem;
-  justify-content: center;
-  align-items: flex-start;
-  color: var(--muted);
-}
-
-/* Categories: horizontal scroller on mobile */
 .categorias__row {
+  --cat-gap: 0.5rem;
   display: flex;
-  gap: 0.85rem;
+  gap: var(--cat-gap);
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 0.45rem 0.15rem 1rem;
-  scroll-snap-type: x proximity;
+  padding: 0.2rem 0 0.85rem;
+  scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
   scrollbar-color: var(--secondary) transparent;
@@ -336,6 +298,47 @@ main,
 .categorias__row::-webkit-scrollbar-thumb {
   background: var(--secondary);
   border-radius: 999px;
+}
+
+.categorias__arrow {
+  position: absolute;
+  top: calc((100% - 2.8rem) / 2);
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--cream);
+  color: var(--ink);
+  box-shadow: 0 8px 18px rgba(76, 85, 58, 0.16);
+  font-size: 1.55rem;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+}
+
+.categorias__arrow--prev {
+  left: 0.2rem;
+}
+
+.categorias__arrow--next {
+  right: 0.2rem;
+}
+
+.categorias__arrow:hover,
+.categorias__arrow:focus-visible {
+  background: var(--primary);
+  color: #fff;
+}
+
+.categorias__arrow:disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.categorias__arrow[hidden] {
+  display: none;
 }
 
 .destaques {
@@ -378,11 +381,37 @@ main,
   margin-bottom: 1.35rem;
 }
 
+.catalogo__crumb {
+  margin: 0 0 0.45rem;
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  color: var(--brown);
+}
+
+.catalogo__crumb a {
+  color: var(--brown);
+  text-decoration: none;
+}
+
+.catalogo__crumb a:hover,
+.catalogo__crumb a:focus-visible {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.catalogo__head h1 {
+  margin-bottom: 0.35rem;
+}
+
 .catalogo__note,
 .catalogo__filter {
   color: var(--brown);
   font-family: var(--serif);
   font-size: 1rem;
+}
+
+.catalogo .categorias__carousel {
+  margin: 0.4rem 0 1.4rem;
 }
 
 .product-grid {
@@ -452,15 +481,14 @@ main,
   }
 
   .topo__brand-logo {
-    width: 48px;
-    height: 48px;
+    height: 72px;
+    max-width: 320px;
   }
 
   .topo__nav {
     display: flex;
   }
 
-  .topo__brand-tag,
   .icon-link__label {
     display: block;
   }
@@ -471,8 +499,8 @@ main,
     height: min(48vw, 480px);
   }
 
-  .hero__brand-title {
-    font-size: clamp(1.85rem, 3.5vw, 2.6rem);
+  .hero__slogan {
+    font-size: clamp(1.35rem, 2.4vw, 1.85rem);
   }
 
   .hero__below {
@@ -481,11 +509,6 @@ main,
 
   .hero__caption {
     max-width: 36rem;
-  }
-
-  .visita {
-    grid-template-columns: 1fr 0.85fr 1fr;
-    align-items: center;
   }
 
   .promo-grid {
@@ -526,13 +549,9 @@ main,
     grid-template-columns: repeat(2, 1fr);
   }
 
-  /* Categories: nice centered row on desktop */
   .categorias__row {
-    justify-content: center;
-    flex-wrap: wrap;
-    overflow-x: visible;
-    gap: 1.1rem 1.4rem;
-    padding-bottom: 0.4rem;
+    --cat-gap: 0.75rem;
+    padding-bottom: 0.6rem;
   }
 }
 
@@ -564,21 +583,18 @@ main,
   }
 
   .rodape__grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 
-  .topo__brand-name {
-    white-space: normal;
-  }
 }
 
 @media (min-width: 1280px) {
-  .visita,
   .categorias,
   .destaques,
   .catalogo,
   .instagram,
   .rodape,
+  .produto-detalhe,
   .topo__inner {
     padding-left: 1.5rem;
     padding-right: 1.5rem;

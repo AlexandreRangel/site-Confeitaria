@@ -26,13 +26,16 @@ Edite os JSON em `data/` e troque as imagens em `assets/`. Recarregue a página 
 
 | Arquivo | O que muda |
 | --- | --- |
-| `data/site.json` | Nome, slogan, WhatsApp, Instagram, endereço, cores, textos |
+| `data/site.json` | Nome, slogan, WhatsApp, Instagram, endereço, cores oficiais, textos |
 | `data/categories.json` | Bolinhas de categoria (`categorias`) |
 | `data/carousel.json` | Slides do `hero-carrossel` |
-| `data/products.json` | Produtos da vitrine, preço, fotos, destaque |
+| `data/products.json` | Produtos das páginas de categoria, preço, fotos, destaque |
+| `data/sabores-bolos.json` | 17 recheios oficiais de bolo (nome + descrição no menu e nos rádios) |
 | `data/orders.json` / `data/clients.json` | Demo do painel (`/painel/`) — pedidos e clientes |
 
-Produtos com `"active": false` somem da vitrine. Itens de exemplo usam a tag `"exemplo"` e o selo **Exemplo**.
+Produtos com `"active": false` somem das páginas de categoria. Itens de exemplo usam a tag `"exemplo"` e o selo **Exemplo**.
+
+Cada categoria oficial tem uma pasta com `index.html` (ex.: `/bolos/`, `/sobremesas/`) para o GitHub Pages servir URL limpa sem roteador.
 
 ## WhatsApp
 

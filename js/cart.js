@@ -20,11 +20,12 @@
     items: function items() {
       return loadItems();
     },
-    add: function add(product, quantity) {
+    add: function add(product, quantity, options) {
       const qty = Math.max(1, Number(quantity) || 1);
+      const flavor = options && options.flavor ? String(options.flavor) : "";
       const current = loadItems();
       const existing = current.find(function findItem(item) {
-        return item.id === product.id;
+        return item.id === product.id && String(item.flavor || "") === flavor;
       });
       if (existing) {
         existing.quantity += qty;
@@ -36,6 +37,7 @@
           price: product.price,
           image: product.images[0],
           quantity: qty,
+          flavor: flavor,
         });
       }
       saveItems(current);

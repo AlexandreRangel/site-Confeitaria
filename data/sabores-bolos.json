@@ -1,0 +1,74 @@
+{
+  "source": "cliente-oficial",
+  "label": "Recheio do bolo",
+  "flavors": [
+    {
+      "nome": "Chocolatudo",
+      "descricao": "Massa de chocolate e recheio chocolatudo"
+    },
+    {
+      "nome": "Pink lemonade",
+      "descricao": "Creme de limão & cerejas ao marrasquino"
+    },
+    {
+      "nome": "Cookies & Cream",
+      "descricao": "Creme com pedaços de cookie de baunilha com chocolate"
+    },
+    {
+      "nome": "Doce de leite com nozes",
+      "descricao": ""
+    },
+    {
+      "nome": "Doce de leite com nozes e chocolate",
+      "descricao": ""
+    },
+    {
+      "nome": "Doce de leite com chocolate",
+      "descricao": ""
+    },
+    {
+      "nome": "Torta de limão",
+      "descricao": "Creme de limão com pedaços de biscoito amanteigado"
+    },
+    {
+      "nome": "Maracujá",
+      "descricao": ""
+    },
+    {
+      "nome": "Prestígio",
+      "descricao": "Coco & chocolate"
+    },
+    {
+      "nome": "Creme de chocolate",
+      "descricao": "Massa baunilha, com recheio chocolatudo"
+    },
+    {
+      "nome": "2 Amores",
+      "descricao": "Chocolate branco & preto"
+    },
+    {
+      "nome": "Bombom de uva",
+      "descricao": "Uvas frescas, creme & ganache de chocolate"
+    },
+    {
+      "nome": "Morangos com creme (sazonal)",
+      "descricao": ""
+    },
+    {
+      "nome": "Geleia de morango",
+      "descricao": "Recheio de creme com geleia de morango"
+    },
+    {
+      "nome": "Capuccino",
+      "descricao": "Ganache de chocolate, doce de leite e café"
+    },
+    {
+      "nome": "Pistache",
+      "descricao": "Creme de pistache com pedaços"
+    },
+    {
+      "nome": "Ninho com Nutella",
+      "descricao": ""
+    }
+  ]
+}
