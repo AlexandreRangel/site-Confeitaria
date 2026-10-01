@@ -215,7 +215,7 @@ main,
   max-width: 22rem;
   width: calc(100% - 10%);
   color: var(--ink);
-  background: rgba(255, 248, 247, 0.48);
+  background: var(--panel);
   backdrop-filter: blur(14px) saturate(1.05);
   -webkit-backdrop-filter: blur(14px) saturate(1.05);
   padding: 1rem 1.15rem;
