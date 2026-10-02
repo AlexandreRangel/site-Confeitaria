@@ -60,7 +60,7 @@ main,
 
 .topo__nav {
   display: none;
-  gap: 1.2rem;
+  gap: 1.45rem;
 }
 
 .topo__nav a {
@@ -68,7 +68,8 @@ main,
   font-family: var(--serif);
   font-weight: 600;
   text-decoration: none;
-  font-size: 1rem;
+  font-size: 1.22rem;
+  letter-spacing: 0.01em;
   min-height: 44px;
   display: inline-flex;
   align-items: center;
