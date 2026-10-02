@@ -1,5 +1,5 @@
 /**
- * Tiny Hydra field inside «Adquirir agora» buttons only.
+ * Tiny Hydra field inside «Comprar» buttons only.
  * Storefront page background is the damask pattern — not Hydra.
  */
 (function startButtonHydra() {
@@ -9,9 +9,8 @@
   }
 
   const MAX_DPR = 1.25;
-  const buttons = Array.from(document.querySelectorAll(".btn--acquire"));
-  if (!buttons.length) {
-    return;
+  function mountButtons() {
+    document.querySelectorAll(".btn--acquire").forEach(mountButton);
   }
 
   function resolveDpr() {
@@ -74,5 +73,9 @@
     }
   }
 
-  buttons.forEach(mountButton);
+  mountButtons();
+  if (typeof MutationObserver === "function") {
+    const observer = new MutationObserver(mountButtons);
+    observer.observe(document.body, { childList: true, subtree: true });
+  }
 })();

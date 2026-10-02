@@ -418,12 +418,12 @@
       Jana.escapeHtml(Jana.productUrl(product.slug)) +
       '">Ver mais</a>' +
       (Jana.isCakeProduct(product)
-        ? '<a class="btn btn--solid" href="' +
+        ? '<a class="btn btn--solid btn--acquire" href="' +
           Jana.escapeHtml(Jana.productUrl(product.slug)) +
-          '">Adquirir agora</a>'
-        : '<button type="button" class="btn btn--solid" data-action="add-product" data-slug="' +
+          '"><span class="btn__label">Comprar</span></a>'
+        : '<button type="button" class="btn btn--solid btn--acquire" data-action="add-product" data-slug="' +
           Jana.escapeHtml(product.slug) +
-          '">Adquirir agora</button>') +
+          '"><span class="btn__label">Comprar</span></button>') +
       "</div></div></article>"
     );
   }

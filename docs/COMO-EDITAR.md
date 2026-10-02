@@ -28,7 +28,7 @@ Em `data/site.json` → `colors` (e tokens em `css/base.css`):
 - acento e botões `#b86e88`
 - rosa claro `#f5d5e0`
 
-Não usar o coral antigo `#FC7E8E`. O Hydra fica só no botão **Adquirir agora**.
+Não usar o coral antigo `#FC7E8E`. O Hydra fica só no botão **Comprar**.
 
 ## Recheios de bolo
 

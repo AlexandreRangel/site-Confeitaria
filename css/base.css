@@ -4,7 +4,7 @@
   - --cream: #fdf6ec
   - --primary: dusty rose #b86e88 for accents and normal buttons
   - --secondary: light pink #f5d5e0
-  Hydra lives only inside .btn--acquire (Adquirir agora).
+  Hydra lives only inside .btn--acquire (Comprar).
 */
 :root {
   --primary: #b86e88;

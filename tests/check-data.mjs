@@ -138,8 +138,8 @@ if (!existsSync(join(root, "produto/index.html"))) {
   if (!productPage.includes("Mais informações sobre este produto")) {
     errors.push("Product page needs «Mais informações sobre este produto»");
   }
-  if (!productPage.includes("Adquirir agora")) {
-    errors.push("Product page needs «Adquirir agora»");
+  if (!productPage.includes("Comprar")) {
+    errors.push("Product page needs «Comprar»");
   }
 }
 

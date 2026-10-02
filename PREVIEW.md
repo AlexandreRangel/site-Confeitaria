@@ -18,7 +18,7 @@ Servidor local: `http://127.0.0.1:8765/` (pasta `site-confeitaria-preview`).
 - Carrossel alto (~520px) full-bleed só na home.
 
 ### Brand & conteúdo
-- Cores oficiais: texto `#4c553a`, creme `#fdf6ec`, botões/acento `#b86e88`, rosa claro `#f5d5e0`. Sem coral `#FC7E8E`. Hydra só no botão **Adquirir agora**.
+- Cores oficiais: texto `#4c553a`, creme `#fdf6ec`, botões/acento `#b86e88`, rosa claro `#f5d5e0`. Sem coral `#FC7E8E`. Hydra só dentro dos botões **Comprar**.
 - WhatsApp `5561981246112` · Instagram `@janaabreuconfeitaria`.
 - Fotos reais Vendizap em categorias, produtos, carrossel, Instagram e logo (`assets/brand/logo.webp`).
 - 15 produtos reais (cestas, bolos, combos, festa personalizada, platter, café fit).
@@ -27,7 +27,7 @@ Servidor local: `http://127.0.0.1:8765/` (pasta `site-confeitaria-preview`).
 - Logo oficial no topo (`assets/brand/logo-jana-abreu.png`), sem título tipográfico no hero.
 - Slogan: **A vida é mais doce quando compartilhada**.
 - Fundo: padronagem damask bem suave (`assets/brand/padronagem.svg`).
-- Hydra **somente** dentro do botão **Adquirir agora** na página do produto. Painel sem Hydra.
+- Hydra **somente** dentro dos botões **Comprar**; nunca como fundo da página. Painel sem Hydra.
 
 ### Área da loja (`/painel/`)
 - Pedidos (lista + detalhe: itens, frete, total, endereço, obs, WhatsApp).
@@ -39,5 +39,5 @@ Servidor local: `http://127.0.0.1:8765/` (pasta `site-confeitaria-preview`).
 ### Smoke checklist
 1. Abrir home → carrossel avança sozinho; **não** há grade mista de produtos.
 2. Clicar categoria → abre URL limpa (`/bolos/`, `/cestas-presentes/`, …); hard-refresh mantém a página.
-3. Clicar produto → `/produto/?slug=…`. No bolo, escolher um dos 17 recheios oficiais (`data/sabores-bolos.json`, nome + descrição no menu e nos rádios). «Mais informações» abre a gaveta WhatsApp. «Adquirir agora» tem Hydra miúdo.
+3. Clicar produto → `/produto/?slug=…`. No bolo, escolher um dos 17 recheios oficiais (`data/sabores-bolos.json`, nome + descrição no menu e nos rádios). «Mais informações» abre a gaveta WhatsApp. «Comprar» tem Hydra miúdo.
 4. Conferir 375px e 1280px (DevTools) sem barra horizontal.
