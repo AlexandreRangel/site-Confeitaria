@@ -92,6 +92,15 @@ storefrontPages.forEach((rel) => {
   if (/<h3>Endereço<\/h3>/.test(html) || /data-bind="address"/.test(html) || /data-bind="hours"/.test(html)) {
     errors.push(rel + " footer must not show Endereço / hours stubs");
   }
+  if (!html.includes("viewport-fit=cover")) {
+    errors.push(rel + " needs viewport-fit=cover for iOS safe areas");
+  }
+  if (!html.includes('role="dialog"') || !html.includes("checkout-status")) {
+    errors.push(rel + " cart drawer needs dialog role and checkout status");
+  }
+  if (/hydra-synth@1\.4\.0/.test(html)) {
+    errors.push(rel + " must not load Hydra as a blocking CDN script");
+  }
 });
 if (home.includes('data-action="filter-category"')) {
   errors.push("Home must link to category pages instead of filtering in place");

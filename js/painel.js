@@ -291,7 +291,7 @@
   function orderItemsSummary(order) {
     return (order.items || [])
       .map(function map(item) {
-        const qty = item.qty != null ? item.qty : item.quantidade;
+        const qty = item.quantity != null ? item.quantity : item.qty != null ? item.qty : item.quantidade;
         const name = item.name || item.nome || "";
         return (qty != null ? qty + "x " : "") + name;
       })

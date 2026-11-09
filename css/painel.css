@@ -11,7 +11,7 @@
   z-index: 1;
   max-width: 1120px;
   margin: 0 auto;
-  padding: calc(var(--header-h) + 1.25rem) 1rem 3rem;
+  padding: calc(1.25rem + env(safe-area-inset-top)) 1rem calc(3rem + env(safe-area-inset-bottom));
 }
 
 .painel-header {
@@ -167,7 +167,7 @@
   background: rgba(245, 213, 224, 0.45);
 }
 
-.painel-table tbody tr {
+.painel-table tbody tr[data-action] {
   cursor: pointer;
   transition: background 0.15s;
 }
@@ -308,11 +308,13 @@
 .painel-edit-form input,
 .painel-edit-form textarea {
   width: 100%;
+  min-height: 44px;
   border: 1px solid rgba(184, 110, 136, 0.75);
   border-radius: 12px;
   padding: 0.6rem 0.7rem;
   background: #fdf6ec;
   color: var(--brown);
+  font-size: 16px;
 }
 
 .painel-edit-form textarea {
@@ -383,12 +385,13 @@
 }
 
 .painel-status-select {
-  min-height: 40px;
+  min-height: 44px;
   border-radius: 999px;
   border: 1px solid rgba(184, 110, 136, 0.7);
   background: #fdf6ec;
   color: var(--brown);
   padding: 0.35rem 0.8rem;
+  font-size: 16px;
 }
 
 .rodape-loja-link {

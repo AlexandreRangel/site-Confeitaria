@@ -25,15 +25,12 @@
   place-items: center;
 }
 
-.hero__arrow,
-.hero__dot {
+.hero__arrow {
   border: 1px solid var(--line);
   background: var(--cream);
   color: var(--ink);
   box-shadow: 0 5px 14px rgba(184, 110, 136, 0.12);
-}
-
-.hero__arrow {
+  touch-action: manipulation;
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -42,17 +39,35 @@
 
 .hero__dots {
   display: flex;
-  gap: 0.4rem;
+  align-items: center;
+  gap: 0;
 }
 
 .hero__dot {
-  width: 10px;
-  height: 10px;
+  width: 44px;
+  height: 44px;
+  margin: 0 -12px;
+  border: 0;
   border-radius: 50%;
   padding: 0;
+  background: transparent;
+  box-shadow: none;
+  display: grid;
+  place-items: center;
 }
 
-.hero__dot.is-active {
+.hero__dot-mark {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1px solid var(--secondary-deep);
+  background: var(--secondary);
+  box-shadow: 0 2px 6px rgba(184, 110, 136, 0.18);
+}
+
+.hero__dot.is-active .hero__dot-mark {
+  width: 11px;
+  height: 11px;
   background: var(--copper);
   border-color: var(--copper);
 }
@@ -370,9 +385,11 @@ a.promo-card:focus-visible {
 
 .qty-row input {
   width: 5rem;
+  min-height: 44px;
   padding: 0.45rem 0.5rem;
   border: 1px solid var(--line);
   border-radius: 8px;
+  font-size: 16px;
 }
 
 .drawer {
@@ -387,11 +404,16 @@ a.promo-card:focus-visible {
   right: 0;
   width: min(420px, 100%);
   height: 100%;
+  height: 100dvh;
+  max-height: 100dvh;
   background: var(--panel-solid);
   box-shadow: var(--shadow);
   border-radius: 28px 0 0 28px;
   overflow: auto;
-  padding: 1rem 1.1rem 2rem;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 1rem 1.1rem calc(1.25rem + env(safe-area-inset-bottom));
+  padding-right: calc(1.1rem + env(safe-area-inset-right));
 }
 
 .drawer__head {
@@ -399,6 +421,10 @@ a.promo-card:focus-visible {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.drawer__head .modal__close {
+  position: static;
 }
 
 .drawer__head h2 {
@@ -458,17 +484,41 @@ a.promo-card:focus-visible {
 }
 
 .checkout input,
+.checkout select,
 .checkout textarea {
   width: 100%;
+  min-height: 44px;
   border: 1px solid var(--line);
   border-radius: 16px;
-  padding: 0.6rem 0.7rem;
+  padding: 0.65rem 0.75rem;
   background: var(--cream);
+  font-size: 16px;
 }
 
-.checkout__note {
+.checkout__hint {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.checkout__note,
+.checkout__status {
   font-size: 0.88rem;
   color: var(--muted);
+}
+
+.checkout__status:not(:empty) {
+  color: var(--brown);
+}
+
+.checkout__submit {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  margin: 0 -0.2rem;
+  padding: 0.55rem 0.2rem calc(0.45rem + env(safe-area-inset-bottom));
+  background: var(--panel-solid);
+  box-shadow: 0 -12px 18px var(--panel-solid);
 }
 
 .backdrop {
@@ -531,6 +581,14 @@ a.promo-card:focus-visible {
   border-radius: var(--radius);
   border: 1px solid rgba(184, 110, 136, 0.28);
   box-shadow: var(--shadow);
+}
+
+.produto-detalhe__gallery img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 18px;
+  background: var(--blush);
 }
 
 .produto-detalhe__layout {

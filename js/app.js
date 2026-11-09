@@ -13,6 +13,7 @@
     flavors: [],
     flavorLabel: "Recheio do bolo",
     selectedFlavor: "",
+    lastFocus: null,
   };
 
   function isCategoryPage() {
@@ -194,12 +195,17 @@
       return;
     }
     track.innerHTML = state.carousel
-      .map(function slideHtml(slide) {
+      .map(function slideHtml(slide, index) {
+        const eager = index === 0;
         return (
           '<article class="hero__slide">' +
-          '<img src="' + Jana.escapeHtml(Jana.assetUrl(slide.image)) + '" alt="' +
+          '<img src="' +
+          Jana.escapeHtml(Jana.assetUrl(slide.image)) +
+          '" alt="' +
           Jana.escapeHtml(slide.title || "") +
-          '">' +
+          '" width="1600" height="900"' +
+          (eager ? ' fetchpriority="high"' : ' loading="lazy"') +
+          ' decoding="async">' +
           "</article>"
         );
       })
@@ -213,7 +219,9 @@
           index +
           '" aria-label="Ir para o slide ' +
           (index + 1) +
-          '"></button>'
+          '"' +
+          (index === 0 ? ' aria-current="true"' : "") +
+          '><span class="hero__dot-mark" aria-hidden="true"></span></button>'
         );
       })
       .join("");
@@ -266,7 +274,13 @@
       track.style.transform = "translateX(-" + state.slide * 100 + "%)";
     }
     Jana.qsa(".hero__dot").forEach(function mark(dot, i) {
-      dot.classList.toggle("is-active", i === state.slide);
+      const active = i === state.slide;
+      dot.classList.toggle("is-active", active);
+      if (active) {
+        dot.setAttribute("aria-current", "true");
+      } else {
+        dot.removeAttribute("aria-current");
+      }
     });
     updateHeroCaption(changed);
   }
@@ -276,6 +290,9 @@
       return;
     }
     stopCarousel();
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
     state.timer = setInterval(function advance() {
       goToSlide(state.slide + 1);
     }, 5600);
@@ -308,7 +325,9 @@
           ">" +
           '<span class="categoria-card__media"><img src="' +
           Jana.escapeHtml(Jana.assetUrl(category.image)) +
-          '" alt=""></span>' +
+          '" alt="" width="400" height="400" decoding="async"' +
+          (state.categories.indexOf(category) < 5 ? "" : ' loading="lazy"') +
+          "></span>" +
           '<span class="categoria-card__label">' +
           Jana.escapeHtml(category.name) +
           "</span></a>"
@@ -404,7 +423,7 @@
       Jana.escapeHtml(Jana.assetUrl(product.images[0])) +
       '" alt="' +
       Jana.escapeHtml(product.name) +
-      '">' +
+      '" width="600" height="600" loading="lazy" decoding="async">' +
       "</div>" +
       '<div class="card__body">' +
       "<h3>" +
@@ -499,7 +518,7 @@
           '">' +
           '<img src="' +
           Jana.escapeHtml(Jana.assetUrl(src)) +
-          '" alt="Foto do Instagram"></a>'
+          '" alt="Foto do Instagram" width="400" height="400" loading="lazy" decoding="async"></a>'
         );
       })
       .join("");
@@ -653,9 +672,15 @@
           (index === state.galleryIndex ? "is-active" : "") +
           '" data-action="gallery-goto" data-index="' +
           index +
-          '"><img src="' +
+          '" aria-label="Foto ' +
+          (index + 1) +
+          " de " +
+          product.images.length +
+          '"' +
+          (index === state.galleryIndex ? ' aria-current="true"' : "") +
+          '><img src="' +
           Jana.escapeHtml(Jana.assetUrl(src)) +
-          '" alt=""></button>'
+          '" alt="" width="128" height="128"></button>'
         );
       })
       .join("");
@@ -718,14 +743,18 @@
               Jana.formatBRL(item.price) +
               '</p></div><div class="cart-row__qty">' +
               '<button type="button" data-action="qty-minus" data-id="' +
-              Jana.escapeHtml(item.id) +
-              '" aria-label="Diminuir">−</button>' +
+              Jana.escapeHtml(Jana.Cart.lineIdOf(item)) +
+              '" aria-label="Diminuir quantidade de ' +
+              Jana.escapeHtml(item.name) +
+              '">−</button>' +
               "<span>" +
               item.quantity +
               "</span>" +
               '<button type="button" data-action="qty-plus" data-id="' +
-              Jana.escapeHtml(item.id) +
-              '" aria-label="Aumentar">+</button>' +
+              Jana.escapeHtml(Jana.Cart.lineIdOf(item)) +
+              '" aria-label="Aumentar quantidade de ' +
+              Jana.escapeHtml(item.name) +
+              '">+</button>' +
               "</div></article>"
             );
           })
@@ -733,18 +762,93 @@
       : '<p class="empty">Sua encomenda está vazia. Escolha um item do catálogo.</p>';
   }
 
+  function setMenuOpen(open) {
+    const topo = Jana.qs("#topo");
+    const button = Jana.qs('[data-action="toggle-menu"]');
+    if (!topo) {
+      return;
+    }
+    topo.classList.toggle("is-open", open);
+    if (button) {
+      button.setAttribute("aria-expanded", open ? "true" : "false");
+      const label = button.querySelector(".sr-only");
+      if (label) {
+        label.textContent = open ? "Fechar menu" : "Abrir menu";
+      }
+    }
+  }
+
+  function setPageLocked(locked) {
+    document.documentElement.classList.toggle("is-locked", locked);
+    document.body.classList.toggle("is-locked", locked);
+    ["#topo", "main", "#rodape"].forEach(function mark(selector) {
+      const node = Jana.qs(selector);
+      if (!node) {
+        return;
+      }
+      if (locked) {
+        node.setAttribute("inert", "");
+      } else {
+        node.removeAttribute("inert");
+      }
+    });
+  }
+
+  function setCartHash(open) {
+    const next = location.pathname + location.search + (open ? "#encomendas" : "");
+    const current = location.pathname + location.search + location.hash;
+    if (current !== next) {
+      history.replaceState(null, "", next);
+    }
+  }
+
   function openCart() {
-    Jana.qs("#encomendas").hidden = false;
-    Jana.qs(".backdrop").hidden = false;
-    Jana.qs("#encomendas").removeAttribute("hidden");
-    location.hash = "encomendas";
+    const drawer = Jana.qs("#encomendas");
+    const backdrop = Jana.qs(".backdrop");
+    if (!drawer || !backdrop) {
+      return;
+    }
+    setMenuOpen(false);
+    if (!state.lastFocus) {
+      state.lastFocus = document.activeElement;
+    }
+    drawer.hidden = false;
+    backdrop.hidden = false;
+    drawer.removeAttribute("hidden");
+    drawer.setAttribute("role", "dialog");
+    drawer.setAttribute("aria-modal", "true");
+    Jana.qsa('[data-action="open-cart"]').forEach(function mark(btn) {
+      btn.setAttribute("aria-expanded", "true");
+    });
+    setPageLocked(true);
+    setCartHash(true);
+    const panel = Jana.qs(".drawer__panel");
+    if (panel) {
+      panel.setAttribute("tabindex", "-1");
+      window.setTimeout(function focusPanel() {
+        panel.focus();
+      }, 0);
+    }
   }
 
   function closeCart() {
-    Jana.qs("#encomendas").hidden = true;
-    Jana.qs(".backdrop").hidden = true;
-    if (location.hash === "#encomendas") {
-      clearPageHash();
+    const drawer = Jana.qs("#encomendas");
+    const backdrop = Jana.qs(".backdrop");
+    if (drawer) {
+      drawer.hidden = true;
+    }
+    if (backdrop) {
+      backdrop.hidden = true;
+    }
+    Jana.qsa('[data-action="open-cart"]').forEach(function mark(btn) {
+      btn.setAttribute("aria-expanded", "false");
+    });
+    setPageLocked(false);
+    setCartHash(false);
+    const toRestore = state.lastFocus;
+    state.lastFocus = null;
+    if (toRestore && typeof toRestore.focus === "function") {
+      toRestore.focus();
     }
   }
 
@@ -803,32 +907,57 @@
     return lines.join("\n");
   }
 
+  function setCheckoutStatus(message) {
+    Jana.bindText("checkout-status", message || "");
+  }
+
+  function openWhatsApp(url) {
+    const coarse = window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 720;
+    if (!coarse) {
+      try {
+        const opened = window.open(url, "_blank", "noopener,noreferrer");
+        if (opened) {
+          return;
+        }
+      } catch (err) {
+        /* fall through */
+      }
+    }
+    window.location.assign(url);
+  }
+
   function checkout(event) {
     event.preventDefault();
-    const payloadPreview = readCheckoutForm(event.target);
-    if (!Jana.Cart.items().length && !payloadPreview.observacoes) {
+    const payload = readCheckoutForm(event.target);
+    if (!Jana.Cart.items().length && !payload.observacoes) {
+      setCheckoutStatus("Adicione um item ou descreva o pedido em Observações.");
       openCart();
       return;
     }
-    const payload = readCheckoutForm(event.target);
-    // Persist order + client locally for /painel/ (optional Google Sheets later — see js/store.js).
-    const order = Jana.Store.saveCheckout(payload);
+    let order = null;
+    try {
+      order = Jana.Store.saveCheckout(payload);
+    } catch (err) {
+      order = null;
+    }
     const number = state.site.contato.whatsapp;
     const url =
       "https://wa.me/" +
       number +
       "?text=" +
       encodeURIComponent(buildWhatsAppMessage(payload));
-    window.open(url, "_blank", "noopener");
-    if (
-      window.confirm(
+    if (order) {
+      setCheckoutStatus(
         "Pedido #" +
           order.number +
-          " salvo neste navegador.\n\nDeseja baixar o JSON do pedido?"
-      )
-    ) {
-      Jana.Store.downloadJSON("pedido-" + order.number + ".json", order);
+          " salvo neste navegador. Continue no WhatsApp para confirmar com a confeitaria."
+      );
+    } else {
+      setCheckoutStatus(
+        "Não foi possível salvar neste navegador. O WhatsApp ainda abre com os dados do pedido."
+      );
     }
+    openWhatsApp(url);
   }
 
   function bindEvents() {
@@ -837,8 +966,8 @@
       if (!target) return;
       const action = target.getAttribute("data-action");
       if (action === "toggle-menu") {
-        document.querySelector("#topo").classList.toggle("is-open");
-        target.setAttribute("aria-expanded", document.querySelector("#topo").classList.contains("is-open"));
+        const topo = document.querySelector("#topo");
+        setMenuOpen(!topo.classList.contains("is-open"));
       }
       if (action === "open-cart") {
         event.preventDefault();
@@ -876,17 +1005,19 @@
         updateModalImage();
       }
       if (action === "qty-plus") {
+        const lineId = target.getAttribute("data-id");
         const item = Jana.Cart.items().find(function find(row) {
-          return row.id === target.getAttribute("data-id");
+          return Jana.Cart.lineIdOf(row) === lineId;
         });
-        if (item) Jana.Cart.setQty(item.id, item.quantity + 1);
+        if (item) Jana.Cart.setQty(lineId, item.quantity + 1);
         renderCart();
       }
       if (action === "qty-minus") {
+        const lineId = target.getAttribute("data-id");
         const item = Jana.Cart.items().find(function find(row) {
-          return row.id === target.getAttribute("data-id");
+          return Jana.Cart.lineIdOf(row) === lineId;
         });
-        if (item) Jana.Cart.setQty(item.id, item.quantity - 1);
+        if (item) Jana.Cart.setQty(lineId, item.quantity - 1);
         renderCart();
       }
       if (action === "carousel-link") {
@@ -903,7 +1034,78 @@
     if (hero) {
       hero.addEventListener("mouseenter", stopCarousel);
       hero.addEventListener("mouseleave", startCarousel);
+      let touchStartX = 0;
+      let touchStartY = 0;
+      hero.addEventListener(
+        "touchstart",
+        function onTouchStart(event) {
+          const point = event.changedTouches[0];
+          touchStartX = point.clientX;
+          touchStartY = point.clientY;
+        },
+        { passive: true }
+      );
+      hero.addEventListener(
+        "touchend",
+        function onTouchEnd(event) {
+          const point = event.changedTouches[0];
+          const dx = point.clientX - touchStartX;
+          const dy = point.clientY - touchStartY;
+          if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy)) {
+            goToSlide(state.slide + (dx < 0 ? 1 : -1));
+          }
+        },
+        { passive: true }
+      );
     }
+    document.addEventListener("keydown", function onKey(event) {
+      const drawer = Jana.qs("#encomendas");
+      const drawerOpen = drawer && !drawer.hidden;
+      if (event.key === "Escape") {
+        if (drawerOpen) {
+          event.preventDefault();
+          closeCart();
+          return;
+        }
+        setMenuOpen(false);
+        return;
+      }
+      if (event.key !== "Tab" || !drawerOpen) {
+        return;
+      }
+      const focusable = Array.from(
+        drawer.querySelectorAll(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter(function visible(node) {
+        return !node.closest("[hidden]") && node.getClientRects().length > 0;
+      });
+      if (!focusable.length) {
+        return;
+      }
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
+    document.addEventListener("click", function onDocumentClick(event) {
+      const topo = Jana.qs("#topo");
+      if (!topo || !topo.classList.contains("is-open")) {
+        return;
+      }
+      if (event.target.closest("#topo")) {
+        if (event.target.closest(".topo__nav a")) {
+          setMenuOpen(false);
+        }
+        return;
+      }
+      setMenuOpen(false);
+    });
     const checkoutForm = Jana.qs("#checkout-form");
     if (checkoutForm) {
       checkoutForm.addEventListener("submit", checkout);

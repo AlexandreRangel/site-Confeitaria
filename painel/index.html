@@ -2,7 +2,8 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fdf6ec">
   <meta name="description" content="Área da loja — pedidos e clientes Jana Abreu Confeitaria.">
   <meta name="robots" content="noindex, nofollow">
   <title>Área da loja · Jana Abreu Confeitaria</title>
@@ -14,18 +15,18 @@
   <link rel="stylesheet" href="../css/painel.css">
 </head>
 <body class="painel-body">
-
+  <a class="skip-link" href="#tab-pedidos">Ir para o conteúdo</a>
   <div class="painel-shell">
     <header class="painel-header">
-      <a class="painel-header__brand" href="../index.html">
+      <a class="painel-header__brand" href="../">
         <img src="../assets/brand/logo-jana-abreu.png" alt="Jana Abreu Confeitaria" width="140" height="54">
         <span>
-          <p class="painel-header__title">Área da loja</p>
-          <p class="painel-header__sub">Jana Abreu Confeitaria · painel local</p>
+          <h1 class="painel-header__title">Área da loja</h1>
+          <p class="painel-header__sub">Jana Abreu Confeitaria · painel local neste navegador, sem gestão centralizada</p>
         </span>
       </a>
       <div class="painel-header__actions">
-        <a class="btn btn--outline" href="../index.html">Voltar à vitrine</a>
+        <a class="btn btn--outline" href="../">Voltar à vitrine</a>
       </div>
     </header>
 
@@ -37,6 +38,7 @@
     <p class="painel-note">
       Dados demo em <code>data/orders.json</code> e <code>data/clients.json</code>.
       Novos pedidos do carrinho ficam no <code>localStorage</code> deste navegador.
+      Isto não é um sistema centralizado nem seguro para vários dispositivos.
       <!-- FUTURE: sync bidirectional with Google Sheets — see js/store.js stubs. NO live Google. -->
     </p>
 
@@ -187,8 +189,8 @@
     </section>
   </div>
 
-  <script src="../js/utils.js"></script>
-  <script src="../js/store.js"></script>
-  <script src="../js/painel.js"></script>
+  <script defer src="../js/utils.js"></script>
+  <script defer src="../js/store.js"></script>
+  <script defer src="../js/painel.js"></script>
 </body>
 </html>

@@ -12,6 +12,7 @@ main,
   background: var(--panel);
   backdrop-filter: blur(18px) saturate(1.05);
   border-bottom: 1px solid var(--line);
+  padding-top: env(safe-area-inset-top);
 }
 
 .topo__inner {
@@ -294,6 +295,9 @@ main,
   padding: 0.2rem 0 0.85rem;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+  overscroll-behavior-x: contain;
+  overscroll-behavior-y: none;
   scrollbar-width: thin;
   scrollbar-color: var(--secondary) transparent;
 }

@@ -2,7 +2,8 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fdf6ec">
   <meta name="description" content="Doces personalizados para empresas da Jana Abreu Confeitaria em Brasília.">
   <title>Personalizado para Empresas · Jana Abreu Confeitaria</title>
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
@@ -35,7 +36,7 @@
           <img src="../assets/icons/instagram.svg" alt="" width="22" height="22">
           <span class="icon-link__label" data-bind="instagram-handle">@janaabreuconfeitaria</span>
         </a>
-        <button class="cart-button" type="button" data-action="open-cart" aria-controls="encomendas">
+        <button class="cart-button" type="button" data-action="open-cart" aria-controls="encomendas" aria-expanded="false">
           <img src="../assets/icons/cart.svg" alt="" width="22" height="22">
           <span class="sr-only">Abrir encomendas</span>
           <span class="cart-button__count" data-bind="cart-count" aria-live="polite">0</span>
@@ -90,7 +91,7 @@
     </p>
   </footer>
 
-  <aside id="encomendas" class="drawer" aria-labelledby="encomendas-titulo" hidden>
+  <aside id="encomendas" class="drawer" role="dialog" aria-modal="true" aria-labelledby="encomendas-titulo" hidden>
     <div class="drawer__panel">
       <header class="drawer__head">
         <h2 id="encomendas-titulo">Encomendas</h2>
@@ -103,20 +104,22 @@
         <label>Telefone <input name="telefone" type="tel" required autocomplete="tel" placeholder="(61) 90000-0000"></label>
         <label>E-mail <input name="email" type="email" autocomplete="email" placeholder="opcional"></label>
         <label>Endereço / retirada <input name="endereco" type="text" autocomplete="street-address" placeholder="Bairro, cidade ou retirada na loja"></label>
-        <label>Data desejada <input name="data" type="date"></label>
+        <label>Data desejada <input name="data" type="date" lang="pt-BR" autocomplete="off"><span class="checkout__hint">Calendário do aparelho · no Brasil aparece dia/mês/ano.</span></label>
         <label>Observações <textarea name="observacoes" rows="3" placeholder="Sabores, tema, retirada ou entrega…"></textarea></label>
         <p class="checkout__note" data-bind="payments"></p>
-        <button type="submit" class="btn btn--solid btn--whatsapp">Enviar encomenda no WhatsApp</button>
+        <p class="checkout__status" data-bind="checkout-status" role="status" aria-live="polite"></p>
+        <div class="checkout__submit">
+          <button type="submit" class="btn btn--solid btn--whatsapp">Enviar encomenda no WhatsApp</button>
+        </div>
       </form>
     </div>
   </aside>
   <div class="backdrop" data-action="close-cart" hidden></div>
 
-  <script src="https://unpkg.com/hydra-synth@1.4.0/dist/hydra-synth.js"></script>
-  <script src="../js/background-hydra.js" defer></script>
-  <script src="../js/utils.js"></script>
-  <script src="../js/cart.js"></script>
-  <script src="../js/store.js"></script>
-  <script src="../js/app.js"></script>
+  <script defer src="../js/background-hydra.js"></script>
+  <script defer src="../js/utils.js"></script>
+  <script defer src="../js/cart.js"></script>
+  <script defer src="../js/store.js"></script>
+  <script defer src="../js/app.js"></script>
 </body>
 </html>

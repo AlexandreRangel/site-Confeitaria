@@ -32,7 +32,12 @@
   }
 
   function writeList(key, list) {
-    localStorage.setItem(key, JSON.stringify(list));
+    try {
+      localStorage.setItem(key, JSON.stringify(list));
+      return true;
+    } catch (err) {
+      return false;
+    }
   }
 
   function deletedOrderIds() {
@@ -46,12 +51,21 @@
   }
 
   function nextOrderNumber() {
-    let seq = Number(localStorage.getItem(SEQ_KEY) || 1100);
+    let seq = 1100;
+    try {
+      seq = Number(localStorage.getItem(SEQ_KEY) || 1100);
+    } catch (err) {
+      seq = 1100;
+    }
     if (!Number.isFinite(seq) || seq < 1100) {
       seq = 1100;
     }
     seq += 1;
-    localStorage.setItem(SEQ_KEY, String(seq));
+    try {
+      localStorage.setItem(SEQ_KEY, String(seq));
+    } catch (err) {
+      /* keep sequential numbers in-memory for this session */
+    }
     return String(seq);
   }
 
@@ -115,6 +129,7 @@
         name: item.name,
         quantity: item.quantity,
         price: item.price,
+        flavor: item.flavor || "",
       };
     });
     const subtotal = items.reduce(function sum(total, item) {
@@ -156,7 +171,10 @@
 
   function toCSV(rows) {
     function cell(value) {
-      const text = String(value == null ? "" : value);
+      let text = String(value == null ? "" : value);
+      if (/^[=+\-@\t\r]/.test(text)) {
+        text = "'" + text;
+      }
       if (/[",\n\r]/.test(text)) {
         return '"' + text.replace(/"/g, '""') + '"';
       }
