@@ -101,6 +101,12 @@ storefrontPages.forEach((rel) => {
   if (/hydra-synth@1\.4\.0/.test(html)) {
     errors.push(rel + " must not load Hydra as a blocking CDN script");
   }
+  if (!html.includes("request-disclaimer") || !html.includes("Enviar solicitação no WhatsApp")) {
+    errors.push(rel + " checkout must show solicitation disclaimer and CTA");
+  }
+  if (!html.includes("js/central.js")) {
+    errors.push(rel + " must load central.js");
+  }
 });
 if (home.includes('data-action="filter-category"')) {
   errors.push("Home must link to category pages instead of filtering in place");
@@ -203,6 +209,13 @@ const painel = readFileSync(join(root, "painel/index.html"), "utf8");
 if (painel.includes("hydra")) {
   errors.push("Painel must not load Hydra");
 }
+if (!/Canal compartilhado desligado/.test(painel) || !/data-bind="central-login" hidden/.test(painel)) {
+  errors.push("Painel must keep shared channel off by default");
+}
+const centralJs = readFileSync(join(root, "js/central.js"), "utf8");
+if (/ADMIN_TOKEN|secret-admin|workers\.dev/.test(centralJs)) {
+  errors.push("js/central.js must not contain admin secrets or a live endpoint");
+}
 
 const official = site.colors || {};
 if (official.primary !== "#b86e88") {
@@ -227,6 +240,32 @@ if (!baseCss.includes("--ink: #4c553a")) {
 }
 if (!baseCss.includes("--cream: #fdf6ec")) {
   errors.push("base.css --cream must be #fdf6ec");
+}
+if (!baseCss.includes("--btn-solid: #9a5870")) {
+  errors.push("filled buttons must use AA dusty-rose variant #9a5870");
+}
+
+if (/TODO/i.test(JSON.stringify(site))) {
+  errors.push("site.json still contains TODO placeholders");
+}
+if (/exemplo/i.test(JSON.stringify(site.contato || {}))) {
+  errors.push("site.json still contains placeholder email");
+}
+if (!/solicitação de encomenda/i.test(site.requestDisclaimer || "")) {
+  errors.push("site.json must include the solicitation disclaimer");
+}
+if (!site.central || site.central.enabled !== false) {
+  errors.push("central must stay disabled until a real backend is provisioned");
+}
+if (site.central && site.central.endpoint) {
+  errors.push("central.endpoint must stay empty until provisioned");
+}
+const tabua = products.find((item) => item.slug === "tabua-signature");
+if (!tabua || /incluindoCharcutaria/.test(tabua.description) || !/incluindo charcutaria/.test(tabua.description)) {
+  errors.push("tabua-signature description must fix incluindoCharcutaria");
+}
+if (!readFileSync(join(root, "js/app.js"), "utf8").includes("requestDisclaimer")) {
+  errors.push("WhatsApp message must include requestDisclaimer");
 }
 
 const coralSources = [

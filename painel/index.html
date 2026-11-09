@@ -36,11 +36,25 @@
     </nav>
 
     <p class="painel-note">
-      Dados demo em <code>data/orders.json</code> e <code>data/clients.json</code>.
-      Novos pedidos do carrinho ficam no <code>localStorage</code> deste navegador.
-      Isto não é um sistema centralizado nem seguro para vários dispositivos.
-      <!-- FUTURE: sync bidirectional with Google Sheets — see js/store.js stubs. NO live Google. -->
+      Este é o <strong>painel legado deste navegador</strong> (<code>localStorage</code> + demo em
+      <code>data/orders.json</code>). Não sincroniza entre aparelhos e não é gestão centralizada.
+      O canal compartilhado fica desligado até existir backend provisionado — ver
+      <code>central/README.md</code>. Pedidos da vitrine não sobem sozinhos para cá.
     </p>
+
+    <section class="painel-central" aria-labelledby="central-titulo">
+      <h2 id="central-titulo">Canal compartilhado</h2>
+      <p data-bind="central-status">Canal compartilhado desligado. Pedidos iguais entre aparelhos exigem o Worker descrito em central/README.md. Este painel local continua só neste navegador. Nada sobe automaticamente.</p>
+      <form data-bind="central-login" hidden>
+        <label class="painel-field">
+          Token de administração (só neste navegador)
+          <input type="password" name="token" autocomplete="off" spellcheck="false">
+        </label>
+        <button type="submit" class="btn btn--solid">Abrir pedidos centrais</button>
+      </form>
+      <p data-bind="central-result" role="status"></p>
+      <div data-bind="central-orders" hidden></div>
+    </section>
 
     <section id="tab-pedidos" class="painel-panel is-active" aria-labelledby="pedidos-titulo">
       <div class="painel-toolbar">
@@ -75,8 +89,9 @@
             </div>
             <label class="sr-only" for="order-status">Status</label>
             <select id="order-status" class="painel-status-select" data-bind="detail-status" aria-label="Alterar status">
-              <option value="novo">Novo</option>
-              <option value="em_preparo">Em preparo</option>
+              <option value="solicitado">Solicitado</option>
+              <option value="confirmado">Confirmado</option>
+              <option value="em_producao">Em produção</option>
               <option value="pronto">Pronto</option>
               <option value="entregue">Entregue</option>
               <option value="cancelado">Cancelado</option>
@@ -191,6 +206,7 @@
 
   <script defer src="../js/utils.js"></script>
   <script defer src="../js/store.js"></script>
+  <script defer src="../js/central.js"></script>
   <script defer src="../js/painel.js"></script>
 </body>
 </html>

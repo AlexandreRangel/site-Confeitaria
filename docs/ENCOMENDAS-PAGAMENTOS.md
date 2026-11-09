@@ -1,7 +1,10 @@
 # Encomendas e pagamentos — opções práticas (Brasil)
 
-Contexto: site estático no GitHub Pages, **sem backend próprio** e **sem assinatura de banco pago**.  
-Hoje na loja Vendizap: **Pix, cartão e boleto**. O site novo precisa de um caminho concreto de **pedido → confirmação → pagamento**.
+Contexto: site estático no GitHub Pages. **Não há backend no ar.**  
+Atendimento e confirmação: **WhatsApp**. Pix/cartão/boleto só depois que a Jana confirmar.  
+Uma solicitação no site **não** é encomenda confirmada.
+
+Canal central (Cloudflare Worker + KV) está **preparado e desligado**. Ver `central/README.md`. Não usar mock como se fosse produção.
 
 ---
 

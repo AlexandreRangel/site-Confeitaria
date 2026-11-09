@@ -6,7 +6,7 @@ Vitrine estática da confeitaria: HTML, CSS e JavaScript puro. O catálogo vem d
 
 1. No repositório: **Settings → Pages**.
 2. Source: **Deploy from a branch**.
-3. Branch: `main` (ou a branch publicada), pasta **`/` (root)**.
+3. Branch: **`preview`**, pasta **`/` (root)**.
 4. Confirme que `index.html` e `.nojekyll` estão na raiz (este projeto **não** usa `/docs` como site).
 5. Após o deploy, a URL fica em `https://<usuario>.github.io/<repositorio>/`.
 
@@ -27,7 +27,7 @@ Edite os JSON em `data/` e troque as imagens em `assets/`. Recarregue a página 
 | Arquivo | O que muda |
 | --- | --- |
 | `data/site.json` | Nome, slogan, WhatsApp, Instagram, endereço, cores oficiais, textos |
-| `data/categories.json` | Bolinhas de categoria (`categorias`) |
+| `data/categories.json` | Cards quadrados de categoria (`/bolos/`, …) |
 | `data/carousel.json` | Slides do `hero-carrossel` |
 | `data/products.json` | Produtos das páginas de categoria, preço, fotos, destaque |
 | `data/sabores-bolos.json` | 17 recheios oficiais de bolo (nome + descrição no menu e nos rádios) |
@@ -45,7 +45,9 @@ Cada categoria oficial tem uma pasta com `index.html` (ex.: `/bolos/`, `/sobreme
 - Rótulo exibido: **(61) 98124-6112**
 - Link de checkout: `https://wa.me/5561981246112?text=...`
 
-A mensagem inclui nome, telefone, data desejada, itens, quantidades, total e observações. O texto na interface lembra: *Após confirmar no WhatsApp, combinamos Pix, cartão ou boleto.*
+A mensagem inclui nome, telefone, data desejada, itens, quantidades, total, observações e o aviso: *Esta é uma solicitação de encomenda. A confirmação depende da disponibilidade e da confirmação da Jana pelo WhatsApp.*
+
+O painel `/painel/` é **legado local** (`localStorage`). O canal compartilhado (`data/site.json` → `central`) fica desligado até haver backend — ver [central/README.md](central/README.md).
 
 ## Instagram
 
@@ -73,4 +75,4 @@ Copie a pasta publicada (HTML, CSS, JS, `data/`, `assets/`) para esse caminho no
 
 ## O que este projeto não faz
 
-Não há servidor, banco de dados nem integração de Pix/cartão/boleto além da nota no WhatsApp.
+Não há servidor no GitHub Pages, nem Pix/cartão embutidos, nem painel central no ar. Pedidos reais se confirmam só no WhatsApp com a Jana.

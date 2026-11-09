@@ -28,6 +28,7 @@ async function withPage(browserType, engine, viewport, fn) {
   });
   const page = await context.newPage();
   const waHits = [];
+  const centralHits = [];
   function rememberWa(url) {
     if (url && /wa\.me|whatsapp\.com/i.test(url)) {
       waHits.push(url);
@@ -45,12 +46,17 @@ async function withPage(browserType, engine, viewport, fn) {
     rememberWa(popup.url());
     popup.close().catch(function ignore() {});
   });
+  page.on("request", function onRequest(req) {
+    if (/\/v1\/solicitacoes/.test(req.url())) {
+      centralHits.push(req.url());
+    }
+  });
   page.on("dialog", function onDialog(dialog) {
     errors.push("[" + engine + "] unexpected dialog: " + dialog.message());
     dialog.dismiss();
   });
   try {
-    await fn(page, waHits, engine);
+    await fn(page, waHits, engine, centralHits);
   } finally {
     await context.close();
     await browser.close();
@@ -58,7 +64,7 @@ async function withPage(browserType, engine, viewport, fn) {
 }
 
 async function runEngine(browserType, engine) {
-  await withPage(browserType, engine, { width: 390, height: 844 }, async function mobile(page, waHits) {
+  await withPage(browserType, engine, { width: 390, height: 844 }, async function mobile(page, waHits, engineName, centralHits) {
     await page.goto(BASE + "/", { waitUntil: "domcontentloaded", timeout: 30000 });
     await page.waitForSelector('[data-bind="categories"] a', { timeout: 15000 });
     const lang = await page.locator("html").getAttribute("lang");
@@ -123,12 +129,32 @@ async function runEngine(browserType, engine) {
     const flavors = await page.locator(".cart-row__flavor").allTextContents();
     record(engine, "two filling lines in cart", flavors.length >= 2, flavors.join(" | "));
 
+    const disclaimer = ((await page.locator('[data-bind="request-disclaimer"]').textContent()) || "").trim();
+    record(
+      engine,
+      "solicitation disclaimer visible before submit",
+      /Esta é uma solicitação de encomenda/.test(disclaimer),
+      disclaimer.slice(0, 80)
+    );
     await page.locator('#checkout-form [name="nome"]').fill("Auditoria Teste");
     await page.locator('#checkout-form [name="telefone"]').fill("61900000000");
     await page.locator('#checkout-form [name="observacoes"]').fill("Teste automatizado — não enviar.");
     await page.locator('#checkout-form button[type="submit"]').click({ noWaitAfter: true }).catch(function ignoreNav() {});
     await page.waitForTimeout(600);
     record(engine, "checkout attempted wa.me without delivering a message", waHits.length >= 1, String(waHits.length));
+    const waText = waHits.map(function decode(url) {
+      try {
+        return decodeURIComponent(url);
+      } catch (err) {
+        return url;
+      }
+    }).join(" ");
+    record(
+      engine,
+      "WhatsApp draft includes solicitation disclaimer",
+      /Esta é uma solicitação de encomenda/.test(waText),
+      waText.slice(0, 120)
+    );
     const status = await page
       .locator('[data-bind="checkout-status"]')
       .textContent({ timeout: 1500 })
@@ -139,7 +165,12 @@ async function runEngine(browserType, engine) {
         return "";
       });
     if (status) {
-      record(engine, "checkout status without confirm()", /salvo neste navegador|WhatsApp/i.test(status), status);
+      record(
+        engine,
+        "checkout status is solicitation not confirmation",
+        /solicitação|não confirma|WhatsApp/i.test(status) && !/encomenda confirmada/i.test(status),
+        status
+      );
     } else {
       record(
         engine,
@@ -153,7 +184,14 @@ async function runEngine(browserType, engine) {
     const painelHydra = await page.locator("canvas.hydra-button-bg, [id*='hydra']").count();
     record(engine, "painel has no Hydra", painelHydra === 0);
     const note = ((await page.locator(".painel-note").textContent()) || "").toLowerCase();
-    record(engine, "painel stays local", note.indexOf("localstorage") !== -1 && note.indexOf("centraliz") !== -1);
+    record(engine, "painel stays local", note.indexOf("localstorage") !== -1 && /legado|centraliz/.test(note));
+    const centralCopy = ((await page.locator('[data-bind="central-status"]').textContent()) || "").toLowerCase();
+    record(engine, "painel says shared channel is off", centralCopy.indexOf("desligado") !== -1, centralCopy.slice(0, 80));
+    const loginHidden = await page.locator('[data-bind="central-login"]').evaluate(function isHidden(el) {
+      return el.hasAttribute("hidden") || el.hidden === true;
+    });
+    record(engine, "central login stays hidden while disabled", loginHidden);
+    record(engine, "central API not called while disabled", centralHits.length === 0, String(centralHits.length));
 
     const paths = ["/cestas-presentes/", "/sobremesas/", "/combos-festa/", "/doces-festa/", "/festa-personalizada/", "/personalizado-para-empresas/"];
     for (const path of paths) {

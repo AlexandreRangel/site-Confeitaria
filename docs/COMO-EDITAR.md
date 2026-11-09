@@ -25,10 +25,12 @@ Em `data/site.json` → `colors` (e tokens em `css/base.css`):
 
 - texto `#4c553a`
 - creme `#fdf6ec`
-- acento e botões `#b86e88`
+- acento decorativo `#b86e88`
+- botões preenchidos (contraste AA) `#9a5870`
 - rosa claro `#f5d5e0`
 
 Não usar o coral antigo `#FC7E8E`. O Hydra fica só no botão **Comprar**.
+Solicitar no site **não** confirma a encomenda — a Jana confirma no WhatsApp.
 
 ## Recheios de bolo
 

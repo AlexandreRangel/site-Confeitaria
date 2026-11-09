@@ -501,6 +501,22 @@ a.promo-card:focus-visible {
   font-weight: 400;
 }
 
+.checkout__disclaimer,
+.checkout__privacy {
+  font-size: 0.88rem;
+  color: var(--brown);
+  line-height: 1.45;
+}
+
+.checkout__submit .checkout__disclaimer {
+  margin: 0 0 0.55rem;
+  font-weight: 600;
+}
+
+.checkout__privacy {
+  color: var(--muted);
+}
+
 .checkout__note,
 .checkout__status {
   font-size: 0.88rem;

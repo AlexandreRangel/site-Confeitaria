@@ -7,7 +7,6 @@
   "contato": {
     "whatsapp": "5561981246112",
     "whatsappLabel": "(61) 98124-6112",
-    "email": "contato@janaabreu.exemplo",
     "instagram": {
       "handle": "@janaabreuconfeitaria",
       "url": "https://www.instagram.com/janaabreuconfeitaria/"
@@ -32,16 +31,23 @@
     "ink": "#4c553a"
   },
   "address": {
-    "street": "[TODO: rua e número]",
-    "neighborhood": "[TODO: bairro]",
+    "street": "",
+    "neighborhood": "",
     "city": "Brasília",
     "state": "DF",
-    "note": "Venha nos visitar! Confirme o endereço pelo WhatsApp."
+    "note": ""
   },
   "hours": "Encomendas sob consulta · combine data e horário pelo WhatsApp",
-  "paymentsNote": "Após confirmar no WhatsApp, combinamos Pix, cartão ou boleto.",
-  "heroVisitTitle": "Estamos em Brasília",
-  "heroVisitSubtitle": "Venha nos visitar!",
+  "paymentsNote": "Depois que a Jana confirmar a encomenda no WhatsApp, combinamos Pix, cartão ou boleto.",
+  "requestDisclaimer": "Esta é uma solicitação de encomenda. A confirmação depende da disponibilidade e da confirmação da Jana pelo WhatsApp.",
+  "privacyNote": "Usamos nome, telefone e o que você escrever só para a Jana responder esta solicitação. Não publicamos sua lista de pedidos.",
+  "central": {
+    "enabled": false,
+    "endpoint": "",
+    "note": "Canal compartilhado desligado até existir backend provisionado. O WhatsApp continua sendo o atendimento."
+  },
+  "heroVisitTitle": "",
+  "heroVisitSubtitle": "",
   "destaquesCopy": {
     "kitsTitle": "Kits para presentear",
     "bolosTitle": "Bolos deliciosos",

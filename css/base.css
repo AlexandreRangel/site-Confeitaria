@@ -9,6 +9,9 @@
 :root {
   --primary: #b86e88;
   --primary-deep: #9a5870;
+  /* Filled buttons only: #9a5870 on white = 5.25:1 (WCAG AA normal). Decorative rose stays --primary. */
+  --btn-solid: #9a5870;
+  --btn-solid-hover: #7f4560;
   --secondary: #f5d5e0;
   --secondary-deep: #d4a3b5;
   --mint: #b86e88;
@@ -26,7 +29,7 @@
   --panel: rgba(253, 246, 236, 0.94);
   --panel-strong: rgba(253, 246, 236, 0.97);
   --panel-solid: #fdf6ec;
-  --whatsapp: #0f8a3b;
+  --whatsapp: #0e7f36;
   --shadow: 0 16px 42px rgba(184, 110, 136, 0.16), 0 4px 12px rgba(76, 85, 58, 0.06);
   --radius: 26px;
   --header-h: 88px;
@@ -194,16 +197,16 @@ button {
 
 .btn:hover,
 .btn:focus-visible {
-  background: var(--primary);
+  background: var(--btn-solid);
   color: #fff;
-  box-shadow: 0 8px 18px rgba(184, 110, 136, 0.2);
+  box-shadow: 0 8px 18px rgba(154, 88, 112, 0.2);
 }
 
 .btn--solid {
-  background: var(--primary);
+  background: var(--btn-solid);
   color: #fff;
   border-color: transparent;
-  box-shadow: 0 8px 18px rgba(184, 110, 136, 0.2);
+  box-shadow: 0 8px 18px rgba(154, 88, 112, 0.2);
 }
 
 .btn--acquire {
@@ -237,9 +240,9 @@ button {
 
 .btn--solid:hover,
 .btn--solid:focus-visible {
-  background: var(--primary-deep);
+  background: var(--btn-solid-hover);
   border-color: transparent;
-  box-shadow: 0 10px 22px rgba(154, 88, 112, 0.24);
+  box-shadow: 0 10px 22px rgba(127, 69, 96, 0.24);
 }
 
 .btn--acquire:hover,

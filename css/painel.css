@@ -136,6 +136,58 @@
   font-size: 0.9rem;
 }
 
+.painel-central {
+  margin: 0 0 1.4rem;
+  padding: 0.9rem 1rem 1rem;
+  border-radius: 16px;
+  background: var(--panel-strong);
+  border: 1px solid rgba(184, 110, 136, 0.45);
+}
+
+.painel-central h2 {
+  margin: 0 0 0.4rem;
+  font-family: var(--serif);
+  font-size: 1.25rem;
+}
+
+.painel-central p {
+  margin: 0 0 0.75rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.painel-central form {
+  display: grid;
+  gap: 0.65rem;
+  max-width: 28rem;
+}
+
+.painel-field {
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.painel-field input {
+  min-height: 44px;
+  border: 1px solid rgba(184, 110, 136, 0.75);
+  border-radius: 12px;
+  padding: 0.6rem 0.7rem;
+  background: #fdf6ec;
+  color: var(--brown);
+  font-size: 16px;
+}
+
+.painel-central__order {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1rem;
+  padding: 0.55rem 0;
+  border-top: 1px solid rgba(184, 110, 136, 0.25);
+}
+
 .painel-table-wrap {
   overflow-x: auto;
   border-radius: var(--radius);
@@ -220,12 +272,19 @@
   color: var(--brown);
 }
 
-.badge--novo {
+.badge--novo,
+.badge--solicitado {
   background: #f5d5e0;
   color: #4c553a;
 }
 
-.badge--em_preparo {
+.badge--confirmado {
+  background: #e5eef8;
+  color: #2a4f78;
+}
+
+.badge--em_preparo,
+.badge--em_producao {
   background: #fff0d6;
   color: #8a5a12;
 }

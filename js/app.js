@@ -128,6 +128,11 @@
     Jana.bindText("address", address);
     Jana.bindText("hours", site.hours);
     Jana.bindText("payments", site.paymentsNote);
+    Jana.bindText(
+      "request-disclaimer",
+      site.requestDisclaimer || Jana.REQUEST_DISCLAIMER
+    );
+    Jana.bindText("privacy-note", site.privacyNote || "");
     Jana.bindText("whatsapp-label", site.contato.whatsappLabel);
     Jana.bindHref("whatsapp-link", "https://wa.me/" + whatsapp);
     Jana.bindText("instagram-handle", handle);
@@ -903,7 +908,12 @@
     if (payload.observacoes) {
       lines.push("", "*Observações:* " + payload.observacoes);
     }
-    lines.push("", state.site.paymentsNote);
+    lines.push(
+      "",
+      state.site.requestDisclaimer || Jana.REQUEST_DISCLAIMER,
+      "",
+      state.site.paymentsNote
+    );
     return lines.join("\n");
   }
 
@@ -928,36 +938,69 @@
 
   function checkout(event) {
     event.preventDefault();
-    const payload = readCheckoutForm(event.target);
+    const form = event.target;
+    const payload = readCheckoutForm(form);
     if (!Jana.Cart.items().length && !payload.observacoes) {
       setCheckoutStatus("Adicione um item ou descreva o pedido em Observações.");
       openCart();
       return;
     }
-    let order = null;
-    try {
-      order = Jana.Store.saveCheckout(payload);
-    } catch (err) {
-      order = null;
+    const submit = form.querySelector('[type="submit"]');
+    if (submit) {
+      submit.disabled = true;
     }
+    checkoutAsync(payload, submit);
+  }
+
+  function describeCentral(result) {
+    if (!result || !result.attempted) {
+      return "Painel compartilhado ainda não está ligado; a solicitação segue pelo WhatsApp.";
+    }
+    if (result.savedCentral) {
+      return result.duplicate
+        ? "Solicitação já estava no painel central (sem duplicar)."
+        : "Solicitação registrada no painel central. Isso ainda não confirma a encomenda.";
+    }
+    if (result.reason === "network" || result.reason === "unavailable") {
+      return "Painel central indisponível. O carrinho foi mantido. Você pode falar no WhatsApp.";
+    }
+    if (result.reason === "denied") {
+      return "Acesso ao painel central foi recusado. O carrinho foi mantido.";
+    }
+    return "Não foi possível gravar no painel central. O carrinho foi mantido.";
+  }
+
+  async function checkoutAsync(payload, submit) {
+    let localOrder = null;
+    try {
+      localOrder = Jana.Store.saveCheckout(payload);
+    } catch (err) {
+      localOrder = null;
+    }
+    let centralResult = { attempted: false, savedCentral: false, confirmed: false };
+    if (Jana.Central && Jana.Central.isEnabled(state.site)) {
+      setCheckoutStatus("Enviando solicitação ao painel central…");
+      centralResult = await Jana.Central.submitRequest(state.site, payload);
+    }
+    const parts = [
+      state.site.requestDisclaimer || Jana.REQUEST_DISCLAIMER,
+      localOrder
+        ? "Cópia local #" + localOrder.number + " neste navegador (legado, não é confirmação)."
+        : "Não deu para salvar neste navegador.",
+      describeCentral(centralResult),
+      "Abrir o WhatsApp também não confirma a encomenda.",
+    ];
+    setCheckoutStatus(parts.join(" "));
     const number = state.site.contato.whatsapp;
     const url =
       "https://wa.me/" +
       number +
       "?text=" +
       encodeURIComponent(buildWhatsAppMessage(payload));
-    if (order) {
-      setCheckoutStatus(
-        "Pedido #" +
-          order.number +
-          " salvo neste navegador. Continue no WhatsApp para confirmar com a confeitaria."
-      );
-    } else {
-      setCheckoutStatus(
-        "Não foi possível salvar neste navegador. O WhatsApp ainda abre com os dados do pedido."
-      );
-    }
     openWhatsApp(url);
+    if (submit) {
+      submit.disabled = false;
+    }
   }
 
   function bindEvents() {

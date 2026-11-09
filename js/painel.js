@@ -1,11 +1,14 @@
 (function createPainel(global) {
   const Jana = global.Jana;
   const STATUS_LABELS = {
-    novo: "Novo",
-    em_preparo: "Em preparo",
+    solicitado: "Solicitado",
+    confirmado: "Confirmado",
+    em_producao: "Em produção",
     pronto: "Pronto",
     entregue: "Entregue",
     cancelado: "Cancelado",
+    novo: "Solicitado",
+    em_preparo: "Em produção",
   };
 
   const state = {
@@ -64,7 +67,14 @@
   }
 
   function statusBadge(status) {
-    const key = STATUS_LABELS[status] ? status : "novo";
+    const key =
+      status === "novo"
+        ? "solicitado"
+        : status === "em_preparo"
+          ? "em_producao"
+          : STATUS_LABELS[status]
+            ? status
+            : "solicitado";
     return (
       '<span class="badge badge--' +
       key +
@@ -222,7 +232,15 @@
     Jana.bindText("detail-total", Jana.formatBRL(subtotal + frete));
 
     const select = Jana.qs('[data-bind="detail-status"]');
-    select.value = STATUS_LABELS[order.status] ? order.status : "novo";
+    const mapped =
+      order.status === "novo"
+        ? "solicitado"
+        : order.status === "em_preparo"
+          ? "em_producao"
+          : STATUS_LABELS[order.status]
+            ? order.status
+            : "solicitado";
+    select.value = mapped;
     select.setAttribute("data-order-id", order.id);
 
     Jana.qs('[data-bind="detail-items"]').innerHTML = (order.items || [])
@@ -542,14 +560,111 @@
     Jana.qs('[data-bind="detail-status"]').addEventListener("change", onStatusChange);
   }
 
+  function bindCentral(site) {
+    const statusEl = Jana.qs('[data-bind="central-status"]');
+    const form = Jana.qs('[data-bind="central-login"]');
+    const resultEl = Jana.qs('[data-bind="central-result"]');
+    const listEl = Jana.qs('[data-bind="central-orders"]');
+    const enabled = Jana.Central && Jana.Central.isEnabled(site);
+    if (!enabled) {
+      if (statusEl) {
+        statusEl.textContent =
+          "Canal compartilhado desligado. Pedidos iguais entre aparelhos exigem o Worker descrito em central/README.md. Este painel local continua só neste navegador. Nada sobe automaticamente.";
+      }
+      if (form) form.hidden = true;
+      if (listEl) listEl.hidden = true;
+      return;
+    }
+    if (statusEl) {
+      statusEl.textContent =
+        "Canal ligado neste site. Informe o token de administração (fica só neste navegador). Listar ou alterar pedidos exige autorização no servidor.";
+    }
+    if (!form || !resultEl || !listEl) return;
+    form.hidden = false;
+    form.addEventListener("submit", async function onCentralLogin(event) {
+      event.preventDefault();
+      const token = (form.token && form.token.value ? form.token.value : "").trim();
+      if (!token) {
+        resultEl.textContent = "Informe o token.";
+        return;
+      }
+      try {
+        sessionStorage.setItem("jana-abreu-admin-token-v1", token);
+      } catch (err) {
+        /* sessionStorage may be blocked */
+      }
+      const listed = await Jana.Central.adminList(site, token);
+      if (!listed.ok) {
+        listEl.hidden = true;
+        listEl.innerHTML = "";
+        resultEl.textContent =
+          listed.reason === "denied" ? "Acesso recusado." : "Canal indisponível.";
+        return;
+      }
+      resultEl.textContent = listed.orders.length + " solicitação(ões) no canal.";
+      listEl.hidden = false;
+      listEl.innerHTML = listed.orders
+        .map(function row(order) {
+          return (
+            '<article class="painel-central__order"><strong>#' +
+            Jana.escapeHtml(order.number || order.id) +
+            "</strong> " +
+            Jana.escapeHtml(order.clientName || "") +
+            ' <label>Status <select data-central-status data-id="' +
+            Jana.escapeHtml(order.id) +
+            '">' +
+            Object.keys(STATUS_LABELS)
+              .filter(function onlyCurrent(key) {
+                return key !== "novo" && key !== "em_preparo";
+              })
+              .map(function option(key) {
+                const selected = order.status === key ? " selected" : "";
+                return (
+                  '<option value="' +
+                  key +
+                  '"' +
+                  selected +
+                  ">" +
+                  Jana.escapeHtml(STATUS_LABELS[key]) +
+                  "</option>"
+                );
+              })
+              .join("") +
+            "</select></label></article>"
+          );
+        })
+        .join("");
+    });
+    listEl.addEventListener("change", async function onCentralStatus(event) {
+      const select = event.target.closest("[data-central-status]");
+      if (!select) return;
+      let token = "";
+      try {
+        token = sessionStorage.getItem("jana-abreu-admin-token-v1") || "";
+      } catch (err) {
+        token = "";
+      }
+      const patched = await Jana.Central.adminPatch(site, token, select.getAttribute("data-id"), {
+        status: select.value,
+      });
+      resultEl.textContent = patched.ok
+        ? "Status atualizado no canal."
+        : patched.reason === "denied"
+          ? "Acesso recusado."
+          : "Não foi possível alterar o status.";
+    });
+  }
+
   async function init() {
     bindEvents();
+    let site = {};
     try {
-      const [orders, clients, site] = await Promise.all([
+      const [orders, clients, loadedSite] = await Promise.all([
         Jana.loadJSON("../data/orders.json"),
         Jana.loadJSON("../data/clients.json"),
         Jana.loadJSON("../data/site.json"),
       ]);
+      site = loadedSite || {};
       state.siteWhatsApp = (site.contato && site.contato.whatsapp) || state.siteWhatsApp;
       state.orders = Jana.Store.mergeOrders(orders);
       state.clients = Jana.Store.mergeClients(clients);
@@ -558,6 +673,7 @@
       state.clients = Jana.Store.mergeClients([]);
       console.error(err);
     }
+    bindCentral(site);
     renderOrders();
     renderClients();
     if (state.orders[0]) {
