@@ -317,6 +317,38 @@ if (!Jana.infinitePayIsReady({ infinitepay: { enabled: true, handle: "loja" } })
 if (Jana.toCents(40) !== 4000 || Jana.toCents(467) !== 46700) {
   errors.push("toCents must convert reais to centavos");
 }
+if (Jana.toCents(10.005) !== 1001 || Jana.toCents(0) !== 0) {
+  errors.push("toCents must round to integer cents, got " + Jana.toCents(10.005));
+}
+if (Jana.infinitePayCustomerName("Jo") || Jana.infinitePayCustomerName("  Al  ") || Jana.infinitePayCustomerName("")) {
+  errors.push("customer name shorter than 3 chars must be omitted");
+}
+if (Jana.infinitePayCustomerName("  Ana  ") !== "Ana") {
+  errors.push("customer name must trim and keep 3+ chars, got " + Jana.infinitePayCustomerName("  Ana  "));
+}
+if (Jana.infinitePayPhone("+55619812461") !== "") {
+  errors.push("short +55 phone must be omitted, got " + Jana.infinitePayPhone("+55619812461"));
+}
+if (Jana.infinitePayPhone("61 98124-6112") !== "+5561981246112") {
+  errors.push("phone with spaces/dashes must normalise, got " + Jana.infinitePayPhone("61 98124-6112"));
+}
+if (Jana.infinitePayPhone("5561981246112") !== "+5561981246112") {
+  errors.push("phone already starting with 55 must normalise, got " + Jana.infinitePayPhone("5561981246112"));
+}
+if (Jana.infinitePayEmail("invalido") !== "" || Jana.infinitePayEmail("ana@jana.com") !== "ana@jana.com") {
+  errors.push("email must use a basic pattern");
+}
+const mixedCustomer = Jana.infinitePayCustomer({
+  name: "Jo",
+  telefone: "61 98124-6112",
+  email: "nao-email",
+});
+if (!mixedCustomer || mixedCustomer.name || mixedCustomer.email || mixedCustomer.phone_number !== "+5561981246112") {
+  errors.push("customer must keep only valid fields, got " + JSON.stringify(mixedCustomer));
+}
+if (Jana.infinitePayCustomer({ name: "Ab", telefone: "619812461", email: "x" })) {
+  errors.push("customer with no valid fields must be omitted");
+}
 const payItems = Jana.infinitePayItems(
   [{ name: "Tábua Signature", quantity: 1, price: 467 }],
   { taxa: 40, taxaPendente: false }
@@ -328,6 +360,16 @@ if (
   payItems[1].price !== 4000
 ) {
   errors.push("InfinitePay items must include delivery fee 4000 cents, got " + JSON.stringify(payItems));
+}
+const filteredItems = Jana.infinitePayItems(
+  [
+    { name: "Tábua Signature", quantity: 1, price: 467 },
+    { name: "Brinde", quantity: 1, price: 0 },
+  ],
+  { taxa: 0, taxaPendente: false }
+);
+if (filteredItems.length !== 1 || filteredItems[0].price !== 46700) {
+  errors.push("items with price <= 0 must be dropped, got " + JSON.stringify(filteredItems));
 }
 const nsu = Jana.generateOrderNsu(new Date("2026-11-10T15:00:00-03:00"));
 if (!/^JA-\d{8}-[A-Z0-9]+$/.test(nsu)) {
@@ -391,6 +433,39 @@ const created = await Jana.createInfinitePayLink({
 });
 if (Jana.infinitePayCheckoutUrl(created) !== "https://checkout.infinitepay.io/pay/test") {
   errors.push("checkout URL should read checkout_url, got " + JSON.stringify(created));
+}
+const retryCalls = [];
+const retryFetch = async function retryFetch(url, opts) {
+  const body = JSON.parse(opts.body);
+  retryCalls.push(body);
+  if (body.customer) {
+    return {
+      ok: false,
+      status: 422,
+      text: async function text() {
+        return JSON.stringify({ message: "Invalid checkout link params" });
+      },
+    };
+  }
+  return {
+    ok: true,
+    status: 200,
+    text: async function text() {
+      return JSON.stringify({ checkout_url: "https://checkout.infinitepay.io/pay/retry", slug: "ok" });
+    },
+  };
+};
+const retried = await Jana.createInfinitePayLink({
+  handle: "loja",
+  order_nsu: "JA-RETRY",
+  items: [{ quantity: 1, price: 1000, description: "Item" }],
+  customer: { name: "Ana", phone_number: "+5561981246112" },
+}, retryFetch);
+if (!retried || retried.checkout_url !== "https://checkout.infinitepay.io/pay/retry") {
+  errors.push("422 must retry once without customer, got " + JSON.stringify(retried));
+}
+if (retryCalls.length !== 2 || !retryCalls[0].customer || retryCalls[1].customer) {
+  errors.push("422 retry must drop the customer block, got " + JSON.stringify(retryCalls));
 }
 const linkCall = sandbox.__fetchCalls[0];
 if (!linkCall || /X-Api-Key|inchk_/i.test(JSON.stringify(linkCall.opts.headers || {}))) {

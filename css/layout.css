@@ -82,17 +82,25 @@ main {
   gap: 2.175rem;
 }
 
+/* Top menu labels share one font size; button widths follow the text. */
 .topo__nav a,
 .topo__categories-btn {
   color: rgba(76, 85, 58, 0.9);
   font-family: var(--serif);
   font-weight: 600;
-  text-decoration: none;
   font-size: 1.83rem;
+  font-style: normal;
+  line-height: 1.2;
   letter-spacing: 0.01em;
+  text-decoration: none;
+  text-transform: none;
   min-height: 44px;
   display: inline-flex;
   align-items: center;
+  flex: 0 0 auto;
+  width: auto;
+  max-width: none;
+  white-space: nowrap;
 }
 
 .topo__nav > a,
@@ -101,6 +109,7 @@ main {
   border-radius: 999px;
   background: var(--panel-strong);
   padding: 0.25rem 0.95rem;
+  box-sizing: border-box;
   cursor: pointer;
   color: rgba(76, 85, 58, 0.9);
 }
@@ -120,11 +129,18 @@ main {
 }
 
 .topo__categories-btn {
-  font: inherit;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 1.83rem;
+  font-style: normal;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
 }
 
 .topo__categories {
   position: relative;
+  flex: 0 0 auto;
+  width: auto;
 }
 
 .categorias-menu {
@@ -176,6 +192,11 @@ main {
   align-items: center;
   gap: 0.25rem;
   justify-self: end;
+  flex-shrink: 0;
+}
+
+.cart-button {
+  flex-shrink: 0;
 }
 
 .topo__menu {

@@ -154,22 +154,31 @@
   };
 
   Jana.infinitePayItems = function infinitePayItems(cartItems, totals) {
-    const items = (cartItems || []).map(function toItem(item) {
-      const flavor = item.flavor ? " (" + item.flavor + ")" : "";
-      return {
-        quantity: Math.max(1, Number(item.quantity) || 1),
-        price: Jana.toCents(item.price),
-        description: String(item.name || "Item")
-          .concat(flavor)
-          .slice(0, 120),
-      };
-    });
-    if (totals && !totals.taxaPendente && Number(totals.taxa) > 0) {
-      items.push({
-        quantity: 1,
-        price: Jana.toCents(totals.taxa),
-        description: "Taxa de entrega",
+    const items = (cartItems || [])
+      .map(function toItem(item) {
+        const flavor = item.flavor ? " (" + item.flavor + ")" : "";
+        const quantity = Math.max(1, Math.round(Number(item.quantity)) || 1);
+        const price = Jana.toCents(item.price);
+        return {
+          quantity: quantity,
+          price: price,
+          description: String(item.name || "Item")
+            .concat(flavor)
+            .slice(0, 120),
+        };
+      })
+      .filter(function payable(item) {
+        return item.price > 0;
       });
+    if (totals && !totals.taxaPendente && Number(totals.taxa) > 0) {
+      const fee = Jana.toCents(totals.taxa);
+      if (fee > 0) {
+        items.push({
+          quantity: 1,
+          price: fee,
+          description: "Taxa de entrega",
+        });
+      }
     }
     return items;
   };
@@ -193,13 +202,96 @@
     );
   };
 
+  Jana.infinitePayCustomerName = function infinitePayCustomerName(name) {
+    const trimmed = String(name || "").trim();
+    return trimmed.length >= 3 ? trimmed : "";
+  };
+
   Jana.infinitePayPhone = function infinitePayPhone(phone) {
-    const digits = String(phone || "").replace(/\D/g, "");
+    const raw = String(phone || "");
+    const digits = raw.replace(/\D/g, "");
     if (!digits) {
       return "";
     }
-    return digits.charAt(0) === "5" ? "+" + digits : "+55" + digits;
+    const hasPlusCountry = /^\s*\+\s*55/.test(raw) || /^\s*00\s*55/.test(raw);
+    let national = digits;
+    if (digits.indexOf("55") === 0 && (digits.length === 12 || digits.length === 13 || hasPlusCountry)) {
+      national = digits.slice(2);
+    }
+    if (national.length !== 10 && national.length !== 11) {
+      return "";
+    }
+    return "+55" + national;
   };
+
+  Jana.infinitePayEmail = function infinitePayEmail(email) {
+    const value = String(email || "").trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      return "";
+    }
+    return value;
+  };
+
+  Jana.infinitePayCustomer = function infinitePayCustomer(input) {
+    const source = input || {};
+    const customer = {};
+    const name = Jana.infinitePayCustomerName(source.name || source.nome);
+    const phone = Jana.infinitePayPhone(source.phone_number || source.phone || source.telefone);
+    const email = Jana.infinitePayEmail(source.email);
+    if (name) {
+      customer.name = name;
+    }
+    if (phone) {
+      customer.phone_number = phone;
+    }
+    if (email) {
+      customer.email = email;
+    }
+    return Object.keys(customer).length ? customer : null;
+  };
+
+  function infinitePayErrorMessage(data, status) {
+    if (data && typeof data === "string") {
+      return data;
+    }
+    const raw = data && (data.message || data.error || data.detail);
+    if (typeof raw === "string" && raw) {
+      return raw;
+    }
+    if (raw && typeof raw === "object") {
+      try {
+        return JSON.stringify(raw);
+      } catch (err) {
+        /* ignore */
+      }
+    }
+    return "InfinitePay " + status;
+  }
+
+  function logInfinitePayError(err) {
+    const logger = global.console || (typeof console !== "undefined" ? console : null);
+    if (logger && logger.error) {
+      logger.error("InfinitePay:", err && err.message);
+    }
+  }
+
+  async function readInfinitePayResponse(response) {
+    if (response && typeof response.text === "function") {
+      const raw = await response.text();
+      if (!raw) {
+        return null;
+      }
+      try {
+        return JSON.parse(raw);
+      } catch (err) {
+        return { message: raw };
+      }
+    }
+    if (response && typeof response.json === "function") {
+      return response.json();
+    }
+    return null;
+  }
 
   Jana.captureMethodLabel = function captureMethodLabel(method) {
     if (method === "pix") {
@@ -213,15 +305,41 @@
 
   Jana.createInfinitePayLink = async function createInfinitePayLink(body, fetchFn) {
     const fetchImpl = fetchFn || fetch;
-    const response = await fetchImpl(LINKS_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    if (!response.ok) {
-      throw new Error("InfinitePay " + response.status);
+    async function postLink(payload) {
+      const response = await fetchImpl(LINKS_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await readInfinitePayResponse(response);
+      if (!response.ok) {
+        const err = new Error(infinitePayErrorMessage(data, response.status));
+        err.status = response.status;
+        err.body = data;
+        throw err;
+      }
+      return data;
     }
-    return response.json();
+    try {
+      return await postLink(body);
+    } catch (err) {
+      if (err && err.status === 422 && body && body.customer) {
+        const retryBody = {};
+        Object.keys(body).forEach(function copy(key) {
+          if (key !== "customer") {
+            retryBody[key] = body[key];
+          }
+        });
+        try {
+          return await postLink(retryBody);
+        } catch (retryErr) {
+          logInfinitePayError(retryErr);
+          throw retryErr;
+        }
+      }
+      logInfinitePayError(err);
+      throw err;
+    }
   };
 
   Jana.checkInfinitePay = async function checkInfinitePay(body, fetchFn) {

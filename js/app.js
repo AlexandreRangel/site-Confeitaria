@@ -1680,15 +1680,23 @@
       redirect_url: Jana.infinitePayRedirectUrl ? Jana.infinitePayRedirectUrl() : Jana.INFINITEPAY_REDIRECT_URL,
       items: Jana.infinitePayItems(payload.items, totals),
     };
-    if (payload.nome) {
-      body.customer = { name: payload.nome };
-      const phone = Jana.infinitePayPhone(payload.telefone);
-      if (phone) {
-        body.customer.phone_number = phone;
+    if (!body.items.length) {
+      setCheckoutStatus("Não foi possível abrir o pagamento com cartão. Tente de novo, escolha Pix ou fale no WhatsApp.");
+      if (submit) {
+        submit.disabled = false;
       }
-      if (payload.email) {
-        body.customer.email = payload.email;
-      }
+      syncCheckoutPayUi(totals);
+      return;
+    }
+    const customer = Jana.infinitePayCustomer
+      ? Jana.infinitePayCustomer({
+          name: payload.nome,
+          telefone: payload.telefone,
+          email: payload.email,
+        })
+      : null;
+    if (customer) {
+      body.customer = customer;
     }
     if (Jana.savePendingPay) {
       Jana.savePendingPay({

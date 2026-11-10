@@ -163,7 +163,7 @@ async function withPage(browserType, engine, viewport, fn) {
   });
   const consoleErrors = [];
   function keepConsole(text) {
-    if (/wa\.me|whatsapp\.com|checkout\.infinitepay\.io|ERR_ABORTED|ERR_FAILED|net::ERR_CONNECTION|502 \(Bad Gateway\)|Failed to load resource: the server responded with a status of 502/i.test(text)) {
+    if (/wa\.me|whatsapp\.com|checkout\.infinitepay\.io|InfinitePay:|ERR_ABORTED|ERR_FAILED|net::ERR_CONNECTION|502 \(Bad Gateway\)|Failed to load resource: the server responded with a status of 502/i.test(text)) {
       return;
     }
     consoleErrors.push(text);
@@ -949,6 +949,8 @@ async function runEngine(browserType, engine) {
           color: cs.color,
           borderWidth: cs.borderTopWidth,
           radius: cs.borderRadius,
+          fontSize: cs.fontSize,
+          width: el.getBoundingClientRect().width,
         };
       });
       const boxes = items.map(function boxOf(el) { return el.getBoundingClientRect(); });
@@ -966,7 +968,11 @@ async function runEngine(browserType, engine) {
         menuLookAfterBlur.looks.length === 3 &&
         menuLookAfterBlur.looks.every(function pill(item) {
           return item.borderWidth === "1px" && item.radius === "999px" && item.color === "rgba(76, 85, 58, 0.9)";
-        }),
+        }) &&
+        menuLookAfterBlur.looks.every(function sameSize(item) {
+          return item.fontSize === menuLookAfterBlur.looks[0].fontSize;
+        }) &&
+        new Set(menuLookAfterBlur.looks.map(function w(item) { return Math.round(item.width); })).size === menuLookAfterBlur.looks.length,
       JSON.stringify(menuLookAfterBlur)
     );
     const heroUiDesk = await page.evaluate(function measureHero() {
