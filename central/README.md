@@ -4,7 +4,7 @@ Está **no ar**: Worker `jana-pedidos` + banco D1 `jana-pedidos`, na conta Cloud
 
 - URL: https://jana-pedidos.janaabreu.workers.dev (configurada em `data/site.json` → `central`)
 - Código: `central/jana-pedidos/src/index.js` · tabelas: `central/jana-pedidos/schema.sql`
-- Segredos do Worker (nunca no repositório): `ADMIN_PASSWORD` (senha do painel), `SESSION_SECRET`, `INFINITE_HANDLE`.
+- Segredos do Worker (nunca no repositório): `ADMIN_PASSWORD_HASH` (hash PBKDF2 com sal da senha do painel; a senha em si não fica no Cloudflare), `SESSION_SECRET`, `INFINITE_HANDLE`.
 
 ## Rotas
 

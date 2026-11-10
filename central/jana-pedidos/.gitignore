@@ -2,3 +2,4 @@ node_modules
 .wrangler
 .dev.vars
 ADMIN_PASSWORD.txt
+.admin_hash

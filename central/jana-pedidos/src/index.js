@@ -770,8 +770,44 @@ async function webhook(env, request, ctx) {
 
 /* ---------------- admin ---------------- */
 
+/* Senha do painel: ADMIN_PASSWORD_HASH = "pbkdf2$<iterações>$<sal b64>$<hash b64>" (preferido)
+   ou, só como legado, ADMIN_PASSWORD em texto. */
+function adminConfigured(env) {
+  return !!((env.ADMIN_PASSWORD_HASH || env.ADMIN_PASSWORD) && env.SESSION_SECRET);
+}
+
+function b64ToBytes(b64) {
+  const bin = atob(b64);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+async function passwordMatches(env, pass) {
+  const stored = String(env.ADMIN_PASSWORD_HASH || "");
+  if (stored) {
+    const parts = stored.split("$");
+    if (parts.length !== 4 || parts[0] !== "pbkdf2") return false;
+    const iterations = Math.min(100000, Math.max(1000, Number(parts[1]) || 0));
+    const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(pass), "PBKDF2", false, ["deriveBits"]);
+    const bits = await crypto.subtle.deriveBits(
+      { name: "PBKDF2", hash: "SHA-256", salt: b64ToBytes(parts[2]), iterations },
+      key,
+      256
+    );
+    const got = btoa(String.fromCharCode(...new Uint8Array(bits)));
+    return safeEqual(got, parts[3]);
+  }
+  if (!env.ADMIN_PASSWORD) return false;
+  return safeEqual(await sha256(pass), await sha256(env.ADMIN_PASSWORD));
+}
+
+async function sessionKey(env) {
+  return env.SESSION_SECRET + "|" + (env.ADMIN_PASSWORD_HASH || (await sha256(env.ADMIN_PASSWORD || "")));
+}
+
 async function adminLogin(env, request) {
-  if (!env.ADMIN_PASSWORD || !env.SESSION_SECRET) throw new HttpError(503, "admin não configurado");
+  if (!adminConfigured(env)) throw new HttpError(503, "admin não configurado");
   const ip = request.headers.get("CF-Connecting-IP") || "local";
   const nowS = Math.floor(Date.now() / 1000);
   const fail = await env.DB.prepare("SELECT * FROM login_failures WHERE ip = ?").bind(ip).first();
@@ -780,7 +816,7 @@ async function adminLogin(env, request) {
   }
   const body = await readJson(request, 1024);
   const pass = String(body.password || "");
-  if (!safeEqual(await sha256(pass), await sha256(env.ADMIN_PASSWORD))) {
+  if (!(await passwordMatches(env, pass))) {
     if (!fail || nowS - fail.window_start >= 900) {
       await env.DB.prepare("INSERT OR REPLACE INTO login_failures (ip, count, window_start) VALUES (?, 1, ?)")
         .bind(ip, nowS)
@@ -794,16 +830,16 @@ async function adminLogin(env, request) {
   if (fail) await env.DB.prepare("DELETE FROM login_failures WHERE ip = ?").bind(ip).run();
   const exp = Date.now() + SESSION_HOURS * 3600 * 1000;
   const payload = "adm." + exp + "." + randomToken(8);
-  const sig = await hmac(env.SESSION_SECRET + "|" + (await sha256(env.ADMIN_PASSWORD)), payload);
+  const sig = await hmac(await sessionKey(env), payload);
   return json(env, request, { ok: true, token: payload + "." + sig, expiresAt: new Date(exp).toISOString() });
 }
 
 async function requireAdmin(env, request) {
   const auth = request.headers.get("Authorization") || "";
   const m = auth.match(/^Bearer\s+(adm\.(\d+)\.[A-Za-z0-9_-]+)\.([A-Za-z0-9_-]+)$/);
-  if (!m || !env.SESSION_SECRET || !env.ADMIN_PASSWORD) throw new HttpError(401, "login necessário");
+  if (!m || !adminConfigured(env)) throw new HttpError(401, "login necessário");
   if (Number(m[2]) < Date.now()) throw new HttpError(401, "sessão expirada");
-  const expected = await hmac(env.SESSION_SECRET + "|" + (await sha256(env.ADMIN_PASSWORD)), m[1]);
+  const expected = await hmac(await sessionKey(env), m[1]);
   if (!safeEqual(expected, m[3])) throw new HttpError(401, "login necessário");
 }
 
