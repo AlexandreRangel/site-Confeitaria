@@ -141,14 +141,29 @@
         <p class="checkout__privacy" data-bind="privacy-note">Usamos nome, telefone e o que você escrever só para a Jana responder esta solicitação. Não publicamos sua lista de pedidos.</p>
         <p class="checkout__note" data-bind="payments"></p>
         <p class="checkout__note checkout__unpriced" data-bind="checkout-unpriced" hidden>Este pedido inclui itens sob consulta, sem preço fixo. Não é possível pagar online. Envie a solicitação pelo WhatsApp.</p>
+        <fieldset class="checkout__pay-method" data-bind="pay-method" hidden>
+          <legend id="pagamento-legend">Como prefere pagar?</legend>
+          <div class="checkout__pay-options" role="radiogroup" aria-required="true" aria-labelledby="pagamento-legend">
+            <label class="checkout__radio" data-bind="pay-option-pix">
+              <input type="radio" name="pagamento" value="pix">
+              <span>Pagar com Pix</span>
+            </label>
+            <label class="checkout__radio" data-bind="pay-option-infinitepay">
+              <input type="radio" name="pagamento" value="infinitepay">
+              <span>Pagar com cartão ou Pix pela InfinitePay</span>
+            </label>
+          </div>
+        </fieldset>
         <p class="checkout__status" data-bind="checkout-status" role="status" aria-live="polite"></p>
-                <div class="checkout__pix" data-bind="pix-block" hidden>
+        <div class="checkout__pix" data-bind="pix-block" hidden>
           <h3>Pagar com Pix</h3>
-          <p class="checkout__pix-note">Pague somente após a Jana confirmar sua encomenda pelo WhatsApp</p>
+          <p class="checkout__pix-note">Pague o valor indicado. Depois toque em Já paguei e envie o comprovante pelo WhatsApp.</p>
           <div class="checkout__pix-qr">
             <img data-bind="pix-qr" alt="QR Code Pix" width="220" height="220">
           </div>
           <p class="checkout__pix-value" data-bind="pix-value"></p>
+          <label class="checkout__pix-code-label" for="pix-payload">Código Pix (copia e cola)</label>
+          <textarea id="pix-payload" class="checkout__pix-code" data-bind="pix-payload" readonly rows="3"></textarea>
           <button type="button" class="btn btn--outline" data-action="copy-pix">Copiar código Pix</button>
           <p class="checkout__pix-status" data-bind="pix-copy-status" role="status" aria-live="polite"></p>
         </div>

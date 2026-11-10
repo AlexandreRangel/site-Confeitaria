@@ -451,6 +451,72 @@ if (!csvFail.ativo || Jana.evaluatePausa(csvFail, atSP("2026-12-24")).message.in
   errors.push("CSV failure must fall back to JSON without blocking");
 }
 
+function parsePixEmv(payload) {
+  const fields = {};
+  const source = String(payload || "");
+  let i = 0;
+  while (i + 4 <= source.length) {
+    const id = source.slice(i, i + 2);
+    const len = Number(source.slice(i + 2, i + 4));
+    if (!Number.isFinite(len) || len < 0) {
+      break;
+    }
+    const value = source.slice(i + 4, i + 4 + len);
+    fields[id] = value;
+    i += 4 + len;
+    if (id === "63") {
+      break;
+    }
+  }
+  return fields;
+}
+
+const pixFile = JSON.parse(readFileSync(join(root, "data/pix.json"), "utf8"));
+const livePayload = Jana.buildPixPayload({
+  chave: pixFile.chave,
+  nome: pixFile.nome,
+  cidade: pixFile.cidade,
+  valor: 123.45,
+  txid: "***",
+});
+const liveFields = parsePixEmv(livePayload);
+const liveCrc = Jana.crc16ccitt(livePayload.slice(0, -4));
+if (liveFields["00"] !== "01" || liveFields["52"] !== "0000" || liveFields["53"] !== "986" || liveFields["54"] !== "123.45" || liveFields["58"] !== "BR" || liveFields["59"] !== "JANA ABREU" || liveFields["60"] !== "BRASILIA") {
+  errors.push("live Pix BR Code is missing required EMV fields (CRC/structure check, key omitted)");
+}
+if (!String(liveFields["26"] || "").startsWith("0014br.gov.bcb.pix")) {
+  errors.push("live Pix field 26 must start with br.gov.bcb.pix (key omitted)");
+}
+if (!String(liveFields["62"] || "").includes("***")) {
+  errors.push("static Pix txid must be ***");
+}
+if (liveFields["63"] !== liveCrc) {
+  errors.push("live Pix CRC16 does not match");
+}
+
+const pricedOpts = {
+  pagamento: { infinitepay: { enabled: true, handle: "loja" } },
+  pix: { enabled: true, chave: "teste@exemplo.com", nome: "JANA ABREU", cidade: "BRASILIA" },
+  items: [{ price: 10, quantity: 1 }],
+  products: [{ price: 10, slug: "x", active: true }],
+  total: 10,
+};
+const payOptions = Jana.checkoutPayOptions(pricedOpts);
+if (!payOptions.pix || !payOptions.infinitepay) {
+  errors.push("priced cart must offer both Pix and InfinitePay when both are ready");
+}
+if (Jana.canPayWithPix({ ...pricedOpts, items: [{ price: 0, quantity: 1, slug: "x" }], products: [{ price: 0, slug: "x", active: true }] })) {
+  errors.push("unpriced cart must not offer Pix");
+}
+const pending = Jana.buildPixPendingWhatsAppMessage(
+  { nome: "Ada", items: [{ name: "Bolo", quantity: 1, price: 10 }], total: 10 },
+  { nome: "Jana", contato: { whatsapp: "5561999999999" } },
+  { subtotal: 10, taxa: 0, total: 10 }
+);
+if (!/Pagamento via Pix — aguardando conferência/.test(pending) || /PAGO/.test(pending) || !/comprovante/.test(pending)) {
+  errors.push("pending Pix WhatsApp must wait for receipt and must not say PAGO");
+}
+
 if (errors.length) {
   console.error(errors.join("\n"));
   process.exit(1);

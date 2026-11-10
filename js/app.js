@@ -20,6 +20,8 @@
     sobre: {},
     pix: { enabled: false, chave: "", nome: "", cidade: "" },
     pixPayload: "",
+    pixVisible: false,
+    payMethod: "",
     carouselIgnoreClick: false,
     pagamento: { infinitepay: { enabled: false, handle: "" } },
     pausa: { ativo: false, inicio: "", fim: "", mensagem: "", periodos: [], fimDeSemana: false },
@@ -1055,39 +1057,121 @@
     syncCheckoutPayUi(totals);
   }
 
-  function cartCanPayOnline(totals) {
+  function checkoutPayOpts(totals) {
     const row = totals || Jana.checkoutTotals(Jana.Cart.total(), Jana.resolveEntrega(state.site, selectedModalidade(), ""));
-    return Jana.canPayOnline({
+    return {
       pagamento: state.pagamento,
+      pix: state.pix,
       items: Jana.Cart.items(),
       products: state.products,
       taxaPendente: row.taxaPendente,
       total: row.total,
-    });
+    };
+  }
+
+  function cartCanPayOnline(totals) {
+    return Jana.canPayOnline(checkoutPayOpts(totals));
+  }
+
+  function cartPayOptions(totals) {
+    if (Jana.checkoutPayOptions) {
+      return Jana.checkoutPayOptions(checkoutPayOpts(totals));
+    }
+    return { pix: false, infinitepay: cartCanPayOnline(totals) };
+  }
+
+  function selectedPayMethod() {
+    const checked = Jana.qs('#checkout-form [name="pagamento"]:checked');
+    return (checked && checked.value) || state.payMethod || "";
   }
 
   function syncCheckoutPayUi(totals) {
-    const pay = cartCanPayOnline(totals);
+    const options = cartPayOptions(totals);
+    const onSite = !!(options.pix || options.infinitepay);
+    const methodBox = Jana.qs('[data-bind="pay-method"]');
+    const pixLabel = Jana.qs('[data-bind="pay-option-pix"]');
+    const infLabel = Jana.qs('[data-bind="pay-option-infinitepay"]');
+    if (pixLabel) {
+      pixLabel.hidden = !options.pix;
+    }
+    if (infLabel) {
+      infLabel.hidden = !options.infinitepay;
+    }
+    if (methodBox) {
+      methodBox.hidden = !onSite;
+    }
+    let method = selectedPayMethod();
+    if (method === "pix" && !options.pix) {
+      method = "";
+    }
+    if (method === "infinitepay" && !options.infinitepay) {
+      method = "";
+    }
+    if (!method && options.pix) {
+      method = "pix";
+    } else if (!method && options.infinitepay) {
+      method = "infinitepay";
+    }
+    state.payMethod = method;
+    const pixRadio = Jana.qs('#checkout-form [name="pagamento"][value="pix"]');
+    const infRadio = Jana.qs('#checkout-form [name="pagamento"][value="infinitepay"]');
+    if (pixRadio) {
+      pixRadio.checked = method === "pix";
+      if (options.pix) {
+        pixRadio.setAttribute("required", "required");
+      } else {
+        pixRadio.removeAttribute("required");
+      }
+    }
+    if (infRadio) {
+      infRadio.checked = method === "infinitepay";
+      if (options.infinitepay && !options.pix) {
+        infRadio.setAttribute("required", "required");
+      } else if (options.pix) {
+        infRadio.setAttribute("required", "required");
+      } else {
+        infRadio.removeAttribute("required");
+      }
+    }
+    if (method !== "pix") {
+      state.pixVisible = false;
+    }
     const submit = Jana.qs('[data-bind="checkout-submit"]') || Jana.qs("#checkout-form button[type='submit']");
     if (submit) {
-      submit.textContent = pay ? "Pagar e enviar pedido" : "Enviar solicitação no WhatsApp";
+      const opensWhatsApp = !onSite || (method === "pix" && state.pixVisible);
+      if (!onSite) {
+        submit.textContent = "Enviar solicitação no WhatsApp";
+      } else if (method === "pix") {
+        submit.textContent = state.pixVisible ? "Já paguei" : "Gerar Pix";
+      } else if (method === "infinitepay") {
+        submit.textContent = "Pagar pela InfinitePay";
+      } else {
+        submit.textContent = "Escolha a forma de pagamento";
+      }
+      submit.classList.toggle("btn--whatsapp", opensWhatsApp);
+      submit.classList.toggle("btn--solid", !opensWhatsApp);
     }
-    Jana.bindText(
-      "request-disclaimer",
-      pay ? Jana.PAID_DISCLAIMER || "" : state.site.requestDisclaimer || Jana.REQUEST_DISCLAIMER
-    );
-    Jana.bindText(
-      "payments",
-      pay ? "Pagamento no site pela InfinitePay (Pix ou cartão) ao enviar o pedido." : state.site.paymentsNote || ""
-    );
+    let disclaimer = state.site.requestDisclaimer || Jana.REQUEST_DISCLAIMER;
+    let payments = state.site.paymentsNote || "";
+    if (method === "pix") {
+      disclaimer = Jana.PIX_DISCLAIMER || disclaimer;
+      payments = "";
+    } else if (method === "infinitepay") {
+      disclaimer = Jana.PAID_DISCLAIMER || disclaimer;
+      payments = "Pagamento no site pela InfinitePay (cartão ou Pix) ao enviar o pedido.";
+    }
+    Jana.bindText("request-disclaimer", disclaimer);
+    Jana.bindText("payments", payments);
     const unpricedNote = Jana.qs("[data-bind='checkout-unpriced']");
     if (unpricedNote) {
-      const show =
-        Jana.infinitePayIsReady &&
-        Jana.infinitePayIsReady(state.pagamento) &&
-        Jana.cartHasUnpricedItems(Jana.Cart.items(), state.products);
+      const methodsReady = !!(
+        (Jana.pixIsReady && Jana.pixIsReady(state.pix)) ||
+        (Jana.infinitePayIsReady && Jana.infinitePayIsReady(state.pagamento))
+      );
+      const show = methodsReady && Jana.cartHasUnpricedItems(Jana.Cart.items(), state.products);
       unpricedNote.hidden = !show;
     }
+    renderPix(totals);
   }
 
   function currentPixAmount(totals) {
@@ -1102,22 +1186,32 @@
     }
     const ready = Jana.pixIsReady(state.pix);
     const amount = currentPixAmount(totals);
-    if (!ready || amount <= 0) {
+    const show = ready && amount > 0 && state.pixVisible && selectedPayMethod() === "pix";
+    if (!show) {
       block.hidden = true;
-      state.pixPayload = "";
+      const code = Jana.qs('[data-bind="pix-payload"]');
+      if (code) {
+        code.value = "";
+      }
+      if (!ready || amount <= 0) {
+        state.pixPayload = "";
+      }
       return;
     }
     const cfg = Jana.pixConfig(state.pix);
-    const txid = Jana.Store.peekNextOrderNumber ? Jana.Store.peekNextOrderNumber() : "***";
     const payload = Jana.buildPixPayload({
       chave: cfg.chave,
       nome: cfg.nome,
       cidade: cfg.cidade,
       valor: amount,
-      txid: txid,
+      txid: "***",
     });
     state.pixPayload = payload;
-    block.hidden = false;
+    block.hidden = !show;
+    const code = Jana.qs('[data-bind="pix-payload"]');
+    if (code) {
+      code.value = show ? payload : "";
+    }
     Jana.bindText("pix-value", "Valor do Pix: " + Jana.formatBRL(amount));
     const img = Jana.qs('[data-bind="pix-qr"]');
     if (img && payload && typeof qrcode === "function") {
@@ -1514,6 +1608,54 @@
     return "Não foi possível gravar no painel central. O carrinho foi mantido.";
   }
 
+  function checkoutPix(payload, totals, submit) {
+    if (!state.pixVisible) {
+      payload.status = "aguardando pagamento";
+      payload.paymentStatus = "aguardando conferência";
+      payload.paymentMethod = "pix";
+      try {
+        Jana.Store.saveCheckout(payload);
+      } catch (err) {
+        /* keep going so the customer can still pay */
+      }
+      state.pixVisible = true;
+      renderPix(totals);
+      syncCheckoutPayUi(totals);
+      setCheckoutStatus("Pague com Pix no valor indicado e, quando terminar, toque em Já paguei.");
+      if (submit) {
+        submit.disabled = false;
+      }
+      const qr = Jana.qs('[data-bind="pix-qr"]');
+      if (qr && qr.scrollIntoView) {
+        qr.scrollIntoView({ block: "center", behavior: "smooth" });
+      }
+      return;
+    }
+    const order = {
+      nome: payload.nome,
+      telefone: payload.telefone,
+      email: payload.email,
+      modalidade: payload.modalidade,
+      endereco: payload.endereco,
+      data: payload.data,
+      items: payload.items,
+      observacoes: payload.observacoes,
+      total: totals.total,
+      subtotal: totals.subtotal,
+      taxa: totals.taxa,
+    };
+    const message = Jana.buildPixPendingWhatsAppMessage
+      ? Jana.buildPixPendingWhatsAppMessage(order, state.site, totals)
+      : "Pagamento via Pix — aguardando conferência";
+    const number = state.site.contato.whatsapp;
+    const url = "https://wa.me/" + number + "?text=" + encodeURIComponent(message);
+    setCheckoutStatus("Abrindo o WhatsApp para enviar o comprovante…");
+    openWhatsApp(url);
+    if (submit) {
+      submit.disabled = false;
+    }
+  }
+
   async function checkoutInfinitePay(payload, totals, submit) {
     const nsu = Jana.generateOrderNsu();
     payload.orderNsu = nsu;
@@ -1576,16 +1718,37 @@
     }
     const resolved = Jana.resolveEntrega(state.site, payload.modalidade, payload.regiao);
     const totals = Jana.checkoutTotals(Jana.Cart.total(), resolved);
-    if (
-      Jana.canPayOnline({
-        pagamento: state.pagamento,
-        items: payload.items,
-        products: state.products,
-        taxaPendente: totals.taxaPendente,
-        total: totals.total,
-      })
-    ) {
-      await checkoutInfinitePay(payload, totals, submit);
+    const payOpts = {
+      pagamento: state.pagamento,
+      pix: state.pix,
+      items: payload.items,
+      products: state.products,
+      taxaPendente: totals.taxaPendente,
+      total: totals.total,
+    };
+    const options = Jana.checkoutPayOptions ? Jana.checkoutPayOptions(payOpts) : { pix: false, infinitepay: Jana.canPayOnline(payOpts) };
+    const method = selectedPayMethod();
+    if (options.pix || options.infinitepay) {
+      if (!method) {
+        setCheckoutStatus("Escolha como prefere pagar.");
+        if (submit) {
+          submit.disabled = false;
+        }
+        openCart();
+        return;
+      }
+      if (method === "pix" && options.pix) {
+        checkoutPix(payload, totals, submit);
+        return;
+      }
+      if (method === "infinitepay" && options.infinitepay) {
+        await checkoutInfinitePay(payload, totals, submit);
+        return;
+      }
+      setCheckoutStatus("Escolha como prefere pagar.");
+      if (submit) {
+        submit.disabled = false;
+      }
       return;
     }
     let localOrder = null;
@@ -1925,6 +2088,13 @@
         const name = event.target && event.target.name;
         if (name === "modalidade" || name === "regiao") {
           syncCheckoutMode();
+        }
+        if (name === "pagamento") {
+          state.payMethod = event.target.value || "";
+          if (state.payMethod !== "pix") {
+            state.pixVisible = false;
+          }
+          syncCheckoutPayUi();
         }
       });
     }

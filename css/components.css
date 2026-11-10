@@ -34,14 +34,15 @@
   color: #000;
   box-shadow: 0 5px 14px rgba(76, 85, 58, 0.16);
   touch-action: manipulation;
-  width: 88px;
-  height: 88px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  font-size: 2.8rem;
+  font-size: 1.85rem;
   line-height: 1;
   display: grid;
   place-items: center;
   padding: 0;
+  cursor: pointer;
 }
 
 .hero__arrow:hover {
@@ -50,7 +51,14 @@
 
 .hero__arrow:focus-visible {
   outline: 3px solid #000;
-  outline-offset: 3px;
+  outline-offset: 2px;
+}
+
+.hero__slide,
+a.hero__slide,
+.hero__slide img,
+.hero__dot {
+  cursor: pointer;
 }
 
 .hero__dots {
@@ -691,6 +699,68 @@ a.promo-card:focus-visible {
   text-align: center;
   font-weight: 600;
   color: var(--ink);
+}
+
+.checkout__pay-method {
+  margin: 0.4rem 0 0.7rem;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.checkout__pay-method legend {
+  font-weight: 600;
+  color: var(--brown);
+  margin-bottom: 0.4rem;
+  padding: 0;
+}
+
+.checkout__pay-options {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+}
+
+.checkout__pay-options .checkout__radio {
+  justify-content: flex-start;
+  text-align: left;
+  font-size: 0.95rem;
+  font-weight: 600;
+  height: auto;
+  min-height: 44px;
+  white-space: normal;
+}
+
+.checkout__pix-code-label {
+  margin: 0.15rem 0 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--brown);
+}
+
+.checkout__pix-code {
+  width: 100%;
+  min-height: 4.5rem;
+  resize: vertical;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  word-break: break-all;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.5rem 0.6rem;
+}
+
+.checkout__submit .btn {
+  width: 100%;
+}
+
+@media (min-width: 720px) {
+  .checkout__pay-options {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .checkout__pix [data-action="copy-pix"] {

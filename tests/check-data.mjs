@@ -409,13 +409,23 @@ if (!appJs.includes("carouselSlidesFromProducts") || !utilsJs.includes("carousel
 if (!appJs.includes("data/pix.json") || !appJs.includes("pixIsReady") || !appJs.includes("buildPixPayload")) {
   errors.push("app.js must load data/pix.json and render Pix only when ready");
 }
+if (!appJs.includes('txid: "***"') || !appJs.includes("Gerar Pix") || !appJs.includes("Já paguei") || !appJs.includes("buildPixPendingWhatsAppMessage")) {
+  errors.push("checkout must generate a static Pix (txid ***) and confirm with Já paguei pending WhatsApp copy");
+}
+if (!home.includes('data-bind="pay-method"') || !home.includes("Como prefere pagar?") || !home.includes('value="infinitepay"')) {
+  errors.push("Checkout must offer Pix and InfinitePay radios in a fieldset");
+}
 const pixPath = join(root, "data/pix.json");
 if (!existsSync(pixPath)) {
   errors.push("Missing data/pix.json");
 } else {
   const pix = JSON.parse(readFileSync(pixPath, "utf8"));
-  if (pix.enabled !== false || pix.chave !== "" || pix.nome !== "" || pix.cidade !== "") {
-    errors.push("data/pix.json must ship empty (enabled false, chave/nome/cidade blank) until Jana fills the real key");
+  const chave = typeof pix.chave === "string" ? pix.chave.trim() : "";
+  if (pix.enabled !== true || !chave || pix.nome !== "JANA ABREU" || pix.cidade !== "BRASILIA") {
+    errors.push("data/pix.json must have enabled true, nome JANA ABREU, cidade BRASILIA and a non-empty chave");
+  }
+  if (/\s/.test(chave) || chave.startsWith("$")) {
+    errors.push("data/pix.json chave must not contain spaces or a leading $");
   }
   if (/teste@exemplo\.com/i.test(JSON.stringify(pix))) {
     errors.push("data/pix.json must not contain test Pix keys");
@@ -484,8 +494,8 @@ if (!componentsCss.includes("aspect-ratio: 1 / 1") || !componentsCss.includes("-
 if (!appJs.includes("card__excerpt") || !appJs.includes("productCardExcerpt")) {
   errors.push("product cards must render a short description");
 }
-if (!appJs.includes("Pagar e enviar pedido") || !appJs.includes("PAID_DISCLAIMER")) {
-  errors.push("checkout must switch to InfinitePay pay-and-send copy when enabled");
+if (!appJs.includes("Pagar pela InfinitePay") || !appJs.includes("PAID_DISCLAIMER")) {
+  errors.push("checkout must switch to InfinitePay button copy when that method is selected");
 }
 if (!painelJs.includes("status_pagamento") || !painelJs.includes("order_nsu") || !painelJs.includes("comprovante")) {
   errors.push("painel CSV must include payment columns");

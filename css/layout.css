@@ -79,12 +79,12 @@ main {
 
 .topo__nav {
   display: none;
-  gap: 1.45rem;
+  gap: 2.175rem;
 }
 
 .topo__nav a,
 .topo__categories-btn {
-  color: var(--brown);
+  color: rgba(76, 85, 58, 0.9);
   font-family: var(--serif);
   font-weight: 600;
   text-decoration: none;
@@ -95,11 +95,32 @@ main {
   align-items: center;
 }
 
+.topo__nav > a,
 .topo__categories-btn {
-  border: 0;
-  background: transparent;
-  padding: 0;
+  border: 1px solid rgba(184, 110, 136, 0.45);
+  border-radius: 999px;
+  background: var(--panel-strong);
+  padding: 0.25rem 0.95rem;
   cursor: pointer;
+  color: rgba(76, 85, 58, 0.9);
+}
+
+.topo__nav > a:hover,
+.topo__nav > a:focus-visible,
+.topo__categories-btn:hover,
+.topo__categories-btn:focus-visible {
+  color: var(--primary-deep);
+  border-color: var(--primary-deep);
+}
+
+.topo__nav > a:focus-visible,
+.topo__categories-btn:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.topo__categories-btn {
+  font: inherit;
 }
 
 .topo__categories {
@@ -344,9 +365,14 @@ body[data-page="home"] .hero__slide img {
 
 .hero__controls {
   position: absolute;
-  inset: 0;
+  left: 0;
+  right: 0;
+  bottom: 0.45rem;
   z-index: 2;
-  display: block;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.45rem;
   padding: 0;
   background: transparent;
   pointer-events: none;
@@ -354,28 +380,6 @@ body[data-page="home"] .hero__slide img {
 
 .hero__controls > * {
   pointer-events: auto;
-}
-
-.hero__controls .hero__arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.hero__controls .hero__arrow[data-action="carousel-prev"] {
-  left: 0.35rem;
-}
-
-.hero__controls .hero__arrow[data-action="carousel-next"] {
-  right: 0.35rem;
-}
-
-.hero__dots {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0.45rem;
-  justify-content: center;
 }
 
 .hero--compact .hero__slide,
@@ -886,7 +890,7 @@ body[data-page="home"] .areas {
   .topo__nav {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 1.5rem;
   }
 
   .categorias-menu {

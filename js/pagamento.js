@@ -10,6 +10,8 @@
   Jana.INFINITEPAY_REDIRECT_URL = REDIRECT_URL;
   Jana.PAID_DISCLAIMER =
     "Após o pagamento, seu pedido é enviado para nós pelo WhatsApp. Caso a data esteja indisponível, entramos em contato.";
+  Jana.PIX_DISCLAIMER =
+    "Depois de pagar, toque em Já paguei e envie o comprovante pelo WhatsApp. A confirmação depende da conferência do pagamento.";
 
   Jana.infinitePayHandle = function infinitePayHandle(config) {
     const inf = config && config.infinitepay ? config.infinitepay : config || {};
@@ -91,6 +93,34 @@
       return false;
     }
     return Number(options.total) >= 1;
+  };
+
+  Jana.canPayWithPix = function canPayWithPix(opts) {
+    const options = opts || {};
+    if (!Jana.pixIsReady || !Jana.pixIsReady(options.pix)) {
+      return false;
+    }
+    if (!options.items || !options.items.length) {
+      return false;
+    }
+    if (Jana.cartHasUnpricedItems(options.items, options.products)) {
+      return false;
+    }
+    if (options.taxaPendente) {
+      return false;
+    }
+    return Number(options.total) >= 1;
+  };
+
+  Jana.canPayOnSite = function canPayOnSite(opts) {
+    return Jana.canPayWithPix(opts) || Jana.canPayOnline(opts);
+  };
+
+  Jana.checkoutPayOptions = function checkoutPayOptions(opts) {
+    return {
+      pix: Jana.canPayWithPix(opts),
+      infinitepay: Jana.canPayOnline(opts),
+    };
   };
 
   Jana.generateOrderNsu = function generateOrderNsu(now) {
@@ -298,6 +328,58 @@
       lines.push("", "*Observações:* " + order.notes);
     }
     lines.push("", Jana.PAID_DISCLAIMER);
+    return lines.join("\n");
+  };
+
+  Jana.buildPixPendingWhatsAppMessage = function buildPixPendingWhatsAppMessage(order, site, totals) {
+    const brand = (site && site.brandName) || "Jana Abreu Confeitaria";
+    const isEntrega = order && order.modalidade === "entrega";
+    const total = totals && totals.total != null ? totals.total : (order && order.total) || 0;
+    const lines = [
+      "Olá! Gostaria de fazer uma encomenda na " + brand + ".",
+      "",
+      "*Cliente:* " + ((order && (order.clientName || order.nome)) || ""),
+      "*Telefone:* " + ((order && (order.clientPhone || order.telefone)) || ""),
+    ];
+    if (order && (order.clientEmail || order.email)) {
+      lines.push("*E-mail:* " + (order.clientEmail || order.email));
+    }
+    lines.push("*Modalidade:* " + (isEntrega ? "Entrega" : "Retirada"));
+    if (isEntrega && (order.address || order.endereco)) {
+      lines.push("*Endereço:* " + (order.address || order.endereco));
+    }
+    const date = (order && (order.desiredDate || order.data)) || "";
+    if (date) {
+      lines.push("*" + (isEntrega ? "Data de entrega" : "Data de retirada") + ":* " + Jana.formatDesiredDate(date));
+    }
+    lines.push("", "*Itens:*");
+    const items = (order && order.items) || [];
+    items.forEach(function pushItem(item) {
+      lines.push(
+        "• " +
+          item.quantity +
+          "x " +
+          item.name +
+          (item.flavor ? " (recheio: " + item.flavor + ")" : "") +
+          " — " +
+          Jana.formatBRL((item.price || 0) * (item.quantity || 0))
+      );
+    });
+    if (isEntrega) {
+      const subtotal = totals && totals.subtotal != null ? totals.subtotal : (order && order.subtotal) || 0;
+      const taxaLabel =
+        totals && totals.taxaLabel
+          ? totals.taxaLabel
+          : Jana.formatBRL((totals && totals.taxa) || (order && order.taxa) || 0);
+      lines.push("", "*Subtotal:* " + Jana.formatBRL(subtotal));
+      lines.push("*Taxa de entrega:* " + taxaLabel);
+    }
+    lines.push("*Total:* " + Jana.formatBRL(total));
+    lines.push("", "*Pagamento via Pix — aguardando conferência*");
+    lines.push("Vou enviar o comprovante por aqui.");
+    if (order && (order.notes || order.observacoes)) {
+      lines.push("", "*Observações:* " + (order.notes || order.observacoes));
+    }
     return lines.join("\n");
   };
 
