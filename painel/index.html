@@ -90,6 +90,8 @@
             <label class="sr-only" for="order-status">Status</label>
             <select id="order-status" class="painel-status-select" data-bind="detail-status" aria-label="Alterar status">
               <option value="solicitado">Solicitado</option>
+              <option value="aguardando pagamento">Aguardando pagamento</option>
+              <option value="pago">Pago</option>
               <option value="confirmado">Confirmado</option>
               <option value="em_producao">Em produção</option>
               <option value="pronto">Pronto</option>
@@ -165,6 +167,22 @@
             <div>
               <dt>Observações</dt>
               <dd data-bind="detail-notes"></dd>
+            </div>
+            <div>
+              <dt>Status do pagamento</dt>
+              <dd data-bind="detail-payment-status"></dd>
+            </div>
+            <div>
+              <dt>Pedido (NSU)</dt>
+              <dd data-bind="detail-order-nsu"></dd>
+            </div>
+            <div>
+              <dt>Método</dt>
+              <dd data-bind="detail-payment-method"></dd>
+            </div>
+            <div>
+              <dt>Comprovante</dt>
+              <dd><a data-bind="detail-receipt" hidden target="_blank" rel="noopener noreferrer"></a></dd>
             </div>
           </dl>
           <h3>Itens</h3>

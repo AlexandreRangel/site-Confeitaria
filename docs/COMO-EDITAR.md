@@ -60,6 +60,18 @@ Os botões da home e o menu **Categorias** vêm de `data/areas.json`. Os produto
 
 Sobremesas está só escondida (`"hidden": true` em `data/categories.json`). Não apague os produtos; para reexibir, tire o `hidden` e recrie o mapeamento da área.
 
+## Menu principal
+
+O menu tem só **Início**, **Categorias** (lista das áreas) e **Sobre nós**. O carrinho fica no ícone do topo, com o número de itens, no celular e no computador.
+
+## Pausar encomendas
+
+Em `data/pausa.json`: `"ativo": true` trava o carrinho e o botão Comprar. Datas opcionais em `AAAA-MM-DD`. Passo a passo da planilha Google: `docs/pausa.md`.
+
+## Pagamento no site (InfinitePay)
+
+Em `data/pagamento.json`, coloque a InfiniteTag em `handle` (sem `$`) e `"enabled": true` quando for cobrar no site. Deixe desligado até a Jana preencher. Pix estático em `data/pix.json` permanece desligado.
+
 ## Novo slide do carrossel
 
 Em `data/carousel.json`: `title`, `subtitle`, `image`, `linkCategory` ou `productSlug`, `order`.

@@ -37,7 +37,7 @@
     const raw = document.body.getAttribute("data-root");
     if (raw === null || raw === "") {
       const page = document.body.getAttribute("data-page");
-      return page === "category" || page === "area" || page === "product" || page === "about" ? "../" : "";
+      return page === "category" || page === "area" || page === "product" || page === "about" || page === "pagamento" || page === "encomendas" ? "../" : "";
     }
     return raw.charAt(raw.length - 1) === "/" ? raw : raw + "/";
   };
@@ -205,6 +205,12 @@
   Jana.CAROUSEL_INTERVAL_MS = 6720;
   Jana.CAROUSEL_TRANSITION_MS = 1200;
   Jana.CAROUSEL_MAX_DOTS = 12;
+
+  Jana.productCardExcerpt = function productCardExcerpt(product) {
+    return String((product && (product.shortDescription || product.description)) || "")
+      .replace(/\s+/g, " ")
+      .trim();
+  };
 
   Jana.productBySlug = function productBySlug(products, slug) {
     if (!slug) {

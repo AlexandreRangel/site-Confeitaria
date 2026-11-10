@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fdf6ec">
+  <meta name="description" content="Confirmação de pagamento da Jana Abreu Confeitaria.">
+  <title>Pagamento · Jana Abreu Confeitaria</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+</head>
+<body data-page="pagamento" data-root="../">
+  <a class="skip-link" href="#pagamento-conteudo">Ir para a confirmação</a>
+  <header id="topo" class="topo">
+    <div class="topo__inner">
+      <button class="topo__menu" type="button" aria-expanded="false" aria-controls="menu-principal" data-action="toggle-menu">
+        <span class="sr-only">Abrir menu</span>
+        <span class="topo__menu-bar" aria-hidden="true"></span>
+      </button>
+      <a class="topo__brand" href="../">
+        <img class="topo__brand-logo" src="../assets/brand/logo-jana-abreu.png" alt="Jana Abreu Confeitaria" width="220" height="84">
+        <span class="topo__brand-tag">A vida é mais doce quando compartilhada</span>
+      </a>
+      <nav id="menu-principal" class="topo__nav" aria-label="Principal">
+        <a href="../">Início</a>
+        <div class="topo__categories">
+          <button type="button" class="topo__categories-btn" aria-expanded="false" aria-haspopup="true" aria-controls="menu-categorias" data-action="toggle-categories">Categorias</button>
+          <div id="menu-categorias" class="categorias-menu" hidden>
+            <a href="../corporate/">Corporate</a>
+            <a href="../bolos/">Bolos</a>
+            <a href="../cestas/">Cestas</a>
+            <a href="../doces-personalizados/">Doces personalizados</a>
+          </div>
+        </div>
+        <a href="../sobre-nos/">Sobre nós</a>
+      </nav>
+      <div class="topo__actions">
+        <a class="cart-button" href="../encomendas/" aria-label="Abrir encomendas">
+          <img src="../assets/icons/cart.svg" alt="" width="22" height="22">
+          <span class="sr-only">Abrir encomendas</span>
+        </a>
+      </div>
+    </div>
+  </header>
+  <main>
+    <section id="pagamento-conteudo" class="pagamento" data-state="loading">
+      <p class="eyebrow">Pagamento</p>
+      <h1 data-bind="pagamento-titulo">Confirmando pagamento…</h1>
+      <p data-bind="pagamento-texto">Aguarde enquanto confirmamos seu pagamento na InfinitePay.</p>
+      <p data-bind="pagamento-detalhes"></p>
+      <p>
+        <a class="pagamento__receipt" data-bind="pagamento-comprovante" hidden target="_blank" rel="noopener noreferrer">Ver comprovante</a>
+      </p>
+      <div class="pagamento__actions">
+        <a class="btn btn--solid btn--whatsapp" data-bind="pagamento-whatsapp" hidden>Abrir WhatsApp</a>
+        <a class="btn btn--outline" data-bind="pagamento-retry" href="../encomendas/">Voltar ao carrinho</a>
+      </div>
+    </section>
+  </main>
+  <footer id="rodape" class="rodape">
+    <p class="rodape__line">
+      <span>Brasília DF</span>
+    </p>
+    <p class="rodape__credits">
+      <span>© 2026 Jana Abreu</span>
+      <a class="rodape-loja-link" href="../painel/">Área da loja</a>
+    </p>
+  </footer>
+  <script defer src="../js/utils.js"></script>
+  <script defer src="../js/store.js"></script>
+  <script defer src="../js/pagamento.js"></script>
+  <script defer src="../js/pagamento-retorno.js"></script>
+  <script>
+    document.addEventListener("click", function onMenu(event) {
+      var toggle = event.target.closest("[data-action='toggle-menu']");
+      var cats = event.target.closest("[data-action='toggle-categories']");
+      var topo = document.getElementById("topo");
+      if (toggle && topo) {
+        topo.classList.toggle("is-open");
+      }
+      if (cats) {
+        event.preventDefault();
+        var menu = document.getElementById("menu-categorias");
+        if (menu) {
+          menu.hidden = !menu.hidden;
+          cats.setAttribute("aria-expanded", menu.hidden ? "false" : "true");
+        }
+      }
+    });
+  </script>
+</body>
+</html>

@@ -9,6 +9,8 @@
     cancelado: "Cancelado",
     novo: "Solicitado",
     em_preparo: "Em produção",
+    "aguardando pagamento": "Aguardando pagamento",
+    pago: "Pago",
   };
 
   const state = {
@@ -72,9 +74,13 @@
         ? "solicitado"
         : status === "em_preparo"
           ? "em_producao"
-          : STATUS_LABELS[status]
-            ? status
-            : "solicitado";
+          : status === "aguardando pagamento"
+            ? "solicitado"
+            : status === "pago"
+              ? "confirmado"
+              : STATUS_LABELS[status]
+                ? status
+                : "solicitado";
     return (
       '<span class="badge badge--' +
       key +
@@ -225,6 +231,20 @@
     Jana.bindText("detail-desired", formatDesired(order.desiredDate));
     Jana.bindText("detail-address", order.address || "—");
     Jana.bindText("detail-notes", order.notes || "—");
+    Jana.bindText("detail-payment-status", order.paymentStatus || "—");
+    Jana.bindText("detail-order-nsu", order.orderNsu || "—");
+    Jana.bindText("detail-payment-method", Jana.paymentMethodCsv ? Jana.paymentMethodCsv(order) : order.paymentMethod || "—");
+    const receipt = Jana.qs("[data-bind='detail-receipt']");
+    if (receipt) {
+      if (order.receiptUrl) {
+        receipt.hidden = false;
+        receipt.setAttribute("href", order.receiptUrl);
+        receipt.textContent = "Ver comprovante";
+      } else {
+        receipt.hidden = true;
+        receipt.textContent = "";
+      }
+    }
     Jana.bindText(
       "detail-modalidade",
       order.modalidade === "entrega" ? "Entrega" : order.modalidade === "retirada" ? "Retirada" : "—"
@@ -342,6 +362,10 @@
       order.frete != null ? order.frete : "",
       order.total != null ? order.total : "",
       order.source || "",
+      order.paymentStatus || "",
+      order.orderNsu || "",
+      Jana.paymentMethodCsv ? Jana.paymentMethodCsv(order) : order.paymentMethod || "",
+      order.receiptUrl || "",
     ];
   }
 
@@ -363,6 +387,10 @@
       "frete",
       "total",
       "origem",
+      "status_pagamento",
+      "order_nsu",
+      "metodo",
+      "comprovante",
     ];
     const rows = [header].concat(state.orders.map(orderToCsvRow));
     Jana.Store.downloadCSV("pedidos-jana-abreu.csv", rows);
@@ -390,6 +418,10 @@
       "frete",
       "total",
       "origem",
+      "status_pagamento",
+      "order_nsu",
+      "metodo",
+      "comprovante",
     ];
     Jana.Store.downloadCSV(
       "pedido-" + (order.number || order.id) + ".csv",

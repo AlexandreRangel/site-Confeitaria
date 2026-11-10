@@ -1,3 +1,4 @@
+import { mkdirSync } from "node:fs";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
@@ -26,6 +27,13 @@ async function withPage(browserType, engine, viewport, fn) {
     locale: "pt-BR",
     timezoneId: "America/Sao_Paulo",
   });
+  if (engine !== "webkit") {
+    try {
+      await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+    } catch (err) {
+      /* some engines reject clipboard permissions */
+    }
+  }
   const page = await context.newPage();
   const waHits = [];
   const centralHits = [];
@@ -112,6 +120,12 @@ async function runEngine(browserType, engine) {
     record(engine, "home has no Instagram strip", (await page.locator('[data-bind="instagram-grid"]').count()) === 0);
     record(engine, "footer has two lines", (await page.locator("#rodape p").count()) === 2);
     record(engine, "nav has Sobre nós", (await page.locator('#menu-principal a[href="sobre-nos/"]').count()) === 1);
+    record(engine, "nav has no Encomendas item", (await page.locator("#menu-principal > a", { hasText: "Encomendas" }).count()) === 0);
+    record(engine, "cart icon visible on mobile", await page.locator(".cart-button").first().isVisible());
+    const navLabels = (await page.locator("#menu-principal > a, #menu-principal > .topo__categories > .topo__categories-btn").allTextContents()).map(function trim(text) {
+      return text.replace(/\s+/g, " ").trim();
+    });
+    record(engine, "nav order Início Categorias Sobre nós", navLabels.join(" | ") === "Início | Categorias | Sobre nós", navLabels.join(" | "));
 
     await page.goto(BASE + "/bolos/", { waitUntil: "domcontentloaded" });
     await page.waitForSelector(".card, .empty", { timeout: 15000 });
@@ -182,6 +196,7 @@ async function runEngine(browserType, engine) {
     record(engine, "entrega total includes fee", /R\$/.test(totalWithFee) && !/a confirmar/.test(totalWithFee), totalWithFee);
     await page.locator('#checkout-form [name="modalidade"][value="retirada"]').check();
     record(engine, "retirada hides address again", await page.locator('[data-bind="checkout-address"]').isHidden());
+    record(engine, "Pix hidden while disabled", await page.locator('[data-bind="pix-block"]').isHidden());
     await page.locator('#checkout-form [name="nome"]').fill("Auditoria Teste");
     await page.locator('#checkout-form [name="telefone"]').fill("61900000000");
     await page.locator('#checkout-form [name="observacoes"]').fill("Teste automatizado — não enviar.");
@@ -226,6 +241,228 @@ async function runEngine(browserType, engine) {
         "status not readable after navigation"
       );
     }
+
+    await page.route("**/data/pix.json", function fulfillPix(route) {
+      return route.fulfill({
+        status: 200,
+        contentType: "application/json; charset=utf-8",
+        body: JSON.stringify({
+          enabled: true,
+          chave: "teste@exemplo.com",
+          nome: "Jana Abreu",
+          cidade: "Brasilia",
+        }),
+      });
+    });
+    await page.goto(BASE + "/produto/?slug=tabua-signature", { waitUntil: "domcontentloaded" });
+    await page.waitForSelector('[data-action="add-from-product"]', { timeout: 15000 });
+    await page.locator('[data-action="add-from-product"]').click();
+    await page.waitForSelector("#encomendas:not([hidden])");
+    await page.locator('#checkout-form [name="modalidade"][value="retirada"]').check();
+    record(engine, "Pix visible with local test config", await page.locator('[data-bind="pix-block"]').isVisible());
+    const pixAlt = (await page.locator('[data-bind="pix-qr"]').getAttribute("alt")) || "";
+    record(engine, "Pix QR alt describes the code", /QR Code Pix/i.test(pixAlt), pixAlt);
+    const pixSrc = (await page.locator('[data-bind="pix-qr"]').getAttribute("src")) || "";
+    record(engine, "Pix QR is an inline image", /^data:image\//.test(pixSrc));
+    const pixRetirada = ((await page.locator('[data-bind="pix-value"]').textContent()) || "").trim();
+    await page.locator('#checkout-form [name="modalidade"][value="entrega"]').check();
+    await page.locator('#checkout-form [name="endereco"]').fill("Asa Norte");
+    const pixEntrega = ((await page.locator('[data-bind="pix-value"]').textContent()) || "").trim();
+    record(engine, "Pix value includes delivery fee", pixEntrega !== pixRetirada && /R\$/.test(pixEntrega), pixRetirada + " -> " + pixEntrega);
+    await page.locator('#checkout-form [name="modalidade"][value="retirada"]').check();
+    await page.locator('[data-action="copy-pix"]').click();
+    await page.waitForTimeout(300);
+    const copyStatus = ((await page.locator('[data-bind="pix-copy-status"]').textContent()) || "").trim();
+    record(engine, "Pix copy announces status", /copiado|não foi possível copiar/i.test(copyStatus), copyStatus);
+    waHits.length = 0;
+    await page.locator('#checkout-form [name="nome"]').fill("Pix Teste");
+    await page.locator('#checkout-form [name="telefone"]').fill("61900000000");
+    await page.locator('#checkout-form button[type="submit"]').click({ noWaitAfter: true }).catch(function ignoreNav() {});
+    await page.waitForTimeout(600);
+    const pixWa = waHits.map(function decode(url) {
+      try {
+        return decodeURIComponent(url);
+      } catch (err) {
+        return url;
+      }
+    }).join(" ");
+    record(engine, "WhatsApp says Pix after confirmation", /Pix após a confirmação/i.test(pixWa) && /Total:/.test(pixWa), pixWa.slice(0, 180));
+
+    const linkBodies = [];
+    await page.route("**/data/pagamento.json", function fulfillPay(route) {
+      return route.fulfill({
+        status: 200,
+        contentType: "application/json; charset=utf-8",
+        body: JSON.stringify({ infinitepay: { enabled: true, handle: "teste-jana" } }),
+      });
+    });
+    await page.route("https://api.checkout.infinitepay.io/links", async function fulfillLink(route) {
+      const body = route.request().postDataJSON();
+      linkBodies.push(body);
+      const headers = route.request().headers();
+      if (headers["x-api-key"] || /inchk_/.test(JSON.stringify(headers))) {
+        errors.push("[" + engineName + "] InfinitePay link sent an API key");
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json; charset=utf-8",
+        body: JSON.stringify({
+          checkout_url:
+            BASE +
+            "/pagamento/?order_nsu=" +
+            encodeURIComponent(body.order_nsu) +
+            "&slug=testslug&transaction_nsu=txn-1&capture_method=pix&receipt_url=" +
+            encodeURIComponent("https://comprovante.example/abc"),
+          slug: "testslug",
+        }),
+      });
+    });
+    await page.route("https://api.checkout.infinitepay.io/payment_check", async function fulfillCheck(route) {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json; charset=utf-8",
+        body: JSON.stringify({
+          success: true,
+          paid: true,
+          amount: 50700,
+          paid_amount: 50700,
+          installments: 1,
+          capture_method: "pix",
+        }),
+      });
+    });
+    await page.goto(BASE + "/produto/?slug=tabua-signature", { waitUntil: "domcontentloaded" });
+    await page.waitForSelector('[data-action="add-from-product"]', { timeout: 15000 });
+    await page.locator('[data-action="add-from-product"]').click();
+    await page.waitForSelector("#encomendas:not([hidden])");
+    await page.locator('#checkout-form [name="modalidade"][value="entrega"]').check();
+    await page.locator('#checkout-form [name="endereco"]').fill("Asa Norte");
+    await page.locator('#checkout-form [name="nome"]').fill("InfinitePay Teste");
+    await page.locator('#checkout-form [name="telefone"]').fill("61900000000");
+    const payLabel = ((await page.locator('[data-bind="checkout-submit"]').textContent()) || "").trim();
+    record(engine, "pay button when InfinitePay is on", payLabel === "Pagar e enviar pedido", payLabel);
+    const paidDisclaimer = ((await page.locator('[data-bind="request-disclaimer"]').textContent()) || "").trim();
+    record(engine, "paid-flow disclaimer", /Após o pagamento, seu pedido é enviado/.test(paidDisclaimer), paidDisclaimer.slice(0, 80));
+    mkdirSync("tests/screenshots", { recursive: true });
+    mkdirSync("/opt/cursor/artifacts", { recursive: true });
+    await page.screenshot({ path: "tests/screenshots/carrinho-pagar-390.png", fullPage: false });
+    await page.screenshot({ path: "/opt/cursor/artifacts/carrinho-pagar-390.png", fullPage: false });
+    waHits.length = 0;
+    await page.locator('[data-bind="checkout-submit"]').click({ noWaitAfter: true }).catch(function ignoreNav() {});
+    await page.waitForURL(/\/pagamento\//, { timeout: 8000 });
+    await page.waitForSelector("text=Pagamento confirmado", { timeout: 8000 });
+    record(engine, "payment page confirmed", true);
+    const feeItem = linkBodies.some(function hasFee(body) {
+      return (body.items || []).some(function item(row) {
+        return row.description === "Taxa de entrega" && row.price === 4000;
+      });
+    });
+    const tabuaItem = linkBodies.some(function hasTabua(body) {
+      return (body.items || []).some(function item(row) {
+        return row.price === 46700;
+      });
+    });
+    record(engine, "InfinitePay link uses cents including delivery", feeItem && tabuaItem, JSON.stringify(linkBodies[0] && linkBodies[0].items));
+    record(engine, "InfinitePay redirect_url is production pagamento page", !!(linkBodies[0] && /site-Confeitaria\/pagamento\//.test(linkBodies[0].redirect_url)), linkBodies[0] && linkBodies[0].redirect_url);
+    await page.waitForSelector('[data-bind="pagamento-whatsapp"]:not([hidden])', { timeout: 5000 });
+    const paidHref = (await page.locator('[data-bind="pagamento-whatsapp"]').getAttribute("href")) || "";
+    let paidWa = paidHref;
+    try {
+      paidWa = decodeURIComponent(paidHref);
+    } catch (err) {
+      paidWa = paidHref;
+    }
+    await page.screenshot({ path: "tests/screenshots/pagamento-confirmado-390.png", fullPage: false });
+    await page.screenshot({ path: "/opt/cursor/artifacts/pagamento-confirmado-390.png", fullPage: false });
+    await page.waitForTimeout(1200);
+    record(engine, "paid flow opened WhatsApp", waHits.length >= 1 || /wa\.me/.test(paidHref), String(waHits.length));
+    record(engine, "WhatsApp says PAGO via InfinitePay", /PAGO via InfinitePay/.test(paidWa + waHits.join(" ")), paidWa.slice(0, 160));
+
+    const linksBeforeUnpriced = linkBodies.length;
+    await page.goto(BASE + "/corporate/", { waitUntil: "domcontentloaded" });
+    await page.waitForSelector('[id="produto:coffee-break-corporativo"]');
+    await page.locator('[id="produto:coffee-break-corporativo"] [data-action="add-product"]').click();
+    await page.waitForSelector("#encomendas:not([hidden])");
+    const unpricedLabel = ((await page.locator('[data-bind="checkout-submit"]').textContent()) || "").trim();
+    record(engine, "unpriced product keeps WhatsApp CTA", unpricedLabel === "Enviar solicitação no WhatsApp", unpricedLabel);
+    record(engine, "unpriced note visible", await page.locator('[data-bind="checkout-unpriced"]').isVisible());
+    await page.locator('#checkout-form [name="modalidade"][value="retirada"]').check();
+    await page.locator('#checkout-form [name="nome"]').fill("Sob consulta");
+    await page.locator('#checkout-form [name="telefone"]').fill("61900000000");
+    waHits.length = 0;
+    await page.locator('[data-bind="checkout-submit"]').click({ noWaitAfter: true }).catch(function ignoreNav() {});
+    await page.waitForTimeout(600);
+    record(engine, "unpriced product does not create InfinitePay link", linkBodies.length === linksBeforeUnpriced, String(linkBodies.length));
+    record(engine, "unpriced product still opens WhatsApp", waHits.length >= 1);
+
+    await page.route("**/data/pausa.json", function fulfillPausa(route) {
+      return route.fulfill({
+        status: 200,
+        contentType: "application/json; charset=utf-8",
+        body: JSON.stringify({
+          ativo: true,
+          inicio: "",
+          fim: "",
+          mensagem: "Voltamos em breve!",
+          periodos: [],
+          fimDeSemana: false,
+          planilhaCsv: "",
+        }),
+      });
+    });
+    await page.goto(BASE + "/corporate/", { waitUntil: "domcontentloaded" });
+    await page.waitForSelector('[data-action="add-product"]');
+    const countBefore = ((await page.locator('[data-bind="cart-count"]').first().textContent()) || "").trim();
+    await page.locator('[data-action="add-product"]').first().click();
+    await page.waitForSelector("#pausa-encomendas:not([hidden])", { timeout: 5000 });
+    record(engine, "pause modal on Comprar", await page.locator("#pausa-encomendas").isVisible());
+    record(engine, "pause does not add to cart", ((await page.locator('[data-bind="cart-count"]').first().textContent()) || "").trim() === countBefore);
+    await page.screenshot({ path: "tests/screenshots/pausa-modal-390.png", fullPage: false });
+    await page.screenshot({ path: "/opt/cursor/artifacts/pausa-modal-390.png", fullPage: false });
+    await page.keyboard.press("Escape");
+    await page.waitForTimeout(200);
+    record(engine, "Escape closes pause modal", await page.locator("#pausa-encomendas").isHidden());
+    await page.locator(".cart-button").first().click();
+    await page.waitForSelector("#pausa-encomendas:not([hidden])");
+    record(engine, "pause modal on cart icon", await page.locator("#pausa-encomendas").isVisible());
+    record(engine, "pause aria-modal", (await page.locator("#pausa-encomendas").getAttribute("aria-modal")) === "true");
+    await page.locator('[data-action="close-pausa"]').click();
+    record(engine, "close pause button", await page.locator("#pausa-encomendas").isHidden());
+
+    await page.unroute("**/data/pausa.json");
+    await page.goto(BASE + "/encomendas/", { waitUntil: "domcontentloaded" });
+    await page.waitForSelector("#encomendas:not([hidden])", { timeout: 8000 });
+    record(engine, "/encomendas/ opens the cart", await page.locator("#encomendas").isVisible());
+
+    await page.goto(BASE + "/doces-personalizados/", { waitUntil: "domcontentloaded" });
+    await page.waitForSelector(".product-grid .card");
+    const cardMetrics = await page.locator(".product-grid .card").evaluateAll(function measure(nodes) {
+      return nodes.slice(0, 8).map(function boxOf(el) {
+        const media = el.querySelector(".card__media");
+        const mr = media.getBoundingClientRect();
+        const cr = el.getBoundingClientRect();
+        return {
+          mw: Math.round(mr.width),
+          mh: Math.round(mr.height),
+          cw: Math.round(cr.width),
+          ch: Math.round(cr.height),
+        };
+      });
+    });
+    const squarePhotos = cardMetrics.length > 1 && cardMetrics.every(function sq(card) {
+      return Math.abs(card.mw - card.mh) / Math.max(card.mw, 1) < 0.08;
+    });
+    const sameHeight = cardMetrics.length > 1 && cardMetrics.every(function eq(card) {
+      return Math.abs(card.ch - cardMetrics[0].ch) <= 2;
+    });
+    const taller = cardMetrics.length > 1 && cardMetrics.every(function tall(card) {
+      return card.ch > card.cw;
+    });
+    record(engine, "doces cards square photos 390", squarePhotos, JSON.stringify(cardMetrics.slice(0, 3)));
+    record(engine, "doces cards equal height 390", sameHeight, JSON.stringify(cardMetrics.map(function h(card) { return card.ch; })));
+    record(engine, "doces cards taller than wide 390", taller, JSON.stringify(cardMetrics[0]));
+    await page.screenshot({ path: "tests/screenshots/doces-personalizados-390.png", fullPage: true });
+    await page.screenshot({ path: "/opt/cursor/artifacts/doces-personalizados-390.png", fullPage: true });
 
     await page.goto(BASE + "/painel/", { waitUntil: "domcontentloaded" });
     const painelHydra = await page.locator("canvas.hydra-button-bg, [id*='hydra']").count();
@@ -320,6 +557,41 @@ async function runEngine(browserType, engine) {
     record(engine, "desktop Categorias dropdown", await page.locator("#menu-categorias").isVisible());
     await page.keyboard.press("Escape");
     record(engine, "desktop Escape closes Categorias", await page.locator("#menu-categorias").isHidden());
+    record(engine, "desktop cart icon visible", await page.locator(".cart-button").first().isVisible());
+    record(engine, "desktop nav has no Encomendas", (await page.locator("#menu-principal > a", { hasText: "Encomendas" }).count()) === 0);
+    await page.goto(BASE + "/doces-personalizados/", { waitUntil: "domcontentloaded" });
+    await page.waitForSelector(".product-grid .card");
+    const desktopCards = await page.locator(".product-grid .card").evaluateAll(function measure(nodes) {
+      return nodes.slice(0, 8).map(function boxOf(el) {
+        const media = el.querySelector(".card__media");
+        const mr = media.getBoundingClientRect();
+        const cr = el.getBoundingClientRect();
+        return {
+          mw: Math.round(mr.width),
+          mh: Math.round(mr.height),
+          cw: Math.round(cr.width),
+          ch: Math.round(cr.height),
+        };
+      });
+    });
+    record(
+      engine,
+      "doces cards square photos 1280",
+      desktopCards.length > 1 && desktopCards.every(function sq(card) {
+        return Math.abs(card.mw - card.mh) / Math.max(card.mw, 1) < 0.08;
+      }),
+      JSON.stringify(desktopCards.slice(0, 3))
+    );
+    record(
+      engine,
+      "doces cards equal height 1280",
+      desktopCards.length > 1 && desktopCards.every(function eq(card) {
+        return Math.abs(card.ch - desktopCards[0].ch) <= 2;
+      }),
+      JSON.stringify(desktopCards.map(function h(card) { return card.ch; }))
+    );
+    await page.screenshot({ path: "tests/screenshots/doces-personalizados-1280.png", fullPage: true });
+    await page.screenshot({ path: "/opt/cursor/artifacts/doces-personalizados-1280.png", fullPage: true });
   });
 }
 

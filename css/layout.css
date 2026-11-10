@@ -601,6 +601,7 @@ body[data-page="home"] .hero {
   display: grid;
   gap: 1rem;
   grid-template-columns: 1fr;
+  align-items: stretch;
 }
 
 .product-grid--gifts {

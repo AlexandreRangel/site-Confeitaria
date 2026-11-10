@@ -157,6 +157,7 @@ const storefrontPages = [
   "index.html",
   "produto/index.html",
   "sobre-nos/index.html",
+  "encomendas/index.html",
   ...expectedAreas.map((id) => id + "/index.html"),
 ];
 storefrontPages.forEach((rel) => {
@@ -179,11 +180,35 @@ storefrontPages.forEach((rel) => {
   if (!html.includes("js/central.js")) {
     errors.push(rel + " must load central.js");
   }
+  if (/cdn\.jsdelivr|unpkg\.com|qrcode@/.test(html)) {
+    errors.push(rel + " must not load QR Code from a CDN");
+  }
+  if (!html.includes("js/pix.js") || !html.includes("js/vendor/qrcode-generator.js")) {
+    errors.push(rel + " must load local pix.js and vendorized QR library");
+  }
+  if (!html.includes("js/pagamento.js") || !html.includes("js/pausa.js")) {
+    errors.push(rel + " must load pagamento.js and pausa.js");
+  }
+  if (!html.includes('data-bind="pix-block"') || !html.includes("Copiar código Pix") || !html.includes("Pagar com Pix")) {
+    errors.push(rel + " checkout must include the Pagar com Pix block");
+  }
+  const nav = html.split('id="menu-principal"')[1]?.split("</nav>")[0] || "";
+  if (/data-action="open-cart">Encomendas</.test(nav) || />Encomendas<\/a>/.test(nav)) {
+    errors.push(rel + " main menu must not include Encomendas");
+  }
+  if (!nav.includes("Início") || !nav.includes("Categorias") || !nav.includes("Sobre nós")) {
+    errors.push(rel + " main menu must be Início, Categorias, Sobre nós");
+  }
+  if (!html.includes("cart-button") || !html.includes("cart-count")) {
+    errors.push(rel + " must keep the cart icon with a counter");
+  }
 });
 if (home.includes('data-action="filter-category"')) {
   errors.push("Home must link to category pages instead of filtering in place");
 }
 const appJs = readFileSync(join(root, "js/app.js"), "utf8");
+const componentsCss = readFileSync(join(root, "css/components.css"), "utf8");
+const painelJs = readFileSync(join(root, "js/painel.js"), "utf8");
 if (appJs.includes("bolinha") || /class="bolinha/.test(home)) {
   errors.push("Category nav must use square cards, not circular bolinhas");
 }
@@ -325,7 +350,7 @@ if (!baseCss.includes("opacity: 0.08")) {
 }
 const layoutCss = readFileSync(join(root, "css/layout.css"), "utf8");
 if (!layoutCss.includes("font-size: 1.83rem")) {
-  errors.push("Início, Categorias and Encomendas must be 50% larger (1.83rem)");
+  errors.push("Início, Categorias and Sobre nós must be 50% larger (1.83rem)");
 }
 if (!layoutCss.includes("min-height: 416px")) {
   errors.push("desktop home carousel must be 20% shorter (416px)");
@@ -379,6 +404,89 @@ if (!site.entrega || site.entrega.taxa !== 40) {
 }
 if (!appJs.includes("carouselSlidesFromProducts") || !utilsJs.includes("carouselSlidesFromProducts")) {
   errors.push("area carousels must be built from catalog products of that area");
+}
+if (!appJs.includes("data/pix.json") || !appJs.includes("pixIsReady") || !appJs.includes("buildPixPayload")) {
+  errors.push("app.js must load data/pix.json and render Pix only when ready");
+}
+const pixPath = join(root, "data/pix.json");
+if (!existsSync(pixPath)) {
+  errors.push("Missing data/pix.json");
+} else {
+  const pix = JSON.parse(readFileSync(pixPath, "utf8"));
+  if (pix.enabled !== false || pix.chave !== "" || pix.nome !== "" || pix.cidade !== "") {
+    errors.push("data/pix.json must ship empty (enabled false, chave/nome/cidade blank) until Jana fills the real key");
+  }
+  if (/teste@exemplo\.com/i.test(JSON.stringify(pix))) {
+    errors.push("data/pix.json must not contain test Pix keys");
+  }
+}
+if (!existsSync(join(root, "js/pix.js")) || !existsSync(join(root, "js/vendor/qrcode-generator.js"))) {
+  errors.push("Pix payload builder and MIT QR vendor file are required");
+} else {
+  const qrVendor = readFileSync(join(root, "js/vendor/qrcode-generator.js"), "utf8");
+  if (!/MIT license/i.test(qrVendor)) {
+    errors.push("QR vendor file must keep its MIT license header");
+  }
+}
+
+const pagamentoPath = join(root, "data/pagamento.json");
+if (!existsSync(pagamentoPath)) {
+  errors.push("Missing data/pagamento.json");
+} else {
+  const pagamento = JSON.parse(readFileSync(pagamentoPath, "utf8"));
+  if (!pagamento.infinitepay || pagamento.infinitepay.enabled !== false || pagamento.infinitepay.handle !== "") {
+    errors.push("data/pagamento.json must ship with infinitepay.enabled false and empty handle");
+  }
+}
+const pausaPath = join(root, "data/pausa.json");
+if (!existsSync(pausaPath)) {
+  errors.push("Missing data/pausa.json");
+} else {
+  const pausa = JSON.parse(readFileSync(pausaPath, "utf8"));
+  if (
+    pausa.ativo !== false ||
+    pausa.inicio !== "" ||
+    pausa.fim !== "" ||
+    pausa.mensagem !== "" ||
+    !Array.isArray(pausa.periodos) ||
+    pausa.periodos.length !== 0 ||
+    pausa.fimDeSemana !== false ||
+    pausa.planilhaCsv !== ""
+  ) {
+    errors.push("data/pausa.json must ship fully disabled and empty");
+  }
+}
+if (!existsSync(join(root, "docs/pausa.md"))) {
+  errors.push("Missing docs/pausa.md for Jana");
+}
+if (!existsSync(join(root, "pagamento/index.html"))) {
+  errors.push("Missing pagamento/index.html");
+} else {
+  const payPage = readFileSync(join(root, "pagamento/index.html"), "utf8");
+  if (/X-Api-Key|inchk_/.test(payPage)) {
+    errors.push("pagamento page must never mention an API key");
+  }
+}
+if (!existsSync(join(root, "encomendas/index.html"))) {
+  errors.push("Missing encomendas/index.html cart URL");
+}
+["js/app.js", "js/pagamento.js", "js/pagamento-retorno.js", "js/pausa.js", "js/painel.js"].forEach((rel) => {
+  const text = readFileSync(join(root, rel), "utf8");
+  if (/inchk_|X-Api-Key/.test(text)) {
+    errors.push(rel + " must never send or store an InfinitePay API key");
+  }
+});
+if (!componentsCss.includes("aspect-ratio: 1 / 1") || !componentsCss.includes("-webkit-line-clamp: 2") || !componentsCss.includes("card__excerpt")) {
+  errors.push("product cards must use square photos, 2-line names and clamped excerpts");
+}
+if (!appJs.includes("card__excerpt") || !appJs.includes("productCardExcerpt")) {
+  errors.push("product cards must render a short description");
+}
+if (!appJs.includes("Pagar e enviar pedido") || !appJs.includes("PAID_DISCLAIMER")) {
+  errors.push("checkout must switch to InfinitePay pay-and-send copy when enabled");
+}
+if (!painelJs.includes("status_pagamento") || !painelJs.includes("order_nsu") || !painelJs.includes("comprovante")) {
+  errors.push("painel CSV must include payment columns");
 }
 
 const productBySlug = new Map(products.map((item) => [item.slug, item]));
@@ -482,3 +590,8 @@ const emptySobre = ["headline", "lead", "story", "press"].filter((key) => {
   return !value || (Array.isArray(value) && value.length === 0);
 });
 console.log("sobre.json empty fields (hidden until filled):", emptySobre.concat(sobre.portrait && !sobre.portrait.src ? ["portrait.src"] : []).join(", "));
+const unpriced = products.filter((product) => product.active !== false && (!(typeof product.price === "number") || product.price <= 0));
+console.log("produtos sem preço fixo (" + unpriced.length + "):");
+unpriced.forEach((product) => {
+  console.log("  " + product.slug + " — " + String(product.name || "").trim());
+});

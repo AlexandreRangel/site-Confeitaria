@@ -38,7 +38,6 @@
           </div>
         </div>
         <a href="../sobre-nos/">Sobre nós</a>
-        <a href="#encomendas" data-action="open-cart">Encomendas</a>
       </nav>
       <div class="topo__actions">
         <a class="icon-link" data-bind="instagram-link" href="https://www.instagram.com/janaabreuconfeitaria/" target="_blank" rel="noopener noreferrer" aria-label="Instagram @janaabreuconfeitaria">
@@ -131,10 +130,21 @@
         <label>Observações <textarea name="observacoes" rows="3" placeholder="Sabores, tema, retirada ou entrega…"></textarea></label>
         <p class="checkout__privacy" data-bind="privacy-note">Usamos nome, telefone e o que você escrever só para a Jana responder esta solicitação. Não publicamos sua lista de pedidos.</p>
         <p class="checkout__note" data-bind="payments"></p>
+        <p class="checkout__note checkout__unpriced" data-bind="checkout-unpriced" hidden>Este pedido inclui itens sob consulta, sem preço fixo. Não é possível pagar online. Envie a solicitação pelo WhatsApp.</p>
         <p class="checkout__status" data-bind="checkout-status" role="status" aria-live="polite"></p>
+                <div class="checkout__pix" data-bind="pix-block" hidden>
+          <h3>Pagar com Pix</h3>
+          <p class="checkout__pix-note">Pague somente após a Jana confirmar sua encomenda pelo WhatsApp</p>
+          <div class="checkout__pix-qr">
+            <img data-bind="pix-qr" alt="QR Code Pix" width="220" height="220">
+          </div>
+          <p class="checkout__pix-value" data-bind="pix-value"></p>
+          <button type="button" class="btn btn--outline" data-action="copy-pix">Copiar código Pix</button>
+          <p class="checkout__pix-status" data-bind="pix-copy-status" role="status" aria-live="polite"></p>
+        </div>
         <div class="checkout__submit">
           <p class="checkout__disclaimer" data-bind="request-disclaimer">Esta é uma solicitação de encomenda. A confirmação depende da disponibilidade e da confirmação da Jana pelo WhatsApp.</p>
-          <button type="submit" class="btn btn--solid btn--whatsapp">Enviar solicitação no WhatsApp</button>
+          <button type="submit" class="btn btn--solid btn--whatsapp" data-bind="checkout-submit">Enviar solicitação no WhatsApp</button>
         </div>
       </form>
     </div>
@@ -143,6 +153,10 @@
 
   <script defer src="../js/background-hydra.js"></script>
   <script defer src="../js/utils.js"></script>
+  <script defer src="../js/pix.js"></script>
+  <script defer src="../js/pagamento.js"></script>
+  <script defer src="../js/pausa.js"></script>
+  <script defer src="../js/vendor/qrcode-generator.js"></script>
   <script defer src="../js/cart.js"></script>
   <script defer src="../js/store.js"></script>
   <script defer src="../js/central.js"></script>

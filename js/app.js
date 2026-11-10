@@ -18,7 +18,12 @@
     categoriesOpen: false,
     slides: [],
     sobre: {},
+    pix: { enabled: false, chave: "", nome: "", cidade: "" },
+    pixPayload: "",
     carouselIgnoreClick: false,
+    pagamento: { infinitepay: { enabled: false, handle: "" } },
+    pausa: { ativo: false, inicio: "", fim: "", mensagem: "", periodos: [], fimDeSemana: false },
+    pausaEval: { active: false, message: "" },
   };
 
   function isCategoryPage() {
@@ -52,6 +57,10 @@
     return document.body.getAttribute("data-page") === "about";
   }
 
+  function isEncomendasPage() {
+    return document.body.getAttribute("data-page") === "encomendas";
+  }
+
   function pageProductSlug() {
     const params = new URLSearchParams(location.search);
     return params.get("slug") || "";
@@ -77,6 +86,15 @@
         Jana.loadJSON("data/sobre.json").catch(function noSobre() {
           return {};
         }),
+        Jana.loadJSON("data/pix.json").catch(function noPix() {
+          return { enabled: false, chave: "", nome: "", cidade: "" };
+        }),
+        Jana.loadJSON("data/pagamento.json").catch(function noPay() {
+          return { infinitepay: { enabled: false, handle: "" } };
+        }),
+        Jana.loadJSON("data/pausa.json").catch(function noPausa() {
+          return { ativo: false, inicio: "", fim: "", mensagem: "", periodos: [], fimDeSemana: false, planilhaCsv: "" };
+        }),
       ]);
       state.site = loaded[0];
       state.categories = loaded[1].slice().sort(byOrder);
@@ -89,6 +107,10 @@
       state.flavorLabel = loaded[5].label || "Recheio do bolo";
       state.selectedFlavor = flavorName(state.flavors[0]);
       state.sobre = loaded[6] || {};
+      state.pix = loaded[7] || { enabled: false, chave: "", nome: "", cidade: "" };
+      state.pagamento = loaded[8] || { infinitepay: { enabled: false, handle: "" } };
+      state.pausa = Jana.loadPausaConfig ? await Jana.loadPausaConfig(loaded[9] || {}) : loaded[9] || {};
+      state.pausaEval = Jana.evaluatePausa ? Jana.evaluatePausa(state.pausa) : { active: false, message: "" };
       if (isAreaPage() || isCategoryPage()) {
         state.filter = pageAreaId() || "todas";
       }
@@ -102,6 +124,9 @@
       renderInstagram();
       renderEntregaRegions();
       renderCart();
+      if (Jana.bindPausaEvents) {
+        Jana.bindPausaEvents();
+      }
       bindEvents();
       startCarousel();
       openFromHash();
@@ -515,8 +540,15 @@
       "<h3>" +
       Jana.escapeHtml(product.name) +
       "</h3>" +
+      '<p class="card__excerpt">' +
+      Jana.escapeHtml(Jana.productCardExcerpt ? Jana.productCardExcerpt(product) : "") +
+      "</p>" +
       '<p class="card__price">' +
-      Jana.formatBRL(product.price) +
+      Jana.escapeHtml(
+        Jana.productHasFixedPrice && Jana.productHasFixedPrice(product)
+          ? Jana.formatBRL(product.price)
+          : "Sob consulta"
+      ) +
       "</p>" +
       '<div class="card__actions">' +
       '<a class="btn btn--outline" href="' +
@@ -891,6 +923,9 @@
   }
 
   function addProduct(slug, quantity) {
+    if (blockEncomenda()) {
+      return;
+    }
     const product = findProduct(slug) || (state.currentProduct && state.currentProduct.slug === slug ? state.currentProduct : null);
     if (!product) return;
     if (Jana.isCakeProduct(product) && !selectedFlavor()) {
@@ -904,6 +939,9 @@
 
   function openMoreInfo(product) {
     if (!product) {
+      return;
+    }
+    if (blockEncomenda()) {
       return;
     }
     const notes = Jana.qs('#checkout-form [name="observacoes"]');
@@ -998,6 +1036,126 @@
         feeEl.textContent = "";
       }
     }
+    renderPix(totals);
+    syncCheckoutPayUi(totals);
+  }
+
+  function cartCanPayOnline(totals) {
+    const row = totals || Jana.checkoutTotals(Jana.Cart.total(), Jana.resolveEntrega(state.site, selectedModalidade(), ""));
+    return Jana.canPayOnline({
+      pagamento: state.pagamento,
+      items: Jana.Cart.items(),
+      products: state.products,
+      taxaPendente: row.taxaPendente,
+      total: row.total,
+    });
+  }
+
+  function syncCheckoutPayUi(totals) {
+    const pay = cartCanPayOnline(totals);
+    const submit = Jana.qs('[data-bind="checkout-submit"]') || Jana.qs("#checkout-form button[type='submit']");
+    if (submit) {
+      submit.textContent = pay ? "Pagar e enviar pedido" : "Enviar solicitação no WhatsApp";
+    }
+    Jana.bindText(
+      "request-disclaimer",
+      pay ? Jana.PAID_DISCLAIMER || "" : state.site.requestDisclaimer || Jana.REQUEST_DISCLAIMER
+    );
+    Jana.bindText(
+      "payments",
+      pay ? "Pagamento no site pela InfinitePay (Pix ou cartão) ao enviar o pedido." : state.site.paymentsNote || ""
+    );
+    const unpricedNote = Jana.qs("[data-bind='checkout-unpriced']");
+    if (unpricedNote) {
+      const show =
+        Jana.infinitePayIsReady &&
+        Jana.infinitePayIsReady(state.pagamento) &&
+        Jana.cartHasUnpricedItems(Jana.Cart.items(), state.products);
+      unpricedNote.hidden = !show;
+    }
+  }
+
+  function currentPixAmount(totals) {
+    const row = totals || Jana.checkoutTotals(Jana.Cart.total(), Jana.resolveEntrega(state.site, selectedModalidade(), ""));
+    return Number(row.total) || 0;
+  }
+
+  function renderPix(totals) {
+    const block = Jana.qs('[data-bind="pix-block"]');
+    if (!block) {
+      return;
+    }
+    const ready = Jana.pixIsReady(state.pix);
+    const amount = currentPixAmount(totals);
+    if (!ready || amount <= 0) {
+      block.hidden = true;
+      state.pixPayload = "";
+      return;
+    }
+    const cfg = Jana.pixConfig(state.pix);
+    const txid = Jana.Store.peekNextOrderNumber ? Jana.Store.peekNextOrderNumber() : "***";
+    const payload = Jana.buildPixPayload({
+      chave: cfg.chave,
+      nome: cfg.nome,
+      cidade: cfg.cidade,
+      valor: amount,
+      txid: txid,
+    });
+    state.pixPayload = payload;
+    block.hidden = false;
+    Jana.bindText("pix-value", "Valor do Pix: " + Jana.formatBRL(amount));
+    const img = Jana.qs('[data-bind="pix-qr"]');
+    if (img && payload && typeof qrcode === "function") {
+      const qr = qrcode(0, "M");
+      qr.addData(payload);
+      qr.make();
+      img.src = qr.createDataURL(6, 2);
+      img.alt = "QR Code Pix no valor de " + Jana.formatBRL(amount);
+    }
+  }
+
+  function copyPixCode() {
+    const text = state.pixPayload || "";
+    const status = Jana.qs('[data-bind="pix-copy-status"]');
+    function done(ok) {
+      if (status) {
+        status.textContent = ok ? "Código Pix copiado." : "Não foi possível copiar. Selecione o QR e tente de novo.";
+      }
+    }
+    if (!text) {
+      done(false);
+      return;
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function onCopy() {
+          done(true);
+        },
+        function onFail() {
+          copyPixFallback(text, done);
+        }
+      );
+      return;
+    }
+    copyPixFallback(text, done);
+  }
+
+  function copyPixFallback(text, done) {
+    const field = document.createElement("textarea");
+    field.value = text;
+    field.setAttribute("readonly", "");
+    field.style.position = "fixed";
+    field.style.left = "-9999px";
+    document.body.appendChild(field);
+    field.select();
+    let ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (err) {
+      ok = false;
+    }
+    field.remove();
+    done(ok);
   }
 
   function renderCart() {
@@ -1098,7 +1256,28 @@
     }
   }
 
+  function encomendasPausadas() {
+    return !!(state.pausaEval && state.pausaEval.active);
+  }
+
+  function blockEncomenda(event) {
+    if (!encomendasPausadas()) {
+      return false;
+    }
+    if (event) {
+      event.preventDefault();
+    }
+    closeCart();
+    if (Jana.openPausaModal) {
+      Jana.openPausaModal(state.pausaEval, state.site, { onLock: setPageLocked });
+    }
+    return true;
+  }
+
   function openCart() {
+    if (blockEncomenda()) {
+      return;
+    }
     const drawer = Jana.qs("#encomendas");
     const backdrop = Jana.qs(".backdrop");
     if (!drawer || !backdrop) {
@@ -1226,14 +1405,24 @@
     } else {
       lines.push("", "*Total:* " + totals.totalLabel);
     }
+    if (Jana.pixIsReady(state.pix) && !(Jana.infinitePayIsReady && Jana.infinitePayIsReady(state.pagamento))) {
+      lines.push("", "O pagamento será por Pix após a confirmação da Jana. Total: " + totals.totalLabel);
+    }
     if (payload.observacoes) {
       lines.push("", "*Observações:* " + payload.observacoes);
     }
+    const pay = Jana.canPayOnline({
+      pagamento: state.pagamento,
+      items: payload.items,
+      products: state.products,
+      taxaPendente: totals.taxaPendente,
+      total: totals.total,
+    });
     lines.push(
       "",
-      state.site.requestDisclaimer || Jana.REQUEST_DISCLAIMER,
+      pay ? Jana.PAID_DISCLAIMER : state.site.requestDisclaimer || Jana.REQUEST_DISCLAIMER,
       "",
-      state.site.paymentsNote
+      pay ? "" : state.site.paymentsNote
     );
     return lines.join("\n");
   }
@@ -1259,6 +1448,9 @@
 
   function checkout(event) {
     event.preventDefault();
+    if (blockEncomenda(event)) {
+      return;
+    }
     const form = event.target;
     const payload = readCheckoutForm(form);
     if (!payload.modalidade || (payload.modalidade !== "retirada" && payload.modalidade !== "entrega")) {
@@ -1307,7 +1499,80 @@
     return "Não foi possível gravar no painel central. O carrinho foi mantido.";
   }
 
+  async function checkoutInfinitePay(payload, totals, submit) {
+    const nsu = Jana.generateOrderNsu();
+    payload.orderNsu = nsu;
+    payload.status = "aguardando pagamento";
+    payload.paymentStatus = "aguardando pagamento";
+    payload.paymentMethod = "infinitepay";
+    let localOrder = null;
+    try {
+      localOrder = Jana.Store.saveCheckout(payload);
+    } catch (err) {
+      localOrder = null;
+    }
+    const body = {
+      handle: Jana.infinitePayHandle(state.pagamento),
+      order_nsu: nsu,
+      redirect_url: Jana.INFINITEPAY_REDIRECT_URL,
+      items: Jana.infinitePayItems(payload.items, totals),
+    };
+    if (payload.nome) {
+      body.customer = { name: payload.nome };
+      const phone = Jana.infinitePayPhone(payload.telefone);
+      if (phone) {
+        body.customer.phone_number = phone;
+      }
+      if (payload.email) {
+        body.customer.email = payload.email;
+      }
+    }
+    if (Jana.savePendingPay) {
+      Jana.savePendingPay({
+        orderId: localOrder && localOrder.id,
+        orderNsu: nsu,
+        payload: payload,
+        totals: totals,
+      });
+    }
+    setCheckoutStatus("Abrindo o pagamento…");
+    try {
+      const data = await Jana.createInfinitePayLink(body);
+      const url = Jana.infinitePayCheckoutUrl(data);
+      if (!url || !/^https?:\/\//i.test(url)) {
+        throw new Error("Sem URL de checkout");
+      }
+      window.location.assign(url);
+    } catch (err) {
+      setCheckoutStatus("Não foi possível abrir o pagamento. Tente de novo ou fale no WhatsApp.");
+      if (submit) {
+        submit.disabled = false;
+      }
+    }
+  }
+
   async function checkoutAsync(payload, submit) {
+    if (encomendasPausadas()) {
+      if (submit) {
+        submit.disabled = false;
+      }
+      blockEncomenda();
+      return;
+    }
+    const resolved = Jana.resolveEntrega(state.site, payload.modalidade, payload.regiao);
+    const totals = Jana.checkoutTotals(Jana.Cart.total(), resolved);
+    if (
+      Jana.canPayOnline({
+        pagamento: state.pagamento,
+        items: payload.items,
+        products: state.products,
+        taxaPendente: totals.taxaPendente,
+        total: totals.total,
+      })
+    ) {
+      await checkoutInfinitePay(payload, totals, submit);
+      return;
+    }
     let localOrder = null;
     try {
       localOrder = Jana.Store.saveCheckout(payload);
@@ -1369,6 +1634,9 @@
       }
       if (action === "open-cart") {
         event.preventDefault();
+        if (blockEncomenda(event)) {
+          return;
+        }
         openCart();
       }
       if (action === "close-cart") closeCart();
@@ -1427,6 +1695,10 @@
           window.location.href = Jana.categoryUrl(category);
         }
       }
+      if (action === "copy-pix") {
+        event.preventDefault();
+        copyPixCode();
+      }
     });
     const hero = Jana.qs("#hero-carrossel");
     if (hero) {
@@ -1473,6 +1745,11 @@
       const drawer = Jana.qs("#encomendas");
       const drawerOpen = drawer && !drawer.hidden;
       if (event.key === "Escape") {
+        if (Jana.isPausaModalOpen && Jana.isPausaModalOpen()) {
+          event.preventDefault();
+          Jana.closePausaModal();
+          return;
+        }
         if (drawerOpen) {
           event.preventDefault();
           closeCart();
@@ -1575,7 +1852,10 @@
       window.location.replace(Jana.productUrl(hash.replace("#produto:", "")));
       return;
     }
-    if (hash === "#encomendas") {
+    if (hash === "#encomendas" || isEncomendasPage()) {
+      if (blockEncomenda()) {
+        return;
+      }
       openCart();
     }
   }

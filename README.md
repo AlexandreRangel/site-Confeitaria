@@ -1,6 +1,6 @@
 # Jana Abreu Confeitaria
 
-Vitrine estática da confeitaria: HTML, CSS e JavaScript puro. O catálogo vem de arquivos JSON carregados no navegador. Não há backend, banco nem gateway de pagamento — o checkout abre o WhatsApp.
+Vitrine estática da confeitaria: HTML, CSS e JavaScript puro. O catálogo vem de arquivos JSON carregados no navegador. O checkout padrão abre o WhatsApp. Pagamento no site pela InfinitePay fica desligado até a Jana preencher o `handle`.
 
 ## GitHub Pages
 
@@ -33,6 +33,9 @@ Edite os JSON em `data/` e troque as imagens em `assets/`. Recarregue a página 
 | `data/products.json` | Produtos das páginas de categoria, preço, fotos, destaque |
 | `data/sabores-bolos.json` | 17 recheios oficiais de bolo (nome + descrição no menu e nos rádios) |
 | `data/orders.json` / `data/clients.json` | Demo do painel (`/painel/`) — pedidos e clientes |
+| `data/pagamento.json` | InfinitePay (`enabled` + `handle` sem `$`) — desligado até preencher |
+| `data/pix.json` | Pix QR estático — desligado; a InfinitePay já oferece Pix |
+| `data/pausa.json` | Pausa de encomendas (manual, períodos, fim de semana ou planilha CSV) |
 
 Produtos com `"active": false` somem das páginas de categoria. Itens de exemplo usam a tag `"exemplo"` e o selo **Exemplo**.
 

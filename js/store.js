@@ -146,7 +146,7 @@
       clientName: payload.nome || "",
       clientPhone: digitsOnly(payload.telefone),
       clientEmail: payload.email || "",
-      status: "novo",
+      status: payload.status || "novo",
       createdAt: new Date().toISOString(),
       desiredDate: payload.data || "",
       items: items,
@@ -160,6 +160,14 @@
       address: payload.endereco || "",
       notes: payload.observacoes || "",
       source: "cart",
+      orderNsu: payload.orderNsu || "",
+      paymentStatus: payload.paymentStatus || "",
+      paymentMethod: payload.paymentMethod || "",
+      captureMethod: payload.captureMethod || "",
+      receiptUrl: payload.receiptUrl || "",
+      transactionNsu: payload.transactionNsu || "",
+      checkoutSlug: payload.checkoutSlug || "",
+      paidAmount: payload.paidAmount != null ? payload.paidAmount : null,
     };
   }
 
@@ -232,6 +240,29 @@
       return mergeById(demo || [], readList(CLIENTS_KEY)).sort(function byName(a, b) {
         return String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR");
       });
+    },
+    findByOrderNsu: function findByOrderNsu(nsu) {
+      const key = String(nsu || "");
+      if (!key) {
+        return null;
+      }
+      return (
+        readList(ORDERS_KEY).find(function match(order) {
+          return order && order.orderNsu === key;
+        }) || null
+      );
+    },
+    peekNextOrderNumber: function peekNextOrderNumber() {
+      let seq = 1100;
+      try {
+        seq = Number(localStorage.getItem(SEQ_KEY) || 1100);
+      } catch (err) {
+        seq = 1100;
+      }
+      if (!Number.isFinite(seq) || seq < 1100) {
+        seq = 1100;
+      }
+      return String(seq + 1);
     },
     saveCheckout: function saveCheckout(payload) {
       const order = buildOrderFromCheckout(payload);
