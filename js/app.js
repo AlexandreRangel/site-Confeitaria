@@ -1603,23 +1603,15 @@
 
   function describeCentral(result) {
     if (!result || !result.attempted) {
-      return "Painel compartilhado ainda não está ligado; a solicitação segue pelo WhatsApp.";
+      return "";
     }
     if (result.savedCentral) {
-      return result.duplicate
-        ? "Solicitação já estava no painel central (sem duplicar)."
-        : "Solicitação registrada no painel central. Isso ainda não confirma a encomenda.";
+      return "Solicitação registrada na lista da Jana. Isso ainda não confirma a encomenda.";
     }
-    if (result.reason === "network" || result.reason === "unavailable") {
-      return "Painel central indisponível. O carrinho foi mantido. Você pode falar no WhatsApp.";
-    }
-    if (result.reason === "denied") {
-      return "Acesso ao painel central foi recusado. O carrinho foi mantido.";
-    }
-    return "Não foi possível gravar no painel central. O carrinho foi mantido.";
+    return "Não deu para registrar na lista da Jana agora; a solicitação segue pelo WhatsApp.";
   }
 
-  function checkoutPix(payload, totals, submit) {
+  async function checkoutPix(payload, totals, submit) {
     payload.status = "aguardando pagamento";
     payload.paymentStatus = "aguardando conferência";
     payload.paymentMethod = "pix";
@@ -1650,6 +1642,19 @@
       subtotal: totals.subtotal,
       taxa: totals.taxa,
     };
+    if (Jana.Central && Jana.Central.isEnabled(state.site)) {
+      setCheckoutStatus("Registrando o pedido…");
+      const central = await Jana.Central.createOrder(
+        state.site,
+        payload,
+        "pix",
+        { declared: true, total: totals.total },
+        { timeoutMs: 4000, keepalive: true }
+      );
+      if (central && central.ok && central.data && central.data.nsu) {
+        order.orderNsu = central.data.nsu;
+      }
+    }
     const message = Jana.buildPixPendingWhatsAppMessage
       ? Jana.buildPixPendingWhatsAppMessage(order, state.site, totals)
       : "Pagamento via Pix — aguardando conferência";
@@ -1663,30 +1668,61 @@
   }
 
   async function checkoutInfinitePay(payload, totals, submit) {
-    const nsu = Jana.generateOrderNsu();
-    payload.orderNsu = nsu;
     payload.status = "aguardando pagamento";
     payload.paymentStatus = "aguardando pagamento";
     payload.paymentMethod = "infinitepay";
-    let localOrder = null;
-    try {
-      localOrder = Jana.Store.saveCheckout(payload);
-    } catch (err) {
-      localOrder = null;
-    }
-    const body = {
-      handle: Jana.infinitePayHandle(state.pagamento),
-      order_nsu: nsu,
-      redirect_url: Jana.infinitePayRedirectUrl ? Jana.infinitePayRedirectUrl() : Jana.INFINITEPAY_REDIRECT_URL,
-      items: Jana.infinitePayItems(payload.items, totals),
-    };
-    if (!body.items.length) {
+    const redirectUrl = Jana.infinitePayRedirectUrl ? Jana.infinitePayRedirectUrl() : Jana.INFINITEPAY_REDIRECT_URL;
+    const centralOn = Jana.Central && Jana.Central.isEnabled(state.site);
+    if (!Jana.infinitePayItems(payload.items, totals).length) {
       setCheckoutStatus("Não foi possível abrir o pagamento com cartão. Tente de novo, escolha Pix ou fale no WhatsApp.");
       if (submit) {
         submit.disabled = false;
       }
       syncCheckoutPayUi(totals);
       return;
+    }
+    setCheckoutStatus("Abrindo o pagamento…");
+    let central = null;
+    if (centralOn) {
+      central = await Jana.Central.createOrder(
+        state.site,
+        payload,
+        "infinitepay",
+        { redirect_url: redirectUrl, total: totals.total },
+        { timeoutMs: 12000 }
+      );
+    }
+    const centralNsu = central && central.ok && central.data && central.data.nsu;
+    const nsu = centralNsu || Jana.generateOrderNsu();
+    payload.orderNsu = nsu;
+    let localOrder = null;
+    try {
+      localOrder = Jana.Store.saveCheckout(payload);
+    } catch (err) {
+      localOrder = null;
+    }
+    if (Jana.savePendingPay) {
+      Jana.savePendingPay({
+        orderId: localOrder && localOrder.id,
+        orderNsu: nsu,
+        centralToken: centralNsu ? central.data.token : "",
+        payload: payload,
+        totals: totals,
+      });
+    }
+    const workerUrl = centralNsu && central.data.checkoutUrl;
+    if (workerUrl && /^https:\/\//i.test(workerUrl)) {
+      window.location.assign(workerUrl);
+      return;
+    }
+    const body = {
+      handle: Jana.infinitePayHandle(state.pagamento),
+      order_nsu: nsu,
+      redirect_url: redirectUrl,
+      items: Jana.infinitePayItems(payload.items, totals),
+    };
+    if (centralOn) {
+      body.webhook_url = Jana.Central.configFrom(state.site).endpoint + "/webhook/infinitepay";
     }
     const customer = Jana.infinitePayCustomer
       ? Jana.infinitePayCustomer({
@@ -1698,15 +1734,6 @@
     if (customer) {
       body.customer = customer;
     }
-    if (Jana.savePendingPay) {
-      Jana.savePendingPay({
-        orderId: localOrder && localOrder.id,
-        orderNsu: nsu,
-        payload: payload,
-        totals: totals,
-      });
-    }
-    setCheckoutStatus("Abrindo o pagamento…");
     try {
       const data = await Jana.createInfinitePayLink(body);
       const url = Jana.infinitePayCheckoutUrl(data);
@@ -1757,7 +1784,7 @@
         return;
       }
       if (method === "pix" && options.pix) {
-        checkoutPix(payload, totals, submit);
+        await checkoutPix(payload, totals, submit);
         return;
       }
       if (method === "infinitepay" && options.infinitepay) {
@@ -1778,8 +1805,15 @@
     }
     let centralResult = { attempted: false, savedCentral: false, confirmed: false };
     if (Jana.Central && Jana.Central.isEnabled(state.site)) {
-      setCheckoutStatus("Enviando solicitação ao painel central…");
-      centralResult = await Jana.Central.submitRequest(state.site, payload);
+      setCheckoutStatus("Registrando a solicitação…");
+      centralResult = await Jana.Central.createOrder(state.site, payload, "whatsapp", { total: Jana.Cart.total() }, {
+        timeoutMs: 4000,
+        keepalive: true,
+      });
+      centralResult.attempted = true;
+      if (centralResult.ok && centralResult.data && centralResult.data.nsu) {
+        payload.orderNsu = centralResult.data.nsu;
+      }
     }
     const parts = [
       state.site.requestDisclaimer || Jana.REQUEST_DISCLAIMER,
@@ -1788,7 +1822,7 @@
         : "Não deu para salvar neste navegador.",
       describeCentral(centralResult),
       "Abrir o WhatsApp também não confirma a encomenda.",
-    ];
+    ].filter(Boolean);
     setCheckoutStatus(parts.join(" "));
     const number = state.site.contato.whatsapp;
     const url =

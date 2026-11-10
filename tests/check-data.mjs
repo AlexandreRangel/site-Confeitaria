@@ -311,12 +311,12 @@ const painel = readFileSync(join(root, "painel/index.html"), "utf8");
 if (painel.includes("hydra")) {
   errors.push("Painel must not load Hydra");
 }
-if (!/Canal compartilhado desligado/.test(painel) || !/data-bind="central-login" hidden/.test(painel)) {
-  errors.push("Painel must keep shared channel off by default");
+if (!/data-bind="central-login" hidden/.test(painel) || !/name="password"/.test(painel)) {
+  errors.push("Painel must have the (initially hidden) password login for the shared list");
 }
 const centralJs = readFileSync(join(root, "js/central.js"), "utf8");
-if (/ADMIN_TOKEN|secret-admin|workers\.dev/.test(centralJs)) {
-  errors.push("js/central.js must not contain admin secrets or a live endpoint");
+if (/ADMIN_PASSWORD|SESSION_SECRET|INFINITE_HANDLE|secret-admin/.test(centralJs)) {
+  errors.push("js/central.js must not contain admin secrets");
 }
 
 const official = site.colors || {};
@@ -521,11 +521,8 @@ if (/exemplo/i.test(JSON.stringify(site.contato || {}))) {
 if (!/solicitação de encomenda/i.test(site.requestDisclaimer || "")) {
   errors.push("site.json must include the solicitation disclaimer");
 }
-if (!site.central || site.central.enabled !== false) {
-  errors.push("central must stay disabled until a real backend is provisioned");
-}
-if (site.central && site.central.endpoint) {
-  errors.push("central.endpoint must stay empty until provisioned");
+if (site.central && site.central.enabled === true && !/^https:\/\/[a-z0-9.-]+\.workers\.dev$|^https:\/\/api\.janaabreuconfeitaria\.com\.br$/.test(site.central.endpoint || "")) {
+  errors.push("central.endpoint must be the jana-pedidos Worker (https, sem barra final)");
 }
 const tabua = products.find((item) => item.slug === "tabua-signature");
 if (!tabua || /incluindoCharcutaria/.test(tabua.description) || !/incluindo charcutaria/.test(tabua.description)) {

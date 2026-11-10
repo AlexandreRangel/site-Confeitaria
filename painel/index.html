@@ -22,7 +22,7 @@
         <img src="../assets/brand/logo-jana-abreu.png" alt="Jana Abreu Confeitaria" width="140" height="54">
         <span>
           <h1 class="painel-header__title">Área da loja</h1>
-          <p class="painel-header__sub">Jana Abreu Confeitaria · painel local neste navegador, sem gestão centralizada</p>
+          <p class="painel-header__sub">Jana Abreu Confeitaria · <span data-bind="painel-modo">Pedidos guardados só neste navegador</span></p>
         </span>
       </a>
       <div class="painel-header__actions">
@@ -35,25 +35,23 @@
       <button type="button" data-tab="clientes" aria-selected="false">Clientes</button>
     </nav>
 
-    <p class="painel-note">
-      Este é o <strong>painel legado deste navegador</strong> (<code>localStorage</code> + demo em
-      <code>data/orders.json</code>). Não sincroniza entre aparelhos e não é gestão centralizada.
-      O canal compartilhado fica desligado até existir backend provisionado — ver
-      <code>central/README.md</code>. Pedidos da vitrine não sobem sozinhos para cá.
-    </p>
-
     <section class="painel-central" aria-labelledby="central-titulo">
-      <h2 id="central-titulo">Canal compartilhado</h2>
-      <p data-bind="central-status">Canal compartilhado desligado. Pedidos iguais entre aparelhos exigem o Worker descrito em central/README.md. Este painel local continua só neste navegador. Nada sobe automaticamente.</p>
+      <h2 id="central-titulo">Lista compartilhada</h2>
+      <p data-bind="central-status">Carregando…</p>
       <form data-bind="central-login" hidden>
         <label class="painel-field">
-          Token de administração (só neste navegador)
-          <input type="password" name="token" autocomplete="off" spellcheck="false">
+          Senha da loja
+          <input type="password" name="password" autocomplete="current-password" spellcheck="false" required>
         </label>
-        <button type="submit" class="btn btn--solid">Abrir pedidos centrais</button>
+        <button type="submit" class="btn btn--solid">Entrar</button>
       </form>
-      <p data-bind="central-result" role="status"></p>
-      <div data-bind="central-orders" hidden></div>
+      <div class="painel-central__session" data-bind="central-session" hidden>
+        <button type="button" class="btn btn--solid" data-action="central-reload">Atualizar lista</button>
+        <button type="button" class="btn btn--outline" data-action="central-import">Enviar pedidos deste aparelho</button>
+        <button type="button" class="btn btn--outline" data-action="central-logout">Sair</button>
+      </div>
+      <p data-bind="central-result" role="status" aria-live="polite"></p>
+      <noscript><p>O painel precisa de JavaScript ligado.</p></noscript>
     </section>
 
     <section id="tab-pedidos" class="painel-panel is-active" aria-labelledby="pedidos-titulo">
@@ -99,6 +97,7 @@
               <option value="cancelado">Cancelado</option>
             </select>
             <div class="painel-detail__head-actions">
+              <button type="button" class="btn btn--outline" data-action="verify-order" data-bind="detail-verify" hidden>Conferir pagamento</button>
               <button type="button" class="btn btn--outline" data-action="edit-order">Editar</button>
               <button type="button" class="btn btn--danger" data-action="delete-order">Excluir</button>
             </div>
@@ -216,10 +215,11 @@
               <th scope="col">Nome</th>
               <th scope="col">E-mail</th>
               <th scope="col">Telefone</th>
+              <th scope="col">Ações</th>
             </tr>
           </thead>
           <tbody data-bind="clients-body">
-            <tr><td colspan="3" class="painel-empty">Carregando…</td></tr>
+            <tr><td colspan="4" class="painel-empty">Carregando…</td></tr>
           </tbody>
         </table>
       </div>

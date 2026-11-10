@@ -1,48 +1,29 @@
-# Canal central de pedidos (ainda não provisionado)
+# Lista compartilhada de pedidos (Cloudflare)
 
-O GitHub Pages **não** oferece banco nem login. Neste repositório **não há** endpoint, Worker, Supabase, Firebase nem secretos configurados. A vitrine publica com `data/site.json` → `central.enabled: false`. O atendimento continua no WhatsApp.
+Está **no ar**: Worker `jana-pedidos` + banco D1 `jana-pedidos`, na conta Cloudflare da Jana.
 
-Nada disto está no ar. Não trate o painel local (`localStorage`) como gestão centralizada.
+- URL: https://jana-pedidos.janaabreu.workers.dev (configurada em `data/site.json` → `central`)
+- Código: `central/jana-pedidos/src/index.js` · tabelas: `central/jana-pedidos/schema.sql`
+- Segredos do Worker (nunca no repositório): `ADMIN_PASSWORD` (senha do painel), `SESSION_SECRET`, `INFINITE_HANDLE`.
 
-## O que já está pronto no código
+## Rotas
 
-- Cliente (`js/central.js`): só chama rede se `enabled === true` **e** `endpoint` começa com `https://`.
-- Regras (`central/logic.mjs`): POST público cria `solicitado`; GET/PATCH exigem `Authorization: Bearer`; token vazio ⇒ 503, não lista aberta; mesma `Idempotency-Key` não duplica; estados `solicitado → confirmado → em_producao → pronto → entregue` (+ `cancelado`) com histórico.
-- Worker (`central/worker.mjs`): adaptador Cloudflare, **não implantado**.
+| Rota | Quem usa | O que faz |
+|---|---|---|
+| `POST /pedidos` | carrinho | Cria o pedido (`infinitepay`, `pix` ou `whatsapp`). Recalcula o total com `data/products.json` e a taxa de `data/site.json`. No cartão, o próprio Worker cria o link da InfinitePay já com `webhook_url`. |
+| `POST /webhook/infinitepay` | InfinitePay | Aviso de pagamento. **Nunca** marca pago só pelo aviso: confere no `payment_check` (handle, order_nsu, transaction_nsu, slug). Repetições não duplicam. |
+| `GET /pedidos/:nsu/status` | página `/pagamento/` | Pago/pendente. Com `transaction_nsu` e `slug` do retorno, o Worker confere na InfinitePay. |
+| `POST /admin/login` | painel | Senha → sessão de 12 h. 10 erros seguidos bloqueiam por 15 min. |
+| `GET/PATCH/DELETE /admin/pedidos…`, `/admin/clientes…`, `POST /admin/importar` | painel | Lista, edita, exclui; importa pedidos guardados num aparelho. |
 
-Registrar uma solicitação **não** prova envio de WhatsApp nem confirmação da Jana.
+CORS: só `alexandrerangel.github.io`, `janaabreuconfeitaria.com.br`, `www.` e localhost (testes).
 
-## Recomendação objetiva para ligar
+Se o Worker cair, o carrinho continua abrindo o pagamento direto na InfinitePay, a página de retorno confere pelo navegador e o painel avisa que a lista está fora do ar.
 
-Serviço: **Cloudflare Workers + KV** (conta gratuita costuma bastar no volume desta confeitaria).
+## Testes
 
-| Item | Exigência |
-|---|---|
-| Conta | Cloudflare no e-mail do Alexandre (dona do site). **Não criar a conta por agente.** |
-| Plano | Free Workers + KV: 100 mil req/dia no free; KV 1 GB / 100 k reads/dia. Sem custo fixo no uso atual. Pago só se crescer acima do free. |
-| Privacidade | Dados de clientes (nome, telefone) ficam na conta Cloudflare (EUA por padrão). Se precisar residência no Brasil/UE, **não ligue** sem decidir isso — a integração fica pronta e a escolha é sua. |
-| Segredo | `ADMIN_TOKEN` forte, só em variável de ambiente do Worker. **Nunca** no JS, JSON ou repo. |
-| CORS | `CORS_ORIGIN=https://alexandrerangel.github.io` |
-| KV | namespace `ORDERS` ligado ao Worker |
-| URL | `https://<worker>.<subdomínio>.workers.dev` (ou domínio próprio) |
-| Site | Só então preencher `central.endpoint` e `central.enabled: true` num commit consciente |
+- `node tests/check-central.mjs` (sem rede)
+- `central/jana-pedidos/test/api.test.mjs` (API; com `MOCK` usa a InfinitePay simulada)
+- `tests/central-e2e.mjs` (navegador 390 e 1280 px; local com `wrangler dev` + mock, ou `PROD=1`)
 
-Passos (você executa no painel Cloudflare):
-
-1. Criar Worker a partir de `central/worker.mjs` + `central/logic.mjs`.
-2. Criar KV `ORDERS` e bind.
-3. Definir `ADMIN_TOKEN` e `CORS_ORIGIN`.
-4. Testar POST de **dados fictícios** e GET sem token (deve 401).
-5. Apagar os dados de teste.
-6. Colocar a URL em `data/site.json` e ligar `enabled`.
-7. No `/painel/`, entrar com o token (fica só em `sessionStorage` deste navegador).
-
-## O que não fazer
-
-- Não commitar token.
-- Não expor GET de pedidos sem auth.
-- Não apontar a vitrine para mock.
-- Não subir pedidos do `localStorage` em silêncio.
-- Não contratar plano pago sem olhar o limite free.
-
-Custo/privacidade mudam se você escolher outro provedor (Supabase, Apps Script, etc.). A integração Cloudflare está pronta; a decisão de ligar é sua.
+Nenhum teste paga nada nem envia WhatsApp de verdade.

@@ -19,7 +19,44 @@
     selectedId: null,
     editingId: null,
     siteWhatsApp: "5561981246112",
+    site: {},
+    mode: "local",
   };
+
+  function isCentral() {
+    return state.mode === "central";
+  }
+
+  function setCentralMessage(text, kind) {
+    const el = Jana.qs('[data-bind="central-result"]');
+    if (el) {
+      el.textContent = text || "";
+      el.setAttribute("data-kind", kind || "");
+    }
+  }
+
+  function failMessage(result, action) {
+    if (!result) return "Não foi possível " + action + ".";
+    if (result.reason === "denied") return "Sessão expirada. Entre de novo com a senha para " + action + ".";
+    if (result.reason === "network" || result.reason === "unavailable" || result.reason === "timeout") {
+      return "A lista compartilhada está fora do ar agora. Não foi possível " + action + ". Tente de novo em instantes.";
+    }
+    return "Não foi possível " + action + (result.data && result.data.error ? " (" + result.data.error + ")" : "") + ".";
+  }
+
+  async function persistOrder(order, patch) {
+    if (isCentral()) {
+      const result = await Jana.Central.adminPatchOrder(state.site, order.id, patch);
+      if (!result.ok || !result.data.order) {
+        setCentralMessage(failMessage(result, "salvar o pedido"), "erro");
+        if (result.reason === "denied") showLoggedOut();
+        return null;
+      }
+      setCentralMessage("Pedido #" + (result.data.order.number || result.data.order.id) + " salvo na lista compartilhada.", "ok");
+      return result.data.order;
+    }
+    return Jana.Store.updateOrder(Object.assign({}, order, patch));
+  }
 
   function formatDate(iso) {
     if (!iso) return "—";
@@ -90,6 +127,30 @@
     );
   }
 
+  const PAYMENT_LABELS = {
+    pendente: "Pendente",
+    declarado: "Cliente disse que pagou (conferir Pix)",
+    pago: "Pago",
+    nao_pago: "Não pago",
+    a_combinar: "A combinar no WhatsApp",
+    estornado: "Estornado",
+  };
+
+  function paymentLabel(order) {
+    const base = PAYMENT_LABELS[order.paymentStatus] || order.paymentStatus || "—";
+    const extra = [];
+    if (order.paymentStatus === "pago" && order.paidVia) {
+      extra.push("confirmado pela InfinitePay (" + order.paidVia + ")");
+    }
+    if (order.amountMismatch) {
+      extra.push("valor diferente do pedido, conferir");
+    }
+    if (order.priceNote) {
+      extra.push(order.priceNote);
+    }
+    return extra.length ? base + " · " + extra.join(" · ") : base;
+  }
+
   function findOrder(id) {
     return state.orders.find(function match(order) {
       return order.id === id;
@@ -146,11 +207,26 @@
     const body = Jana.qs('[data-bind="clients-body"]');
     if (!state.clients.length) {
       body.innerHTML =
-        '<tr><td colspan="3" class="painel-empty">Nenhum cliente cadastrado.</td></tr>';
+        '<tr><td colspan="4" class="painel-empty">Nenhum cliente cadastrado.</td></tr>';
       return;
     }
+    const central = isCentral();
     body.innerHTML = state.clients
       .map(function row(client) {
+        const actions = central
+          ? '<td class="painel-row-actions">' +
+            '<button type="button" class="btn btn--small btn--outline" data-action="edit-client" data-id="' +
+            Jana.escapeHtml(client.id) +
+            '" aria-label="Editar cliente ' +
+            Jana.escapeHtml(client.nome || "") +
+            '">Editar</button>' +
+            '<button type="button" class="btn btn--small btn--danger" data-action="delete-client" data-id="' +
+            Jana.escapeHtml(client.id) +
+            '" aria-label="Excluir cliente ' +
+            Jana.escapeHtml(client.nome || "") +
+            '">Excluir</button>' +
+            "</td>"
+          : "<td>—</td>";
         return (
           "<tr>" +
           "<td>" +
@@ -162,6 +238,7 @@
           "<td>" +
           Jana.escapeHtml(formatPhone(client.telefone)) +
           "</td>" +
+          actions +
           "</tr>"
         );
       })
@@ -231,7 +308,11 @@
     Jana.bindText("detail-desired", formatDesired(order.desiredDate));
     Jana.bindText("detail-address", order.address || "—");
     Jana.bindText("detail-notes", order.notes || "—");
-    Jana.bindText("detail-payment-status", order.paymentStatus || "—");
+    Jana.bindText("detail-payment-status", paymentLabel(order));
+    const verify = Jana.qs('[data-bind="detail-verify"]');
+    if (verify) {
+      verify.hidden = !(isCentral() && order.paymentMethod === "infinitepay" && order.paymentStatus !== "pago" && order.transactionNsu);
+    }
     Jana.bindText("detail-order-nsu", order.orderNsu || "—");
     Jana.bindText("detail-payment-method", Jana.paymentMethodCsv ? Jana.paymentMethodCsv(order) : order.paymentMethod || "—");
     const receipt = Jana.qs("[data-bind='detail-receipt']");
@@ -274,7 +355,7 @@
       .map(function item(row) {
         return (
           "<li><span>" +
-          Jana.escapeHtml(row.quantity + "× " + row.name) +
+          Jana.escapeHtml(row.quantity + "× " + row.name + (row.flavor ? " (" + row.flavor + ")" : "")) +
           "</span><span>" +
           Jana.escapeHtml(Jana.formatBRL((row.price || 0) * (row.quantity || 0))) +
           "</span></li>"
@@ -429,20 +510,21 @@
     );
   }
 
-  function onStatusChange(event) {
+  async function onStatusChange(event) {
     const select = event.target;
     const orderId = select.getAttribute("data-order-id");
     const status = select.value;
     const order = findOrder(orderId);
     if (!order) return;
-
-    const saved = Jana.Store.updateOrder(
-      Object.assign({}, order, {
-        status: status,
-        source: order.source === "demo" ? "demo-edit" : order.source || "painel-edit",
-      })
-    );
-    if (!saved) return;
+    const patch = { status: status };
+    if (!isCentral()) {
+      patch.source = order.source === "demo" ? "demo-edit" : order.source || "painel-edit";
+    }
+    const saved = await persistOrder(order, patch);
+    if (!saved) {
+      select.value = order.status;
+      return;
+    }
     state.orders = state.orders.map(function replace(row) {
       return row.id === orderId ? saved : row;
     });
@@ -471,7 +553,7 @@
     }
   }
 
-  function saveEditing(event) {
+  async function saveEditing(event) {
     event.preventDefault();
     const order = findOrder(state.editingId);
     if (!order) return;
@@ -488,20 +570,21 @@
     const freteField = Jana.qs('[data-bind="edit-frete"]');
     const frete = Math.max(0, Number(freteField && freteField.value) || 0);
     const subtotal = calculateSubtotal(order);
-    const saved = Jana.Store.updateOrder(
-      Object.assign({}, order, {
-        clientName: name,
-        clientPhone: Jana.Store.digitsOnly(getValue("edit-client-phone")),
-        clientEmail: getValue("edit-client-email"),
-        desiredDate: getValue("edit-desired-date"),
-        address: getValue("edit-address"),
-        notes: getValue("edit-notes"),
-        subtotal: subtotal,
-        frete: frete,
-        total: subtotal + frete,
-        source: order.source === "demo" ? "demo-edit" : order.source || "painel-edit",
-      })
-    );
+    const patch = {
+      clientName: name,
+      clientPhone: Jana.Store.digitsOnly(getValue("edit-client-phone")),
+      clientEmail: getValue("edit-client-email"),
+      desiredDate: getValue("edit-desired-date"),
+      address: getValue("edit-address"),
+      notes: getValue("edit-notes"),
+      frete: frete,
+    };
+    if (!isCentral()) {
+      patch.subtotal = subtotal;
+      patch.total = subtotal + frete;
+      patch.source = order.source === "demo" ? "demo-edit" : order.source || "painel-edit";
+    }
+    const saved = await persistOrder(order, patch);
     if (!saved) return;
     state.orders = state.orders.map(function replace(row) {
       return row.id === saved.id ? saved : row;
@@ -511,14 +594,25 @@
     renderDetail(saved);
   }
 
-  function deleteOrder(orderId) {
+  async function deleteOrder(orderId) {
     const order = findOrder(orderId);
     if (!order) return;
     const label = order.number || order.id;
-    if (!window.confirm("Excluir o pedido #" + label + "?\nEssa ação não poderá ser desfeita.")) {
+    const where = isCentral() ? " da lista compartilhada (todos os aparelhos)" : " deste navegador";
+    if (!window.confirm("Excluir o pedido #" + label + where + "?\nEssa ação não poderá ser desfeita.")) {
       return;
     }
-    Jana.Store.deleteOrder(orderId);
+    if (isCentral()) {
+      const result = await Jana.Central.adminDeleteOrder(state.site, orderId);
+      if (!result.ok) {
+        setCentralMessage(failMessage(result, "excluir o pedido"), "erro");
+        if (result.reason === "denied") showLoggedOut();
+        return;
+      }
+      setCentralMessage("Pedido #" + label + " excluído da lista compartilhada.", "ok");
+    } else {
+      Jana.Store.deleteOrder(orderId);
+    }
     state.orders = state.orders.filter(function keep(row) {
       return row.id !== orderId;
     });
@@ -554,6 +648,33 @@
       }
       if (action === "cancel-edit") {
         cancelEditing();
+        return;
+      }
+      if (action === "edit-client") {
+        editClient(actionEl.getAttribute("data-id"));
+        return;
+      }
+      if (action === "delete-client") {
+        deleteClient(actionEl.getAttribute("data-id"));
+        return;
+      }
+      if (action === "central-logout") {
+        Jana.Central.logout();
+        showLoggedOut();
+        loadLocal().then(renderAll);
+        setCentralMessage("Você saiu. Mostrando só os pedidos guardados neste navegador.", "");
+        return;
+      }
+      if (action === "central-reload") {
+        loadCentral();
+        return;
+      }
+      if (action === "central-import") {
+        importLocal();
+        return;
+      }
+      if (action === "verify-order") {
+        verifyOrder(state.selectedId);
         return;
       }
       if (action === "export-clients") {
@@ -605,125 +726,235 @@
     Jana.qs('[data-bind="detail-status"]').addEventListener("change", onStatusChange);
   }
 
-  function bindCentral(site) {
-    const statusEl = Jana.qs('[data-bind="central-status"]');
-    const form = Jana.qs('[data-bind="central-login"]');
-    const resultEl = Jana.qs('[data-bind="central-result"]');
-    const listEl = Jana.qs('[data-bind="central-orders"]');
-    const enabled = Jana.Central && Jana.Central.isEnabled(site);
-    if (!enabled) {
-      if (statusEl) {
-        statusEl.textContent =
-          "Canal compartilhado desligado. Pedidos iguais entre aparelhos exigem o Worker descrito em central/README.md. Este painel local continua só neste navegador. Nada sobe automaticamente.";
-      }
-      if (form) form.hidden = true;
-      if (listEl) listEl.hidden = true;
+  async function editClient(id) {
+    const client = state.clients.find(function match(row) {
+      return row.id === id;
+    });
+    if (!client) return;
+    const nome = window.prompt("Nome do cliente", client.nome || "");
+    if (nome == null) return;
+    const telefone = window.prompt("Telefone (só números, com DDD)", client.telefone || "");
+    if (telefone == null) return;
+    const email = window.prompt("E-mail", client.email || "");
+    if (email == null) return;
+    const result = await Jana.Central.adminPatchClient(state.site, id, { nome: nome, telefone: telefone, email: email });
+    if (!result.ok) {
+      setCentralMessage(failMessage(result, "salvar o cliente"), "erro");
       return;
     }
-    if (statusEl) {
-      statusEl.textContent =
-        "Canal ligado neste site. Informe o token de administração (fica só neste navegador). Listar ou alterar pedidos exige autorização no servidor.";
-    }
-    if (!form || !resultEl || !listEl) return;
-    form.hidden = false;
-    form.addEventListener("submit", async function onCentralLogin(event) {
-      event.preventDefault();
-      const token = (form.token && form.token.value ? form.token.value : "").trim();
-      if (!token) {
-        resultEl.textContent = "Informe o token.";
-        return;
-      }
-      try {
-        sessionStorage.setItem("jana-abreu-admin-token-v1", token);
-      } catch (err) {
-        /* sessionStorage may be blocked */
-      }
-      const listed = await Jana.Central.adminList(site, token);
-      if (!listed.ok) {
-        listEl.hidden = true;
-        listEl.innerHTML = "";
-        resultEl.textContent =
-          listed.reason === "denied" ? "Acesso recusado." : "Canal indisponível.";
-        return;
-      }
-      resultEl.textContent = listed.orders.length + " solicitação(ões) no canal.";
-      listEl.hidden = false;
-      listEl.innerHTML = listed.orders
-        .map(function row(order) {
-          return (
-            '<article class="painel-central__order"><strong>#' +
-            Jana.escapeHtml(order.number || order.id) +
-            "</strong> " +
-            Jana.escapeHtml(order.clientName || "") +
-            ' <label>Status <select data-central-status data-id="' +
-            Jana.escapeHtml(order.id) +
-            '">' +
-            Object.keys(STATUS_LABELS)
-              .filter(function onlyCurrent(key) {
-                return key !== "novo" && key !== "em_preparo";
-              })
-              .map(function option(key) {
-                const selected = order.status === key ? " selected" : "";
-                return (
-                  '<option value="' +
-                  key +
-                  '"' +
-                  selected +
-                  ">" +
-                  Jana.escapeHtml(STATUS_LABELS[key]) +
-                  "</option>"
-                );
-              })
-              .join("") +
-            "</select></label></article>"
-          );
-        })
-        .join("");
+    state.clients = state.clients.map(function replace(row) {
+      return row.id === id ? result.data.client : row;
     });
-    listEl.addEventListener("change", async function onCentralStatus(event) {
-      const select = event.target.closest("[data-central-status]");
-      if (!select) return;
-      let token = "";
-      try {
-        token = sessionStorage.getItem("jana-abreu-admin-token-v1") || "";
-      } catch (err) {
-        token = "";
-      }
-      const patched = await Jana.Central.adminPatch(site, token, select.getAttribute("data-id"), {
-        status: select.value,
-      });
-      resultEl.textContent = patched.ok
-        ? "Status atualizado no canal."
-        : patched.reason === "denied"
-          ? "Acesso recusado."
-          : "Não foi possível alterar o status.";
-    });
+    renderClients();
+    setCentralMessage("Cliente salvo na lista compartilhada.", "ok");
   }
 
-  async function init() {
-    bindEvents();
-    let site = {};
+  async function deleteClient(id) {
+    const client = state.clients.find(function match(row) {
+      return row.id === id;
+    });
+    if (!client) return;
+    if (!window.confirm("Excluir o cliente " + (client.nome || "") + " da lista compartilhada?\nOs pedidos dele continuam na lista.")) {
+      return;
+    }
+    const result = await Jana.Central.adminDeleteClient(state.site, id);
+    if (!result.ok) {
+      setCentralMessage(failMessage(result, "excluir o cliente"), "erro");
+      return;
+    }
+    state.clients = state.clients.filter(function keep(row) {
+      return row.id !== id;
+    });
+    renderClients();
+    setCentralMessage("Cliente excluído.", "ok");
+  }
+
+  async function verifyOrder(id) {
+    if (!isCentral() || !id) return;
+    const result = await Jana.Central.adminVerifyOrder(state.site, id);
+    if (!result.ok || !result.data.order) {
+      setCentralMessage(failMessage(result, "conferir o pagamento"), "erro");
+      return;
+    }
+    const saved = result.data.order;
+    state.orders = state.orders.map(function replace(row) {
+      return row.id === id ? saved : row;
+    });
+    renderOrders();
+    renderDetail(saved);
+    setCentralMessage(
+      result.data.paid ? "InfinitePay confirmou: pedido pago." : result.data.note || "A InfinitePay ainda não confirma este pagamento.",
+      result.data.paid ? "ok" : ""
+    );
+  }
+
+  async function importLocal() {
+    const local = Jana.Store.localOrders();
+    if (!local.length) {
+      setCentralMessage("Este aparelho não tem pedidos guardados para enviar.", "");
+      return;
+    }
+    if (!window.confirm("Enviar " + local.length + " pedido(s) guardados neste aparelho para a lista compartilhada?")) {
+      return;
+    }
+    const result = await Jana.Central.adminImport(state.site, local);
+    if (!result.ok) {
+      setCentralMessage(failMessage(result, "enviar os pedidos deste aparelho"), "erro");
+      return;
+    }
+    setCentralMessage(result.data.imported + " pedido(s) enviados; " + result.data.skipped + " já estavam na lista.", "ok");
+    loadCentral();
+  }
+
+  function showLoggedOut() {
+    state.mode = "local";
+    const form = Jana.qs('[data-bind="central-login"]');
+    const session = Jana.qs('[data-bind="central-session"]');
+    if (form) form.hidden = !(Jana.Central && Jana.Central.isEnabled(state.site));
+    if (session) session.hidden = true;
+    Jana.bindText("painel-modo", "Pedidos guardados só neste navegador");
+    document.body.setAttribute("data-modo", "local");
+  }
+
+  function showLoggedIn() {
+    state.mode = "central";
+    const form = Jana.qs('[data-bind="central-login"]');
+    const session = Jana.qs('[data-bind="central-session"]');
+    if (form) form.hidden = true;
+    if (session) session.hidden = false;
+    Jana.bindText("painel-modo", "Lista compartilhada entre os aparelhos da Jana");
+    document.body.setAttribute("data-modo", "central");
+  }
+
+  async function loadLocal() {
     try {
-      const [orders, clients, loadedSite] = await Promise.all([
-        Jana.loadJSON("../data/orders.json"),
-        Jana.loadJSON("../data/clients.json"),
-        Jana.loadJSON("../data/site.json"),
+      const [orders, clients] = await Promise.all([
+        Jana.loadJSON("../data/orders.json").catch(function none() {
+          return [];
+        }),
+        Jana.loadJSON("../data/clients.json").catch(function none() {
+          return [];
+        }),
       ]);
-      site = loadedSite || {};
-      state.siteWhatsApp = (site.contato && site.contato.whatsapp) || state.siteWhatsApp;
       state.orders = Jana.Store.mergeOrders(orders);
       state.clients = Jana.Store.mergeClients(clients);
     } catch (err) {
       state.orders = Jana.Store.mergeOrders([]);
       state.clients = Jana.Store.mergeClients([]);
-      console.error(err);
     }
-    bindCentral(site);
+  }
+
+  function renderAll() {
     renderOrders();
     renderClients();
-    if (state.orders[0]) {
+    const keep = state.selectedId && findOrder(state.selectedId);
+    if (keep) {
+      selectOrder(state.selectedId);
+    } else if (state.orders[0]) {
       selectOrder(state.orders[0].id);
+    } else {
+      state.selectedId = null;
+      renderDetail(null);
     }
+  }
+
+  async function loadCentral() {
+    setCentralMessage("Carregando a lista compartilhada…", "");
+    const [orders, clients] = await Promise.all([
+      Jana.Central.adminOrders(state.site),
+      Jana.Central.adminClients(state.site),
+    ]);
+    if (!orders.ok) {
+      if (orders.reason === "denied") {
+        showLoggedOut();
+        setCentralMessage("Sessão expirada. Entre de novo com a senha.", "erro");
+      } else {
+        setCentralMessage(
+          "A lista compartilhada está fora do ar agora. Mostrando só os pedidos guardados neste navegador; tente de novo em instantes.",
+          "erro"
+        );
+        showLoggedOut();
+        const session = Jana.qs('[data-bind="central-session"]');
+        const form = Jana.qs('[data-bind="central-login"]');
+        if (session) session.hidden = false;
+        if (form) form.hidden = true;
+      }
+      await loadLocal();
+      renderAll();
+      return false;
+    }
+    showLoggedIn();
+    state.orders = orders.data.orders || [];
+    state.clients = clients.ok ? clients.data.clients || [] : [];
+    setCentralMessage(state.orders.length + " pedido(s) na lista compartilhada.", "ok");
+    renderAll();
+    return true;
+  }
+
+  function bindCentral() {
+    const statusEl = Jana.qs('[data-bind="central-status"]');
+    const form = Jana.qs('[data-bind="central-login"]');
+    const enabled = Jana.Central && Jana.Central.isEnabled(state.site);
+    if (!enabled) {
+      if (statusEl) {
+        statusEl.textContent = "Lista compartilhada desligada neste site. Os pedidos abaixo ficam só neste navegador.";
+      }
+      if (form) form.hidden = true;
+      return false;
+    }
+    if (statusEl) {
+      statusEl.textContent =
+        "Entre com a senha da loja para ver e editar os pedidos de todos os aparelhos. A sessão dura 12 horas neste navegador.";
+    }
+    if (form) {
+      form.addEventListener("submit", async function onLogin(event) {
+        event.preventDefault();
+        const field = form.querySelector('input[name="password"]');
+        const password = field ? field.value : "";
+        if (!password) {
+          setCentralMessage("Digite a senha.", "erro");
+          return;
+        }
+        const button = form.querySelector('[type="submit"]');
+        if (button) button.disabled = true;
+        setCentralMessage("Entrando…", "");
+        const result = await Jana.Central.adminLogin(state.site, password);
+        if (button) button.disabled = false;
+        if (!result.ok) {
+          setCentralMessage(
+            result.status === 401
+              ? "Senha incorreta."
+              : result.reason === "throttled"
+                ? "Muitas tentativas. Espere 15 minutos e tente de novo."
+                : "A lista compartilhada está fora do ar agora. Tente de novo em instantes.",
+            "erro"
+          );
+          return;
+        }
+        if (field) field.value = "";
+        await loadCentral();
+      });
+    }
+    return true;
+  }
+
+  async function init() {
+    bindEvents();
+    try {
+      state.site = (await Jana.loadJSON("../data/site.json")) || {};
+    } catch (err) {
+      state.site = {};
+    }
+    state.siteWhatsApp = (state.site.contato && state.site.contato.whatsapp) || state.siteWhatsApp;
+    const enabled = bindCentral();
+    if (enabled && Jana.Central.session()) {
+      const ok = await loadCentral();
+      if (ok) return;
+      return;
+    }
+    showLoggedOut();
+    await loadLocal();
+    renderAll();
   }
 
   document.addEventListener("DOMContentLoaded", init);

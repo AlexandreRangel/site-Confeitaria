@@ -486,3 +486,19 @@
     grid-column: 1 / -1;
   }
 }
+
+.painel-central__session {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.painel-central [data-bind="central-result"][data-kind="erro"] {
+  color: #9b2335;
+  font-weight: 600;
+}
+
+.painel-central [data-bind="central-result"][data-kind="ok"] {
+  color: #3d6b35;
+}

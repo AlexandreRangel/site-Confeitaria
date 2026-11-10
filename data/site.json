@@ -52,9 +52,9 @@
   "requestDisclaimer": "Esta é uma solicitação de encomenda. A confirmação depende da disponibilidade e da confirmação da Jana pelo WhatsApp.",
   "privacyNote": "Usamos nome, telefone e o que você escrever só para a Jana responder esta solicitação. Não publicamos sua lista de pedidos.",
   "central": {
-    "enabled": false,
-    "endpoint": "",
-    "note": "Canal compartilhado desligado até existir backend provisionado. O WhatsApp continua sendo o atendimento."
+    "enabled": true,
+    "endpoint": "https://jana-pedidos.janaabreu.workers.dev",
+    "note": "Pedidos centralizados no Cloudflare (Worker jana-pedidos + D1). O painel pede a senha de administração. O WhatsApp continua sendo o atendimento."
   },
   "heroVisitTitle": "",
   "heroVisitSubtitle": "",

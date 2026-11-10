@@ -1,0 +1,18 @@
+name = "jana-pedidos"
+main = "src/index.js"
+compatibility_date = "2026-11-01"
+workers_dev = true
+
+[vars]
+ALLOWED_ORIGINS = "https://alexandrerangel.github.io,https://janaabreuconfeitaria.com.br,https://www.janaabreuconfeitaria.com.br"
+SITE_DATA_URL = "https://alexandrerangel.github.io/site-Confeitaria/,https://janaabreuconfeitaria.com.br/"
+PUBLIC_URL = "https://jana-pedidos.janaabreu.workers.dev"
+ALLOW_LOCALHOST = "0"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "jana-pedidos"
+database_id = "721822b7-09f5-4f82-8f38-fb9cf1a4da29"
+
+[observability]
+enabled = true

@@ -508,6 +508,9 @@
     }
     lines.push("*Total:* " + Jana.formatBRL(total));
     lines.push("", "*Pagamento via Pix — aguardando conferência*");
+    if (order && order.orderNsu) {
+      lines.push("*Pedido:* " + order.orderNsu);
+    }
     lines.push("Vou enviar o comprovante por aqui.");
     if (order && (order.notes || order.observacoes)) {
       lines.push("", "*Observações:* " + (order.notes || order.observacoes));

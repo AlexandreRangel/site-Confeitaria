@@ -78,12 +78,15 @@
     }
   }
 
-  function findOrder(nsu, pending) {
+  function findOrder(nsu, pending, centralOrder) {
     if (Jana.Store && Jana.Store.findByOrderNsu) {
       const found = Jana.Store.findByOrderNsu(nsu);
       if (found) {
         return found;
       }
+    }
+    if (centralOrder) {
+      return Object.assign({}, centralOrder, { id: "" });
     }
     if (pending && pending.payload) {
       return {
@@ -134,32 +137,51 @@
       return;
     }
 
-    const handle = Jana.infinitePayHandle(pagamento);
-    let check;
-    try {
-      check = await Jana.checkInfinitePay({
-        handle: handle,
-        order_nsu: params.order_nsu,
-        transaction_nsu: params.transaction_nsu,
-        slug: params.slug,
-      });
-    } catch (err) {
-      setState(
-        "Não foi possível confirmar o pagamento",
-        "Houve um erro ao consultar a InfinitePay. Se você já pagou, fale com a Jana pelo WhatsApp e envie o comprovante.",
-        "erro"
-      );
-      const number = (site.contato && site.contato.whatsapp) || "5561981246112";
-      showWhatsApp(
-        "https://wa.me/" +
-          number +
-          "?text=" +
-          encodeURIComponent("Olá! Paguei o pedido " + params.order_nsu + " e o site não confirmou. Pode conferir?")
-      );
-      return;
+    // 1) Worker (confere na InfinitePay pelo servidor e grava o pedido como pago).
+    // 2) Se o Worker estiver fora do ar ou não conhecer o pedido, consulta o payment_check direto.
+    let check = null;
+    let centralOrder = null;
+    if (Jana.Central && Jana.Central.isEnabled(site)) {
+      const token = pending && pending.orderNsu === params.order_nsu ? pending.centralToken || "" : "";
+      const status = await Jana.Central.orderStatus(site, params.order_nsu, params, token);
+      if (status.ok && status.data && !status.data.checkError) {
+        check = {
+          success: true,
+          paid: status.data.paid === true,
+          paid_amount: status.data.paidAmount != null ? Math.round(status.data.paidAmount * 100) : null,
+          capture_method: status.data.captureMethod || "",
+          source: "worker",
+        };
+        centralOrder = status.data.order || null;
+      }
+    }
+    if (!check) {
+      const handle = Jana.infinitePayHandle(pagamento);
+      try {
+        check = await Jana.checkInfinitePay({
+          handle: handle,
+          order_nsu: params.order_nsu,
+          transaction_nsu: params.transaction_nsu,
+          slug: params.slug,
+        });
+      } catch (err) {
+        setState(
+          "Não foi possível confirmar o pagamento",
+          "Houve um erro ao consultar a InfinitePay. Se você já pagou, fale com a Jana pelo WhatsApp e envie o comprovante.",
+          "erro"
+        );
+        const number = (site.contato && site.contato.whatsapp) || "5561981246112";
+        showWhatsApp(
+          "https://wa.me/" +
+            number +
+            "?text=" +
+            encodeURIComponent("Olá! Paguei o pedido " + params.order_nsu + " e o site não confirmou. Pode conferir?")
+        );
+        return;
+      }
     }
 
-    const order = findOrder(params.order_nsu, pending);
+    const order = findOrder(params.order_nsu, pending, centralOrder);
     const paid = !!(check && check.success !== false && check.paid === true);
     if (!paid) {
       setState(

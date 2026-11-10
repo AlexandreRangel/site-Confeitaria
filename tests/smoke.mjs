@@ -161,6 +161,14 @@ async function withPage(browserType, engine, viewport, fn) {
   await page.route("https://checkout.infinitepay.io/**", function abortCheckout(route) {
     return route.abort();
   });
+  // Os testes de vitrine rodam com a lista compartilhada (Worker) desligada, para não gravar pedidos reais.
+  // O fluxo com o Worker é testado em tests/central-e2e.mjs.
+  await page.route("**/data/site.json", async function centralOff(route) {
+    const response = await route.fetch();
+    const data = await response.json();
+    data.central = { enabled: false, endpoint: "", note: "desligado nos testes" };
+    return route.fulfill({ response: response, body: JSON.stringify(data), headers: { "content-type": "application/json" } });
+  });
   const consoleErrors = [];
   function keepConsole(text) {
     if (/wa\.me|whatsapp\.com|checkout\.infinitepay\.io|InfinitePay:|ERR_ABORTED|ERR_FAILED|net::ERR_CONNECTION|502 \(Bad Gateway\)|Failed to load resource: the server responded with a status of 502/i.test(text)) {
@@ -181,7 +189,7 @@ async function withPage(browserType, engine, viewport, fn) {
     popup.close().catch(function ignore() {});
   });
   page.on("request", function onRequest(req) {
-    if (/\/v1\/solicitacoes/.test(req.url())) {
+    if (/workers\.dev|\/v1\/solicitacoes/.test(req.url())) {
       centralHits.push(req.url());
     }
   });
@@ -820,10 +828,10 @@ async function runEngine(browserType, engine) {
     await page.goto(BASE + "/painel/", { waitUntil: "domcontentloaded" });
     const painelHydra = await page.locator("canvas.hydra-button-bg, [id*='hydra']").count();
     record(engine, "painel has no Hydra", painelHydra === 0);
-    const note = ((await page.locator(".painel-note").textContent()) || "").toLowerCase();
-    record(engine, "painel stays local", note.indexOf("localstorage") !== -1 && /legado|centraliz/.test(note));
+    const modo = ((await page.locator('[data-bind="painel-modo"]').textContent()) || "").toLowerCase();
+    record(engine, "painel stays local while shared list is off", modo.indexOf("neste navegador") !== -1, modo);
     const centralCopy = ((await page.locator('[data-bind="central-status"]').textContent()) || "").toLowerCase();
-    record(engine, "painel says shared channel is off", centralCopy.indexOf("desligado") !== -1, centralCopy.slice(0, 80));
+    record(engine, "painel says shared list is off", centralCopy.indexOf("desligada") !== -1, centralCopy.slice(0, 80));
     const loginHidden = await page.locator('[data-bind="central-login"]').evaluate(function isHidden(el) {
       return el.hasAttribute("hidden") || el.hidden === true;
     });
