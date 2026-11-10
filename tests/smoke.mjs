@@ -509,7 +509,7 @@ async function runEngine(browserType, engine) {
     });
     record(engine, "pay choice sits in the cart above the pay button", !!(choiceInCart.ok && choiceInCart.inCart && choiceInCart.above), JSON.stringify(choiceInCart));
     await page.locator('#checkout-form [name="modalidade"][value="retirada"]').check();
-    await page.locator('#checkout-form [name="pagamento"][value="pix"]').check();
+    await page.locator('[data-bind="pay-option-pix"]').click();
     await page.waitForSelector('[data-bind="pix-block"]:not([hidden])', { timeout: 5000 });
     record(engine, "Pix QR shown in the cart after selecting Pix", await page.locator('[data-bind="pix-block"]').isVisible());
     const jaPagueiLabel = ((await page.locator('[data-bind="checkout-submit"]').textContent()) || "").trim();
@@ -578,18 +578,56 @@ async function runEngine(browserType, engine) {
     await page.locator('#checkout-form [name="modalidade"][value="retirada"]').check();
     await page.locator('#checkout-form [name="nome"]').fill("Fallback Teste");
     await page.locator('#checkout-form [name="telefone"]').fill("61900000000");
-    await page.locator('#checkout-form [name="pagamento"][value="infinitepay"]').check();
+    await page.locator('[data-bind="pay-option-infinitepay"]').click();
     waHits.length = 0;
     await page.locator('[data-bind="checkout-submit"]').click();
     await page.waitForTimeout(800);
     const failStatus = ((await page.locator('[data-bind="checkout-status"]').textContent()) || "").trim();
+    const failMethod = await page.evaluate(function method() {
+      const checked = document.querySelector('#checkout-form [name="pagamento"]:checked');
+      return (checked && checked.value) || "";
+    });
+    const failButton = ((await page.locator('[data-bind="checkout-submit"]').textContent()) || "").trim();
     record(
       engine,
-      "InfinitePay failure keeps the cart and offers Pix",
-      /InfinitePay/.test(failStatus) && /Pix/.test(failStatus) && await page.locator('[data-bind="pix-block"]').isVisible() && ((await page.locator('[data-bind="checkout-submit"]').textContent()) || "").trim() === "Já paguei" && waHits.length === 0,
-      failStatus
+      "card payment failure keeps the cart on Pagar com cartão",
+      /cartão/.test(failStatus) && /Pix/.test(failStatus) && failMethod === "infinitepay" && failButton === "Pagar com cartão" && await page.locator('[data-bind="pix-block"]').isHidden() && waHits.length === 0,
+      failStatus + " | method=" + failMethod + " | button=" + failButton
     );
-    record(engine, "pay choice still in the cart after InfinitePay failure", await page.locator('[data-bind="pay-method"]').isVisible());
+    record(engine, "pay choice still in the cart after card payment failure", await page.locator('[data-bind="pay-method"]').isVisible());
+
+    await page.locator('[data-bind="pay-option-pix"]').click();
+    await page.waitForTimeout(200);
+    await page.locator('[data-bind="pay-option-infinitepay"]').click();
+    await page.waitForTimeout(200);
+    let clickMethod = await page.evaluate(function method() {
+      const checked = document.querySelector('#checkout-form [name="pagamento"]:checked');
+      return {
+        value: (checked && checked.value) || "",
+        button: ((document.querySelector('[data-bind="checkout-submit"]') || {}).textContent || "").trim(),
+      };
+    });
+    record(engine, "clicking the card box keeps Pagar com cartão at 390", clickMethod.value === "infinitepay" && clickMethod.button === "Pagar com cartão", JSON.stringify(clickMethod));
+    await page.locator('[data-bind="pay-option-pix"]').click();
+    await page.waitForTimeout(150);
+    await page.locator('[data-bind="pay-option-infinitepay"] span').click();
+    await page.waitForTimeout(200);
+    if (await page.locator('[data-action="qty-plus"]').count()) {
+      await page.locator('[data-action="qty-plus"]').first().click();
+    }
+    await page.locator('#checkout-form [name="modalidade"][value="entrega"]').check();
+    await page.locator('#checkout-form [name="endereco"]').fill("Asa Norte");
+    await page.waitForTimeout(150);
+    await page.locator('#checkout-form [name="modalidade"][value="retirada"]').check();
+    await page.waitForTimeout(150);
+    clickMethod = await page.evaluate(function method() {
+      const checked = document.querySelector('#checkout-form [name="pagamento"]:checked');
+      return {
+        value: (checked && checked.value) || "",
+        button: ((document.querySelector('[data-bind="checkout-submit"]') || {}).textContent || "").trim(),
+      };
+    });
+    record(engine, "card choice survives quantity and delivery changes at 390", clickMethod.value === "infinitepay" && clickMethod.button === "Pagar com cartão", JSON.stringify(clickMethod));
 
     const linkBodies = [];
     await page.route("**/data/pagamento.json", function fulfillPay(route) {
@@ -649,7 +687,7 @@ async function runEngine(browserType, engine) {
     const cardOpt = ((await page.locator('[data-bind="pay-option-infinitepay"]').innerText()) || "").replace(/\s+/g, " ").trim();
     record(engine, "pay option labels are Pagar com Pix and Pagar com cartão", pixOpt === "Pagar com Pix" && cardOpt === "Pagar com cartão", JSON.stringify({ pixOpt, cardOpt }));
     record(engine, "pay options do not mention InfinitePay", !/InfinitePay/i.test(pixOpt + " " + cardOpt));
-    await page.locator('#checkout-form [name="pagamento"][value="infinitepay"]').check();
+    await page.locator('[data-bind="pay-option-infinitepay"]').click();
     const payLabel = ((await page.locator('[data-bind="checkout-submit"]').textContent()) || "").trim();
     record(engine, "pay button when card is selected", payLabel === "Pagar com cartão", payLabel);
     record(engine, "pay button does not mention InfinitePay", !/InfinitePay/i.test(payLabel));
@@ -1074,11 +1112,19 @@ async function runEngine(browserType, engine) {
     const deskPixValue = ((await page.locator('[data-bind="pix-value"]').textContent()) || "").trim();
     const deskPix = inspectPixPayload(await page.locator('[data-bind="pix-payload"]').inputValue(), parseBRL(deskPixValue));
     record(engine, "desktop BR Code retirada CRC and EMV (key omitted)", deskPix.ok, deskPix.detail);
-    await page.locator('#checkout-form [name="pagamento"][value="infinitepay"]').check();
+    await page.locator('[data-bind="pay-option-infinitepay"]').click();
     const deskPayLabel = ((await page.locator('[data-bind="checkout-submit"]').textContent()) || "").trim();
     record(engine, "desktop pay button Pagar com cartão", deskPayLabel === "Pagar com cartão", deskPayLabel);
     record(engine, "desktop pay button does not mention InfinitePay", !/InfinitePay/i.test(deskPayLabel));
     record(engine, "desktop Pix hidden after switching method", await page.locator('[data-bind="pix-block"]').isHidden());
+    if (await page.locator('[data-action="qty-plus"]').count()) {
+      await page.locator('[data-action="qty-plus"]').first().click();
+    }
+    const deskAfterQty = await page.evaluate(function method() {
+      const checked = document.querySelector('#checkout-form [name="pagamento"]:checked');
+      return (checked && checked.value) || "";
+    });
+    record(engine, "desktop card choice survives quantity change", deskAfterQty === "infinitepay", deskAfterQty);
     await page.locator('[data-bind="checkout-submit"]').click({ noWaitAfter: true }).catch(function ignoreNav() {});
     await page.waitForURL(/\/pagamento\//, { timeout: 8000 });
     record(engine, "desktop InfinitePay reaches payment page", deskLinks.length >= 1, String(deskLinks.length));

@@ -1081,8 +1081,17 @@
   }
 
   function selectedPayMethod() {
+    if (state.payMethod === "pix" || state.payMethod === "infinitepay") {
+      return state.payMethod;
+    }
     const checked = Jana.qs('#checkout-form [name="pagamento"]:checked');
-    return (checked && checked.value) || state.payMethod || "";
+    return (checked && checked.value) || "";
+  }
+
+  function setPayRadioChecked(radio, on) {
+    if (radio && radio.checked !== !!on) {
+      radio.checked = !!on;
+    }
   }
 
   function syncCheckoutPayUi(totals) {
@@ -1116,7 +1125,7 @@
     const pixRadio = Jana.qs('#checkout-form [name="pagamento"][value="pix"]');
     const infRadio = Jana.qs('#checkout-form [name="pagamento"][value="infinitepay"]');
     if (pixRadio) {
-      pixRadio.checked = method === "pix";
+      setPayRadioChecked(pixRadio, method === "pix");
       if (options.pix) {
         pixRadio.setAttribute("required", "required");
       } else {
@@ -1124,7 +1133,7 @@
       }
     }
     if (infRadio) {
-      infRadio.checked = method === "infinitepay";
+      setPayRadioChecked(infRadio, method === "infinitepay");
       if (options.infinitepay && !options.pix) {
         infRadio.setAttribute("required", "required");
       } else if (options.pix) {
@@ -1698,19 +1707,9 @@
       }
       window.location.assign(url);
     } catch (err) {
+      syncCheckoutPayUi(totals);
       if (Jana.canPayWithPix && Jana.canPayWithPix(checkoutPayOpts(totals))) {
-        state.payMethod = "pix";
-        const pixRadio = Jana.qs('#checkout-form [name="pagamento"][value="pix"]');
-        if (pixRadio) {
-          pixRadio.checked = true;
-        }
-        const infRadio = Jana.qs('#checkout-form [name="pagamento"][value="infinitepay"]');
-        if (infRadio) {
-          infRadio.checked = false;
-        }
-        state.pixVisible = true;
-        syncCheckoutPayUi(totals);
-        setCheckoutStatus("Não foi possível abrir a InfinitePay. Pague com Pix neste carrinho ou fale no WhatsApp.");
+        setCheckoutStatus("Não foi possível abrir o pagamento com cartão. Tente de novo, escolha Pix ou fale no WhatsApp.");
       } else {
         setCheckoutStatus("Não foi possível abrir o pagamento. Tente de novo ou fale no WhatsApp.");
       }
@@ -2096,13 +2095,27 @@
     const checkoutForm = Jana.qs("#checkout-form");
     if (checkoutForm) {
       checkoutForm.addEventListener("submit", checkout);
+      function rememberPayMethod(event) {
+        const target = event.target;
+        const radio = (target && target.name === "pagamento" && target)
+          || (target && target.closest && target.closest('[data-bind="pay-option-pix"], [data-bind="pay-option-infinitepay"]')
+            && target.closest('[data-bind="pay-option-pix"], [data-bind="pay-option-infinitepay"]').querySelector('input[name="pagamento"]'));
+        if (!radio || !radio.value) {
+          return false;
+        }
+        state.payMethod = radio.value;
+        return true;
+      }
+      checkoutForm.addEventListener("pointerdown", function onPayPointerDown(event) {
+        rememberPayMethod(event);
+      });
       checkoutForm.addEventListener("change", function onCheckoutChange(event) {
         const name = event.target && event.target.name;
         if (name === "modalidade" || name === "regiao") {
           syncCheckoutMode();
         }
         if (name === "pagamento") {
-          state.payMethod = event.target.value || "";
+          rememberPayMethod(event);
           syncCheckoutPayUi();
         }
       });
