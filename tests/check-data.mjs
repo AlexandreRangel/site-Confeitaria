@@ -156,6 +156,7 @@ if (/Natal/.test(home) && /href="natal\/"/.test(home)) {
 const storefrontPages = [
   "index.html",
   "produto/index.html",
+  "sobre-nos/index.html",
   ...expectedAreas.map((id) => id + "/index.html"),
 ];
 storefrontPages.forEach((rel) => {
@@ -319,8 +320,8 @@ if (!baseCss.includes("--cream: #fdf6ec")) {
 if (!baseCss.includes("--btn-solid: #9a5870")) {
   errors.push("filled buttons must use AA dusty-rose variant #9a5870");
 }
-if (!baseCss.includes("opacity: 0.10") && !baseCss.includes("opacity: 0.1")) {
-  errors.push("page damask must be 10% opacity");
+if (!baseCss.includes("opacity: 0.08")) {
+  errors.push("page damask must be 8% opacity (20% lighter than 0.10)");
 }
 const layoutCss = readFileSync(join(root, "css/layout.css"), "utf8");
 if (!layoutCss.includes("font-size: 1.83rem")) {
@@ -338,8 +339,57 @@ if (!layoutCss.includes("opacity: 0.05")) {
 if (!home.includes("© 2026 Jana Abreu")) {
   errors.push("Home footer must show «© 2026 Jana Abreu»");
 }
-if (!home.includes("Brasília/DF") && !home.includes("city-state")) {
-  errors.push("Footer must show Brasília/DF");
+if (!home.includes("Brasília DF") && !home.includes("city-state")) {
+  errors.push("Footer must show Brasília DF");
+}
+if (home.includes("Ver opções") || home.includes("hero-caption") || home.includes("hero__below")) {
+  errors.push("Home carousel must be photos only, without caption or Ver opções");
+}
+if (home.includes('data-bind="instagram-grid"') || home.includes("instagram--strip")) {
+  errors.push("Instagram preview must not appear on the home page");
+}
+if (!home.includes("sobre-nos/") || !home.includes("Sobre nós")) {
+  errors.push("Home nav must include Sobre nós");
+}
+if (!existsSync(join(root, "sobre-nos/index.html"))) {
+  errors.push("Missing sobre-nos/index.html");
+} else {
+  const sobrePage = readFileSync(join(root, "sobre-nos/index.html"), "utf8");
+  if (!sobrePage.includes('data-bind="instagram-grid"')) {
+    errors.push("Instagram preview must appear only on Sobre nós");
+  }
+}
+if (!existsSync(join(root, "data/sobre.json"))) {
+  errors.push("Missing data/sobre.json");
+}
+if (!baseCss.includes("--radius: 20.8px")) {
+  errors.push("card/carousel radius must be 20.8px (20% smaller than 26px)");
+}
+if (!utilsJs.includes("CAROUSEL_INTERVAL_MS = 6720") || !utilsJs.includes("CAROUSEL_TRANSITION_MS = 1200")) {
+  errors.push("home and area carousels must share 6720ms interval and 1200ms transition");
+}
+if (!layoutCss.includes("min-height: 288px")) {
+  errors.push("desktop area carousel must be 20% taller (288px)");
+}
+if (!home.includes('name="modalidade"') || !home.includes("Retirada") || !home.includes("Entrega")) {
+  errors.push("Checkout must offer required Retirada / Entrega radios");
+}
+if (!site.entrega || site.entrega.taxa !== 40) {
+  errors.push("entrega.taxa must be the confirmed fixed fee 40");
+}
+if (!appJs.includes("carouselSlidesFromProducts") || !utilsJs.includes("carouselSlidesFromProducts")) {
+  errors.push("area carousels must be built from catalog products of that area");
+}
+
+const productBySlug = new Map(products.map((item) => [item.slug, item]));
+carousel.forEach((slide) => {
+  if (!slide.productSlug || !productBySlug.has(slide.productSlug)) {
+    errors.push("home carousel slide missing catalog product: " + (slide.productSlug || slide.id));
+  }
+});
+const unmatchedHome = carousel.filter((slide) => !productBySlug.has(slide.productSlug));
+if (unmatchedHome.length) {
+  errors.push("unmatched home carousel photos: " + unmatchedHome.map((slide) => slide.image).join(", "));
 }
 
 if (/TODO/i.test(JSON.stringify(site))) {
@@ -388,8 +438,47 @@ if (errors.length) {
   process.exit(1);
 }
 
+function categoryIdsOf(product) {
+  if (product.categoryIds && product.categoryIds.length) {
+    return product.categoryIds;
+  }
+  return product.categoryId ? [product.categoryId] : [];
+}
+function productsForArea(area) {
+  const ids = area.sourceCategoryIds || [];
+  return products.filter((product) => {
+    if (product.active === false) return false;
+    return categoryIdsOf(product).some((id) => ids.includes(id));
+  });
+}
+
 console.log("data files ok");
 console.log("whatsapp", site.contato.whatsapp);
 console.log("instagram", site.contato.instagram.handle);
 console.log("areas", expectedAreas.join(", "));
 console.log("natal.enabled", site.natal.enabled);
+console.log("entrega.taxa", site.entrega.taxa);
+console.log("home carousel:");
+carousel
+  .slice()
+  .sort((a, b) => (a.order || 0) - (b.order || 0))
+  .forEach((slide) => {
+    const product = productBySlug.get(slide.productSlug);
+    console.log("  " + slide.image + " -> " + slide.productSlug + (product ? " (" + product.name.trim() + ")" : " UNMATCHED"));
+  });
+areas
+  .slice()
+  .sort((a, b) => (a.order || 0) - (b.order || 0))
+  .forEach((area) => {
+    const list = productsForArea(area).filter((product) => product.images && product.images[0]);
+    console.log("area carousel " + area.id + " (" + list.length + "):");
+    list.forEach((product) => {
+      console.log("  " + product.slug + " — " + String(product.name || "").trim());
+    });
+  });
+const sobre = JSON.parse(readFileSync(join(root, "data/sobre.json"), "utf8"));
+const emptySobre = ["headline", "lead", "story", "press"].filter((key) => {
+  const value = sobre[key];
+  return !value || (Array.isArray(value) && value.length === 0);
+});
+console.log("sobre.json empty fields (hidden until filled):", emptySobre.concat(sobre.portrait && !sobre.portrait.src ? ["portrait.src"] : []).join(", "));

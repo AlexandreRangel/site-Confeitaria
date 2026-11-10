@@ -38,6 +38,7 @@
             <a href="doces-personalizados/">Doces personalizados</a>
           </div>
         </div>
+        <a href="sobre-nos/">Sobre nós</a>
         <a href="#encomendas" data-action="open-cart">Encomendas</a>
       </nav>
       <div class="topo__actions">
@@ -55,20 +56,10 @@
   </header>
 
   <main>
-    <section id="hero-carrossel" class="hero" aria-roledescription="carrossel" aria-label="Destaques">
+        <section id="hero-carrossel" class="hero" aria-roledescription="carrossel" aria-label="Destaques">
+      <h1 class="sr-only">Jana Abreu Confeitaria</h1>
       <div class="hero__media">
         <div class="hero__track" data-bind="carousel"></div>
-      </div>
-      <div class="hero__below">
-        <h1 class="sr-only">Jana Abreu Confeitaria</h1>
-        <p class="hero__slogan" data-bind="slogan">A vida é mais doce quando compartilhada</p>
-        <div class="hero__caption" data-bind="hero-caption">
-          <div class="hero__caption-inner" data-bind="hero-caption-inner">
-            <h2 data-bind="hero-slide-title"></h2>
-            <p data-bind="hero-slide-subtitle"></p>
-            <button type="button" class="btn btn--outline" data-bind="hero-slide-cta" data-action="carousel-link">Ver opções</button>
-          </div>
-        </div>
         <div class="hero__controls">
           <button type="button" class="hero__arrow" data-action="carousel-prev" aria-label="Slide anterior">‹</button>
           <div class="hero__dots" data-bind="carousel-dots"></div>
@@ -83,32 +74,22 @@
     </section>
   </main>
 
-  <section id="instagram" class="instagram instagram--strip" aria-label="Instagram @janaabreuconfeitaria">
-    <p class="instagram__copy">
-      <a data-bind="instagram-link" href="https://www.instagram.com/janaabreuconfeitaria/" target="_blank" rel="noopener noreferrer">
-        Instagram <span data-bind="instagram-handle">@janaabreuconfeitaria</span>
-      </a>
-    </p>
-    <div class="instagram__grid" data-bind="instagram-grid"></div>
-  </section>
 
-  <footer id="rodape" class="rodape">
-    <p class="rodape__place" data-bind="city-state">Brasília/DF</p>
-    <p>
-      Instagram
-      <a data-bind="instagram-link" href="https://www.instagram.com/janaabreuconfeitaria/" target="_blank" rel="noopener noreferrer">
+    <footer id="rodape" class="rodape">
+    <p class="rodape__line">
+      <span data-bind="city-state">Brasília DF</span>
+      <a class="rodape__social" data-bind="instagram-link" href="https://www.instagram.com/janaabreuconfeitaria/" target="_blank" rel="noopener noreferrer">
+        <svg class="rodape__icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M7 3h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4zm10 1.8H7A2.2 2.2 0 0 0 4.8 7v10A2.2 2.2 0 0 0 7 19.2h10A2.2 2.2 0 0 0 19.2 17V7A2.2 2.2 0 0 0 17 4.8zM12 8.2A3.8 3.8 0 1 1 8.2 12 3.8 3.8 0 0 1 12 8.2zm0 1.6A2.2 2.2 0 1 0 14.2 12 2.2 2.2 0 0 0 12 9.8zm4.55-3.15a.9.9 0 1 1-.9.9.9.9 0 0 1 .9-.9z"/></svg>
         <span data-bind="instagram-handle">@janaabreuconfeitaria</span>
       </a>
-    </p>
-    <p>
-      WhatsApp
-      <a data-bind="whatsapp-link" href="https://wa.me/5561981246112">
+      <a class="rodape__social" data-bind="whatsapp-link" href="https://wa.me/5561981246112" target="_blank" rel="noopener noreferrer">
+        <svg class="rodape__icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12.04 3A8.96 8.96 0 0 0 3.1 12.1a8.9 8.9 0 0 0 1.22 4.5L3 21.1l4.64-1.22A9 9 0 1 0 12.04 3zm0 1.64A7.32 7.32 0 0 1 19.36 12a7.32 7.32 0 0 1-12.6 5.05l-.26-.2-2.74.72.73-2.67-.17-.27A7.3 7.3 0 0 1 12.04 4.64zm-2.5 3.5c-.2 0-.52.08-.79.4s-.95.93-.95 2.26.97 2.63 1.1 2.81 1.9 3.05 4.7 4.16c2.32.92 2.8.74 3.3.69s1.62-.66 1.85-1.3.23-1.18.16-1.3-.27-.2-.56-.35-1.62-.8-1.87-.89-.43-.13-.62.14-.71.89-.87 1.07-.32.2-.6.07a6.05 6.05 0 0 1-1.78-1.1 6.68 6.68 0 0 1-1.23-1.53c-.13-.22 0-.34.1-.45s.22-.27.33-.4.14-.22.22-.37.04-.28-.02-.4-.6-1.48-.85-2.03c-.22-.52-.45-.45-.62-.46z"/></svg>
         <span data-bind="whatsapp-label">(61) 98124-6112</span>
       </a>
     </p>
     <p class="rodape__credits">
       <span data-bind="copyright">© 2026 Jana Abreu</span>
-      · <a class="rodape-loja-link" href="painel/">Área da loja</a>
+      <a class="rodape-loja-link" href="painel/">Área da loja</a>
     </p>
   </footer>
 
@@ -119,13 +100,40 @@
         <button type="button" class="modal__close" data-action="close-cart" aria-label="Fechar encomendas">×</button>
       </header>
       <div class="drawer__items" data-bind="cart-items"></div>
-      <p class="drawer__total">Total: <strong data-bind="cart-total">R$ 0,00</strong></p>
+      <p class="drawer__total"><span data-bind="cart-total-label">Total</span>: <strong data-bind="cart-total">R$ 0,00</strong></p>
       <form id="checkout-form" class="checkout">
         <label>Nome <input name="nome" type="text" required autocomplete="name"></label>
         <label>Telefone <input name="telefone" type="tel" required autocomplete="tel" placeholder="(61) 90000-0000"></label>
         <label>E-mail <input name="email" type="email" autocomplete="email" placeholder="opcional"></label>
-        <label>Endereço / retirada <input name="endereco" type="text" autocomplete="street-address" placeholder="Bairro, cidade ou retirada na loja"></label>
-        <label>Data desejada <input name="data" type="date" lang="pt-BR" autocomplete="off"><span class="checkout__hint">Calendário do aparelho · no Brasil aparece dia/mês/ano.</span></label>
+                <fieldset class="checkout__modalidade">
+          <legend id="modalidade-legend">Como prefere receber?</legend>
+          <div class="checkout__radios" role="radiogroup" aria-required="true" aria-labelledby="modalidade-legend">
+            <label class="checkout__radio">
+              <input type="radio" name="modalidade" value="retirada" required>
+              <span>Retirada</span>
+            </label>
+            <label class="checkout__radio">
+              <input type="radio" name="modalidade" value="entrega" required>
+              <span>Entrega</span>
+            </label>
+          </div>
+        </fieldset>
+        <label data-bind="checkout-address" hidden>
+          <span>Endereço de entrega</span>
+          <input name="endereco" type="text" autocomplete="street-address" placeholder="Bairro, cidade">
+        </label>
+        <label data-bind="checkout-region" hidden>
+          <span>Região de entrega</span>
+          <select name="regiao">
+            <option value="">Escolha a região</option>
+          </select>
+        </label>
+        <label>
+          <span data-bind="checkout-date-caption">Data desejada</span>
+          <input name="data" type="date" lang="pt-BR" autocomplete="off">
+          <span class="checkout__hint">Calendário do aparelho · no Brasil aparece dia/mês/ano.</span>
+        </label>
+        <p class="checkout__fee" data-bind="checkout-fee" hidden></p>
         <label>Observações <textarea name="observacoes" rows="3" placeholder="Sabores, tema, retirada ou entrega…"></textarea></label>
         <p class="checkout__privacy" data-bind="privacy-note">Usamos nome, telefone e o que você escrever só para a Jana responder esta solicitação. Não publicamos sua lista de pedidos.</p>
         <p class="checkout__note" data-bind="payments"></p>

@@ -16,6 +16,9 @@
     selectedFlavor: "",
     lastFocus: null,
     categoriesOpen: false,
+    slides: [],
+    sobre: {},
+    carouselIgnoreClick: false,
   };
 
   function isCategoryPage() {
@@ -45,6 +48,10 @@
     return document.body.getAttribute("data-page") === "product";
   }
 
+  function isAboutPage() {
+    return document.body.getAttribute("data-page") === "about";
+  }
+
   function pageProductSlug() {
     const params = new URLSearchParams(location.search);
     return params.get("slug") || "";
@@ -67,6 +74,9 @@
         Jana.loadJSON("data/sabores-bolos.json").catch(function noFlavors() {
           return { flavors: [] };
         }),
+        Jana.loadJSON("data/sobre.json").catch(function noSobre() {
+          return {};
+        }),
       ]);
       state.site = loaded[0];
       state.categories = loaded[1].slice().sort(byOrder);
@@ -78,6 +88,7 @@
       state.flavors = (loaded[5].flavors || []).map(normalizeFlavor);
       state.flavorLabel = loaded[5].label || "Recheio do bolo";
       state.selectedFlavor = flavorName(state.flavors[0]);
+      state.sobre = loaded[6] || {};
       if (isAreaPage() || isCategoryPage()) {
         state.filter = pageAreaId() || "todas";
       }
@@ -87,7 +98,9 @@
       renderCategoriesNav();
       renderDestaques();
       renderProducts();
+      renderSobre();
       renderInstagram();
+      renderEntregaRegions();
       renderCart();
       bindEvents();
       startCarousel();
@@ -167,12 +180,15 @@
     Jana.bindText("copyright", site.copyright || "© 2026 Jana Abreu");
     Jana.bindText(
       "city-state",
-      [site.address && site.address.city, site.address && site.address.state].filter(Boolean).join("/")
+      [site.address && site.address.city, site.address && site.address.state].filter(Boolean).join(" ")
     );
     document.title = site.brandName;
     applyCategoryTitle();
     applyAreaTitle();
     applyProductPage();
+    if (isAboutPage() && site.brandName) {
+      document.title = "Sobre nós · " + site.brandName;
+    }
     if (site.logo) {
       Jana.qsa('[data-bind="logo"]').forEach(function setLogo(img) {
         img.src = Jana.assetUrl(site.logo);
@@ -234,87 +250,87 @@
     }
   }
 
+  function visibleCarouselSlides() {
+    if (isAreaPage()) {
+      return Jana.carouselSlidesFromProducts(Jana.productsForArea(state.products, currentArea()));
+    }
+    return Jana.homeCarouselSlides(state.carousel, state.products);
+  }
+
   function renderCarousel() {
     const track = Jana.qs('[data-bind="carousel"]');
     const dots = Jana.qs('[data-bind="carousel-dots"]');
-    if (!track || !dots) {
+    const hero = Jana.qs("#hero-carrossel");
+    if (!track) {
       return;
     }
-    track.innerHTML = state.carousel
+    const slides = visibleCarouselSlides();
+    state.slides = slides;
+    state.slide = 0;
+    if (hero) {
+      hero.hidden = slides.length === 0;
+    }
+    if (!slides.length) {
+      track.innerHTML = "";
+      if (dots) {
+        dots.innerHTML = "";
+      }
+      return;
+    }
+    track.style.setProperty("--carousel-transition", Jana.CAROUSEL_TRANSITION_MS + "ms");
+    track.innerHTML = slides
       .map(function slideHtml(slide, index) {
         const eager = index === 0;
-        return (
-          '<article class="hero__slide">' +
+        const img =
           '<img src="' +
           Jana.escapeHtml(Jana.assetUrl(slide.image)) +
           '" alt="' +
           Jana.escapeHtml(slide.title || "") +
           '" width="1600" height="900"' +
           (eager ? ' fetchpriority="high"' : ' loading="lazy"') +
-          ' decoding="async">' +
-          "</article>"
-        );
+          ' decoding="async">';
+        if (slide.productSlug) {
+          return (
+            '<a class="hero__slide" href="' +
+            Jana.escapeHtml(Jana.productUrl(slide.productSlug)) +
+            '">' +
+            img +
+            "</a>"
+          );
+        }
+        return '<article class="hero__slide">' + img + "</article>";
       })
       .join("");
-    dots.innerHTML = state.carousel
-      .map(function dotHtml(_, index) {
-        return (
-          '<button type="button" class="hero__dot' +
-          (index === 0 ? " is-active" : "") +
-          '" data-action="carousel-goto" data-index="' +
-          index +
-          '" aria-label="Ir para o slide ' +
-          (index + 1) +
-          '"' +
-          (index === 0 ? ' aria-current="true"' : "") +
-          '><span class="hero__dot-mark" aria-hidden="true"></span></button>'
-        );
-      })
-      .join("");
-    updateHeroCaption(false);
-  }
-
-  function updateHeroCaption(animate) {
-    const slide = state.carousel[state.slide];
-    if (!slide) return;
-    const inner = Jana.qs('[data-bind="hero-caption-inner"]');
-    const titleEl = Jana.qs('[data-bind="hero-slide-title"]');
-    const subtitleEl = Jana.qs('[data-bind="hero-slide-subtitle"]');
-    const cta = Jana.qs('[data-bind="hero-slide-cta"]');
-    if (!inner || !titleEl || !subtitleEl || !cta) return;
-
-    const apply = function applyText() {
-      titleEl.textContent = slide.title || "";
-      subtitleEl.textContent = slide.subtitle || "";
-      cta.setAttribute("data-category", slide.linkCategory || "");
-      cta.setAttribute("data-slug", slide.productSlug || "");
-      const target = slide.productSlug
-        ? "#produto:" + slide.productSlug
-        : slide.linkCategory
-          ? Jana.categoryUrl(slide.linkCategory)
-          : "#categorias";
-      cta.setAttribute("data-href", target);
-    };
-
-    if (!animate) {
-      apply();
-      inner.classList.remove("is-fading");
-      return;
+    const showDots = slides.length > 1 && slides.length <= Jana.CAROUSEL_MAX_DOTS;
+    if (dots) {
+      dots.hidden = !showDots;
+      dots.innerHTML = showDots
+        ? slides
+            .map(function dotHtml(_, index) {
+              return (
+                '<button type="button" class="hero__dot' +
+                (index === 0 ? " is-active" : "") +
+                '" data-action="carousel-goto" data-index="' +
+                index +
+                '" aria-label="Ir para o slide ' +
+                (index + 1) +
+                '"' +
+                (index === 0 ? ' aria-current="true"' : "") +
+                '><span class="hero__dot-mark" aria-hidden="true"></span></button>'
+              );
+            })
+            .join("")
+        : "";
     }
-
-    inner.classList.add("is-fading");
-    window.setTimeout(function onFaded() {
-      apply();
-      inner.classList.remove("is-fading");
-    }, 280);
+    Jana.qsa('[data-action="carousel-prev"], [data-action="carousel-next"]').forEach(function toggleArrow(btn) {
+      btn.hidden = slides.length < 2;
+    });
   }
 
   function goToSlide(index) {
-    const total = state.carousel.length;
+    const total = (state.slides || []).length;
     if (!total) return;
-    const next = (index + total) % total;
-    const changed = next !== state.slide;
-    state.slide = next;
+    state.slide = (index + total) % total;
     const track = Jana.qs('[data-bind="carousel"]');
     if (track) {
       track.style.transform = "translateX(-" + state.slide * 100 + "%)";
@@ -328,11 +344,10 @@
         dot.removeAttribute("aria-current");
       }
     });
-    updateHeroCaption(changed);
   }
 
   function startCarousel() {
-    if (!Jana.qs("#hero-carrossel") || !state.carousel.length) {
+    if (!Jana.qs("#hero-carrossel") || !(state.slides || []).length) {
       return;
     }
     stopCarousel();
@@ -341,7 +356,7 @@
     }
     state.timer = setInterval(function advance() {
       goToSlide(state.slide + 1);
-    }, 5600);
+    }, Jana.CAROUSEL_INTERVAL_MS);
   }
 
   function stopCarousel() {
@@ -600,6 +615,111 @@
       .join("");
   }
 
+  function setOptionalHtml(node, html) {
+    if (!node) {
+      return;
+    }
+    const wrap = node.closest("[data-optional]") || node;
+    if (!html) {
+      wrap.hidden = true;
+      node.innerHTML = "";
+      return;
+    }
+    wrap.hidden = false;
+    node.innerHTML = html;
+  }
+
+  function renderSobre() {
+    if (!isAboutPage()) {
+      return;
+    }
+    const sobre = state.sobre || {};
+    const lead = String(sobre.lead || sobre.headline || "").trim();
+    const portrait = sobre.portrait || {};
+    const story = (sobre.story || []).filter(Boolean);
+    const press = (sobre.press || []).filter(function keep(entry) {
+      return entry && (entry.title || entry.outlet || entry.src || entry.url);
+    });
+    const gallery = (sobre.workGallery || []).filter(function keep(entry) {
+      return entry && entry.src;
+    });
+    setOptionalHtml(Jana.qs('[data-bind="sobre-lead"]'), lead ? "<p>" + Jana.escapeHtml(lead) + "</p>" : "");
+    const portraitEl = Jana.qs('[data-bind="sobre-portrait"]');
+    if (portraitEl) {
+      if (portrait.src) {
+        setOptionalHtml(
+          portraitEl,
+          '<img src="' +
+            Jana.escapeHtml(Jana.assetUrl(portrait.src)) +
+            '" alt="' +
+            Jana.escapeHtml(portrait.alt || "Jana Abreu") +
+            '" width="480" height="640">'
+        );
+      } else {
+        setOptionalHtml(portraitEl, "");
+      }
+    }
+    setOptionalHtml(
+      Jana.qs('[data-bind="sobre-story"]'),
+      story.length
+        ? story
+            .map(function paragraph(text) {
+              return "<p>" + Jana.escapeHtml(text) + "</p>";
+            })
+            .join("")
+        : ""
+    );
+    setOptionalHtml(
+      Jana.qs('[data-bind="sobre-work"]'),
+      gallery.length
+        ? gallery
+            .map(function tile(item) {
+              const img =
+                '<img src="' +
+                Jana.escapeHtml(Jana.assetUrl(item.src)) +
+                '" alt="' +
+                Jana.escapeHtml(item.alt || "") +
+                '" width="600" height="600" loading="lazy" decoding="async">';
+              if (item.productSlug) {
+                return (
+                  '<a href="' + Jana.escapeHtml(Jana.productUrl(item.productSlug)) + '">' + img + "</a>"
+                );
+              }
+              return img;
+            })
+            .join("")
+        : ""
+    );
+    setOptionalHtml(
+      Jana.qs('[data-bind="sobre-press"]'),
+      press.length
+        ? press
+            .map(function item(entry) {
+              const label = Jana.escapeHtml(entry.title || entry.outlet || "Na imprensa");
+              if (entry.url) {
+                return (
+                  '<a href="' +
+                  Jana.escapeHtml(entry.url) +
+                  '" target="_blank" rel="noopener noreferrer">' +
+                  label +
+                  "</a>"
+                );
+              }
+              return "<p>" + label + "</p>";
+            })
+            .join("")
+        : ""
+    );
+    const areasEl = Jana.qs('[data-bind="sobre-areas"]');
+    if (areasEl) {
+      areasEl.textContent = Jana.visibleAreas(state.areas, state.site)
+        .map(function nameOf(area) {
+          return area.name;
+        })
+        .join(" · ");
+    }
+  }
+
   function findProduct(slug) {
     return state.products.find(function match(product) {
       return product.slug === slug;
@@ -797,9 +917,91 @@
     openCart();
   }
 
+  function selectedModalidade() {
+    const checked = Jana.qs('#checkout-form [name="modalidade"]:checked');
+    return checked ? checked.value : "";
+  }
+
+  function renderEntregaRegions() {
+    const select = Jana.qs('#checkout-form [name="regiao"]');
+    if (!select) {
+      return;
+    }
+    const current = select.value;
+    const config = Jana.entregaConfig(state.site);
+    select.innerHTML =
+      '<option value="">Escolha a região</option>' +
+      config.regions
+        .map(function option(region) {
+          return (
+            '<option value="' +
+            Jana.escapeHtml(region.id) +
+            '">' +
+            Jana.escapeHtml(region.label) +
+            "</option>"
+          );
+        })
+        .join("");
+    if (current) {
+      select.value = current;
+    }
+  }
+
+  function syncCheckoutMode() {
+    const mode = selectedModalidade();
+    const isEntrega = mode === "entrega";
+    const isRetirada = mode === "retirada";
+    const config = Jana.entregaConfig(state.site);
+    const hasRegions = config.regions.length > 0;
+    const addressWrap = Jana.qs('[data-bind="checkout-address"]');
+    const addressInput = Jana.qs('#checkout-form [name="endereco"]');
+    const dateCaption = Jana.qs('[data-bind="checkout-date-caption"]');
+    const regionWrap = Jana.qs('[data-bind="checkout-region"]');
+    const regionSelect = Jana.qs('#checkout-form [name="regiao"]');
+    const feeEl = Jana.qs('[data-bind="checkout-fee"]');
+    if (addressWrap) {
+      addressWrap.hidden = !isEntrega;
+    }
+    if (addressInput) {
+      if (isEntrega) {
+        addressInput.setAttribute("required", "required");
+      } else {
+        addressInput.removeAttribute("required");
+      }
+    }
+    if (dateCaption) {
+      dateCaption.textContent = isEntrega
+        ? "Data de entrega"
+        : isRetirada
+          ? "Data de retirada"
+          : "Data desejada";
+    }
+    if (regionWrap) {
+      regionWrap.hidden = !isEntrega || !hasRegions;
+    }
+    if (regionSelect) {
+      if (isEntrega && hasRegions) {
+        regionSelect.setAttribute("required", "required");
+      } else {
+        regionSelect.removeAttribute("required");
+      }
+    }
+    const resolved = Jana.resolveEntrega(state.site, mode, regionSelect && regionSelect.value);
+    const totals = Jana.checkoutTotals(Jana.Cart.total(), resolved);
+    Jana.bindText("cart-total", totals.totalLabel);
+    if (feeEl) {
+      if (isEntrega) {
+        feeEl.hidden = false;
+        feeEl.textContent = "Taxa de entrega: " + totals.taxaLabel;
+      } else {
+        feeEl.hidden = true;
+        feeEl.textContent = "";
+      }
+    }
+  }
+
   function renderCart() {
     Jana.bindText("cart-count", String(Jana.Cart.count()));
-    Jana.bindText("cart-total", Jana.formatBRL(Jana.Cart.total()));
     const items = Jana.Cart.items();
     Jana.qs('[data-bind="cart-items"]').innerHTML = items.length
       ? items
@@ -834,6 +1036,7 @@
           })
           .join("")
       : '<p class="empty">Sua encomenda está vazia. Escolha um item do catálogo.</p>';
+    syncCheckoutMode();
   }
 
   function setCategoriesOpen(open) {
@@ -947,19 +1150,40 @@
 
   function readCheckoutForm(form) {
     const data = new FormData(form);
+    const modalidade = String(data.get("modalidade") || "").trim();
+    const regiao = String(data.get("regiao") || "").trim();
+    const resolved = Jana.resolveEntrega(state.site, modalidade, regiao);
+    const totals = Jana.checkoutTotals(Jana.Cart.total(), resolved);
     return {
       nome: String(data.get("nome") || "").trim(),
       telefone: String(data.get("telefone") || "").trim(),
       email: String(data.get("email") || "").trim(),
-      endereco: String(data.get("endereco") || "").trim(),
+      endereco: modalidade === "entrega" ? String(data.get("endereco") || "").trim() : "",
       data: String(data.get("data") || "").trim(),
       observacoes: String(data.get("observacoes") || "").trim(),
-      frete: 0,
+      modalidade: resolved.modalidade,
+      regiao: resolved.regiao,
+      regiaoLabel: resolved.regiaoLabel,
+      taxa: totals.taxa,
+      taxaPendente: totals.taxaPendente,
+      frete: totals.taxa,
       items: Jana.Cart.items(),
     };
   }
 
+  function formatDesiredDate(value) {
+    if (!value || value.indexOf("-") === -1) {
+      return value;
+    }
+    const parts = value.split("-");
+    return parts[2] + "/" + parts[1] + "/" + parts[0];
+  }
+
   function buildWhatsAppMessage(payload) {
+    const resolved = Jana.resolveEntrega(state.site, payload.modalidade, payload.regiao);
+    const totals = Jana.checkoutTotals(Jana.Cart.total(), resolved);
+    const isEntrega = payload.modalidade === "entrega";
+    const dateLabel = isEntrega ? "Data de entrega" : "Data de retirada";
     const lines = [
       "Olá! Gostaria de fazer uma encomenda na " + state.site.brandName + ".",
       "",
@@ -969,12 +1193,15 @@
     if (payload.email) {
       lines.push("*E-mail:* " + payload.email);
     }
-    if (payload.endereco) {
-      lines.push("*Endereço / retirada:* " + payload.endereco);
+    lines.push("*Modalidade:* " + (isEntrega ? "Entrega" : "Retirada"));
+    if (isEntrega && payload.endereco) {
+      lines.push("*Endereço:* " + payload.endereco);
+    }
+    if (isEntrega && payload.regiaoLabel) {
+      lines.push("*Região:* " + payload.regiaoLabel);
     }
     if (payload.data) {
-      const [year, month, day] = payload.data.split("-");
-      lines.push("*Data desejada:* " + day + "/" + month + "/" + year);
+      lines.push("*" + dateLabel + ":* " + formatDesiredDate(payload.data));
     }
     lines.push("", "*Itens:*");
     if (payload.items.length) {
@@ -992,7 +1219,13 @@
     } else if (payload.observacoes) {
       lines.push("• Pedido de informações sobre produto");
     }
-    lines.push("", "*Total:* " + Jana.formatBRL(Jana.Cart.total()));
+    if (isEntrega) {
+      lines.push("", "*Subtotal:* " + Jana.formatBRL(totals.subtotal));
+      lines.push("*Taxa de entrega:* " + totals.taxaLabel);
+      lines.push("*Total:* " + totals.totalLabel);
+    } else {
+      lines.push("", "*Total:* " + totals.totalLabel);
+    }
     if (payload.observacoes) {
       lines.push("", "*Observações:* " + payload.observacoes);
     }
@@ -1028,6 +1261,22 @@
     event.preventDefault();
     const form = event.target;
     const payload = readCheckoutForm(form);
+    if (!payload.modalidade || (payload.modalidade !== "retirada" && payload.modalidade !== "entrega")) {
+      setCheckoutStatus("Escolha Retirada ou Entrega.");
+      openCart();
+      return;
+    }
+    if (payload.modalidade === "entrega" && !payload.endereco) {
+      setCheckoutStatus("Informe o endereço para entrega.");
+      openCart();
+      return;
+    }
+    const config = Jana.entregaConfig(state.site);
+    if (payload.modalidade === "entrega" && config.regions.length && !payload.regiao) {
+      setCheckoutStatus("Escolha a região de entrega.");
+      openCart();
+      return;
+    }
     if (!Jana.Cart.items().length && !payload.observacoes) {
       setCheckoutStatus("Adicione um item ou descreva o pedido em Observações.");
       openCart();
@@ -1191,6 +1440,7 @@
           const point = event.changedTouches[0];
           touchStartX = point.clientX;
           touchStartY = point.clientY;
+          state.carouselIgnoreClick = false;
         },
         { passive: true }
       );
@@ -1201,10 +1451,22 @@
           const dx = point.clientX - touchStartX;
           const dy = point.clientY - touchStartY;
           if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy)) {
+            state.carouselIgnoreClick = true;
             goToSlide(state.slide + (dx < 0 ? 1 : -1));
           }
         },
         { passive: true }
+      );
+      hero.addEventListener(
+        "click",
+        function onHeroClick(event) {
+          if (!state.carouselIgnoreClick) {
+            return;
+          }
+          state.carouselIgnoreClick = false;
+          event.preventDefault();
+        },
+        true
       );
     }
     document.addEventListener("keydown", function onKey(event) {
@@ -1282,6 +1544,12 @@
     const checkoutForm = Jana.qs("#checkout-form");
     if (checkoutForm) {
       checkoutForm.addEventListener("submit", checkout);
+      checkoutForm.addEventListener("change", function onCheckoutChange(event) {
+        const name = event.target && event.target.name;
+        if (name === "modalidade" || name === "regiao") {
+          syncCheckoutMode();
+        }
+      });
     }
     const productModal = Jana.qs("#produto-modal");
     if (productModal) {

@@ -31,7 +31,7 @@
   --panel-solid: #fdf6ec;
   --whatsapp: #0e7f36;
   --shadow: 0 16px 42px rgba(184, 110, 136, 0.16), 0 4px 12px rgba(76, 85, 58, 0.06);
-  --radius: 26px;
+  --radius: 20.8px;
   --header-h: 88px;
   --container: 1120px;
   --serif: "Cormorant Garamond", Georgia, serif;
@@ -82,7 +82,7 @@ body::before {
   pointer-events: none;
   background: url("../assets/brand/padronagem.webp") repeat;
   background-size: 470px auto;
-  opacity: 0.10;
+  opacity: 0.08;
 }
 
 img {

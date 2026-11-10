@@ -115,10 +115,78 @@ const order = Jana.Store.saveCheckout({
   endereco: "",
   data: "2026-11-20",
   observacoes: "",
+  modalidade: "retirada",
   items: Jana.Cart.items(),
 });
 if (!order.items[0].flavor) {
   errors.push("saved order must keep cake filling");
+}
+
+const subtotal = Jana.Cart.total();
+const pickupResolved = Jana.resolveEntrega({ entrega: { taxa: 40, porRegiao: {} } }, "retirada");
+const pickupTotals = Jana.checkoutTotals(subtotal, pickupResolved);
+if (pickupResolved.modalidade !== "retirada" || pickupTotals.total !== subtotal || pickupTotals.taxa !== 0) {
+  errors.push("retirada must not add a delivery fee");
+}
+const pickupOrder = Jana.Store.saveCheckout({
+  nome: "Retirada",
+  telefone: "61999999999",
+  endereco: "nao deve ir",
+  data: "2026-11-21",
+  modalidade: "retirada",
+  taxa: 0,
+  taxaPendente: false,
+  items: Jana.Cart.items(),
+});
+if (pickupOrder.modalidade !== "retirada" || pickupOrder.taxa !== 0 || pickupOrder.total !== subtotal) {
+  errors.push("retirada order must store modalidade and no fee");
+}
+
+const deliveryResolved = Jana.resolveEntrega({ entrega: { taxa: 40, porRegiao: {} } }, "entrega");
+const deliveryTotals = Jana.checkoutTotals(subtotal, deliveryResolved);
+if (deliveryResolved.taxa !== 40 || deliveryTotals.total !== subtotal + 40 || deliveryTotals.taxaPendente) {
+  errors.push("entrega with taxa 40 must add R$ 40 to the total");
+}
+const deliveryOrder = Jana.Store.saveCheckout({
+  nome: "Entrega",
+  telefone: "61999999999",
+  endereco: "Asa Norte",
+  data: "2026-11-22",
+  modalidade: "entrega",
+  taxa: 40,
+  taxaPendente: false,
+  items: Jana.Cart.items(),
+});
+if (
+  deliveryOrder.modalidade !== "entrega" ||
+  deliveryOrder.taxa !== 40 ||
+  deliveryOrder.frete !== 40 ||
+  deliveryOrder.total !== subtotal + 40 ||
+  deliveryOrder.address !== "Asa Norte"
+) {
+  errors.push("entrega order must store address and add taxa 40");
+}
+
+const pendingResolved = Jana.resolveEntrega({ entrega: { taxa: null, porRegiao: {} } }, "entrega");
+const pendingTotals = Jana.checkoutTotals(subtotal, pendingResolved);
+if (!pendingResolved.taxaPendente || pendingTotals.taxaLabel.indexOf("a confirmar pela Jana") === -1) {
+  errors.push("entrega with taxa null must stay pending for Jana to confirm");
+}
+if (pendingTotals.totalLabel.indexOf("taxa a confirmar") === -1) {
+  errors.push("pending delivery total must say subtotal + taxa a confirmar");
+}
+const pendingOrder = Jana.Store.saveCheckout({
+  nome: "Entrega pendente",
+  telefone: "61999999999",
+  endereco: "Lago Sul",
+  data: "2026-11-23",
+  modalidade: "entrega",
+  taxa: 0,
+  taxaPendente: true,
+  items: Jana.Cart.items(),
+});
+if (pendingOrder.taxaPendente !== true || pendingOrder.taxa !== null || pendingOrder.total !== subtotal) {
+  errors.push("pending delivery order must keep taxa a confirmar");
 }
 
 const failingStorage = makeStorage();

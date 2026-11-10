@@ -1,0 +1,43 @@
+{
+  "headline": "",
+  "lead": "",
+  "portrait": {
+    "src": "",
+    "alt": "Jana Abreu"
+  },
+  "story": [],
+  "workGallery": [
+    {
+      "src": "assets/products/bolo-2-andares-g-p/01.webp",
+      "alt": "Bolo 2 andares",
+      "productSlug": "bolo-2-andares-g-p"
+    },
+    {
+      "src": "assets/products/tabua-signature/01.webp",
+      "alt": "Tábua Signature",
+      "productSlug": "tabua-signature"
+    },
+    {
+      "src": "assets/products/caixa-4-alfajores-logo/01.webp",
+      "alt": "Caixa 4 alfajores logo",
+      "productSlug": "caixa-4-alfajores-logo"
+    },
+    {
+      "src": "assets/products/combo-prata/01.webp",
+      "alt": "Combo Prata",
+      "productSlug": "combo-prata"
+    },
+    {
+      "src": "assets/products/cesta-manha-dos-sonhos/01.webp",
+      "alt": "Cesta Manhã dos Sonhos",
+      "productSlug": "cesta-manha-dos-sonhos"
+    },
+    {
+      "src": "assets/products/kit-festa-pequeno-artista/01.webp",
+      "alt": "Kit festa Pequeno Artista",
+      "productSlug": "kit-festa-pequeno-artista"
+    }
+  ],
+  "press": [],
+  "notes": "Campos vazios (headline, lead, portrait.src, story, press) ficam ocultos na página. Preencha só o que for fato confirmado — não inventar biografia, datas ou veículos."
+}

@@ -37,7 +37,7 @@
     const raw = document.body.getAttribute("data-root");
     if (raw === null || raw === "") {
       const page = document.body.getAttribute("data-page");
-      return page === "category" || page === "area" || page === "product" ? "../" : "";
+      return page === "category" || page === "area" || page === "product" || page === "about" ? "../" : "";
     }
     return raw.charAt(raw.length - 1) === "/" ? raw : raw + "/";
   };
@@ -199,6 +199,163 @@
       return instagram.indexOf("http") === 0 ? "@janaabreuconfeitaria" : instagram;
     }
     return instagram.handle || "@janaabreuconfeitaria";
+  };
+
+  // Shared by home and area carousels: +20% display, 2× slower transition.
+  Jana.CAROUSEL_INTERVAL_MS = 6720;
+  Jana.CAROUSEL_TRANSITION_MS = 1200;
+  Jana.CAROUSEL_MAX_DOTS = 12;
+
+  Jana.productBySlug = function productBySlug(products, slug) {
+    if (!slug) {
+      return null;
+    }
+    return (products || []).find(function match(product) {
+      return product.slug === slug;
+    }) || null;
+  };
+
+  Jana.carouselSlidesFromProducts = function carouselSlidesFromProducts(products) {
+    return (products || [])
+      .filter(function hasPhoto(product) {
+        return product && product.slug && product.images && product.images[0];
+      })
+      .map(function toSlide(product) {
+        return {
+          image: product.images[0],
+          productSlug: product.slug,
+          title: product.name || "",
+        };
+      });
+  };
+
+  Jana.entregaConfig = function entregaConfig(site) {
+    const raw = (site && site.entrega) || {};
+    const table = raw.porRegiao && typeof raw.porRegiao === "object" ? raw.porRegiao : {};
+    const regions = Object.keys(table)
+      .map(function toRegion(id) {
+        const value = table[id];
+        if (value && typeof value === "object") {
+          const taxa = Number(value.taxa != null ? value.taxa : value.valor);
+          return {
+            id: id,
+            label: value.label || value.nome || id,
+            taxa: taxa,
+          };
+        }
+        return { id: id, label: id, taxa: Number(value) };
+      })
+      .filter(function hasTaxa(region) {
+        return Number.isFinite(region.taxa);
+      });
+    const taxa = raw.taxa == null || raw.taxa === "" ? null : Number(raw.taxa);
+    return {
+      taxa: Number.isFinite(taxa) ? taxa : null,
+      regions: regions,
+    };
+  };
+
+  Jana.resolveEntrega = function resolveEntrega(site, modalidade, regiaoId) {
+    if (modalidade !== "entrega") {
+      return {
+        modalidade: "retirada",
+        taxa: 0,
+        taxaDefinida: true,
+        taxaPendente: false,
+        regiao: "",
+        regiaoLabel: "",
+      };
+    }
+    const config = Jana.entregaConfig(site);
+    if (config.regions.length) {
+      const match = config.regions.find(function find(region) {
+        return region.id === regiaoId;
+      });
+      if (match) {
+        return {
+          modalidade: "entrega",
+          taxa: match.taxa,
+          taxaDefinida: true,
+          taxaPendente: false,
+          regiao: match.id,
+          regiaoLabel: match.label,
+        };
+      }
+      return {
+        modalidade: "entrega",
+        taxa: 0,
+        taxaDefinida: false,
+        taxaPendente: true,
+        regiao: regiaoId || "",
+        regiaoLabel: "",
+      };
+    }
+    if (config.taxa == null) {
+      return {
+        modalidade: "entrega",
+        taxa: 0,
+        taxaDefinida: false,
+        taxaPendente: true,
+        regiao: "",
+        regiaoLabel: "",
+      };
+    }
+    return {
+      modalidade: "entrega",
+      taxa: config.taxa,
+      taxaDefinida: true,
+      taxaPendente: false,
+      regiao: "",
+      regiaoLabel: "",
+    };
+  };
+
+  Jana.checkoutTotals = function checkoutTotals(subtotal, resolved) {
+    const base = Number(subtotal) || 0;
+    if (!resolved || resolved.modalidade !== "entrega") {
+      return {
+        subtotal: base,
+        taxa: 0,
+        taxaPendente: false,
+        taxaLabel: "",
+        total: base,
+        totalLabel: Jana.formatBRL(base),
+      };
+    }
+    if (resolved.taxaPendente) {
+      return {
+        subtotal: base,
+        taxa: 0,
+        taxaPendente: true,
+        taxaLabel: "a confirmar pela Jana",
+        total: base,
+        totalLabel: Jana.formatBRL(base) + " + taxa a confirmar",
+      };
+    }
+    return {
+      subtotal: base,
+      taxa: resolved.taxa,
+      taxaPendente: false,
+      taxaLabel: Jana.formatBRL(resolved.taxa),
+      total: base + resolved.taxa,
+      totalLabel: Jana.formatBRL(base + resolved.taxa),
+    };
+  };
+
+  Jana.homeCarouselSlides = function homeCarouselSlides(carousel, products) {
+    return (carousel || [])
+      .filter(function hasImage(slide) {
+        return slide && slide.image;
+      })
+      .map(function toSlide(slide) {
+        const product = Jana.productBySlug(products, slide.productSlug);
+        return {
+          image: slide.image,
+          productSlug: (product && product.slug) || slide.productSlug || "",
+          title: (product && product.name) || slide.title || "",
+          matched: !!product,
+        };
+      });
   };
 
   global.Jana = Jana;

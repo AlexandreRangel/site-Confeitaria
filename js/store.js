@@ -135,7 +135,11 @@
     const subtotal = items.reduce(function sum(total, item) {
       return total + item.price * item.quantity;
     }, 0);
-    const frete = Number(payload.frete) || 0;
+    const modalidade = payload.modalidade === "entrega" ? "entrega" : "retirada";
+    const taxaPendente = modalidade === "entrega" && payload.taxaPendente === true;
+    const taxa = modalidade === "entrega" && !taxaPendente
+      ? Number(payload.taxa != null ? payload.taxa : payload.frete) || 0
+      : 0;
     return {
       id: "PED-" + number,
       number: number,
@@ -147,8 +151,12 @@
       desiredDate: payload.data || "",
       items: items,
       subtotal: subtotal,
-      frete: frete,
-      total: subtotal + frete,
+      modalidade: modalidade,
+      regiao: payload.regiao || "",
+      taxa: taxaPendente ? null : taxa,
+      taxaPendente: taxaPendente,
+      frete: taxa,
+      total: subtotal + taxa,
       address: payload.endereco || "",
       notes: payload.observacoes || "",
       source: "cart",

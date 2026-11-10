@@ -225,10 +225,17 @@
     Jana.bindText("detail-desired", formatDesired(order.desiredDate));
     Jana.bindText("detail-address", order.address || "—");
     Jana.bindText("detail-notes", order.notes || "—");
+    Jana.bindText(
+      "detail-modalidade",
+      order.modalidade === "entrega" ? "Entrega" : order.modalidade === "retirada" ? "Retirada" : "—"
+    );
     const subtotal = calculateSubtotal(order);
     const frete = Number(order.frete) || 0;
     Jana.bindText("detail-subtotal", Jana.formatBRL(subtotal));
-    Jana.bindText("detail-frete", Jana.formatBRL(frete));
+    Jana.bindText(
+      "detail-frete",
+      order.taxaPendente ? "a confirmar pela Jana" : Jana.formatBRL(order.taxa != null ? order.taxa : frete)
+    );
     Jana.bindText("detail-total", Jana.formatBRL(subtotal + frete));
 
     const select = Jana.qs('[data-bind="detail-status"]');
@@ -330,6 +337,8 @@
       order.notes || order.observacoes || "",
       orderItemsSummary(order),
       order.subtotal != null ? order.subtotal : "",
+      order.modalidade || "",
+      order.taxaPendente ? "a confirmar" : order.taxa != null ? order.taxa : order.frete != null ? order.frete : "",
       order.frete != null ? order.frete : "",
       order.total != null ? order.total : "",
       order.source || "",
@@ -349,6 +358,8 @@
       "observacoes",
       "itens",
       "subtotal",
+      "modalidade",
+      "taxa",
       "frete",
       "total",
       "origem",
@@ -374,6 +385,8 @@
       "observacoes",
       "itens",
       "subtotal",
+      "modalidade",
+      "taxa",
       "frete",
       "total",
       "origem",

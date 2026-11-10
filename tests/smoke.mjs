@@ -94,6 +94,24 @@ async function runEngine(browserType, engine) {
     record(engine, "area url is folder", /corporate\/$/.test(catHref || ""), catHref);
     const natalNav = await page.locator("#menu-categorias a", { hasText: "Natal" }).count();
     record(engine, "Natal not linked in Categorias", natalNav === 0);
+    const squareBoxes = await areaLinks.evaluateAll(function measureSquares(nodes) {
+      return nodes.map(function boxOf(el) {
+        const rect = el.getBoundingClientRect();
+        return { x: Math.round(rect.x), y: Math.round(rect.y), w: Math.round(rect.width), h: Math.round(rect.height) };
+      });
+    });
+    const twoByTwo =
+      squareBoxes.length === 4 &&
+      Math.abs(squareBoxes[0].y - squareBoxes[1].y) < 8 &&
+      Math.abs(squareBoxes[2].y - squareBoxes[3].y) < 8 &&
+      squareBoxes[2].y - squareBoxes[0].y > 40 &&
+      Math.abs(squareBoxes[0].w - squareBoxes[0].h) / Math.max(squareBoxes[0].h, 1) < 0.25;
+    record(engine, "home area squares 2x2", twoByTwo, JSON.stringify(squareBoxes));
+    const slideHref = await page.locator(".hero__slide").first().getAttribute("href");
+    record(engine, "home carousel slide links to product", /produto\/\?slug=/.test(slideHref || ""), slideHref);
+    record(engine, "home has no Instagram strip", (await page.locator('[data-bind="instagram-grid"]').count()) === 0);
+    record(engine, "footer has two lines", (await page.locator("#rodape p").count()) === 2);
+    record(engine, "nav has Sobre nós", (await page.locator('#menu-principal a[href="sobre-nos/"]').count()) === 1);
 
     await page.goto(BASE + "/bolos/", { waitUntil: "domcontentloaded" });
     await page.waitForSelector(".card, .empty", { timeout: 15000 });
@@ -150,6 +168,20 @@ async function runEngine(browserType, engine) {
       /Esta é uma solicitação de encomenda/.test(disclaimer),
       disclaimer.slice(0, 80)
     );
+    const radioBox = await page.locator('#checkout-form [name="modalidade"][value="retirada"]').evaluate(function size(el) {
+      return el.closest("label").getBoundingClientRect().height;
+    });
+    record(engine, "modalidade radio target ~44px", radioBox >= 40, String(radioBox));
+    await page.locator('#checkout-form [name="modalidade"][value="retirada"]').check();
+    record(engine, "retirada hides address", await page.locator('[data-bind="checkout-address"]').isHidden());
+    await page.locator('#checkout-form [name="modalidade"][value="entrega"]').check();
+    record(engine, "entrega shows address", await page.locator('[data-bind="checkout-address"]').isVisible());
+    const feeText = ((await page.locator('[data-bind="checkout-fee"]').textContent()) || "").trim();
+    record(engine, "entrega fee is R$ 40,00", /R\$\s*40,00/.test(feeText), feeText);
+    const totalWithFee = ((await page.locator('[data-bind="cart-total"]').textContent()) || "").trim();
+    record(engine, "entrega total includes fee", /R\$/.test(totalWithFee) && !/a confirmar/.test(totalWithFee), totalWithFee);
+    await page.locator('#checkout-form [name="modalidade"][value="retirada"]').check();
+    record(engine, "retirada hides address again", await page.locator('[data-bind="checkout-address"]').isHidden());
     await page.locator('#checkout-form [name="nome"]').fill("Auditoria Teste");
     await page.locator('#checkout-form [name="telefone"]').fill("61900000000");
     await page.locator('#checkout-form [name="observacoes"]').fill("Teste automatizado — não enviar.");
@@ -169,6 +201,7 @@ async function runEngine(browserType, engine) {
       /Esta é uma solicitação de encomenda/.test(waText),
       waText.slice(0, 120)
     );
+    record(engine, "WhatsApp draft is retirada without address", /\*Modalidade:\* Retirada/.test(waText) && !/\*Endereço:\*/.test(waText), waText.slice(0, 180));
     const status = await page
       .locator('[data-bind="checkout-status"]')
       .textContent({ timeout: 1500 })
@@ -228,6 +261,22 @@ async function runEngine(browserType, engine) {
     const areaTitle = ((await page.locator("h1").textContent()) || "").trim();
     record(engine, "corporate title", /Corporate/i.test(areaTitle), areaTitle);
     record(engine, "corporate has products", (await page.locator(".card").count()) > 0);
+    const areaSlideHref = await page.locator("#hero-carrossel .hero__slide").first().getAttribute("href");
+    record(engine, "area carousel links to product", /produto\/\?slug=/.test(areaSlideHref || ""), areaSlideHref);
+    const alfajores = page.locator('[id="produto:caixa-4-alfajores-logo"] .card__actions .btn');
+    record(engine, "alfajores card present", (await alfajores.count()) === 2);
+    if ((await alfajores.count()) === 2) {
+      const firstBtn = await alfajores.nth(0).boundingBox();
+      const secondBtn = await alfajores.nth(1).boundingBox();
+      const aligned = firstBtn && secondBtn && Math.abs(firstBtn.y + firstBtn.height - (secondBtn.y + secondBtn.height)) <= 2;
+      record(engine, "alfajores buttons share baseline", aligned, JSON.stringify({ firstBtn, secondBtn }));
+    }
+
+    await page.goto(BASE + "/sobre-nos/", { waitUntil: "domcontentloaded" });
+    const sobreTitle = ((await page.locator("h1").textContent()) || "").trim();
+    record(engine, "sobre-nos title", /Sobre nós/i.test(sobreTitle), sobreTitle);
+    record(engine, "instagram lives on sobre-nos", (await page.locator('[data-bind="instagram-grid"] a').count()) >= 1);
+    record(engine, "empty portrait stays hidden", await page.locator('[data-bind="sobre-portrait"]').isHidden());
 
     await page.goto(BASE + "/", { waitUntil: "domcontentloaded" });
     await page.locator('[data-action="toggle-menu"]').click();
@@ -257,6 +306,16 @@ async function runEngine(browserType, engine) {
     record(engine, "home is not mixed vitrine", mixed === 0);
     const natalDesktop = await page.locator('[data-bind="areas"] a', { hasText: "Natal" }).count();
     record(engine, "desktop Natal hidden", natalDesktop === 0);
+    const desktopSquares = await page.locator('[data-bind="areas"] a').evaluateAll(function measure(nodes) {
+      return nodes.map(function boxOf(el) {
+        const rect = el.getBoundingClientRect();
+        return { x: Math.round(rect.x), y: Math.round(rect.y) };
+      });
+    });
+    const fourAcross = desktopSquares.length === 4 && desktopSquares.every(function sameRow(box) {
+      return Math.abs(box.y - desktopSquares[0].y) < 12;
+    });
+    record(engine, "desktop area squares 4 across", fourAcross, JSON.stringify(desktopSquares));
     await page.locator('[data-action="toggle-categories"]').click();
     record(engine, "desktop Categorias dropdown", await page.locator("#menu-categorias").isVisible());
     await page.keyboard.press("Escape");
