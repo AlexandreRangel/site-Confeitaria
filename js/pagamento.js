@@ -9,7 +9,7 @@
   Jana.INFINITEPAY_CHECK_URL = CHECK_URL;
   Jana.INFINITEPAY_REDIRECT_URL = REDIRECT_URL;
   Jana.PAID_DISCLAIMER =
-    "Após o pagamento, seu pedido é enviado para a Jana pelo WhatsApp. Se houver qualquer indisponibilidade na data, ela entra em contato.";
+    "Após o pagamento, seu pedido é enviado para nós pelo WhatsApp. Caso a data esteja indisponível, entramos em contato.";
 
   Jana.infinitePayHandle = function infinitePayHandle(config) {
     const inf = config && config.infinitepay ? config.infinitepay : config || {};

@@ -1,6 +1,6 @@
 {
   "infinitepay": {
-    "enabled": false,
-    "handle": ""
+    "enabled": true,
+    "handle": "janaabreuconfeitaria"
   }
 }
