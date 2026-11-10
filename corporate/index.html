@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fdf6ec">
+  <meta name="description" content="Doces personalizados para empresas da Jana Abreu Confeitaria em Brasília.">
+  <title>Corporate · Jana Abreu Confeitaria</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+</head>
+<body data-page="area" data-area="corporate" data-root="../">
+  <a class="skip-link" href="#area">Ir para Corporate</a>
+  <header id="topo" class="topo">
+    <div class="topo__inner">
+      <button class="topo__menu" type="button" aria-expanded="false" aria-controls="menu-principal" data-action="toggle-menu">
+        <span class="sr-only">Abrir menu</span>
+        <span class="topo__menu-bar" aria-hidden="true"></span>
+      </button>
+      <a class="topo__brand" href="../">
+        <img class="topo__brand-logo" data-bind="logo" src="../assets/brand/logo-jana-abreu.png" alt="Jana Abreu Confeitaria" width="220" height="84">
+        <span class="topo__brand-tag" data-bind="slogan">A vida é mais doce quando compartilhada</span>
+      </a>
+      <nav id="menu-principal" class="topo__nav" aria-label="Principal">
+        <a href="../">Início</a>
+        <div class="topo__categories">
+          <button type="button" class="topo__categories-btn" aria-expanded="false" aria-haspopup="true" aria-controls="menu-categorias" data-action="toggle-categories">Categorias</button>
+          <div id="menu-categorias" class="categorias-menu" hidden>
+            <a href="../corporate/">Corporate</a>
+            <a href="../bolos/">Bolos</a>
+            <a href="../cestas/">Cestas</a>
+            <a href="../doces-personalizados/">Doces personalizados</a>
+          </div>
+        </div>
+        <a href="#encomendas" data-action="open-cart">Encomendas</a>
+      </nav>
+      <div class="topo__actions">
+        <a class="icon-link" data-bind="instagram-link" href="https://www.instagram.com/janaabreuconfeitaria/" target="_blank" rel="noopener noreferrer" aria-label="Instagram @janaabreuconfeitaria">
+          <img src="../assets/icons/instagram.svg" alt="" width="22" height="22">
+          <span class="icon-link__label" data-bind="instagram-handle">@janaabreuconfeitaria</span>
+        </a>
+        <button class="cart-button" type="button" data-action="open-cart" aria-controls="encomendas" aria-expanded="false">
+          <img src="../assets/icons/cart.svg" alt="" width="22" height="22">
+          <span class="sr-only">Abrir encomendas</span>
+          <span class="cart-button__count" data-bind="cart-count" aria-live="polite">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+  <main>
+    <section id="area" class="area-page">
+      <h1 id="area-titulo" data-bind="area-title">Corporate</h1>
+      <section id="hero-carrossel" class="hero hero--compact" aria-roledescription="carrossel" aria-label="Destaques">
+        <div class="hero__media">
+          <div class="hero__track" data-bind="carousel"></div>
+        </div>
+        <div class="hero__controls">
+          <button type="button" class="hero__arrow" data-action="carousel-prev" aria-label="Slide anterior">‹</button>
+          <div class="hero__dots" data-bind="carousel-dots"></div>
+          <button type="button" class="hero__arrow" data-action="carousel-next" aria-label="Próximo slide">›</button>
+        </div>
+      </section>
+      <div class="product-grid" data-bind="products"></div>
+    </section>
+  </main>
+  <footer id="rodape" class="rodape">
+    <p class="rodape__place" data-bind="city-state">Brasília/DF</p>
+    <p>
+      Instagram
+      <a data-bind="instagram-link" href="https://www.instagram.com/janaabreuconfeitaria/" target="_blank" rel="noopener noreferrer">
+        <span data-bind="instagram-handle">@janaabreuconfeitaria</span>
+      </a>
+    </p>
+    <p>
+      WhatsApp
+      <a data-bind="whatsapp-link" href="https://wa.me/5561981246112">
+        <span data-bind="whatsapp-label">(61) 98124-6112</span>
+      </a>
+    </p>
+    <p class="rodape__credits">
+      <span data-bind="copyright">© 2026 Jana Abreu</span>
+      · <a class="rodape-loja-link" href="../painel/">Área da loja</a>
+    </p>
+  </footer>
+
+  <aside id="encomendas" class="drawer" role="dialog" aria-modal="true" aria-labelledby="encomendas-titulo" hidden>
+    <div class="drawer__panel">
+      <header class="drawer__head">
+        <h2 id="encomendas-titulo">Encomendas</h2>
+        <button type="button" class="modal__close" data-action="close-cart" aria-label="Fechar encomendas">×</button>
+      </header>
+      <div class="drawer__items" data-bind="cart-items"></div>
+      <p class="drawer__total">Total: <strong data-bind="cart-total">R$ 0,00</strong></p>
+      <form id="checkout-form" class="checkout">
+        <label>Nome <input name="nome" type="text" required autocomplete="name"></label>
+        <label>Telefone <input name="telefone" type="tel" required autocomplete="tel" placeholder="(61) 90000-0000"></label>
+        <label>E-mail <input name="email" type="email" autocomplete="email" placeholder="opcional"></label>
+        <label>Endereço / retirada <input name="endereco" type="text" autocomplete="street-address" placeholder="Bairro, cidade ou retirada na loja"></label>
+        <label>Data desejada <input name="data" type="date" lang="pt-BR" autocomplete="off"><span class="checkout__hint">Calendário do aparelho · no Brasil aparece dia/mês/ano.</span></label>
+        <label>Observações <textarea name="observacoes" rows="3" placeholder="Sabores, tema, retirada ou entrega…"></textarea></label>
+        <p class="checkout__privacy" data-bind="privacy-note">Usamos nome, telefone e o que você escrever só para a Jana responder esta solicitação. Não publicamos sua lista de pedidos.</p>
+        <p class="checkout__note" data-bind="payments"></p>
+        <p class="checkout__status" data-bind="checkout-status" role="status" aria-live="polite"></p>
+        <div class="checkout__submit">
+          <p class="checkout__disclaimer" data-bind="request-disclaimer">Esta é uma solicitação de encomenda. A confirmação depende da disponibilidade e da confirmação da Jana pelo WhatsApp.</p>
+          <button type="submit" class="btn btn--solid btn--whatsapp">Enviar solicitação no WhatsApp</button>
+        </div>
+      </form>
+    </div>
+  </aside>
+  <div class="backdrop" data-action="close-cart" hidden></div>
+
+  <script defer src="../js/background-hydra.js"></script>
+  <script defer src="../js/utils.js"></script>
+  <script defer src="../js/cart.js"></script>
+  <script defer src="../js/store.js"></script>
+  <script defer src="../js/central.js"></script>
+  <script defer src="../js/app.js"></script>
+</body>
+</html>

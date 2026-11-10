@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="css/components.css">
 </head>
 <body data-page="home" data-root="">
-  <a class="skip-link" href="#categorias">Ir para as categorias</a>
+  <a class="skip-link" href="#areas">Ir para as áreas</a>
 
   <header id="topo" class="topo">
     <div class="topo__inner">
@@ -29,7 +29,15 @@
       </a>
       <nav id="menu-principal" class="topo__nav" aria-label="Principal">
         <a href="./">Início</a>
-        <a href="#categorias">Categorias</a>
+        <div class="topo__categories">
+          <button type="button" class="topo__categories-btn" aria-expanded="false" aria-haspopup="true" aria-controls="menu-categorias" data-action="toggle-categories">Categorias</button>
+          <div id="menu-categorias" class="categorias-menu" hidden>
+            <a href="corporate/">Corporate</a>
+            <a href="bolos/">Bolos</a>
+            <a href="cestas/">Cestas</a>
+            <a href="doces-personalizados/">Doces personalizados</a>
+          </div>
+        </div>
         <a href="#encomendas" data-action="open-cart">Encomendas</a>
       </nav>
       <div class="topo__actions">
@@ -69,70 +77,37 @@
       </div>
     </section>
 
-    <section id="categorias" class="categorias" aria-labelledby="categorias-titulo">
-      <h2 id="categorias-titulo">Categorias</h2>
-      <div class="categorias__row" data-bind="categories"></div>
-    </section>
-
-    <section id="destaques" class="destaques" aria-labelledby="destaques-titulo">
-      <h2 id="destaques-titulo" class="sr-only">Destaques</h2>
-      <div class="promo-grid" data-bind="promo-cards"></div>
-      <div class="sobremesas-band">
-        <figure>
-          <img src="assets/products/cafe-parabens-fit/01.webp" alt="Café Parabéns Fit">
-        </figure>
-        <div class="sobremesas-band__copy">
-          <h2 data-bind="sobremesas-title">Sobremesas inesquecíveis</h2>
-          <p data-bind="sobremesas-text"></p>
-          <a class="btn btn--outline" href="sobremesas/">
-            Confira nossas opções
-          </a>
-        </div>
-        <figure>
-          <img src="assets/products/bolo-naked-g/01.webp" alt="Bolo Naked">
-        </figure>
-      </div>
-    </section>
-
-    <section id="instagram" class="instagram" aria-labelledby="instagram-titulo">
-      <h2 id="instagram-titulo">Siga no Instagram</h2>
-      <p>
-        <a data-bind="instagram-link" href="https://www.instagram.com/janaabreuconfeitaria/" target="_blank" rel="noopener noreferrer">
-          <span data-bind="instagram-handle">@janaabreuconfeitaria</span>
-        </a>
-      </p>
-      <div class="instagram__grid" data-bind="instagram-grid"></div>
+    <section id="areas" class="areas" aria-labelledby="areas-titulo">
+      <h2 id="areas-titulo" class="sr-only">Áreas</h2>
+      <div class="areas__list" data-bind="areas"></div>
     </section>
   </main>
 
+  <section id="instagram" class="instagram instagram--strip" aria-label="Instagram @janaabreuconfeitaria">
+    <p class="instagram__copy">
+      <a data-bind="instagram-link" href="https://www.instagram.com/janaabreuconfeitaria/" target="_blank" rel="noopener noreferrer">
+        Instagram <span data-bind="instagram-handle">@janaabreuconfeitaria</span>
+      </a>
+    </p>
+    <div class="instagram__grid" data-bind="instagram-grid"></div>
+  </section>
+
   <footer id="rodape" class="rodape">
-    <div class="rodape__grid">
-      <div>
-        <p class="rodape__brand" data-bind="brandName">Jana Abreu Confeitaria</p>
-        <p data-bind="slogan"></p>
-      </div>
-      <div>
-        <h3>Contato</h3>
-        <p>
-          WhatsApp:
-          <a data-bind="whatsapp-link" href="https://wa.me/5561981246112">
-            <span data-bind="whatsapp-label">(61) 98124-6112</span>
-          </a>
-        </p>
-        <p>
-          Instagram:
-          <a data-bind="instagram-link" href="https://www.instagram.com/janaabreuconfeitaria/" target="_blank" rel="noopener noreferrer">
-            <span data-bind="instagram-handle">@janaabreuconfeitaria</span>
-          </a>
-        </p>
-      </div>
-      <div>
-        <h3>Pagamento</h3>
-        <p data-bind="payments"></p>
-      </div>
-    </div>
+    <p class="rodape__place" data-bind="city-state">Brasília/DF</p>
+    <p>
+      Instagram
+      <a data-bind="instagram-link" href="https://www.instagram.com/janaabreuconfeitaria/" target="_blank" rel="noopener noreferrer">
+        <span data-bind="instagram-handle">@janaabreuconfeitaria</span>
+      </a>
+    </p>
+    <p>
+      WhatsApp
+      <a data-bind="whatsapp-link" href="https://wa.me/5561981246112">
+        <span data-bind="whatsapp-label">(61) 98124-6112</span>
+      </a>
+    </p>
     <p class="rodape__credits">
-      © <span data-bind="year"></span> Jana Abreu Confeitaria
+      <span data-bind="copyright">© 2026 Jana Abreu</span>
       · <a class="rodape-loja-link" href="painel/">Área da loja</a>
     </p>
   </footer>

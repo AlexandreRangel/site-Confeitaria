@@ -11,9 +11,9 @@
   {
     "id": "slide-caixa-parabens-individual-kit-com-10-und",
     "title": "Caixa parabéns individual KIT COM 10 UND",
-    "subtitle": "Personalizado para Empresas",
+    "subtitle": "Corporate",
     "image": "assets/products/caixa-parabens-individual-kit-com-10-und/01.webp",
-    "linkCategory": "personalizado-para-empresas",
+    "linkCategory": "corporate",
     "productSlug": "caixa-parabens-individual-kit-com-10-und",
     "order": 2
   },
@@ -29,9 +29,9 @@
   {
     "id": "slide-tabua-signature",
     "title": "Tábua Signature",
-    "subtitle": "Cestas & Presentes",
+    "subtitle": "Cestas",
     "image": "assets/products/tabua-signature/01.webp",
-    "linkCategory": "cestas-presentes",
+    "linkCategory": "cestas",
     "productSlug": "tabua-signature",
     "order": 4
   }

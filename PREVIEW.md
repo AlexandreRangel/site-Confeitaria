@@ -7,15 +7,15 @@ Servidor local: `http://127.0.0.1:8765/` (pasta `site-confeitaria-preview`).
 ### Mobile (~375px)
 - Header sticky com wordmark oficial; menu hamburger e carrinho com alvo ≥ 44px.
 - Carrossel full-bleed com fotos reais e caption em card translúcido.
-- Fileira de **categorias** em carrossel de cards quadrados grandes (estilo GoldKo): ~3 visíveis no mobile, seta para o restante, rótulo embaixo, URL limpa (`/bolos/`, `/sobremesas/`, …).
-- Home **sem** vitrine mista e **sem** bloco «venha nos visitar»/endereço: hero, cards de categoria, destaques já aprovados, Instagram e rodapé (WhatsApp, Instagram, pagamento — sem Endereço).
+- Quatro botões grandes arredondados iguais no mobile e no desktop: Corporate, Bolos, Cestas, Doces personalizados. Natal só se `natal.enabled` for true.
+- Home **sem** vitrine mista, **sem** GoldKo, **sem** destaques: hero, botões de área, faixa compacta de Instagram e rodapé enxuto (Brasília/DF, Instagram, WhatsApp, © 2026 Jana Abreu).
 - Sem overflow horizontal (body/`html` com `overflow-x: hidden`).
 
 ### Desktop (~1280px)
 - Container ~**1120px** nas seções; header com nav horizontal.
-- Categorias no mesmo idioma de cards quadrados (~5 visíveis), com seta se houver mais; clique vai para a pasta da categoria.
-- Página de categoria: grade de produtos daquela categoria em **4 colunas**.
-- Carrossel alto (~520px) full-bleed só na home.
+- Os mesmos quatro botões de área, sem carrossel GoldKo.
+- Página de área: título, carrossel mais baixo, grade de produtos em **4 colunas**.
+- Carrossel da home ~416px no desktop (20% mais baixo); mobile mantém a altura.
 
 ### Brand & conteúdo
 - Cores oficiais: texto `#4c553a`, creme `#fdf6ec`, rosa decorativo `#b86e88`, rosa claro `#f5d5e0`. Botões preenchidos em variante AA `#9a5870`. Sem coral `#FC7E8E`. Hydra só dentro dos botões **Comprar**.

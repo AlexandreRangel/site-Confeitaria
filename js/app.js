@@ -3,6 +3,7 @@
   const state = {
     site: null,
     categories: [],
+    areas: [],
     carousel: [],
     products: [],
     filter: "todas",
@@ -14,14 +15,30 @@
     flavorLabel: "Recheio do bolo",
     selectedFlavor: "",
     lastFocus: null,
+    categoriesOpen: false,
   };
 
   function isCategoryPage() {
     return document.body.getAttribute("data-page") === "category";
   }
 
+  function isAreaPage() {
+    return document.body.getAttribute("data-page") === "area";
+  }
+
   function pageCategoryId() {
     return document.body.getAttribute("data-category") || "";
+  }
+
+  function pageAreaId() {
+    return document.body.getAttribute("data-area") || pageCategoryId();
+  }
+
+  function currentArea() {
+    const id = pageAreaId();
+    return state.areas.find(function findArea(item) {
+      return item.id === id || item.slug === id;
+    });
   }
 
   function isProductPage() {
@@ -42,6 +59,9 @@
       const loaded = await Promise.all([
         Jana.loadJSON("data/site.json"),
         Jana.loadJSON("data/categories.json"),
+        Jana.loadJSON("data/areas.json").catch(function noAreas() {
+          return [];
+        }),
         Jana.loadJSON("data/carousel.json"),
         Jana.loadJSON("data/products.json"),
         Jana.loadJSON("data/sabores-bolos.json").catch(function noFlavors() {
@@ -50,19 +70,21 @@
       ]);
       state.site = loaded[0];
       state.categories = loaded[1].slice().sort(byOrder);
-      state.carousel = loaded[2].slice().sort(byOrder);
-      state.products = loaded[3].filter(function isActive(product) {
+      state.areas = loaded[2].slice().sort(byOrder);
+      state.carousel = loaded[3].slice().sort(byOrder);
+      state.products = loaded[4].filter(function isActive(product) {
         return product.active !== false;
       });
-      state.flavors = (loaded[4].flavors || []).map(normalizeFlavor);
-      state.flavorLabel = loaded[4].label || "Recheio do bolo";
+      state.flavors = (loaded[5].flavors || []).map(normalizeFlavor);
+      state.flavorLabel = loaded[5].label || "Recheio do bolo";
       state.selectedFlavor = flavorName(state.flavors[0]);
-      if (isCategoryPage()) {
-        state.filter = pageCategoryId() || "todas";
+      if (isAreaPage() || isCategoryPage()) {
+        state.filter = pageAreaId() || "todas";
       }
       applyBrand();
       renderCarousel();
-      renderCategories();
+      renderAreas();
+      renderCategoriesNav();
       renderDestaques();
       renderProducts();
       renderInstagram();
@@ -142,8 +164,14 @@
     Jana.bindText("presentes-title", site.destaquesCopy.presentesTitle);
     Jana.bindText("bolos-title", site.destaquesCopy.bolosPedidosTitle);
     Jana.bindText("year", String(new Date().getFullYear()));
+    Jana.bindText("copyright", site.copyright || "© 2026 Jana Abreu");
+    Jana.bindText(
+      "city-state",
+      [site.address && site.address.city, site.address && site.address.state].filter(Boolean).join("/")
+    );
     document.title = site.brandName;
     applyCategoryTitle();
+    applyAreaTitle();
     applyProductPage();
     if (site.logo) {
       Jana.qsa('[data-bind="logo"]').forEach(function setLogo(img) {
@@ -187,6 +215,19 @@
       return item.id === state.filter || item.slug === state.filter;
     });
     const name = category ? category.name : "Categoria";
+    Jana.bindText("category-title", name);
+    if (state.site && state.site.brandName) {
+      document.title = name + " · " + state.site.brandName;
+    }
+  }
+
+  function applyAreaTitle() {
+    if (!isAreaPage()) {
+      return;
+    }
+    const area = currentArea();
+    const name = area ? area.name : "Área";
+    Jana.bindText("area-title", name);
     Jana.bindText("category-title", name);
     if (state.site && state.site.brandName) {
       document.title = name + " · " + state.site.brandName;
@@ -310,36 +351,61 @@
     }
   }
 
-  function renderCategories() {
-    const row = Jana.qs('[data-bind="categories"]');
-    if (!row) {
+  function renderAreas() {
+    const list = Jana.qs('[data-bind="areas"]');
+    if (!list) {
       return;
     }
-    const current = isCategoryPage() ? state.filter : "";
-    row.innerHTML = state.categories
-      .map(function categoryHtml(category) {
-        const slug = Jana.categorySlug(category);
-        const active = current === category.id || current === slug ? " is-active" : "";
+    const areas = Jana.visibleAreas(state.areas, state.site);
+    const current = isAreaPage() ? pageAreaId() : "";
+    list.innerHTML = areas
+      .map(function areaHtml(area) {
+        const active = current === area.id || current === area.slug ? " is-active" : "";
         return (
-          '<a class="categoria-card' +
+          '<a class="area-button' +
           active +
           '" href="' +
-          Jana.escapeHtml(Jana.categoryUrl(slug)) +
+          Jana.escapeHtml(Jana.areaUrl(area.slug)) +
           '"' +
           (active ? ' aria-current="page"' : "") +
           ">" +
-          '<span class="categoria-card__media"><img src="' +
-          Jana.escapeHtml(Jana.assetUrl(category.image)) +
-          '" alt="" width="400" height="400" decoding="async"' +
-          (state.categories.indexOf(category) < 5 ? "" : ' loading="lazy"') +
-          "></span>" +
-          '<span class="categoria-card__label">' +
-          Jana.escapeHtml(category.name) +
+          '<span class="area-button__media"><img src="' +
+          Jana.escapeHtml(Jana.assetUrl(area.image)) +
+          '" alt="" width="144" height="144" decoding="async"></span>' +
+          '<span class="area-button__label">' +
+          Jana.escapeHtml(area.name) +
           "</span></a>"
         );
       })
       .join("");
-    bindCategoryCarousel(row);
+  }
+
+  function renderCategoriesNav() {
+    const menu = Jana.qs("#menu-categorias");
+    if (!menu) {
+      return;
+    }
+    const areas = Jana.visibleAreas(state.areas, state.site);
+    const current = isAreaPage() ? pageAreaId() : "";
+    menu.innerHTML = areas
+      .map(function navLink(area) {
+        const active = current === area.id || current === area.slug;
+        return (
+          '<a href="' +
+          Jana.escapeHtml(Jana.areaUrl(area.slug)) +
+          '"' +
+          (active ? ' aria-current="page"' : "") +
+          ">" +
+          Jana.escapeHtml(area.name) +
+          "</a>"
+        );
+      })
+      .join("");
+  }
+
+  function renderCategories() {
+    renderAreas();
+    renderCategoriesNav();
   }
 
   function bindCategoryCarousel(row) {
@@ -489,21 +555,26 @@
     if (!grid) {
       return;
     }
-    const list =
-      state.filter === "todas"
+    const area = currentArea();
+    const list = area
+      ? Jana.productsForArea(state.products, area)
+      : state.filter === "todas"
         ? state.products
         : state.products.filter(function match(product) {
             return (product.categoryIds && product.categoryIds.indexOf(state.filter) !== -1) || product.categoryId === state.filter;
           });
-    const category = state.categories.find(function findCat(item) {
-      return item.id === state.filter || item.slug === state.filter;
-    });
-    Jana.bindText("filter-label", category ? category.name : "Todas as categorias");
+    const label = area
+      ? area.name
+      : (state.categories.find(function findCat(item) {
+          return item.id === state.filter || item.slug === state.filter;
+        }) || {}).name || "Todas as categorias";
+    Jana.bindText("filter-label", label);
     applyCategoryTitle();
+    applyAreaTitle();
     grid.innerHTML = list.length
       ? list.map(productCard).join("")
-      : '<p class="empty">Nenhum produto nesta categoria. Edite data/products.json.</p>';
-    renderCategories();
+      : '<p class="empty">Nenhum produto nesta área por enquanto. Combine a encomenda pelo WhatsApp.</p>';
+    renderCategoriesNav();
   }
 
   function renderInstagram() {
@@ -549,14 +620,12 @@
     }
     state.currentProduct = product;
     state.galleryIndex = 0;
-    const category = state.categories.find(function findCat(item) {
-      return item.id === product.categoryId || item.slug === product.categoryId;
-    });
+    const area = Jana.areaForProduct(product, Jana.visibleAreas(state.areas, state.site));
     Jana.bindText("product-name", product.name);
     Jana.bindText("product-description", product.description);
     Jana.bindText("product-price", Jana.formatBRL(product.price));
-    Jana.bindText("product-category", category ? category.name : "");
-    Jana.bindHref("product-category-link", category ? Jana.categoryUrl(Jana.categorySlug(category)) : Jana.homeUrl());
+    Jana.bindText("product-category", area ? area.name : "");
+    Jana.bindHref("product-category-link", area ? Jana.areaUrl(area.slug) : Jana.homeUrl());
     if (state.site && state.site.brandName) {
       document.title = product.name + " · " + state.site.brandName;
     }
@@ -767,6 +836,22 @@
       : '<p class="empty">Sua encomenda está vazia. Escolha um item do catálogo.</p>';
   }
 
+  function setCategoriesOpen(open) {
+    const button = Jana.qs('[data-action="toggle-categories"]');
+    const menu = Jana.qs("#menu-categorias");
+    state.categoriesOpen = !!open;
+    if (button) {
+      button.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+    if (menu) {
+      menu.hidden = !open;
+    }
+    const wrap = Jana.qs(".topo__categories");
+    if (wrap) {
+      wrap.classList.toggle("is-open", !!open);
+    }
+  }
+
   function setMenuOpen(open) {
     const topo = Jana.qs("#topo");
     const button = Jana.qs('[data-action="toggle-menu"]');
@@ -781,12 +866,15 @@
         label.textContent = open ? "Fechar menu" : "Abrir menu";
       }
     }
+    if (!open) {
+      setCategoriesOpen(false);
+    }
   }
 
   function setPageLocked(locked) {
     document.documentElement.classList.toggle("is-locked", locked);
     document.body.classList.toggle("is-locked", locked);
-    ["#topo", "main", "#rodape"].forEach(function mark(selector) {
+    ["#topo", "main", "#instagram", "#rodape"].forEach(function mark(selector) {
       const node = Jana.qs(selector);
       if (!node) {
         return;
@@ -1012,6 +1100,24 @@
         const topo = document.querySelector("#topo");
         setMenuOpen(!topo.classList.contains("is-open"));
       }
+      if (action === "toggle-categories") {
+        event.preventDefault();
+        event.stopPropagation();
+        const topo = Jana.qs("#topo");
+        const willOpen = !state.categoriesOpen;
+        if (willOpen && topo && window.matchMedia("(max-width: 719px)").matches) {
+          setMenuOpen(true);
+        }
+        setCategoriesOpen(willOpen);
+        if (willOpen) {
+          const first = Jana.qs("#menu-categorias a");
+          if (first) {
+            window.setTimeout(function focusFirst() {
+              first.focus();
+            }, 0);
+          }
+        }
+      }
       if (action === "open-cart") {
         event.preventDefault();
         openCart();
@@ -1110,6 +1216,15 @@
           closeCart();
           return;
         }
+        if (state.categoriesOpen) {
+          event.preventDefault();
+          const categoriesBtn = Jana.qs('[data-action="toggle-categories"]');
+          setCategoriesOpen(false);
+          if (categoriesBtn) {
+            categoriesBtn.focus();
+          }
+          return;
+        }
         setMenuOpen(false);
         return;
       }
@@ -1138,16 +1253,31 @@
     });
     document.addEventListener("click", function onDocumentClick(event) {
       const topo = Jana.qs("#topo");
+      if (state.categoriesOpen && !event.target.closest(".topo__categories")) {
+        setCategoriesOpen(false);
+      }
       if (!topo || !topo.classList.contains("is-open")) {
         return;
       }
       if (event.target.closest("#topo")) {
-        if (event.target.closest(".topo__nav a")) {
+        if (event.target.closest(".topo__nav a") && !event.target.closest("#menu-categorias")) {
           setMenuOpen(false);
+        }
+        if (event.target.closest("#menu-categorias a")) {
+          setMenuOpen(false);
+          setCategoriesOpen(false);
         }
         return;
       }
       setMenuOpen(false);
+    });
+    document.addEventListener("focusin", function onFocusIn(event) {
+      if (!state.categoriesOpen) {
+        return;
+      }
+      if (!event.target.closest(".topo__categories")) {
+        setCategoriesOpen(false);
+      }
     });
     const checkoutForm = Jana.qs("#checkout-form");
     if (checkoutForm) {

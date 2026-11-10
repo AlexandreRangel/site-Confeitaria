@@ -66,7 +66,11 @@ async function withPage(browserType, engine, viewport, fn) {
 async function runEngine(browserType, engine) {
   await withPage(browserType, engine, { width: 390, height: 844 }, async function mobile(page, waHits, engineName, centralHits) {
     await page.goto(BASE + "/", { waitUntil: "domcontentloaded", timeout: 30000 });
-    await page.waitForSelector('[data-bind="categories"] a', { timeout: 15000 });
+    await page.waitForSelector('[data-bind="areas"] a', { timeout: 15000 });
+    await page.waitForFunction(function layoutReady() {
+      const img = document.querySelector(".hero__slide img");
+      return !!(img && img.getBoundingClientRect().width <= document.documentElement.clientWidth + 1);
+    }, null, { timeout: 10000 });
     const lang = await page.locator("html").getAttribute("lang");
     record(engine, "html lang", lang === "pt-BR", lang);
     const h1 = await page.locator("h1").count();
@@ -78,8 +82,18 @@ async function runEngine(browserType, engine) {
     const skip = await page.locator(".skip-link").count();
     record(engine, "skip link", skip >= 1);
 
-    const catHref = await page.locator('[data-bind="categories"] a').first().getAttribute("href");
-    record(engine, "category url is folder", /\/$/.test(catHref || "") && !String(catHref).includes("categoria.html"), catHref);
+    const areaLinks = page.locator('[data-bind="areas"] a');
+    const areaCount = await areaLinks.count();
+    const areaLabels = (await areaLinks.allTextContents()).map(function trim(text) {
+      return text.replace(/\s+/g, " ").trim();
+    });
+    record(engine, "home has 4 area buttons", areaCount === 4, String(areaCount) + " " + areaLabels.join(" | "));
+    record(engine, "home order Corporate Bolos Cestas Doces", areaLabels.join(" | ") === "Corporate | Bolos | Cestas | Doces personalizados", areaLabels.join(" | "));
+    record(engine, "Natal hidden while disabled", areaLabels.indexOf("Natal") === -1);
+    const catHref = await areaLinks.first().getAttribute("href");
+    record(engine, "area url is folder", /corporate\/$/.test(catHref || ""), catHref);
+    const natalNav = await page.locator("#menu-categorias a", { hasText: "Natal" }).count();
+    record(engine, "Natal not linked in Categorias", natalNav === 0);
 
     await page.goto(BASE + "/bolos/", { waitUntil: "domcontentloaded" });
     await page.waitForSelector(".card, .empty", { timeout: 15000 });
@@ -193,22 +207,60 @@ async function runEngine(browserType, engine) {
     record(engine, "central login stays hidden while disabled", loginHidden);
     record(engine, "central API not called while disabled", centralHits.length === 0, String(centralHits.length));
 
-    const paths = ["/cestas-presentes/", "/sobremesas/", "/combos-festa/", "/doces-festa/", "/festa-personalizada/", "/personalizado-para-empresas/"];
-    for (const path of paths) {
-      const response = await page.goto(BASE + path, { waitUntil: "domcontentloaded" });
-      record(engine, "category " + path, response && response.ok(), String(response && response.status()));
+    const redirects = [
+      { from: "/sobremesas/", ok: function ok(path) { return path === "/" || path === ""; } },
+      { from: "/cestas-presentes/", ok: function ok(path) { return /\/cestas\/?$/.test(path); } },
+      { from: "/personalizado-para-empresas/", ok: function ok(path) { return /\/corporate\/?$/.test(path); } },
+      { from: "/combos-festa/", ok: function ok(path) { return /\/doces-personalizados\/?$/.test(path); } },
+      { from: "/doces-festa/", ok: function ok(path) { return /\/doces-personalizados\/?$/.test(path); } },
+      { from: "/festa-personalizada/", ok: function ok(path) { return /\/doces-personalizados\/?$/.test(path); } },
+    ];
+    for (const item of redirects) {
+      await page.goto(BASE + item.from, { waitUntil: "domcontentloaded" });
+      await page.waitForURL(function waitRedirect(url) {
+        return item.ok(url.pathname);
+      }, { timeout: 5000 });
+      record(engine, "redirect " + item.from, item.ok(new URL(page.url()).pathname), page.url());
     }
+
+    await page.goto(BASE + "/corporate/", { waitUntil: "domcontentloaded" });
+    await page.waitForSelector(".card, .empty", { timeout: 15000 });
+    const areaTitle = ((await page.locator("h1").textContent()) || "").trim();
+    record(engine, "corporate title", /Corporate/i.test(areaTitle), areaTitle);
+    record(engine, "corporate has products", (await page.locator(".card").count()) > 0);
+
+    await page.goto(BASE + "/", { waitUntil: "domcontentloaded" });
+    await page.locator('[data-action="toggle-menu"]').click();
+    await page.waitForSelector('[data-action="toggle-categories"]');
+    await page.locator('[data-action="toggle-categories"]').click();
+    const menuOpen = await page.locator("#menu-categorias").isVisible();
+    record(engine, "Categorias opens on mobile", menuOpen);
+    const expanded = await page.locator('[data-action="toggle-categories"]').getAttribute("aria-expanded");
+    record(engine, "aria-expanded true", expanded === "true", expanded);
+    await page.keyboard.press("Escape");
+    await page.waitForTimeout(200);
+    record(engine, "Escape closes Categorias", await page.locator("#menu-categorias").isHidden());
   });
 
   await withPage(browserType, engine, { width: 1280, height: 800 }, async function desktop(page) {
     await page.goto(BASE + "/", { waitUntil: "domcontentloaded" });
-    await page.waitForSelector('[data-bind="categories"] a');
+    await page.waitForSelector('[data-bind="areas"] a');
+    await page.waitForFunction(function layoutReady() {
+      const img = document.querySelector(".hero__slide img");
+      return !!(img && img.getBoundingClientRect().width <= document.documentElement.clientWidth + 1);
+    }, null, { timeout: 10000 });
     const overflow = await page.evaluate(function measure() {
       return document.documentElement.scrollWidth > document.documentElement.clientWidth + 1;
     });
     record(engine, "desktop no horizontal overflow", !overflow);
     const mixed = await page.locator('#catalogo [data-bind="products"]').count();
     record(engine, "home is not mixed vitrine", mixed === 0);
+    const natalDesktop = await page.locator('[data-bind="areas"] a', { hasText: "Natal" }).count();
+    record(engine, "desktop Natal hidden", natalDesktop === 0);
+    await page.locator('[data-action="toggle-categories"]').click();
+    record(engine, "desktop Categorias dropdown", await page.locator("#menu-categorias").isVisible());
+    await page.keyboard.press("Escape");
+    record(engine, "desktop Escape closes Categorias", await page.locator("#menu-categorias").isHidden());
   });
 }
 

@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const site = JSON.parse(readFileSync(join(root, "data/site.json"), "utf8"));
 const categories = JSON.parse(readFileSync(join(root, "data/categories.json"), "utf8"));
+const areas = JSON.parse(readFileSync(join(root, "data/areas.json"), "utf8"));
 const carousel = JSON.parse(readFileSync(join(root, "data/carousel.json"), "utf8"));
 const products = JSON.parse(readFileSync(join(root, "data/products.json"), "utf8"));
 const home = readFileSync(join(root, "index.html"), "utf8");
@@ -34,7 +35,7 @@ if (!Array.isArray(site.instagramGallery) || site.instagramGallery.length < 6) {
 }
 
 const categoryIds = new Set(categories.map((item) => item.id));
-const expected = [
+const catalogIds = [
   "cestas-presentes",
   "personalizado-para-empresas",
   "combos-festa",
@@ -42,37 +43,98 @@ const expected = [
   "festa-personalizada",
   "doces-festa",
   "sobremesas",
+  "natal",
 ];
-expected.forEach((id) => {
-  if (!categoryIds.has(id)) errors.push("Missing category " + id);
+catalogIds.forEach((id) => {
+  if (!categoryIds.has(id)) errors.push("Missing catalog category " + id);
 });
+const sobremesas = categories.find((item) => item.id === "sobremesas");
+if (!sobremesas || sobremesas.hidden !== true) {
+  errors.push("Sobremesas must remain in the catalog with hidden: true");
+}
+if (!site.natal || site.natal.enabled !== false) {
+  errors.push("Natal must stay off by default in data/site.json");
+}
+if (site.copyright !== "© 2026 Jana Abreu") {
+  errors.push("Copyright must be «© 2026 Jana Abreu»");
+}
 
-categories.forEach((category) => {
-  const slug = category.slug || category.id;
+const expectedAreas = ["corporate", "bolos", "cestas", "doces-personalizados", "natal"];
+const areaById = new Map(areas.map((item) => [item.id, item]));
+expectedAreas.forEach((id) => {
+  if (!areaById.has(id)) errors.push("Missing area " + id);
+});
+const natalArea = areaById.get("natal");
+if (!natalArea || natalArea.seasonal !== true) {
+  errors.push("Natal area must be marked seasonal");
+}
+const corporate = areaById.get("corporate");
+if (!corporate || corporate.sourceCategoryIds.join(",") !== "personalizado-para-empresas") {
+  errors.push("Corporate must map from Personalizado para Empresas");
+}
+const doces = areaById.get("doces-personalizados");
+if (
+  !doces ||
+  ["combos-festa", "doces-festa", "festa-personalizada"].some(
+    (id) => !doces.sourceCategoryIds.includes(id)
+  )
+) {
+  errors.push("Doces personalizados must join combos-festa, doces-festa and festa-personalizada");
+}
+
+areas.forEach((area) => {
+  const slug = area.slug || area.id;
   if (!slug) {
-    errors.push("Category missing slug: " + JSON.stringify(category));
+    errors.push("Area missing slug: " + JSON.stringify(area));
     return;
   }
   if (/_/.test(slug)) {
-    errors.push("Category slug has underscore: " + slug);
+    errors.push("Area slug has underscore: " + slug);
   }
   if (/[A-ZÀ-ÿ\s]/.test(slug)) {
-    errors.push("Category slug must be lowercase hyphenated: " + slug);
+    errors.push("Area slug must be lowercase hyphenated: " + slug);
   }
   const page = join(root, slug, "index.html");
   if (!existsSync(page)) {
-    errors.push("Missing category page " + slug + "/index.html");
+    errors.push("Missing area page " + slug + "/index.html");
   } else {
     const html = readFileSync(page, "utf8");
-    if (!html.includes('data-page="category"')) {
-      errors.push(slug + "/index.html must set data-page=category");
+    if (!html.includes('data-page="area"')) {
+      errors.push(slug + "/index.html must set data-page=area");
     }
-    if (!html.includes('data-category="' + slug + '"')) {
-      errors.push(slug + "/index.html must set data-category=" + slug);
+    if (!html.includes('data-area="' + slug + '"')) {
+      errors.push(slug + "/index.html must set data-area=" + slug);
     }
     if (!html.includes('data-bind="products"')) {
       errors.push(slug + "/index.html must list products");
     }
+    if (!html.includes("hero--compact")) {
+      errors.push(slug + "/index.html must use the compact carousel");
+    }
+  }
+});
+
+const redirects = {
+  "sobremesas": "../",
+  "combos-festa": "../doces-personalizados/",
+  "doces-festa": "../doces-personalizados/",
+  "festa-personalizada": "../doces-personalizados/",
+  "personalizado-para-empresas": "../corporate/",
+  "cestas-presentes": "../cestas/",
+};
+Object.keys(redirects).forEach((slug) => {
+  const page = join(root, slug, "index.html");
+  if (!existsSync(page)) {
+    errors.push("Missing redirect page " + slug + "/index.html");
+    return;
+  }
+  const html = readFileSync(page, "utf8");
+  const target = redirects[slug];
+  if (!html.includes('http-equiv="refresh"') || !html.includes(target) || !html.includes("location.replace")) {
+    errors.push(slug + " must statically redirect to " + target);
+  }
+  if (html.includes('data-page="category"') || html.includes('data-bind="products"')) {
+    errors.push(slug + " must not remain a live category page");
   }
 });
 
@@ -82,10 +144,19 @@ if (home.includes('id="catalogo"') || home.includes('data-bind="products"')) {
 if (home.includes('class="visita"') || /venha nos visitar/i.test(home)) {
   errors.push("Home must not include the visit/address block");
 }
+if (home.includes('id="destaques"') || home.includes("sobremesas-band") || home.includes('data-bind="categories"')) {
+  errors.push("Home must not include GoldKo categories, destaques or Sobremesas");
+}
+if (!home.includes('data-bind="areas"') || !home.includes('toggle-categories')) {
+  errors.push("Home must list area buttons and the Categorias dropdown");
+}
+if (/Natal/.test(home) && /href="natal\/"/.test(home)) {
+  errors.push("Home HTML must not link Natal while it is off");
+}
 const storefrontPages = [
   "index.html",
   "produto/index.html",
-  ...expected.map((id) => id + "/index.html"),
+  ...expectedAreas.map((id) => id + "/index.html"),
 ];
 storefrontPages.forEach((rel) => {
   const html = readFileSync(join(root, rel), "utf8");
@@ -115,8 +186,12 @@ const appJs = readFileSync(join(root, "js/app.js"), "utf8");
 if (appJs.includes("bolinha") || /class="bolinha/.test(home)) {
   errors.push("Category nav must use square cards, not circular bolinhas");
 }
-if (!appJs.includes("categoria-card") || !appJs.includes("categories-next")) {
-  errors.push("Category nav needs GoldKo-style cards and a next-arrow control");
+if (!appJs.includes("area-button") || !appJs.includes("toggle-categories") || !appJs.includes("visibleAreas")) {
+  errors.push("Home menu must render area buttons and a Categorias dropdown from JSON");
+}
+const utilsJs = readFileSync(join(root, "js/utils.js"), "utf8");
+if (!appJs.includes("data/areas.json") || !utilsJs.includes("isNatalEnabled") || !utilsJs.includes("visibleAreas")) {
+  errors.push("app.js must load areas.json and honor natal.enabled");
 }
 
 if (products.length < 6) errors.push("Need at least 6 products");
@@ -244,6 +319,28 @@ if (!baseCss.includes("--cream: #fdf6ec")) {
 if (!baseCss.includes("--btn-solid: #9a5870")) {
   errors.push("filled buttons must use AA dusty-rose variant #9a5870");
 }
+if (!baseCss.includes("opacity: 0.10") && !baseCss.includes("opacity: 0.1")) {
+  errors.push("page damask must be 10% opacity");
+}
+const layoutCss = readFileSync(join(root, "css/layout.css"), "utf8");
+if (!layoutCss.includes("font-size: 1.83rem")) {
+  errors.push("Início, Categorias and Encomendas must be 50% larger (1.83rem)");
+}
+if (!layoutCss.includes("min-height: 416px")) {
+  errors.push("desktop home carousel must be 20% shorter (416px)");
+}
+if (!layoutCss.includes("hero--compact")) {
+  errors.push("area pages need a compact carousel");
+}
+if (!layoutCss.includes("opacity: 0.05")) {
+  errors.push("menu panel damask must be 5% opacity");
+}
+if (!home.includes("© 2026 Jana Abreu")) {
+  errors.push("Home footer must show «© 2026 Jana Abreu»");
+}
+if (!home.includes("Brasília/DF") && !home.includes("city-state")) {
+  errors.push("Footer must show Brasília/DF");
+}
 
 if (/TODO/i.test(JSON.stringify(site))) {
   errors.push("site.json still contains TODO placeholders");
@@ -294,4 +391,5 @@ if (errors.length) {
 console.log("data files ok");
 console.log("whatsapp", site.contato.whatsapp);
 console.log("instagram", site.contato.instagram.handle);
-console.log("category pages", expected.join(", "));
+console.log("areas", expectedAreas.join(", "));
+console.log("natal.enabled", site.natal.enabled);

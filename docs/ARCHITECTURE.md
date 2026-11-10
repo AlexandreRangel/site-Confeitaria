@@ -8,8 +8,9 @@ URL: https://alexandrerangel.github.io/site-Confeitaria/
 ## Árvore atual
 
 ```
-index.html                 # Home: hero, categorias GoldKo, destaques, Instagram, rodapé
-{categoria}/index.html     # /bolos/, /sobremesas/, /cestas-presentes/, …
+index.html                 # Home: hero, 4 botões de área, Instagram compacto, rodapé
+{area}/index.html          # /corporate/, /bolos/, /cestas/, /doces-personalizados/, /natal/
+URLs antigas               # redirect estático p.ex. /sobremesas/ → home
 produto/index.html         # /produto/?slug=…
 painel/index.html          # Painel legado (localStorage) — não é gestão centralizada
 404.html

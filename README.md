@@ -27,7 +27,8 @@ Edite os JSON em `data/` e troque as imagens em `assets/`. Recarregue a página 
 | Arquivo | O que muda |
 | --- | --- |
 | `data/site.json` | Nome, slogan, WhatsApp, Instagram, endereço, cores oficiais, textos |
-| `data/categories.json` | Cards quadrados de categoria (`/bolos/`, …) |
+| `data/areas.json` | Botões da home e menu Categorias (`/corporate/`, `/bolos/`, …) |
+| `data/categories.json` | Categorias de catálogo (Sobremesas fica `hidden: true`) |
 | `data/carousel.json` | Slides do `hero-carrossel` |
 | `data/products.json` | Produtos das páginas de categoria, preço, fotos, destaque |
 | `data/sabores-bolos.json` | 17 recheios oficiais de bolo (nome + descrição no menu e nos rádios) |
@@ -35,7 +36,7 @@ Edite os JSON em `data/` e troque as imagens em `assets/`. Recarregue a página 
 
 Produtos com `"active": false` somem das páginas de categoria. Itens de exemplo usam a tag `"exemplo"` e o selo **Exemplo**.
 
-Cada categoria oficial tem uma pasta com `index.html` (ex.: `/bolos/`, `/sobremesas/`) para o GitHub Pages servir URL limpa sem roteador.
+Cada área oficial tem uma pasta com `index.html` (`/corporate/`, `/bolos/`, `/cestas/`, `/doces-personalizados/`). URLs antigas redirecionam. Natal liga/desliga em `data/site.json` → `natal.enabled`.
 
 ## WhatsApp
 

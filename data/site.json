@@ -30,6 +30,11 @@
     "cream": "#fdf6ec",
     "ink": "#4c553a"
   },
+  "copyright": "© 2026 Jana Abreu",
+  "natal": {
+    "enabled": false,
+    "howToEnable": "Mude natal.enabled para true. Isso exibe o 5º botão Natal na home, inclui Natal no menu Categorias e passa a linkar /natal/. Desligado (false) some da home e do menu e a página não é linkada."
+  },
   "address": {
     "street": "",
     "neighborhood": "",

@@ -14,8 +14,8 @@
   <link rel="stylesheet" href="../css/layout.css">
   <link rel="stylesheet" href="../css/components.css">
 </head>
-<body data-page="category" data-category="bolos" data-root="../">
-  <a class="skip-link" href="#catalogo">Ir para os produtos</a>
+<body data-page="area" data-area="bolos" data-root="../">
+  <a class="skip-link" href="#area">Ir para Bolos</a>
   <header id="topo" class="topo">
     <div class="topo__inner">
       <button class="topo__menu" type="button" aria-expanded="false" aria-controls="menu-principal" data-action="toggle-menu">
@@ -28,7 +28,15 @@
       </a>
       <nav id="menu-principal" class="topo__nav" aria-label="Principal">
         <a href="../">Início</a>
-        <a href="../#categorias">Categorias</a>
+        <div class="topo__categories">
+          <button type="button" class="topo__categories-btn" aria-expanded="false" aria-haspopup="true" aria-controls="menu-categorias" data-action="toggle-categories">Categorias</button>
+          <div id="menu-categorias" class="categorias-menu" hidden>
+            <a href="../corporate/">Corporate</a>
+            <a href="../bolos/">Bolos</a>
+            <a href="../cestas/">Cestas</a>
+            <a href="../doces-personalizados/">Doces personalizados</a>
+          </div>
+        </div>
         <a href="#encomendas" data-action="open-cart">Encomendas</a>
       </nav>
       <div class="topo__actions">
@@ -45,48 +53,37 @@
     </div>
   </header>
   <main>
-    <section id="catalogo" class="catalogo" aria-labelledby="categoria-titulo">
-      <div class="catalogo__head">
-        <p class="catalogo__crumb">
-          <a href="../">Início</a>
-          <span aria-hidden="true"> · </span>
-          <span data-bind="category-title">Bolos</span>
-        </p>
-        <h1 id="categoria-titulo" data-bind="category-title">Bolos</h1>
-        <p class="catalogo__note">Fotos reais do catálogo · preços sob confirmação no WhatsApp.</p>
-      </div>
-      <div class="categorias__row" data-bind="categories"></div>
+    <section id="area" class="area-page">
+      <h1 id="area-titulo" data-bind="area-title">Bolos</h1>
+      <section id="hero-carrossel" class="hero hero--compact" aria-roledescription="carrossel" aria-label="Destaques">
+        <div class="hero__media">
+          <div class="hero__track" data-bind="carousel"></div>
+        </div>
+        <div class="hero__controls">
+          <button type="button" class="hero__arrow" data-action="carousel-prev" aria-label="Slide anterior">‹</button>
+          <div class="hero__dots" data-bind="carousel-dots"></div>
+          <button type="button" class="hero__arrow" data-action="carousel-next" aria-label="Próximo slide">›</button>
+        </div>
+      </section>
       <div class="product-grid" data-bind="products"></div>
     </section>
   </main>
   <footer id="rodape" class="rodape">
-    <div class="rodape__grid">
-      <div>
-        <p class="rodape__brand" data-bind="brandName">Jana Abreu Confeitaria</p>
-        <p data-bind="slogan"></p>
-      </div>
-      <div>
-        <h3>Contato</h3>
-        <p>
-          WhatsApp:
-          <a data-bind="whatsapp-link" href="https://wa.me/5561981246112">
-            <span data-bind="whatsapp-label">(61) 98124-6112</span>
-          </a>
-        </p>
-        <p>
-          Instagram:
-          <a data-bind="instagram-link" href="https://www.instagram.com/janaabreuconfeitaria/" target="_blank" rel="noopener noreferrer">
-            <span data-bind="instagram-handle">@janaabreuconfeitaria</span>
-          </a>
-        </p>
-      </div>
-      <div>
-        <h3>Pagamento</h3>
-        <p data-bind="payments"></p>
-      </div>
-    </div>
+    <p class="rodape__place" data-bind="city-state">Brasília/DF</p>
+    <p>
+      Instagram
+      <a data-bind="instagram-link" href="https://www.instagram.com/janaabreuconfeitaria/" target="_blank" rel="noopener noreferrer">
+        <span data-bind="instagram-handle">@janaabreuconfeitaria</span>
+      </a>
+    </p>
+    <p>
+      WhatsApp
+      <a data-bind="whatsapp-link" href="https://wa.me/5561981246112">
+        <span data-bind="whatsapp-label">(61) 98124-6112</span>
+      </a>
+    </p>
     <p class="rodape__credits">
-      © <span data-bind="year"></span> Jana Abreu Confeitaria
+      <span data-bind="copyright">© 2026 Jana Abreu</span>
       · <a class="rodape-loja-link" href="../painel/">Área da loja</a>
     </p>
   </footer>

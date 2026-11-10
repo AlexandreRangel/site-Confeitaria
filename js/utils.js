@@ -24,10 +24,20 @@
     return Array.from((root || document).querySelectorAll(selector));
   };
 
+  Jana.AREA_REDIRECTS = {
+    "personalizado-para-empresas": "corporate",
+    "cestas-presentes": "cestas",
+    "combos-festa": "doces-personalizados",
+    "doces-festa": "doces-personalizados",
+    "festa-personalizada": "doces-personalizados",
+    "sobremesas": "",
+  };
+
   Jana.assetRoot = function assetRoot() {
     const raw = document.body.getAttribute("data-root");
     if (raw === null || raw === "") {
-      return document.body.getAttribute("data-page") === "category" ? "../" : "";
+      const page = document.body.getAttribute("data-page");
+      return page === "category" || page === "area" || page === "product" ? "../" : "";
     }
     return raw.charAt(raw.length - 1) === "/" ? raw : raw + "/";
   };
@@ -48,8 +58,80 @@
     return Jana.assetRoot() || "./";
   };
 
+  Jana.areaUrl = function areaUrl(slug) {
+    const key = String(slug || "");
+    const mapped = Object.prototype.hasOwnProperty.call(Jana.AREA_REDIRECTS, key)
+      ? Jana.AREA_REDIRECTS[key]
+      : key;
+    if (!mapped) {
+      return Jana.homeUrl();
+    }
+    return Jana.assetUrl(mapped + "/");
+  };
+
   Jana.categoryUrl = function categoryUrl(slug) {
-    return Jana.assetUrl(String(slug || "") + "/");
+    return Jana.areaUrl(slug);
+  };
+
+  Jana.isNatalEnabled = function isNatalEnabled(site) {
+    return !!(site && site.natal && site.natal.enabled === true);
+  };
+
+  Jana.isNatalArea = function isNatalArea(area) {
+    if (!area) {
+      return false;
+    }
+    return area.id === "natal" || area.slug === "natal" || area.seasonal === true;
+  };
+
+  Jana.visibleAreas = function visibleAreas(areas, site) {
+    return (areas || [])
+      .filter(function keepArea(area) {
+        if (!area || area.enabled === false) {
+          return false;
+        }
+        if (Jana.isNatalArea(area)) {
+          return Jana.isNatalEnabled(site);
+        }
+        return true;
+      })
+      .slice()
+      .sort(function byOrder(a, b) {
+        return (a.order || 0) - (b.order || 0);
+      });
+  };
+
+  Jana.productCategoryIds = function productCategoryIds(product) {
+    if (!product) {
+      return [];
+    }
+    if (product.categoryIds && product.categoryIds.length) {
+      return product.categoryIds;
+    }
+    return product.categoryId ? [product.categoryId] : [];
+  };
+
+  Jana.productsForArea = function productsForArea(products, area) {
+    const ids = (area && area.sourceCategoryIds) || [];
+    return (products || []).filter(function inArea(product) {
+      if (product.active === false) {
+        return false;
+      }
+      const cats = Jana.productCategoryIds(product);
+      return cats.some(function hasId(id) {
+        return ids.indexOf(id) !== -1;
+      });
+    });
+  };
+
+  Jana.areaForProduct = function areaForProduct(product, areas) {
+    const cats = Jana.productCategoryIds(product);
+    return (areas || []).find(function matchArea(area) {
+      const ids = area.sourceCategoryIds || [];
+      return cats.some(function hasId(id) {
+        return ids.indexOf(id) !== -1;
+      });
+    }) || null;
   };
 
   Jana.categorySlug = function categorySlug(category) {

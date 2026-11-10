@@ -36,15 +36,14 @@ Use estes nomes ao falar com o Grok Bot. Assim o bot sabe **exatamente** qual ar
 
 ## Categorias oficiais (slugs)
 
-| Nome na vitrine | Slug no chat / JSON |
-|-----------------|---------------------|
-| Cestas & Presentes | `cestas-presentes` |
-| Personalizado para Empresas | `personalizado-empresas` |
-| Combos festa | `combos-festa` |
+| Nome na vitrine | Slug no chat / JSON / URL |
+|-----------------|---------------------------|
+| Corporate | `corporate` (catálogo: `personalizado-para-empresas`) |
 | Bolos | `bolos` |
-| Festa Personalizada | `festa-personalizada` |
-| Doces festa | `doces-festa` |
-| Sobremesas | `sobremesas` |
+| Cestas | `cestas` (catálogo: `cestas-presentes`) |
+| Doces personalizados | `doces-personalizados` (junta `combos-festa`, `doces-festa`, `festa-personalizada`) |
+| Natal | `natal` (só se `natal.enabled` for true) |
+| Sobremesas | `sobremesas` (escondida; dados no catálogo) |
 
 Pode falar o **nome completo** ou o **slug**; o bot normaliza.
 

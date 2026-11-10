@@ -47,12 +47,18 @@ Preço exemplo: `168` vira **R$ 168,00**. Use `168.9` para **R$ 168,90`.
 
 Marque vitrine de teste com `"exemplo"` em `tags`. Quando o item for real, remova essa tag e o texto “(exemplo)” do nome.
 
-## Nova categoria (card quadrado)
+## Áreas da home (Corporate, Bolos, Cestas, Doces personalizados)
 
-1. Adicione um objeto em `data/categories.json` com `id`, `name`, `slug`, `image`, `order`.
-2. Ponha a foto quadrada em `assets/categories/`.
-3. Nos produtos, use o mesmo `categoryId`.
-4. Crie a pasta `{slug}/index.html` (cópia de outra categoria) com `data-category="{slug}"` para a URL `/slug/` funcionar no GitHub Pages. Slug em minúsculas, hífens, sem acento e sem underscore.
+Os botões da home e o menu **Categorias** vêm de `data/areas.json`. Os produtos continuam com o `categoryId` antigo em `data/products.json`; a área junta esses IDs em `sourceCategoryIds`.
+
+## Ligar a área Natal
+
+1. Em `data/site.json`, mude `"natal": { "enabled": false }` para `"enabled": true`.
+2. Recarregue o site. O 5º botão **Natal** aparece na home, entra no menu Categorias e o link `/natal/` passa a ser oferecido.
+3. Para sumir de novo, volte `enabled` para `false`. A página `/natal/` continua no repositório, mas não é linkada.
+4. Produtos de Natal usam `"categoryId": "natal"` (a categoria existe em `data/categories.json` com `"hidden": true` até haver itens).
+
+Sobremesas está só escondida (`"hidden": true` em `data/categories.json`). Não apague os produtos; para reexibir, tire o `hidden` e recrie o mapeamento da área.
 
 ## Novo slide do carrossel
 

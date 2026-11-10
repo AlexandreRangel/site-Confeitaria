@@ -53,6 +53,16 @@
     "slug": "sobremesas",
     "image": "assets/categories/sobremesas.webp",
     "order": 7,
-    "sourceId": "69bf3a9101a0b6f74f07b7a9"
+    "sourceId": "69bf3a9101a0b6f74f07b7a9",
+    "hidden": true
+  },
+  {
+    "id": "natal",
+    "name": "Natal",
+    "slug": "natal",
+    "image": "assets/categories/cestas-presentes.webp",
+    "order": 8,
+    "hidden": true,
+    "seasonal": true
   }
 ]

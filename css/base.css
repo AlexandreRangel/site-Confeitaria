@@ -82,7 +82,7 @@ body::before {
   pointer-events: none;
   background: url("../assets/brand/padronagem.webp") repeat;
   background-size: 470px auto;
-  opacity: 0.28;
+  opacity: 0.10;
 }
 
 img {

@@ -28,7 +28,15 @@
       </a>
       <nav id="menu-principal" class="topo__nav" aria-label="Principal">
         <a href="../">Início</a>
-        <a href="../#categorias">Categorias</a>
+        <div class="topo__categories">
+          <button type="button" class="topo__categories-btn" aria-expanded="false" aria-haspopup="true" aria-controls="menu-categorias" data-action="toggle-categories">Categorias</button>
+          <div id="menu-categorias" class="categorias-menu" hidden>
+            <a href="../corporate/">Corporate</a>
+            <a href="../bolos/">Bolos</a>
+            <a href="../cestas/">Cestas</a>
+            <a href="../doces-personalizados/">Doces personalizados</a>
+          </div>
+        </div>
         <a href="#encomendas" data-action="open-cart">Encomendas</a>
       </nav>
       <div class="topo__actions">
@@ -77,33 +85,21 @@
     </article>
   </main>
   <footer id="rodape" class="rodape">
-    <div class="rodape__grid">
-      <div>
-        <p class="rodape__brand" data-bind="brandName">Jana Abreu Confeitaria</p>
-        <p data-bind="slogan"></p>
-      </div>
-      <div>
-        <h3>Contato</h3>
-        <p>
-          WhatsApp:
-          <a data-bind="whatsapp-link" href="https://wa.me/5561981246112">
-            <span data-bind="whatsapp-label">(61) 98124-6112</span>
-          </a>
-        </p>
-        <p>
-          Instagram:
-          <a data-bind="instagram-link" href="https://www.instagram.com/janaabreuconfeitaria/" target="_blank" rel="noopener noreferrer">
-            <span data-bind="instagram-handle">@janaabreuconfeitaria</span>
-          </a>
-        </p>
-      </div>
-      <div>
-        <h3>Pagamento</h3>
-        <p data-bind="payments"></p>
-      </div>
-    </div>
+    <p class="rodape__place" data-bind="city-state">Brasília/DF</p>
+    <p>
+      Instagram
+      <a data-bind="instagram-link" href="https://www.instagram.com/janaabreuconfeitaria/" target="_blank" rel="noopener noreferrer">
+        <span data-bind="instagram-handle">@janaabreuconfeitaria</span>
+      </a>
+    </p>
+    <p>
+      WhatsApp
+      <a data-bind="whatsapp-link" href="https://wa.me/5561981246112">
+        <span data-bind="whatsapp-label">(61) 98124-6112</span>
+      </a>
+    </p>
     <p class="rodape__credits">
-      © <span data-bind="year"></span> Jana Abreu Confeitaria
+      <span data-bind="copyright">© 2026 Jana Abreu</span>
       · <a class="rodape-loja-link" href="../painel/">Área da loja</a>
     </p>
   </footer>

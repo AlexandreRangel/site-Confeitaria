@@ -1,0 +1,43 @@
+[
+  {
+    "id": "corporate",
+    "name": "Corporate",
+    "slug": "corporate",
+    "image": "assets/categories/personalizado-para-empresas.webp",
+    "sourceCategoryIds": ["personalizado-para-empresas"],
+    "order": 1
+  },
+  {
+    "id": "bolos",
+    "name": "Bolos",
+    "slug": "bolos",
+    "image": "assets/categories/bolos.webp",
+    "sourceCategoryIds": ["bolos"],
+    "order": 2
+  },
+  {
+    "id": "cestas",
+    "name": "Cestas",
+    "slug": "cestas",
+    "image": "assets/categories/cestas-presentes.webp",
+    "sourceCategoryIds": ["cestas-presentes"],
+    "order": 3
+  },
+  {
+    "id": "doces-personalizados",
+    "name": "Doces personalizados",
+    "slug": "doces-personalizados",
+    "image": "assets/categories/festa-personalizada.webp",
+    "sourceCategoryIds": ["combos-festa", "doces-festa", "festa-personalizada"],
+    "order": 4
+  },
+  {
+    "id": "natal",
+    "name": "Natal",
+    "slug": "natal",
+    "image": "assets/categories/cestas-presentes.webp",
+    "sourceCategoryIds": ["natal"],
+    "order": 5,
+    "seasonal": true
+  }
+]
