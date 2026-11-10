@@ -409,8 +409,8 @@ if (!appJs.includes("carouselSlidesFromProducts") || !utilsJs.includes("carousel
 if (!appJs.includes("data/pix.json") || !appJs.includes("pixIsReady") || !appJs.includes("buildPixPayload")) {
   errors.push("app.js must load data/pix.json and render Pix only when ready");
 }
-if (!appJs.includes('txid: "***"') || !appJs.includes("Gerar Pix") || !appJs.includes("Já paguei") || !appJs.includes("buildPixPendingWhatsAppMessage")) {
-  errors.push("checkout must generate a static Pix (txid ***) and confirm with Já paguei pending WhatsApp copy");
+if (!appJs.includes('txid: "***"') || !appJs.includes("Já paguei") || !appJs.includes("buildPixPendingWhatsAppMessage") || appJs.includes("Gerar Pix")) {
+  errors.push("checkout must show the Pix QR in the cart (txid ***) and confirm with Já paguei, without a separate Gerar Pix step");
 }
 if (!home.includes('data-bind="pay-method"') || !home.includes("Como prefere pagar?") || !home.includes('value="infinitepay"')) {
   errors.push("Checkout must offer Pix and InfinitePay radios in a fieldset");

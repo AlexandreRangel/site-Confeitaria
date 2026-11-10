@@ -163,7 +163,7 @@ async function withPage(browserType, engine, viewport, fn) {
   });
   const consoleErrors = [];
   function keepConsole(text) {
-    if (/wa\.me|whatsapp\.com|checkout\.infinitepay\.io|ERR_ABORTED|ERR_FAILED|net::ERR_CONNECTION/i.test(text)) {
+    if (/wa\.me|whatsapp\.com|checkout\.infinitepay\.io|ERR_ABORTED|ERR_FAILED|net::ERR_CONNECTION|502 \(Bad Gateway\)|Failed to load resource: the server responded with a status of 502/i.test(text)) {
       return;
     }
     consoleErrors.push(text);
@@ -492,16 +492,30 @@ async function runEngine(browserType, engine) {
     await page.waitForSelector("#encomendas:not([hidden])");
     record(engine, "pay method fieldset visible for priced cart", await page.locator('[data-bind="pay-method"]').isVisible());
     record(engine, "Pix option is available", await page.locator('[data-bind="pay-option-pix"]').isVisible());
-    await page.locator('#checkout-form [name="pagamento"][value="pix"]').check();
-    record(engine, "Pix QR hidden until generated", await page.locator('[data-bind="pix-block"]').isHidden());
-    const gerarLabel = ((await page.locator('[data-bind="checkout-submit"]').textContent()) || "").trim();
-    record(engine, "pay button says Gerar Pix", gerarLabel === "Gerar Pix", gerarLabel);
+    const choiceInCart = await page.evaluate(function place() {
+      const cart = document.querySelector("#encomendas");
+      const choice = document.querySelector('[data-bind="pay-method"]');
+      const btn = document.querySelector('[data-bind="checkout-submit"]');
+      if (!cart || !choice || !btn) {
+        return { ok: false };
+      }
+      const cr = choice.getBoundingClientRect();
+      const br = btn.getBoundingClientRect();
+      return {
+        ok: true,
+        inCart: cart.contains(choice) && cart.contains(btn),
+        above: cr.bottom <= br.top + 1,
+      };
+    });
+    record(engine, "pay choice sits in the cart above the pay button", !!(choiceInCart.ok && choiceInCart.inCart && choiceInCart.above), JSON.stringify(choiceInCart));
     await page.locator('#checkout-form [name="modalidade"][value="retirada"]').check();
+    await page.locator('#checkout-form [name="pagamento"][value="pix"]').check();
+    await page.waitForSelector('[data-bind="pix-block"]:not([hidden])', { timeout: 5000 });
+    record(engine, "Pix QR shown in the cart after selecting Pix", await page.locator('[data-bind="pix-block"]').isVisible());
+    const jaPagueiLabel = ((await page.locator('[data-bind="checkout-submit"]').textContent()) || "").trim();
+    record(engine, "pay button says Já paguei when Pix is selected", jaPagueiLabel === "Já paguei", jaPagueiLabel);
     await page.locator('#checkout-form [name="nome"]').fill("Pix Teste");
     await page.locator('#checkout-form [name="telefone"]').fill("61900000000");
-    await page.locator('[data-bind="checkout-submit"]').click();
-    await page.waitForSelector('[data-bind="pix-block"]:not([hidden])', { timeout: 5000 });
-    record(engine, "Pix visible after Gerar Pix", await page.locator('[data-bind="pix-block"]').isVisible());
     const pixAlt = (await page.locator('[data-bind="pix-qr"]').getAttribute("alt")) || "";
     record(engine, "Pix QR alt describes the code", /QR Code Pix/i.test(pixAlt), pixAlt);
     const pixSrc = (await page.locator('[data-bind="pix-qr"]').getAttribute("src")) || "";
@@ -540,6 +554,42 @@ async function runEngine(browserType, engine) {
       /Pagamento via Pix — aguardando conferência/.test(pixWa) && /comprovante/.test(pixWa) && !/\bPAGO\b/.test(pixWa) && /Total:/.test(pixWa),
       pixWa.slice(0, 220)
     );
+
+    await page.route("**/data/pagamento.json", function fulfillPayFailCfg(route) {
+      return route.fulfill({
+        status: 200,
+        contentType: "application/json; charset=utf-8",
+        body: JSON.stringify({ infinitepay: { enabled: true, handle: "teste-jana" } }),
+      });
+    });
+    await page.route("https://api.checkout.infinitepay.io/links", async function failLink(route) {
+      await route.fulfill({
+        status: 502,
+        contentType: "application/json; charset=utf-8",
+        body: JSON.stringify({ error: "unavailable" }),
+      });
+    });
+    await page.goto(BASE + "/produto/?slug=tabua-signature", { waitUntil: "domcontentloaded" });
+    await page.evaluate(function clearCart() { localStorage.clear(); sessionStorage.clear(); });
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await page.waitForSelector('[data-action="add-from-product"]', { timeout: 15000 });
+    await page.locator('[data-action="add-from-product"]').click();
+    await page.waitForSelector("#encomendas:not([hidden])");
+    await page.locator('#checkout-form [name="modalidade"][value="retirada"]').check();
+    await page.locator('#checkout-form [name="nome"]').fill("Fallback Teste");
+    await page.locator('#checkout-form [name="telefone"]').fill("61900000000");
+    await page.locator('#checkout-form [name="pagamento"][value="infinitepay"]').check();
+    waHits.length = 0;
+    await page.locator('[data-bind="checkout-submit"]').click();
+    await page.waitForTimeout(800);
+    const failStatus = ((await page.locator('[data-bind="checkout-status"]').textContent()) || "").trim();
+    record(
+      engine,
+      "InfinitePay failure keeps the cart and offers Pix",
+      /InfinitePay/.test(failStatus) && /Pix/.test(failStatus) && await page.locator('[data-bind="pix-block"]').isVisible() && ((await page.locator('[data-bind="checkout-submit"]').textContent()) || "").trim() === "Já paguei" && waHits.length === 0,
+      failStatus
+    );
+    record(engine, "pay choice still in the cart after InfinitePay failure", await page.locator('[data-bind="pay-method"]').isVisible());
 
     const linkBodies = [];
     await page.route("**/data/pagamento.json", function fulfillPay(route) {
@@ -996,9 +1046,18 @@ async function runEngine(browserType, engine) {
     await page.locator('#checkout-form [name="nome"]').fill("Pix Desktop");
     await page.locator('#checkout-form [name="telefone"]').fill("61900000000");
     await page.locator('#checkout-form [name="pagamento"][value="pix"]').check();
-    record(engine, "desktop pay button Gerar Pix", ((await page.locator('[data-bind="checkout-submit"]').textContent()) || "").trim() === "Gerar Pix");
-    await page.locator('[data-bind="checkout-submit"]').click();
     await page.waitForSelector('[data-bind="pix-block"]:not([hidden])', { timeout: 5000 });
+    record(engine, "desktop pay button Já paguei", ((await page.locator('[data-bind="checkout-submit"]').textContent()) || "").trim() === "Já paguei");
+    record(engine, "desktop Pix QR shown in the cart after selecting Pix", await page.locator('[data-bind="pix-block"]').isVisible());
+    const deskChoice = await page.evaluate(function place() {
+      const cart = document.querySelector("#encomendas");
+      const choice = document.querySelector('[data-bind="pay-method"]');
+      const btn = document.querySelector('[data-bind="checkout-submit"]');
+      const cr = choice.getBoundingClientRect();
+      const br = btn.getBoundingClientRect();
+      return cart.contains(choice) && cr.bottom <= br.top + 1;
+    });
+    record(engine, "desktop pay choice sits above the pay button", deskChoice);
     const deskPixValue = ((await page.locator('[data-bind="pix-value"]').textContent()) || "").trim();
     const deskPix = inspectPixPayload(await page.locator('[data-bind="pix-payload"]').inputValue(), parseBRL(deskPixValue));
     record(engine, "desktop BR Code retirada CRC and EMV (key omitted)", deskPix.ok, deskPix.detail);

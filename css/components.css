@@ -702,33 +702,44 @@ a.promo-card:focus-visible {
 }
 
 .checkout__pay-method {
-  margin: 0.4rem 0 0.7rem;
-  padding: 0;
-  border: 0;
+  margin: 0.55rem 0 0.85rem;
+  padding: 0.75rem 0.7rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel-strong);
   min-width: 0;
 }
 
 .checkout__pay-method legend {
   font-weight: 600;
   color: var(--brown);
-  margin-bottom: 0.4rem;
-  padding: 0;
+  margin-bottom: 0.45rem;
+  padding: 0 0.15rem;
 }
 
 .checkout__pay-options {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 0.5rem;
+  gap: 0.55rem;
 }
 
 .checkout__pay-options .checkout__radio {
   justify-content: flex-start;
+  align-items: flex-start;
   text-align: left;
   font-size: 0.95rem;
   font-weight: 600;
   height: auto;
-  min-height: 44px;
+  min-height: 52px;
+  padding: 0.7rem 0.8rem;
   white-space: normal;
+  background: #fff;
+  box-shadow: 0 1px 0 rgba(76, 85, 58, 0.04);
+}
+
+.checkout__pay-options .checkout__radio span {
+  display: block;
+  line-height: 1.3;
 }
 
 .checkout__pix-code-label {
@@ -755,6 +766,17 @@ a.promo-card:focus-visible {
 
 .checkout__submit .btn {
   width: 100%;
+}
+
+.checkout__submit .checkout__pay-method {
+  margin: 0 0 0.55rem;
+  padding: 0.55rem 0.15rem 0.15rem;
+  border: 0;
+  background: transparent;
+}
+
+.checkout__submit .checkout__pay-method legend {
+  margin-bottom: 0.35rem;
 }
 
 @media (min-width: 720px) {

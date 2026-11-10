@@ -122,19 +122,6 @@
         <p class="checkout__privacy" data-bind="privacy-note">Usamos nome, telefone e o que você escrever só para a Jana responder esta solicitação. Não publicamos sua lista de pedidos.</p>
         <p class="checkout__note" data-bind="payments"></p>
         <p class="checkout__note checkout__unpriced" data-bind="checkout-unpriced" hidden>Este pedido inclui itens sob consulta, sem preço fixo. Não é possível pagar online. Envie a solicitação pelo WhatsApp.</p>
-        <fieldset class="checkout__pay-method" data-bind="pay-method" hidden>
-          <legend id="pagamento-legend">Como prefere pagar?</legend>
-          <div class="checkout__pay-options" role="radiogroup" aria-required="true" aria-labelledby="pagamento-legend">
-            <label class="checkout__radio" data-bind="pay-option-pix">
-              <input type="radio" name="pagamento" value="pix">
-              <span>Pagar com Pix</span>
-            </label>
-            <label class="checkout__radio" data-bind="pay-option-infinitepay">
-              <input type="radio" name="pagamento" value="infinitepay">
-              <span>Pagar com cartão ou Pix pela InfinitePay</span>
-            </label>
-          </div>
-        </fieldset>
         <p class="checkout__status" data-bind="checkout-status" role="status" aria-live="polite"></p>
         <div class="checkout__pix" data-bind="pix-block" hidden>
           <h3>Pagar com Pix</h3>
@@ -149,6 +136,19 @@
           <p class="checkout__pix-status" data-bind="pix-copy-status" role="status" aria-live="polite"></p>
         </div>
         <div class="checkout__submit">
+          <fieldset class="checkout__pay-method" data-bind="pay-method" hidden>
+            <legend id="pagamento-legend">Como prefere pagar?</legend>
+            <div class="checkout__pay-options" role="radiogroup" aria-required="true" aria-labelledby="pagamento-legend">
+              <label class="checkout__radio" data-bind="pay-option-pix">
+                <input type="radio" name="pagamento" value="pix">
+                <span>Pagar com Pix</span>
+              </label>
+              <label class="checkout__radio" data-bind="pay-option-infinitepay">
+                <input type="radio" name="pagamento" value="infinitepay">
+                <span>Pagar com cartão ou Pix pela InfinitePay</span>
+              </label>
+            </div>
+          </fieldset>
           <p class="checkout__disclaimer" data-bind="request-disclaimer">Esta é uma solicitação de encomenda. A confirmação depende da disponibilidade e da confirmação da Jana pelo WhatsApp.</p>
           <button type="submit" class="btn btn--solid btn--whatsapp" data-bind="checkout-submit">Enviar solicitação no WhatsApp</button>
         </div>
