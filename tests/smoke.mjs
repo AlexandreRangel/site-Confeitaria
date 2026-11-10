@@ -645,9 +645,14 @@ async function runEngine(browserType, engine) {
     await page.locator('#checkout-form [name="nome"]').fill("InfinitePay Teste");
     await page.locator('#checkout-form [name="telefone"]').fill("61900000000");
     record(engine, "both pay options visible", await page.locator('[data-bind="pay-option-pix"]').isVisible() && await page.locator('[data-bind="pay-option-infinitepay"]').isVisible());
+    const pixOpt = ((await page.locator('[data-bind="pay-option-pix"]').innerText()) || "").replace(/\s+/g, " ").trim();
+    const cardOpt = ((await page.locator('[data-bind="pay-option-infinitepay"]').innerText()) || "").replace(/\s+/g, " ").trim();
+    record(engine, "pay option labels are Pagar com Pix and Pagar com cartão", pixOpt === "Pagar com Pix" && cardOpt === "Pagar com cartão", JSON.stringify({ pixOpt, cardOpt }));
+    record(engine, "pay options do not mention InfinitePay", !/InfinitePay/i.test(pixOpt + " " + cardOpt));
     await page.locator('#checkout-form [name="pagamento"][value="infinitepay"]').check();
     const payLabel = ((await page.locator('[data-bind="checkout-submit"]').textContent()) || "").trim();
-    record(engine, "pay button when InfinitePay is selected", payLabel === "Pagar pela InfinitePay", payLabel);
+    record(engine, "pay button when card is selected", payLabel === "Pagar com cartão", payLabel);
+    record(engine, "pay button does not mention InfinitePay", !/InfinitePay/i.test(payLabel));
     record(engine, "Pix QR hidden on InfinitePay choice", await page.locator('[data-bind="pix-block"]').isHidden());
     const paidDisclaimer = ((await page.locator('[data-bind="request-disclaimer"]').textContent()) || "").trim();
     record(engine, "paid-flow disclaimer", /Após o pagamento, seu pedido é enviado/.test(paidDisclaimer), paidDisclaimer.slice(0, 80));
@@ -671,7 +676,8 @@ async function runEngine(browserType, engine) {
       });
     });
     record(engine, "InfinitePay link uses cents including delivery", feeItem && tabuaItem, JSON.stringify(linkBodies[0] && linkBodies[0].items));
-    record(engine, "InfinitePay redirect_url is production pagamento page", !!(linkBodies[0] && /site-Confeitaria\/pagamento\//.test(linkBodies[0].redirect_url)), linkBodies[0] && linkBodies[0].redirect_url);
+    const expectedRedirect = String(BASE).replace(/\/$/, "") + "/pagamento/";
+    record(engine, "InfinitePay redirect_url uses origin and site base", !!(linkBodies[0] && linkBodies[0].redirect_url === expectedRedirect), linkBodies[0] && linkBodies[0].redirect_url);
     await page.waitForSelector('[data-bind="pagamento-whatsapp"]:not([hidden])', { timeout: 5000 });
     const paidHref = (await page.locator('[data-bind="pagamento-whatsapp"]').getAttribute("href")) || "";
     let paidWa = paidHref;
@@ -787,7 +793,11 @@ async function runEngine(browserType, engine) {
     record(engine, "central API not called while disabled", centralHits.length === 0, String(centralHits.length));
 
     const redirects = [
-      { from: "/sobremesas/", ok: function ok(path) { return path === "/" || path === ""; } },
+      { from: "/sobremesas/", ok: function ok(path) {
+        const base = new URL(String(BASE).replace(/\/?$/, "/")).pathname;
+        const normalized = path === "" ? "/" : (String(path).endsWith("/") ? path : path + "/");
+        return normalized === base;
+      } },
       { from: "/cestas-presentes/", ok: function ok(path) { return /\/cestas\/?$/.test(path); } },
       { from: "/personalizado-para-empresas/", ok: function ok(path) { return /\/corporate\/?$/.test(path); } },
       { from: "/corporativo/", ok: function ok(path) { return /\/corporate\/?$/.test(path); } },
@@ -1042,6 +1052,9 @@ async function runEngine(browserType, engine) {
     await page.locator('[data-action="add-from-product"]').click();
     await page.waitForSelector("#encomendas:not([hidden])");
     record(engine, "desktop pay options visible", await page.locator('[data-bind="pay-method"]').isVisible());
+    const deskPixOpt = ((await page.locator('[data-bind="pay-option-pix"]').innerText()) || "").replace(/\s+/g, " ").trim();
+    const deskCardOpt = ((await page.locator('[data-bind="pay-option-infinitepay"]').innerText()) || "").replace(/\s+/g, " ").trim();
+    record(engine, "desktop pay option labels are Pagar com Pix and Pagar com cartão", deskPixOpt === "Pagar com Pix" && deskCardOpt === "Pagar com cartão", JSON.stringify({ deskPixOpt, deskCardOpt }));
     await page.locator('#checkout-form [name="modalidade"][value="retirada"]').check();
     await page.locator('#checkout-form [name="nome"]').fill("Pix Desktop");
     await page.locator('#checkout-form [name="telefone"]').fill("61900000000");
@@ -1062,7 +1075,9 @@ async function runEngine(browserType, engine) {
     const deskPix = inspectPixPayload(await page.locator('[data-bind="pix-payload"]').inputValue(), parseBRL(deskPixValue));
     record(engine, "desktop BR Code retirada CRC and EMV (key omitted)", deskPix.ok, deskPix.detail);
     await page.locator('#checkout-form [name="pagamento"][value="infinitepay"]').check();
-    record(engine, "desktop pay button InfinitePay", ((await page.locator('[data-bind="checkout-submit"]').textContent()) || "").trim() === "Pagar pela InfinitePay");
+    const deskPayLabel = ((await page.locator('[data-bind="checkout-submit"]').textContent()) || "").trim();
+    record(engine, "desktop pay button Pagar com cartão", deskPayLabel === "Pagar com cartão", deskPayLabel);
+    record(engine, "desktop pay button does not mention InfinitePay", !/InfinitePay/i.test(deskPayLabel));
     record(engine, "desktop Pix hidden after switching method", await page.locator('[data-bind="pix-block"]').isHidden());
     await page.locator('[data-bind="checkout-submit"]').click({ noWaitAfter: true }).catch(function ignoreNav() {});
     await page.waitForURL(/\/pagamento\//, { timeout: 8000 });

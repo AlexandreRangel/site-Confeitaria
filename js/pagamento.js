@@ -3,11 +3,25 @@
   const PENDING_KEY = "jana-abreu-pending-pay-v1";
   const LINKS_URL = "https://api.checkout.infinitepay.io/links";
   const CHECK_URL = "https://api.checkout.infinitepay.io/payment_check";
-  const REDIRECT_URL = "https://alexandrerangel.github.io/site-Confeitaria/pagamento/";
 
   Jana.INFINITEPAY_LINKS_URL = LINKS_URL;
   Jana.INFINITEPAY_CHECK_URL = CHECK_URL;
-  Jana.INFINITEPAY_REDIRECT_URL = REDIRECT_URL;
+
+  Jana.infinitePayRedirectUrl = function infinitePayRedirectUrl() {
+    if (Jana.siteUrl) {
+      return Jana.siteUrl("pagamento/");
+    }
+    const origin = (global.location && global.location.origin) || "";
+    return origin + "/pagamento/";
+  };
+
+  Object.defineProperty(Jana, "INFINITEPAY_REDIRECT_URL", {
+    configurable: true,
+    enumerable: true,
+    get: function getRedirectUrl() {
+      return Jana.infinitePayRedirectUrl();
+    },
+  });
   Jana.PAID_DISCLAIMER =
     "Após o pagamento, seu pedido é enviado para nós pelo WhatsApp. Caso a data esteja indisponível, entramos em contato.";
   Jana.PIX_DISCLAIMER =

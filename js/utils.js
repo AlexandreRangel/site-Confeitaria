@@ -58,6 +58,38 @@
     return Jana.assetRoot() || "./";
   };
 
+  Jana.siteBaseUrl = function siteBaseUrl() {
+    const loc = global.location || {};
+    const href = loc.href || (loc.origin ? loc.origin + (loc.pathname || "/") : "");
+    const root = Jana.assetRoot() || "./";
+    if (href && typeof URL === "function") {
+      try {
+        const resolved = new URL(root, href);
+        let base = resolved.href;
+        if (!base.endsWith("/")) {
+          base = base.replace(/[^/]*$/, "");
+        }
+        return base;
+      } catch (err) {
+        /* fall through */
+      }
+    }
+    const origin = loc.origin || "";
+    return origin + "/";
+  };
+
+  Jana.siteUrl = function siteUrl(path) {
+    const rel = String(path || "").replace(/^\//, "");
+    if (typeof URL === "function") {
+      try {
+        return new URL(rel, Jana.siteBaseUrl()).href;
+      } catch (err) {
+        /* fall through */
+      }
+    }
+    return Jana.siteBaseUrl() + rel;
+  };
+
   Jana.areaUrl = function areaUrl(slug) {
     const key = String(slug || "");
     const mapped = Object.prototype.hasOwnProperty.call(Jana.AREA_REDIRECTS, key)

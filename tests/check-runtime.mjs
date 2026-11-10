@@ -21,6 +21,14 @@ function makeStorage() {
   };
 }
 
+function SandboxURL(url, base) {
+  return new globalThis.URL(url, base);
+}
+SandboxURL.createObjectURL = function createObjectURL() {
+  return "blob:test";
+};
+SandboxURL.revokeObjectURL = function revokeObjectURL() {};
+
 const sandbox = {
   window: {},
   document: {
@@ -35,14 +43,17 @@ const sandbox = {
   },
   localStorage: makeStorage(),
   sessionStorage: makeStorage(),
+  location: {
+    href: "http://127.0.0.1:8765/",
+    origin: "http://127.0.0.1:8765",
+    pathname: "/",
+    hostname: "127.0.0.1",
+    search: "",
+    hash: "",
+  },
   Intl: Intl,
   Date: Date,
-  URL: {
-    createObjectURL: function createObjectURL() {
-      return "blob:test";
-    },
-    revokeObjectURL: function revokeObjectURL() {},
-  },
+  URL: SandboxURL,
   Blob: function Blob(parts) {
     this.parts = parts;
   },
@@ -61,6 +72,62 @@ vm.runInNewContext(
 );
 
 const Jana = sandbox.Jana;
+
+function assertRedirect(label, attr, loc, expected) {
+  sandbox.document.body.getAttribute = function getAttribute(name) {
+    return name === "data-root" ? attr : "";
+  };
+  sandbox.location = loc;
+  const got = Jana.infinitePayRedirectUrl();
+  if (got !== expected) {
+    errors.push(label + ": expected " + expected + ", got " + got);
+  }
+}
+assertRedirect(
+  "InfinitePay redirect at site root",
+  "",
+  {
+    href: "http://127.0.0.1:8765/",
+    origin: "http://127.0.0.1:8765",
+    pathname: "/",
+    hostname: "127.0.0.1",
+  },
+  "http://127.0.0.1:8765/pagamento/"
+);
+assertRedirect(
+  "InfinitePay redirect under github.io subpath",
+  "../",
+  {
+    href: "http://127.0.0.1:8765/site-Confeitaria/produto/?slug=tabua-signature",
+    origin: "http://127.0.0.1:8765",
+    pathname: "/site-Confeitaria/produto/",
+    hostname: "127.0.0.1",
+  },
+  "http://127.0.0.1:8765/site-Confeitaria/pagamento/"
+);
+assertRedirect(
+  "InfinitePay redirect on custom domain",
+  "",
+  {
+    href: "https://janaabreuconfeitaria.com.br/",
+    origin: "https://janaabreuconfeitaria.com.br",
+    pathname: "/",
+    hostname: "janaabreuconfeitaria.com.br",
+  },
+  "https://janaabreuconfeitaria.com.br/pagamento/"
+);
+sandbox.document.body.getAttribute = function getAttribute() {
+  return "";
+};
+sandbox.location = {
+  href: "http://127.0.0.1:8765/",
+  origin: "http://127.0.0.1:8765",
+  pathname: "/",
+  hostname: "127.0.0.1",
+  search: "",
+  hash: "",
+};
+
 const cake = {
   id: "p-bolo-naked-g",
   slug: "bolo-naked-g",

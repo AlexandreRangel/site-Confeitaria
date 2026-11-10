@@ -1142,7 +1142,7 @@
       } else if (method === "pix") {
         submit.textContent = "Já paguei";
       } else if (method === "infinitepay") {
-        submit.textContent = "Pagar pela InfinitePay";
+        submit.textContent = "Pagar com cartão";
       } else {
         submit.textContent = "Escolha a forma de pagamento";
       }
@@ -1156,7 +1156,7 @@
       payments = "";
     } else if (method === "infinitepay") {
       disclaimer = Jana.PAID_DISCLAIMER || disclaimer;
-      payments = "Pagamento no site pela InfinitePay (cartão ou Pix) ao enviar o pedido.";
+      payments = "";
     }
     Jana.bindText("request-disclaimer", disclaimer);
     Jana.bindText("payments", payments);
@@ -1668,7 +1668,7 @@
     const body = {
       handle: Jana.infinitePayHandle(state.pagamento),
       order_nsu: nsu,
-      redirect_url: Jana.INFINITEPAY_REDIRECT_URL,
+      redirect_url: Jana.infinitePayRedirectUrl ? Jana.infinitePayRedirectUrl() : Jana.INFINITEPAY_REDIRECT_URL,
       items: Jana.infinitePayItems(payload.items, totals),
     };
     if (payload.nome) {

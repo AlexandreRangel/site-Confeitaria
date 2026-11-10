@@ -494,7 +494,7 @@ if (!componentsCss.includes("aspect-ratio: 1 / 1") || !componentsCss.includes("-
 if (!appJs.includes("card__excerpt") || !appJs.includes("productCardExcerpt")) {
   errors.push("product cards must render a short description");
 }
-if (!appJs.includes("Pagar pela InfinitePay") || !appJs.includes("PAID_DISCLAIMER")) {
+if (!appJs.includes("Pagar com cartão") || !appJs.includes("PAID_DISCLAIMER")) {
   errors.push("checkout must switch to InfinitePay button copy when that method is selected");
 }
 if (!painelJs.includes("status_pagamento") || !painelJs.includes("order_nsu") || !painelJs.includes("comprovante")) {
