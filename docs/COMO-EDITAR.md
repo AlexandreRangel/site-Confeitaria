@@ -47,7 +47,7 @@ Preço exemplo: `168` vira **R$ 168,00**. Use `168.9` para **R$ 168,90`.
 
 Marque vitrine de teste com `"exemplo"` em `tags`. Quando o item for real, remova essa tag e o texto “(exemplo)” do nome.
 
-## Áreas da home (Corporate, Bolos, Cestas, Doces personalizados)
+## Áreas da home (Corporativo, Bolos, Cestas, Doces personalizados)
 
 Os botões da home e o menu **Categorias** vêm de `data/areas.json`. Os produtos continuam com o `categoryId` antigo em `data/products.json`; a área junta esses IDs em `sourceCategoryIds`.
 

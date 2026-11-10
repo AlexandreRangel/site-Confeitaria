@@ -38,7 +38,7 @@ Use estes nomes ao falar com o Grok Bot. Assim o bot sabe **exatamente** qual ar
 
 | Nome na vitrine | Slug no chat / JSON / URL |
 |-----------------|---------------------------|
-| Corporate | `corporate` (catálogo: `personalizado-para-empresas`) |
+| Corporativo | `corporate` (catálogo: `personalizado-para-empresas`) |
 | Bolos | `bolos` |
 | Cestas | `cestas` (catálogo: `cestas-presentes`) |
 | Doces personalizados | `doces-personalizados` (junta `combos-festa`, `doces-festa`, `festa-personalizada`) |

@@ -31,7 +31,7 @@
         <div class="topo__categories">
           <button type="button" class="topo__categories-btn" aria-expanded="false" aria-haspopup="true" aria-controls="menu-categorias" data-action="toggle-categories">Categorias</button>
           <div id="menu-categorias" class="categorias-menu" hidden>
-            <a href="../corporate/">Corporate</a>
+            <a href="../corporate/">Corporativo</a>
             <a href="../bolos/">Bolos</a>
             <a href="../cestas/">Cestas</a>
             <a href="../doces-personalizados/">Doces personalizados</a>
@@ -61,11 +61,15 @@
       </p>
       <div class="produto-detalhe__layout">
         <div class="produto-detalhe__gallery">
-          <img data-bind="product-image" alt="" width="800" height="800">
+          <div class="produto-detalhe__viewer" data-bind="product-viewer">
+            <button type="button" class="produto-detalhe__arrow" data-action="gallery-prev" aria-label="Foto anterior" hidden>‹</button>
+            <img data-bind="product-image" alt="" width="800" height="800" draggable="false">
+            <button type="button" class="produto-detalhe__arrow" data-action="gallery-next" aria-label="Próxima foto" hidden>›</button>
+          </div>
           <div class="modal__thumbs" data-bind="product-thumbs"></div>
         </div>
         <div class="produto-detalhe__info">
-          <p class="eyebrow" data-bind="product-category"></p>
+          <a class="eyebrow" data-bind="product-category-link" href="../bolos/"><span data-bind="product-category"></span></a>
           <h1 data-bind="product-name">Produto</h1>
           <p class="modal__price" data-bind="product-price"></p>
           <button type="button" class="btn btn--outline" data-action="more-info">Mais informações sobre este produto</button>

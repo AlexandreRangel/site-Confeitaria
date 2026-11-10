@@ -1,7 +1,7 @@
 [
   {
     "id": "corporate",
-    "name": "Corporate",
+    "name": "Corporativo",
     "slug": "corporate",
     "image": "assets/categories/personalizado-para-empresas.webp",
     "sourceCategoryIds": ["personalizado-para-empresas"],

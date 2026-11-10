@@ -7,7 +7,7 @@ Servidor local: `http://127.0.0.1:8765/` (pasta `site-confeitaria-preview`).
 ### Mobile (~375px)
 - Header sticky com wordmark oficial; menu hamburger e carrinho com alvo ≥ 44px.
 - Carrossel full-bleed com fotos reais e caption em card translúcido.
-- Quatro botões grandes arredondados iguais no mobile e no desktop: Corporate, Bolos, Cestas, Doces personalizados. Natal só se `natal.enabled` for true.
+- Quatro botões grandes arredondados iguais no mobile e no desktop: Corporativo, Bolos, Cestas, Doces personalizados. Natal só se `natal.enabled` for true.
 - Home **sem** vitrine mista, **sem** GoldKo, **sem** destaques: hero, botões de área, faixa compacta de Instagram e rodapé enxuto (Brasília/DF, Instagram, WhatsApp, © 2026 Jana Abreu).
 - Sem overflow horizontal (body/`html` com `overflow-x: hidden`).
 

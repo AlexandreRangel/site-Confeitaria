@@ -874,6 +874,16 @@
     window.location.href = Jana.productUrl(slug);
   }
 
+  function stepGallery(delta) {
+    const product = state.currentProduct;
+    if (!product || !product.images || product.images.length < 2) {
+      return;
+    }
+    const length = product.images.length;
+    state.galleryIndex = (state.galleryIndex + delta + length) % length;
+    updateModalImage();
+  }
+
   function updateModalImage() {
     const product = state.currentProduct;
     if (!product) return;
@@ -886,6 +896,7 @@
     if (pageImage) {
       pageImage.src = Jana.assetUrl(product.images[state.galleryIndex]);
       pageImage.alt = product.name;
+      pageImage.setAttribute("draggable", "false");
     }
     const thumbs = Jana.qs('[data-bind="modal-thumbs"]') || Jana.qs('[data-bind="product-thumbs"]');
     if (!thumbs) {
@@ -910,6 +921,10 @@
         );
       })
       .join("");
+    const hasMany = product.images.length > 1;
+    Jana.qsa('[data-action="gallery-prev"], [data-action="gallery-next"]').forEach(function setArrow(btn) {
+      btn.hidden = !hasMany;
+    });
   }
 
   function closeModal() {
@@ -1670,6 +1685,12 @@
         state.galleryIndex = Number(target.getAttribute("data-index"));
         updateModalImage();
       }
+      if (action === "gallery-prev") {
+        stepGallery(-1);
+      }
+      if (action === "gallery-next") {
+        stepGallery(1);
+      }
       if (action === "qty-plus") {
         const lineId = target.getAttribute("data-id");
         const item = Jana.Cart.items().find(function find(row) {
@@ -1741,6 +1762,76 @@
         true
       );
     }
+    const galleryViewer = Jana.qs('[data-bind="product-viewer"]') || Jana.qs(".produto-detalhe__gallery");
+    if (galleryViewer) {
+      let pointerStartX = 0;
+      let pointerStartY = 0;
+      let pointerTracking = false;
+      const swipeThreshold = 48;
+      galleryViewer.addEventListener("dragstart", function onDragStart(event) {
+        event.preventDefault();
+      });
+      galleryViewer.addEventListener("pointerdown", function onPointerDown(event) {
+        if (event.target.closest("button")) {
+          return;
+        }
+        if (event.pointerType === "mouse" && event.button !== 0) {
+          return;
+        }
+        pointerTracking = true;
+        pointerStartX = event.clientX;
+        pointerStartY = event.clientY;
+        if (galleryViewer.setPointerCapture) {
+          try {
+            galleryViewer.setPointerCapture(event.pointerId);
+          } catch (err) {}
+        }
+      });
+      galleryViewer.addEventListener("pointerup", function onPointerUp(event) {
+        if (!pointerTracking) {
+          return;
+        }
+        pointerTracking = false;
+        const dx = event.clientX - pointerStartX;
+        const dy = event.clientY - pointerStartY;
+        if (Math.abs(dx) > swipeThreshold && Math.abs(dx) > Math.abs(dy)) {
+          stepGallery(dx < 0 ? 1 : -1);
+        }
+      });
+      galleryViewer.addEventListener("pointercancel", function onPointerCancel() {
+        pointerTracking = false;
+      });
+      galleryViewer.addEventListener(
+        "touchstart",
+        function onTouchStart(event) {
+          if (event.target.closest("button")) {
+            return;
+          }
+          const point = event.changedTouches[0];
+          pointerTracking = true;
+          pointerStartX = point.clientX;
+          pointerStartY = point.clientY;
+        },
+        { passive: true }
+      );
+      galleryViewer.addEventListener(
+        "touchend",
+        function onTouchEnd(event) {
+          if (!pointerTracking) {
+            return;
+          }
+          pointerTracking = false;
+          const point = event.changedTouches[0];
+          const dx = point.clientX - pointerStartX;
+          const dy = point.clientY - pointerStartY;
+          if (Math.abs(dx) > swipeThreshold && Math.abs(dx) > Math.abs(dy)) {
+            stepGallery(dx < 0 ? 1 : -1);
+          }
+        },
+        { passive: true }
+      );
+    }
+
     document.addEventListener("keydown", function onKey(event) {
       const drawer = Jana.qs("#encomendas");
       const drawerOpen = drawer && !drawer.hidden;
@@ -1765,6 +1856,15 @@
           return;
         }
         setMenuOpen(false);
+        return;
+      }
+      if ((event.key === "ArrowLeft" || event.key === "ArrowRight") && isProductPage()) {
+        const tag = event.target && event.target.tagName ? event.target.tagName : "";
+        if (drawerOpen || /^(INPUT|TEXTAREA|SELECT)$/.test(tag)) {
+          return;
+        }
+        event.preventDefault();
+        stepGallery(event.key === "ArrowRight" ? 1 : -1);
         return;
       }
       if (event.key !== "Tab" || !drawerOpen) {

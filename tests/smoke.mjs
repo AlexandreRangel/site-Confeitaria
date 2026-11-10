@@ -96,7 +96,7 @@ async function runEngine(browserType, engine) {
       return text.replace(/\s+/g, " ").trim();
     });
     record(engine, "home has 4 area buttons", areaCount === 4, String(areaCount) + " " + areaLabels.join(" | "));
-    record(engine, "home order Corporate Bolos Cestas Doces", areaLabels.join(" | ") === "Corporate | Bolos | Cestas | Doces personalizados", areaLabels.join(" | "));
+    record(engine, "home order Corporativo Bolos Cestas Doces", areaLabels.join(" | ") === "Corporativo | Bolos | Cestas | Doces personalizados", areaLabels.join(" | "));
     record(engine, "Natal hidden while disabled", areaLabels.indexOf("Natal") === -1);
     const catHref = await areaLinks.first().getAttribute("href");
     record(engine, "area url is folder", /corporate\/$/.test(catHref || ""), catHref);
@@ -481,6 +481,7 @@ async function runEngine(browserType, engine) {
       { from: "/sobremesas/", ok: function ok(path) { return path === "/" || path === ""; } },
       { from: "/cestas-presentes/", ok: function ok(path) { return /\/cestas\/?$/.test(path); } },
       { from: "/personalizado-para-empresas/", ok: function ok(path) { return /\/corporate\/?$/.test(path); } },
+      { from: "/corporativo/", ok: function ok(path) { return /\/corporate\/?$/.test(path); } },
       { from: "/combos-festa/", ok: function ok(path) { return /\/doces-personalizados\/?$/.test(path); } },
       { from: "/doces-festa/", ok: function ok(path) { return /\/doces-personalizados\/?$/.test(path); } },
       { from: "/festa-personalizada/", ok: function ok(path) { return /\/doces-personalizados\/?$/.test(path); } },
@@ -496,7 +497,7 @@ async function runEngine(browserType, engine) {
     await page.goto(BASE + "/corporate/", { waitUntil: "domcontentloaded" });
     await page.waitForSelector(".card, .empty", { timeout: 15000 });
     const areaTitle = ((await page.locator("h1").textContent()) || "").trim();
-    record(engine, "corporate title", /Corporate/i.test(areaTitle), areaTitle);
+    record(engine, "corporate title", /Corporativo/i.test(areaTitle), areaTitle);
     record(engine, "corporate has products", (await page.locator(".card").count()) > 0);
     const areaSlideHref = await page.locator("#hero-carrossel .hero__slide").first().getAttribute("href");
     record(engine, "area carousel links to product", /produto\/\?slug=/.test(areaSlideHref || ""), areaSlideHref);

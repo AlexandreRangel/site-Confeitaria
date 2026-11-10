@@ -6,6 +6,11 @@ main,
   z-index: 2;
 }
 
+main {
+  flex: 1 0 auto;
+  width: 100%;
+}
+
 .topo {
   position: sticky;
   top: 0;
@@ -251,7 +256,7 @@ main,
 }
 
 body[data-page="home"] .hero {
-  margin: 0.7rem 1rem 0;
+  margin: 0.7rem var(--page-gutter) 0;
   width: auto;
 }
 
@@ -261,6 +266,12 @@ body[data-page="home"] .hero {
   height: min(72vw, 420px);
   object-fit: cover;
   display: block;
+}
+
+body[data-page="home"] .hero__slide,
+body[data-page="home"] .hero__slide img {
+  min-height: min(62vw, 360px);
+  height: min(62vw, 360px);
 }
 
 /* Brand + caption + controls sit below the photo — never painted on it */
@@ -333,14 +344,9 @@ body[data-page="home"] .hero {
 
 .hero__controls {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0.45rem;
+  inset: 0;
   z-index: 2;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0.45rem;
+  display: block;
   padding: 0;
   background: transparent;
   pointer-events: none;
@@ -348,6 +354,28 @@ body[data-page="home"] .hero {
 
 .hero__controls > * {
   pointer-events: auto;
+}
+
+.hero__controls .hero__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.hero__controls .hero__arrow[data-action="carousel-prev"] {
+  left: 0.35rem;
+}
+
+.hero__controls .hero__arrow[data-action="carousel-next"] {
+  right: 0.35rem;
+}
+
+.hero__dots {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.45rem;
+  justify-content: center;
 }
 
 .hero--compact .hero__slide,
@@ -361,6 +389,14 @@ body[data-page="home"] .hero {
   max-width: var(--container);
   margin: 1rem auto 1.4rem;
   padding: 0.4rem 1rem 1.4rem;
+}
+
+body[data-page="home"] .areas {
+  max-width: none;
+  width: auto;
+  margin: 1rem var(--page-gutter) 1.4rem;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .areas__list {
@@ -698,7 +734,11 @@ body[data-page="home"] .hero {
   color: var(--ink);
   font-family: var(--serif);
   font-size: 0.95rem;
+  font-weight: 600;
+  font-variant-numeric: lining-nums tabular-nums;
+  font-feature-settings: "lnum" 1, "tnum" 1;
   text-align: center;
+  margin-top: auto;
 }
 
 .rodape p {
@@ -711,6 +751,11 @@ body[data-page="home"] .hero {
   justify-content: center;
   align-items: center;
   gap: 0.35rem 0.9rem;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 1.0925rem; /* 0.95rem + 15% */
+  font-variant-numeric: lining-nums tabular-nums;
+  font-feature-settings: "lnum" 1, "tnum" 1;
 }
 
 .rodape__social {
@@ -867,6 +912,12 @@ body[data-page="home"] .hero {
     height: min(48vw, 480px);
   }
 
+  body[data-page="home"] .hero__slide,
+  body[data-page="home"] .hero__slide img {
+    min-height: min(40vw, 400px);
+    height: min(40vw, 400px);
+  }
+
   .hero__slogan {
     font-size: clamp(1.35rem, 2.4vw, 1.85rem);
   }
@@ -932,6 +983,24 @@ body[data-page="home"] .hero {
     height: 416px;
   }
 
+  body[data-page="home"] .hero__slide,
+  body[data-page="home"] .hero__slide img {
+    min-height: 360px;
+    height: 360px;
+  }
+
+  body[data-page="home"] .areas__list {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  body[data-page="home"] .area-button {
+    width: clamp(13.75rem, 23vw, 21rem);
+    flex: 0 0 auto;
+  }
+
   .hero--compact .hero__slide,
   .hero--compact .hero__slide img {
     min-height: 288px;
@@ -969,6 +1038,10 @@ body[data-page="home"] .hero {
 }
 
 @media (min-width: 1280px) {
+  :root {
+    --page-gutter: 1.5rem;
+  }
+
   .categorias,
   .destaques,
   .catalogo,
@@ -980,5 +1053,10 @@ body[data-page="home"] .hero {
   .topo__inner {
     padding-left: 1.5rem;
     padding-right: 1.5rem;
+  }
+
+  body[data-page="home"] .areas {
+    padding-left: 0;
+    padding-right: 0;
   }
 }

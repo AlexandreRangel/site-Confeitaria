@@ -70,7 +70,7 @@ if (!natalArea || natalArea.seasonal !== true) {
 }
 const corporate = areaById.get("corporate");
 if (!corporate || corporate.sourceCategoryIds.join(",") !== "personalizado-para-empresas") {
-  errors.push("Corporate must map from Personalizado para Empresas");
+  errors.push("Corporativo must map from Personalizado para Empresas");
 }
 const doces = areaById.get("doces-personalizados");
 if (
@@ -120,6 +120,7 @@ const redirects = {
   "doces-festa": "../doces-personalizados/",
   "festa-personalizada": "../doces-personalizados/",
   "personalizado-para-empresas": "../corporate/",
+  "corporativo": "../corporate/",
   "cestas-presentes": "../cestas/",
 };
 Object.keys(redirects).forEach((slug) => {
@@ -387,8 +388,8 @@ if (!existsSync(join(root, "sobre-nos/index.html"))) {
 if (!existsSync(join(root, "data/sobre.json"))) {
   errors.push("Missing data/sobre.json");
 }
-if (!baseCss.includes("--radius: 20.8px")) {
-  errors.push("card/carousel radius must be 20.8px (20% smaller than 26px)");
+if (!baseCss.includes("--radius: 17.68px")) {
+  errors.push("card/carousel radius must be 17.68px (15% less rounded than 20.8px)");
 }
 if (!utilsJs.includes("CAROUSEL_INTERVAL_MS = 6720") || !utilsJs.includes("CAROUSEL_TRANSITION_MS = 1200")) {
   errors.push("home and area carousels must share 6720ms interval and 1200ms transition");
@@ -434,8 +435,9 @@ if (!existsSync(pagamentoPath)) {
   errors.push("Missing data/pagamento.json");
 } else {
   const pagamento = JSON.parse(readFileSync(pagamentoPath, "utf8"));
-  if (!pagamento.infinitepay || pagamento.infinitepay.enabled !== false || pagamento.infinitepay.handle !== "") {
-    errors.push("data/pagamento.json must ship with infinitepay.enabled false and empty handle");
+  const handle = pagamento.infinitepay && typeof pagamento.infinitepay.handle === "string" ? pagamento.infinitepay.handle : "";
+  if (!pagamento.infinitepay || pagamento.infinitepay.enabled !== true || !handle || /\s/.test(handle) || handle.startsWith("$")) {
+    errors.push("data/pagamento.json must have infinitepay.enabled true and a handle without spaces or a leading $");
   }
 }
 const pausaPath = join(root, "data/pausa.json");

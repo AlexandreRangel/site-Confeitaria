@@ -31,7 +31,8 @@
   --panel-solid: #fdf6ec;
   --whatsapp: #0e7f36;
   --shadow: 0 16px 42px rgba(184, 110, 136, 0.16), 0 4px 12px rgba(76, 85, 58, 0.06);
-  --radius: 20.8px;
+  --radius: 17.68px;
+  --page-gutter: 1rem;
   --header-h: 88px;
   --container: 1120px;
   --serif: "Cormorant Garamond", Georgia, serif;
@@ -49,6 +50,8 @@ html {
   scroll-padding-top: calc(var(--header-h) + 12px);
   overflow-x: hidden;
   background-color: var(--cream);
+  min-height: 100%;
+  min-height: 100dvh;
 }
 
 html.is-locked,
@@ -71,6 +74,10 @@ body {
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
   padding-bottom: env(safe-area-inset-bottom);
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Keep the real damask visible without making it compete with the content. */
@@ -193,6 +200,9 @@ button {
   color: var(--ink);
   box-shadow: 0 6px 16px rgba(184, 110, 136, 0.12);
   transition: background 0.2s, color 0.2s, transform 0.2s, box-shadow 0.2s;
+  max-width: 100%;
+  white-space: normal;
+  text-align: center;
 }
 
 .btn:hover,
