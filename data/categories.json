@@ -64,5 +64,14 @@
     "order": 8,
     "hidden": true,
     "seasonal": true
+  },
+  {
+    "id": "pascoa",
+    "name": "Páscoa",
+    "slug": "pascoa",
+    "image": "assets/categories/cestas-presentes.webp",
+    "order": 9,
+    "hidden": true,
+    "seasonal": true
   }
 ]

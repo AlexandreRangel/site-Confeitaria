@@ -4,7 +4,9 @@
     "name": "Corporativo",
     "slug": "corporate",
     "image": "assets/categories/personalizado-para-empresas.webp",
-    "sourceCategoryIds": ["personalizado-para-empresas"],
+    "sourceCategoryIds": [
+      "personalizado-para-empresas"
+    ],
     "order": 1
   },
   {
@@ -12,7 +14,9 @@
     "name": "Bolos",
     "slug": "bolos",
     "image": "assets/categories/bolos.webp",
-    "sourceCategoryIds": ["bolos"],
+    "sourceCategoryIds": [
+      "bolos"
+    ],
     "order": 2
   },
   {
@@ -20,7 +24,9 @@
     "name": "Cestas",
     "slug": "cestas",
     "image": "assets/categories/cestas-presentes.webp",
-    "sourceCategoryIds": ["cestas-presentes"],
+    "sourceCategoryIds": [
+      "cestas-presentes"
+    ],
     "order": 3
   },
   {
@@ -28,7 +34,11 @@
     "name": "Doces personalizados",
     "slug": "doces-personalizados",
     "image": "assets/categories/festa-personalizada.webp",
-    "sourceCategoryIds": ["combos-festa", "doces-festa", "festa-personalizada"],
+    "sourceCategoryIds": [
+      "combos-festa",
+      "doces-festa",
+      "festa-personalizada"
+    ],
     "order": 4
   },
   {
@@ -36,8 +46,31 @@
     "name": "Natal",
     "slug": "natal",
     "image": "assets/categories/cestas-presentes.webp",
-    "sourceCategoryIds": ["natal"],
+    "sourceCategoryIds": [
+      "natal"
+    ],
     "order": 5,
-    "seasonal": true
+    "seasonal": true,
+    "ativacao": {
+      "modo": "desligado",
+      "inicio": "",
+      "fim": ""
+    }
+  },
+  {
+    "id": "pascoa",
+    "name": "Páscoa",
+    "slug": "pascoa",
+    "image": "assets/categories/cestas-presentes.webp",
+    "sourceCategoryIds": [
+      "pascoa"
+    ],
+    "order": 6,
+    "seasonal": true,
+    "ativacao": {
+      "modo": "desligado",
+      "inicio": "",
+      "fim": ""
+    }
   }
 ]

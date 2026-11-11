@@ -44,6 +44,7 @@ const catalogIds = [
   "doces-festa",
   "sobremesas",
   "natal",
+  "pascoa",
 ];
 catalogIds.forEach((id) => {
   if (!categoryIds.has(id)) errors.push("Missing catalog category " + id);
@@ -52,14 +53,14 @@ const sobremesas = categories.find((item) => item.id === "sobremesas");
 if (!sobremesas || sobremesas.hidden !== true) {
   errors.push("Sobremesas must remain in the catalog with hidden: true");
 }
-if (!site.natal || site.natal.enabled !== false) {
-  errors.push("Natal must stay off by default in data/site.json");
+if (site.natal && site.natal.enabled !== false) {
+  errors.push("Natal must stay off by default (site.natal.enabled, legado)");
 }
 if (site.copyright !== "© 2026 Jana Abreu") {
   errors.push("Copyright must be «© 2026 Jana Abreu»");
 }
 
-const expectedAreas = ["corporate", "bolos", "cestas", "doces-personalizados", "natal"];
+const expectedAreas = ["corporate", "bolos", "cestas", "doces-personalizados", "natal", "pascoa"];
 const areaById = new Map(areas.map((item) => [item.id, item]));
 expectedAreas.forEach((id) => {
   if (!areaById.has(id)) errors.push("Missing area " + id);
@@ -68,6 +69,12 @@ const natalArea = areaById.get("natal");
 if (!natalArea || natalArea.seasonal !== true) {
   errors.push("Natal area must be marked seasonal");
 }
+["natal", "pascoa"].forEach((id) => {
+  const a = areaById.get(id);
+  if (!a || a.seasonal !== true) errors.push(id + " area must be marked seasonal");
+  // datas comemorativas começam desligadas; a Jana liga na aba Datas do editor
+  if (a && (!a.ativacao || a.ativacao.modo !== "desligado")) errors.push(id + " must start with ativacao.modo desligado");
+});
 const corporate = areaById.get("corporate");
 if (!corporate || corporate.sourceCategoryIds.join(",") !== "personalizado-para-empresas") {
   errors.push("Corporativo must map from Personalizado para Empresas");
@@ -573,7 +580,7 @@ console.log("data files ok");
 console.log("whatsapp", site.contato.whatsapp);
 console.log("instagram", site.contato.instagram.handle);
 console.log("areas", expectedAreas.join(", "));
-console.log("natal.enabled", site.natal.enabled);
+console.log("natal/pascoa", ["natal", "pascoa"].map((id) => id + ":" + (areaById.get(id).ativacao || {}).modo).join(" "));
 console.log("entrega.taxa", site.entrega.taxa);
 console.log("home carousel:");
 carousel

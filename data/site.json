@@ -36,10 +36,6 @@
     "porRegiao": {},
     "howToSet": "Taxa fixa em reais em entrega.taxa (hoje 40). Para voltar a «a confirmar pela Jana», use null. Tabela opcional em entrega.porRegiao, ex.: {\"asa-norte\": {\"label\": \"Asa Norte\", \"taxa\": 20}} — se preenchida, o checkout mostra um select de região."
   },
-  "natal": {
-    "enabled": false,
-    "howToEnable": "Mude natal.enabled para true. Isso exibe o 5º botão Natal na home, inclui Natal no menu Categorias e passa a linkar /natal/. Desligado (false) some da home e do menu e a página não é linkada."
-  },
   "address": {
     "street": "",
     "neighborhood": "",

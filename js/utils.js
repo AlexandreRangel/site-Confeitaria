@@ -116,16 +116,63 @@
     return area.id === "natal" || area.slug === "natal" || area.seasonal === true;
   };
 
-  Jana.visibleAreas = function visibleAreas(areas, site) {
+  /* Data de hoje (AAAA-MM-DD) no fuso de Brasília. */
+  Jana.todayYmd = function todayYmd(now) {
+    try {
+      const parts = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "America/Sao_Paulo",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).formatToParts(now || new Date());
+      const map = {};
+      parts.forEach(function put(part) {
+        map[part.type] = part.value;
+      });
+      return map.year + "-" + map.month + "-" + map.day;
+    } catch (err) {
+      return new Date(now || Date.now()).toISOString().slice(0, 10);
+    }
+  };
+
+  Jana.isSeasonalArea = function isSeasonalArea(area) {
+    return Jana.isNatalArea(area);
+  };
+
+  /* Áreas sazonais (Natal, Páscoa): area.ativacao = { modo: "desligado" | "ligado" | "datas", inicio, fim }.
+     Sem ativacao, o Natal segue o antigo site.natal.enabled. */
+  Jana.seasonalStatus = function seasonalStatus(area, site, now) {
+    if (!area || area.enabled === false) {
+      return false;
+    }
+    if (!Jana.isSeasonalArea(area)) {
+      return true;
+    }
+    const rule = area.ativacao;
+    if (rule && typeof rule === "object") {
+      if (rule.modo === "ligado") {
+        return true;
+      }
+      if (rule.modo === "datas") {
+        const today = Jana.todayYmd(now);
+        return !!(rule.inicio && rule.fim) && today >= rule.inicio && today <= rule.fim;
+      }
+      return false;
+    }
+    if (area.id === "natal" || area.slug === "natal") {
+      return Jana.isNatalEnabled(site);
+    }
+    return false;
+  };
+
+  Jana.isAreaActive = function isAreaActive(area, site, now) {
+    return Jana.seasonalStatus(area, site, now);
+  };
+
+  Jana.visibleAreas = function visibleAreas(areas, site, now) {
     return (areas || [])
       .filter(function keepArea(area) {
-        if (!area || area.enabled === false) {
-          return false;
-        }
-        if (Jana.isNatalArea(area)) {
-          return Jana.isNatalEnabled(site);
-        }
-        return true;
+        return Jana.isAreaActive(area, site, now);
       })
       .slice()
       .sort(function byOrder(a, b) {
@@ -164,6 +211,15 @@
         return ids.indexOf(id) !== -1;
       });
     }) || null;
+  };
+
+  Jana.productImageAlt = function productImageAlt(product, index) {
+    if (!product) {
+      return "";
+    }
+    const alts = Array.isArray(product.imagesAlt) ? product.imagesAlt : [];
+    const alt = String(alts[index || 0] || "").trim();
+    return alt || product.name || "";
   };
 
   Jana.categorySlug = function categorySlug(category) {
@@ -380,20 +436,67 @@
     };
   };
 
-  Jana.homeCarouselSlides = function homeCarouselSlides(carousel, products) {
+  /* Link de um banner do carrossel. linkTipo: produto | categoria | url | nenhum.
+     Banners antigos (sem linkTipo) abrem o produto de productSlug, como antes. */
+  Jana.slideLink = function slideLink(slide, product) {
+    const item = slide || {};
+    const tipo = item.linkTipo || (item.productSlug ? "produto" : "nenhum");
+    if (tipo === "produto") {
+      const slug = (product && product.slug) || item.productSlug || "";
+      return slug ? { href: Jana.productUrl(slug), external: false } : { href: "", external: false };
+    }
+    if (tipo === "categoria" && item.linkCategory) {
+      return { href: Jana.areaUrl(item.linkCategory), external: false };
+    }
+    if (tipo === "url") {
+      const url = String(item.url || "").trim();
+      if (/^https:\/\//i.test(url)) {
+        let external = true;
+        try {
+          const host = new URL(url).hostname.replace(/^www\./, "");
+          external = host !== "janaabreuconfeitaria.com.br";
+        } catch (err) {
+          external = true;
+        }
+        return { href: url, external: external };
+      }
+      if (/^\/?[a-z0-9][a-z0-9\/?=&#._%-]*$/i.test(url)) {
+        return { href: Jana.assetUrl(url.replace(/^\//, "")), external: false };
+      }
+    }
+    return { href: "", external: false };
+  };
+
+  /* Banners de uma página: "home" (padrão) ou o id de uma área. */
+  Jana.pageCarouselSlides = function pageCarouselSlides(carousel, products, pagina) {
+    const target = pagina || "home";
     return (carousel || [])
       .filter(function hasImage(slide) {
-        return slide && slide.image;
+        return slide && slide.image && (slide.pagina || "home") === target;
+      })
+      .slice()
+      .sort(function byOrder(a, b) {
+        return (a.order || 0) - (b.order || 0);
       })
       .map(function toSlide(slide) {
         const product = Jana.productBySlug(products, slide.productSlug);
+        const tipo = slide.linkTipo || (slide.productSlug ? "produto" : "nenhum");
+        const link = Jana.slideLink(slide, product);
         return {
           image: slide.image,
-          productSlug: (product && product.slug) || slide.productSlug || "",
-          title: (product && product.name) || slide.title || "",
+          imageMobile: slide.imageMobile || "",
+          productSlug: tipo === "produto" ? (product && product.slug) || slide.productSlug || "" : "",
+          href: link.href,
+          external: link.external,
+          title: (tipo === "produto" && !slide.linkTipo && product && product.name) || slide.title || (product && product.name) || "",
+          banner: slide.formato === "banner",
           matched: !!product,
         };
       });
+  };
+
+  Jana.homeCarouselSlides = function homeCarouselSlides(carousel, products) {
+    return Jana.pageCarouselSlides(carousel, products, "home");
   };
 
   global.Jana = Jana;

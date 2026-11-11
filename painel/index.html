@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#fdf6ec">
-  <meta name="description" content="Área da loja — pedidos e clientes Jana Abreu Confeitaria.">
+  <meta name="description" content="Área da loja — pedidos, clientes e editor do site Jana Abreu Confeitaria.">
   <meta name="robots" content="noindex, nofollow">
   <title>Área da loja · Jana Abreu Confeitaria</title>
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
@@ -13,6 +13,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/painel.css">
+  <link rel="stylesheet" href="../css/editor.css">
 </head>
 <body class="painel-body">
   <a class="skip-link" href="#tab-pedidos">Ir para o conteúdo</a>
@@ -31,13 +32,22 @@
     </header>
 
     <nav class="painel-tabs" aria-label="Seções do painel">
-      <button type="button" class="is-active" data-tab="pedidos" aria-selected="true">Pedidos</button>
-      <button type="button" data-tab="clientes" aria-selected="false">Clientes</button>
+      <button type="button" class="is-active" data-tab="pedidos" aria-selected="true" aria-controls="tab-pedidos">Pedidos</button>
+      <button type="button" data-tab="produtos" aria-selected="false" aria-controls="tab-produtos">Produtos</button>
+      <button type="button" data-tab="carrossel" aria-selected="false" aria-controls="tab-carrossel">Carrossel</button>
+      <button type="button" data-tab="datas" aria-selected="false" aria-controls="tab-datas">Datas</button>
+      <button type="button" data-tab="textos" aria-selected="false" aria-controls="tab-textos">Textos</button>
+      <button type="button" data-tab="historico" aria-selected="false" aria-controls="tab-historico">Histórico</button>
+      <button type="button" data-tab="clientes" aria-selected="false" aria-controls="tab-clientes">Clientes</button>
     </nav>
+
+    <div class="ed-aviso" data-ed="aviso" role="note" hidden></div>
+    <div class="ed-status" data-ed="status" role="status" aria-live="polite" hidden></div>
 
     <section class="painel-central" aria-labelledby="central-titulo">
       <h2 id="central-titulo">Lista compartilhada</h2>
       <p data-bind="central-status">Carregando…</p>
+      <p class="ed-login-dica" data-ed="login-dica" hidden>Para editar o site, entre com a mesma senha da loja.</p>
       <form data-bind="central-login" hidden>
         <label class="painel-field">
           Senha da loja
@@ -200,6 +210,64 @@
       </div>
     </section>
 
+    <section id="tab-produtos" class="painel-panel ed-panel" aria-labelledby="produtos-titulo" hidden>
+      <div class="painel-toolbar">
+        <h2 id="produtos-titulo">Produtos</h2>
+        <div class="painel-toolbar__actions">
+          <button type="button" class="btn btn--solid" data-ed-action="novo-produto">+ Novo produto</button>
+        </div>
+      </div>
+      <div class="ed-filtros">
+        <label class="ed-field">Buscar
+          <input type="search" data-ed="busca" placeholder="Nome do produto" autocomplete="off">
+        </label>
+        <label class="ed-field">Mostrar
+          <select data-ed="filtro"></select>
+        </label>
+      </div>
+      <p class="ed-contagem" data-ed="contagem" aria-live="polite"></p>
+      <ul class="ed-produtos" data-ed="lista-produtos"></ul>
+    </section>
+
+    <section id="tab-carrossel" class="painel-panel ed-panel" aria-labelledby="carrossel-titulo" hidden>
+      <div class="painel-toolbar">
+        <h2 id="carrossel-titulo">Carrossel</h2>
+        <div class="painel-toolbar__actions">
+          <button type="button" class="btn btn--solid" data-ed-action="novo-banner">+ Novo banner</button>
+        </div>
+      </div>
+      <div data-ed="carrossel"></div>
+    </section>
+
+    <section id="tab-datas" class="painel-panel ed-panel" aria-labelledby="datas-titulo" hidden>
+      <div class="painel-toolbar"><h2 id="datas-titulo">Datas</h2></div>
+      <div data-ed="datas"></div>
+    </section>
+
+    <section id="tab-textos" class="painel-panel ed-panel" aria-labelledby="textos-titulo" hidden>
+      <div class="painel-toolbar"><h2 id="textos-titulo">Textos</h2></div>
+      <div data-ed="textos"></div>
+    </section>
+
+    <section id="tab-historico" class="painel-panel ed-panel" aria-labelledby="historico-titulo" hidden>
+      <div class="painel-toolbar">
+        <h2 id="historico-titulo">Histórico</h2>
+        <div class="painel-toolbar__actions">
+          <button type="button" class="btn btn--outline" data-ed-action="recarregar-historico">Atualizar</button>
+        </div>
+      </div>
+      <p class="painel-note">Cada vez que você salva, o site guarda uma versão. Aqui dá para desfazer uma alteração. Comece pela mais recente.</p>
+      <ol class="ed-historico" data-ed="historico"></ol>
+    </section>
+
+    <div class="ed-savebar" data-ed="savebar" hidden>
+      <p data-ed="savebar-texto">Alterações ainda não publicadas.</p>
+      <div class="ed-savebar__actions">
+        <button type="button" class="btn btn--outline" data-ed-action="descartar">Descartar</button>
+        <button type="button" class="btn btn--solid" data-ed-action="salvar-aba">Salvar e publicar</button>
+      </div>
+    </div>
+
     <section id="tab-clientes" class="painel-panel" aria-labelledby="clientes-titulo" hidden>
       <div class="painel-toolbar">
         <h2 id="clientes-titulo">Clientes</h2>
@@ -226,9 +294,15 @@
     </section>
   </div>
 
+  <dialog class="ed-dialog" data-ed="dialog-produto" aria-labelledby="ed-produto-titulo"></dialog>
+  <dialog class="ed-dialog" data-ed="dialog-banner" aria-labelledby="ed-banner-titulo"></dialog>
+  <dialog class="ed-dialog ed-dialog--confirmar" data-ed="dialog-confirmar" aria-labelledby="ed-confirmar-titulo"></dialog>
+
   <script defer src="../js/utils.js"></script>
+  <script defer src="../js/pausa.js"></script>
   <script defer src="../js/store.js"></script>
   <script defer src="../js/central.js"></script>
   <script defer src="../js/painel.js"></script>
+  <script defer src="../js/editor.js"></script>
 </body>
 </html>

@@ -1,6 +1,8 @@
 # Como editar a vitrine
 
-Tudo que a loja precisa mudar no dia a dia está em `data/` e `assets/`. Não é preciso reescrever o HTML.
+**O jeito fácil: o editor do painel** — https://janaabreuconfeitaria.com.br/painel/ (abas Produtos, Carrossel, Datas, Textos). Ver `docs/EDITOR.md`.
+
+Por baixo, tudo que a loja muda no dia a dia está em `data/` e `assets/`. Não é preciso reescrever o HTML.
 
 ## WhatsApp e Instagram
 
@@ -51,12 +53,11 @@ Marque vitrine de teste com `"exemplo"` em `tags`. Quando o item for real, remov
 
 Os botões da home e o menu **Categorias** vêm de `data/areas.json`. Os produtos continuam com o `categoryId` antigo em `data/products.json`; a área junta esses IDs em `sourceCategoryIds`.
 
-## Ligar a área Natal
+## Natal e Páscoa (datas comemorativas)
 
-1. Em `data/site.json`, mude `"natal": { "enabled": false }` para `"enabled": true`.
-2. Recarregue o site. O 5º botão **Natal** aparece na home, entra no menu Categorias e o link `/natal/` passa a ser oferecido.
-3. Para sumir de novo, volte `enabled` para `false`. A página `/natal/` continua no repositório, mas não é linkada.
-4. Produtos de Natal usam `"categoryId": "natal"` (a categoria existe em `data/categories.json` com `"hidden": true` até haver itens).
+No editor, aba **Datas**. Em arquivo: `data/areas.json` → área `natal` ou `pascoa` → `"ativacao": { "modo": "desligado" | "ligado" | "datas", "inicio": "AAAA-MM-DD", "fim": "AAAA-MM-DD" }`.
+Ligada, aparece a caixinha na home, o item no menu Categorias e a página `/natal/` ou `/pascoa/`. Os produtos entram marcando a categoria Natal/Páscoa no produto (`categoryIds` com `natal` ou `pascoa`).
+O antigo `site.json → natal.enabled` ainda é respeitado se existir, mas não é mais usado.
 
 Sobremesas está só escondida (`"hidden": true` em `data/categories.json`). Não apague os produtos; para reexibir, tire o `hidden` e recrie o mapeamento da área.
 
@@ -74,7 +75,7 @@ Em `data/pagamento.json`, coloque a InfiniteTag em `handle` (sem `$`) e `"enable
 
 ## Novo slide do carrossel
 
-Em `data/carousel.json`: `title`, `subtitle`, `image`, `linkCategory` ou `productSlug`, `order`.
+No editor, aba **Carrossel** (imagem de computador e de celular, link e ordem). Campos em `docs/EDITOR.md`.
 
 ## Comandos de exemplo para o assistente
 

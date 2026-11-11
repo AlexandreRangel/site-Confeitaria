@@ -16,3 +16,8 @@ database_id = "721822b7-09f5-4f82-8f38-fb9cf1a4da29"
 
 [observability]
 enabled = true
+
+# Editor do site (opcional; os padrões já servem):
+# GITHUB_REPO = "AlexandreRangel/site-Confeitaria"
+# GITHUB_BRANCH = "preview"
+# Segredo (no painel do Cloudflare, nunca aqui): GITHUB_TOKEN — ver docs/EDITOR.md

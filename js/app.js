@@ -272,14 +272,44 @@
     const name = area ? area.name : "Área";
     Jana.bindText("area-title", name);
     Jana.bindText("category-title", name);
+    applyAreaDescription(area);
     if (state.site && state.site.brandName) {
       document.title = name + " · " + state.site.brandName;
     }
   }
 
+  /* Descrição opcional da área (editável no painel). Vazia: nada aparece. */
+  function applyAreaDescription(area) {
+    const title = Jana.qs('[data-bind="area-title"]');
+    if (!title) {
+      return;
+    }
+    const text = String((area && area.description) || "").trim();
+    let node = Jana.qs('[data-bind="area-description"]');
+    if (!text) {
+      if (node) node.remove();
+      return;
+    }
+    if (!node) {
+      node = document.createElement("p");
+      node.className = "area-page__lead";
+      node.setAttribute("data-bind", "area-description");
+      title.insertAdjacentElement("afterend", node);
+    }
+    node.textContent = text;
+  }
+
   function visibleCarouselSlides() {
     if (isAreaPage()) {
-      return Jana.carouselSlidesFromProducts(Jana.productsForArea(state.products, currentArea()));
+      const area = currentArea();
+      if (!area || !Jana.isAreaActive(area, state.site)) {
+        return [];
+      }
+      const banners = Jana.pageCarouselSlides(state.carousel, state.products, area.id);
+      if (banners.length) {
+        return banners;
+      }
+      return Jana.carouselSlidesFromProducts(Jana.productsForArea(state.products, area));
     }
     return Jana.homeCarouselSlides(state.carousel, state.products);
   }
@@ -296,6 +326,14 @@
     state.slide = 0;
     if (hero) {
       hero.hidden = slides.length === 0;
+      // banners do editor (formato "banner") aparecem inteiros, na proporção em que foram feitos
+      hero.classList.toggle(
+        "hero--banners",
+        slides.length > 0 &&
+          slides.every(function isBanner(slide) {
+            return slide.banner === true;
+          })
+      );
     }
     if (!slides.length) {
       track.innerHTML = "";
@@ -308,7 +346,7 @@
     track.innerHTML = slides
       .map(function slideHtml(slide, index) {
         const eager = index === 0;
-        const img =
+        let img =
           '<img src="' +
           Jana.escapeHtml(Jana.assetUrl(slide.image)) +
           '" alt="' +
@@ -316,11 +354,23 @@
           '" width="1600" height="900"' +
           (eager ? ' fetchpriority="high"' : ' loading="lazy"') +
           ' decoding="async">';
-        if (slide.productSlug) {
+        if (slide.imageMobile) {
+          // celular (< 720 px) usa a versão de celular; computador e tablet, a de computador
+          img =
+            '<picture><source media="(max-width: 719px)" srcset="' +
+            Jana.escapeHtml(Jana.assetUrl(slide.imageMobile)) +
+            '">' +
+            img +
+            "</picture>";
+        }
+        const href = slide.href != null ? slide.href : slide.productSlug ? Jana.productUrl(slide.productSlug) : "";
+        if (href) {
           return (
             '<a class="hero__slide" href="' +
-            Jana.escapeHtml(Jana.productUrl(slide.productSlug)) +
-            '">' +
+            Jana.escapeHtml(href) +
+            '"' +
+            (slide.external ? ' target="_blank" rel="noopener noreferrer"' : "") +
+            ">" +
             img +
             "</a>"
           );
@@ -535,7 +585,7 @@
       '<img src="' +
       Jana.escapeHtml(Jana.assetUrl(product.images[0])) +
       '" alt="' +
-      Jana.escapeHtml(product.name) +
+      Jana.escapeHtml(Jana.productImageAlt(product, 0)) +
       '" width="600" height="600" loading="lazy" decoding="async">' +
       "</div>" +
       '<div class="card__body">' +
@@ -620,6 +670,14 @@
     Jana.bindText("filter-label", label);
     applyCategoryTitle();
     applyAreaTitle();
+    if (area && !Jana.isAreaActive(area, state.site)) {
+      grid.innerHTML =
+        '<p class="empty">' +
+        Jana.escapeHtml(area.name) +
+        ' não está disponível no momento. Veja as outras categorias no menu.</p>';
+      renderCategoriesNav();
+      return;
+    }
     grid.innerHTML = list.length
       ? list.map(productCard).join("")
       : '<p class="empty">Nenhum produto nesta área por enquanto. Combine a encomenda pelo WhatsApp.</p>';
@@ -792,7 +850,7 @@
     const img = Jana.qs('[data-bind="product-image"]');
     if (img) {
       img.src = Jana.assetUrl(product.images[0]);
-      img.alt = product.name;
+      img.alt = Jana.productImageAlt(product, 0);
     }
   }
 
@@ -892,12 +950,12 @@
     const image = Jana.qs('[data-bind="modal-image"]');
     if (image) {
       image.src = Jana.assetUrl(product.images[state.galleryIndex]);
-      image.alt = product.name;
+      image.alt = Jana.productImageAlt(product, state.galleryIndex);
     }
     const pageImage = Jana.qs('[data-bind="product-image"]');
     if (pageImage) {
       pageImage.src = Jana.assetUrl(product.images[state.galleryIndex]);
-      pageImage.alt = product.name;
+      pageImage.alt = Jana.productImageAlt(product, state.galleryIndex);
       pageImage.setAttribute("draggable", "false");
     }
     const thumbs = Jana.qs('[data-bind="modal-thumbs"]') || Jana.qs('[data-bind="product-thumbs"]');

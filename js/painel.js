@@ -814,6 +814,7 @@
     if (session) session.hidden = true;
     Jana.bindText("painel-modo", "Pedidos guardados só neste navegador");
     document.body.setAttribute("data-modo", "local");
+    document.dispatchEvent(new CustomEvent("jana:sessao", { detail: { logado: !!(Jana.Central && Jana.Central.session()) } }));
   }
 
   function showLoggedIn() {
@@ -824,6 +825,7 @@
     if (session) session.hidden = false;
     Jana.bindText("painel-modo", "Lista compartilhada entre os aparelhos da Jana");
     document.body.setAttribute("data-modo", "central");
+    document.dispatchEvent(new CustomEvent("jana:sessao", { detail: { logado: true } }));
   }
 
   async function loadLocal() {

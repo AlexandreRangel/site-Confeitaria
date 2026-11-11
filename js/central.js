@@ -212,6 +212,10 @@
     adminImport: function adminImport(site, orders) {
       return admin(site, "POST", "/admin/importar", { orders: orders || [] });
     },
+    /* Chamada genérica às rotas /admin (usada pelo editor do site). */
+    adminRequest: function adminRequest(site, method, path, body) {
+      return admin(site, method, path, body);
+    },
   };
   global.Jana = Jana;
 })(window);

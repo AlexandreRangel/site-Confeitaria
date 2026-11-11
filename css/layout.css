@@ -1085,3 +1085,42 @@ body[data-page="home"] .areas {
     padding-right: 0;
   }
 }
+
+/* Banners do editor: <picture> com versão de celular e de computador.
+   Quando todos os slides da página são banners, eles aparecem inteiros na proporção
+   recomendada (início 1200×800 / 2400×700; categorias 1200×860 / 2400×800). */
+.hero__slide picture {
+  display: contents;
+}
+
+.hero.hero--banners .hero__slide,
+.hero.hero--banners .hero__slide img {
+  min-height: 0;
+  height: auto;
+}
+
+.hero.hero--banners .hero__slide img {
+  aspect-ratio: 1200 / 800;
+}
+
+body[data-page="area"] .hero.hero--banners .hero__slide img {
+  aspect-ratio: 1200 / 860;
+}
+
+@media (min-width: 720px) {
+  .hero.hero--banners .hero__slide img {
+    aspect-ratio: 2400 / 700;
+  }
+
+  body[data-page="area"] .hero.hero--banners .hero__slide img {
+    aspect-ratio: 2400 / 800;
+  }
+}
+
+.area-page__lead {
+  max-width: 40rem;
+  margin: -0.4rem auto 1rem;
+  text-align: center;
+  color: var(--brown);
+  line-height: 1.5;
+}

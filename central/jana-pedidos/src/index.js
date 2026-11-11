@@ -1,7 +1,7 @@
 /**
  * jana-pedidos — backend de pedidos da Jana Abreu Confeitaria.
- * Cloudflare Worker + D1. Sem segredos neste arquivo: ADMIN_PASSWORD,
- * SESSION_SECRET e INFINITE_HANDLE são secrets do Worker.
+ * Cloudflare Worker + D1. Sem segredos neste arquivo: ADMIN_PASSWORD_HASH,
+ * SESSION_SECRET, INFINITE_HANDLE e GITHUB_TOKEN (editor do site) são secrets do Worker.
  */
 
 const MAX_BODY = 32 * 1024;
@@ -1036,6 +1036,541 @@ async function adminWebhookLog(env, request) {
   return json(env, request, { ok: true, events: results });
 }
 
+/* ---------------- editor do site (commits no GitHub) ----------------
+   O painel envia o JSON completo de cada arquivo alterado + fotos já reduzidas no navegador.
+   O Worker confere a sessão, valida tudo e grava UM commit no branch publicado pelo GitHub Pages.
+   Segredo: GITHUB_TOKEN (token fine-grained só deste repositório, Contents: read/write; Pages: read opcional). */
+
+const CONTENT_READ = [
+  "data/products.json",
+  "data/areas.json",
+  "data/categories.json",
+  "data/carousel.json",
+  "data/site.json",
+  "data/pausa.json",
+  "data/sobre.json",
+  "data/sabores-bolos.json",
+];
+const CONTENT_WRITE = CONTENT_READ.filter((p) => p !== "data/categories.json");
+const IMAGE_PATH_RE = /^assets\/(products\/[a-z0-9][a-z0-9-]{0,99}|carousel|areas|sobre)\/[a-z0-9][a-z0-9-]{0,119}\.(webp|jpg)$/;
+const ASSET_RE = /^assets\/[A-Za-z0-9._\/-]{1,200}$/;
+const ID_RE = /^[a-z0-9][a-z0-9-]{0,119}$/;
+const YMD_RE = /^\d{4}-\d{2}-\d{2}$/;
+const MAX_CONTENT_BODY = 30 * 1024 * 1024;
+const MAX_IMAGE_BYTES = 1600 * 1024;
+const MAX_IMAGES = 16;
+const COMMIT_PREFIX = "Editor: ";
+
+function ghConfig(env) {
+  return {
+    token: String(env.GITHUB_TOKEN || "").trim(),
+    repo: String(env.GITHUB_REPO || "AlexandreRangel/site-Confeitaria").trim(),
+    branch: String(env.GITHUB_BRANCH || "preview").trim(),
+    api: String(env.GITHUB_API || "https://api.github.com").replace(/\/+$/, ""),
+  };
+}
+
+function contentConfigured(env) {
+  const cfg = ghConfig(env);
+  return !!(cfg.token && /^[\w.-]+\/[\w.-]+$/.test(cfg.repo) && cfg.branch);
+}
+
+async function gh(env, method, path, body) {
+  const cfg = ghConfig(env);
+  const headers = {
+    Authorization: "Bearer " + cfg.token,
+    Accept: "application/vnd.github+json",
+    "X-GitHub-Api-Version": "2022-11-28",
+    "User-Agent": "jana-pedidos-editor",
+  };
+  if (body !== undefined) headers["Content-Type"] = "application/json";
+  let res;
+  try {
+    res = await fetch(cfg.api + path, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) });
+  } catch (e) {
+    throw new HttpError(502, "GitHub fora do ar agora; tente de novo em instantes");
+  }
+  const data = await res.json().catch(() => null);
+  return { status: res.status, ok: res.ok, data };
+}
+
+function ghFail(r, what) {
+  if (r.status === 401) return new HttpError(503, "a chave do GitHub está inválida ou venceu");
+  if (r.status === 403 || r.status === 404) return new HttpError(503, "a chave do GitHub não tem permissão para " + what);
+  return new HttpError(502, "o GitHub recusou " + what + " (" + r.status + ")");
+}
+
+async function ghOk(env, method, path, body, what) {
+  const r = await gh(env, method, path, body);
+  if (!r.ok) throw ghFail(r, what);
+  return r.data;
+}
+
+function repoPath(env) {
+  const cfg = ghConfig(env);
+  return "/repos/" + cfg.repo;
+}
+
+async function headState(env) {
+  const cfg = ghConfig(env);
+  const base = repoPath(env);
+  const ref = await ghOk(env, "GET", base + "/git/ref/heads/" + encodeURIComponent(cfg.branch), undefined, "ler o site");
+  const commitSha = ref.object.sha;
+  const commit = await ghOk(env, "GET", base + "/git/commits/" + commitSha, undefined, "ler o site");
+  const tree = await ghOk(env, "GET", base + "/git/trees/" + commit.tree.sha, undefined, "ler o site");
+  const dataEntry = (tree.tree || []).find((e) => e.path === "data" && e.type === "tree");
+  const shas = {};
+  if (dataEntry) {
+    const dataTree = await ghOk(env, "GET", base + "/git/trees/" + dataEntry.sha, undefined, "ler o site");
+    for (const e of dataTree.tree || []) if (e.type === "blob") shas["data/" + e.path] = e.sha;
+  }
+  return { commitSha, treeSha: commit.tree.sha, shas };
+}
+
+function bytesToB64(bytes) {
+  let s = "";
+  for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  return btoa(s);
+}
+
+async function readBlobText(env, sha) {
+  const blob = await ghOk(env, "GET", repoPath(env) + "/git/blobs/" + sha, undefined, "ler o site");
+  return new TextDecoder().decode(b64ToBytes(String(blob.content || "").replace(/\s+/g, "")));
+}
+
+async function gitBlobSha(bytes) {
+  const head = new TextEncoder().encode("blob " + bytes.length + "\0");
+  const all = new Uint8Array(head.length + bytes.length);
+  all.set(head, 0);
+  all.set(bytes, head.length);
+  const d = new Uint8Array(await crypto.subtle.digest("SHA-1", all));
+  return Array.from(d, (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+/* ---- validação: nada que quebre a vitrine passa daqui ---- */
+
+function bad(message) {
+  throw new HttpError(400, message);
+}
+
+function isObj(v) {
+  return !!v && typeof v === "object" && !Array.isArray(v);
+}
+
+function optText(v, max, label) {
+  if (v == null) return;
+  if (typeof v !== "string") bad(label + ": precisa ser texto");
+  if (v.length > max) bad(label + ": texto longo demais (máximo " + max + " letras)");
+}
+
+function reqText(v, max, label) {
+  if (typeof v !== "string" || !v.trim()) bad(label + ": não pode ficar vazio");
+  optText(v, max, label);
+}
+
+function assetOk(v, label, allowEmpty) {
+  if ((v == null || v === "") && allowEmpty) return;
+  if (typeof v !== "string" || (!ASSET_RE.test(v) && !/^https:\/\/[^\s"'<>]{4,300}$/.test(v)) || v.includes("..")) {
+    bad(label + ": imagem inválida");
+  }
+}
+
+function dateOk(v, label) {
+  if (v == null || v === "") return;
+  if (typeof v !== "string" || !YMD_RE.test(v) || isNaN(Date.parse(v + "T12:00:00Z"))) bad(label + ": data inválida");
+}
+
+function linkOk(v, label) {
+  if (v == null || v === "") return;
+  if (typeof v !== "string" || v.length > 400) bad(label + ": link inválido");
+  if (/^https:\/\/[^\s"'<>]+$/i.test(v)) return;
+  if (/^\/?[a-z0-9][a-z0-9\/?=&#._%-]*$/i.test(v)) return;
+  bad(label + ": use um link começando com https:// ou um endereço do site");
+}
+
+function validateProducts(list) {
+  if (!Array.isArray(list) || list.length > 1500) bad("lista de produtos inválida");
+  const ids = new Set();
+  const slugs = new Set();
+  list.forEach((p, i) => {
+    if (!isObj(p)) bad("produto " + (i + 1) + " inválido");
+    const label = "Produto «" + String(p.name || i + 1).slice(0, 60) + "»";
+    if (!ID_RE.test(String(p.id || ""))) bad(label + ": código interno inválido");
+    if (!ID_RE.test(String(p.slug || ""))) bad(label + ": endereço da página inválido");
+    if (ids.has(p.id)) bad(label + ": código repetido");
+    if (slugs.has(p.slug)) bad(label + ": já existe outro produto com o mesmo endereço");
+    ids.add(p.id);
+    slugs.add(p.slug);
+    reqText(p.name, 160, label + " (nome)");
+    if (typeof p.price !== "number" || !Number.isFinite(p.price) || p.price < 0 || p.price > 100000) bad(label + ": preço inválido");
+    optText(p.description, 8000, label + " (descrição)");
+    if (!Array.isArray(p.images) || !p.images.length || p.images.length > 12) bad(label + ": precisa de 1 a 12 fotos");
+    p.images.forEach((src) => assetOk(src, label + " (foto)"));
+    if (p.imagesAlt != null) {
+      if (!Array.isArray(p.imagesAlt) || p.imagesAlt.length > 12) bad(label + ": descrições das fotos inválidas");
+      p.imagesAlt.forEach((a) => optText(a, 200, label + " (descrição da foto)"));
+    }
+    if (p.categoryIds != null) {
+      if (!Array.isArray(p.categoryIds) || p.categoryIds.length > 20) bad(label + ": categorias inválidas");
+      p.categoryIds.forEach((c) => {
+        if (!ID_RE.test(String(c))) bad(label + ": categoria inválida");
+      });
+    }
+    if (p.categoryId != null && !ID_RE.test(String(p.categoryId))) bad(label + ": categoria inválida");
+    if (p.active != null && typeof p.active !== "boolean") bad(label + ": campo «mostrar no site» inválido");
+    if (p.tags != null && (!Array.isArray(p.tags) || p.tags.some((t) => typeof t !== "string" || t.length > 80))) {
+      bad(label + ": palavras-chave inválidas");
+    }
+  });
+}
+
+function validateCarousel(list) {
+  if (!Array.isArray(list) || list.length > 80) bad("lista de banners inválida");
+  const ids = new Set();
+  list.forEach((s, i) => {
+    if (!isObj(s)) bad("banner " + (i + 1) + " inválido");
+    const label = "Banner " + (i + 1);
+    if (!ID_RE.test(String(s.id || "")) || ids.has(s.id)) bad(label + ": código inválido");
+    ids.add(s.id);
+    assetOk(s.image, label + " (imagem do computador)");
+    assetOk(s.imageMobile, label + " (imagem do celular)", true);
+    optText(s.title, 200, label + " (descrição)");
+    if (s.pagina != null && !ID_RE.test(String(s.pagina))) bad(label + ": página inválida");
+    if (s.linkTipo != null && !["produto", "categoria", "url", "nenhum"].includes(s.linkTipo)) bad(label + ": tipo de link inválido");
+    if (s.productSlug != null && s.productSlug !== "" && !ID_RE.test(String(s.productSlug))) bad(label + ": produto inválido");
+    if (s.linkCategory != null && s.linkCategory !== "" && !ID_RE.test(String(s.linkCategory))) bad(label + ": categoria inválida");
+    if (s.linkTipo === "url" && !s.url) bad(label + ": falta o link");
+    linkOk(s.url, label);
+    if (s.order != null && !Number.isFinite(s.order)) bad(label + ": ordem inválida");
+  });
+}
+
+function validateAreas(list) {
+  if (!Array.isArray(list) || !list.length || list.length > 30) bad("lista de categorias inválida");
+  const ids = new Set();
+  list.forEach((a, i) => {
+    if (!isObj(a)) bad("categoria " + (i + 1) + " inválida");
+    const label = "Categoria «" + String(a.name || i + 1).slice(0, 40) + "»";
+    if (!ID_RE.test(String(a.id || "")) || ids.has(a.id)) bad(label + ": código inválido");
+    ids.add(a.id);
+    if (!ID_RE.test(String(a.slug || ""))) bad(label + ": endereço inválido");
+    reqText(a.name, 80, label + " (nome)");
+    optText(a.description, 800, label + " (descrição)");
+    assetOk(a.image, label + " (foto)");
+    if (!Array.isArray(a.sourceCategoryIds) || a.sourceCategoryIds.some((c) => !ID_RE.test(String(c)))) bad(label + ": vínculo inválido");
+    if (a.ativacao != null) {
+      if (!isObj(a.ativacao) || !["desligado", "ligado", "datas"].includes(a.ativacao.modo)) bad(label + ": ligar/desligar inválido");
+      dateOk(a.ativacao.inicio, label + " (início)");
+      dateOk(a.ativacao.fim, label + " (fim)");
+      if (a.ativacao.modo === "datas") {
+        if (!a.ativacao.inicio || !a.ativacao.fim) bad(label + ": escolha a data de início e a de fim");
+        if (a.ativacao.inicio > a.ativacao.fim) bad(label + ": a data de fim vem antes do início");
+      }
+    }
+  });
+}
+
+function validatePausa(p) {
+  if (!isObj(p)) bad("pausa inválida");
+  if (typeof p.ativo !== "boolean") bad("pausa: ligado/desligado inválido");
+  dateOk(p.inicio, "pausa (início)");
+  dateOk(p.fim, "pausa (fim)");
+  if (p.inicio && p.fim && p.inicio > p.fim) bad("pausa: a data de fim vem antes do início");
+  optText(p.mensagem, 300, "pausa (recado)");
+  if (!Array.isArray(p.periodos) || p.periodos.length > 40) bad("pausa: períodos inválidos");
+  p.periodos.forEach((x) => {
+    if (!isObj(x)) bad("pausa: período inválido");
+    dateOk(x.inicio, "pausa programada (início)");
+    dateOk(x.fim, "pausa programada (fim)");
+    if (!x.inicio && !x.fim) bad("pausa programada: escolha as datas");
+    if (x.inicio && x.fim && x.inicio > x.fim) bad("pausa programada: a data de fim vem antes do início");
+    optText(x.mensagem, 300, "pausa programada (recado)");
+  });
+  if (typeof p.fimDeSemana !== "boolean") bad("pausa: fim de semana inválido");
+  if (p.planilhaCsv && !/^https:\/\/[^\s"'<>]+$/.test(String(p.planilhaCsv))) bad("pausa: link da planilha inválido");
+}
+
+function validateSite(s) {
+  if (!isObj(s)) bad("textos do site inválidos");
+  reqText(s.brandName, 80, "Nome da loja");
+  optText(s.slogan, 160, "Slogan");
+  optText(s.tagline, 160, "Slogan");
+  if (!isObj(s.contato)) bad("contato inválido");
+  if (!/^55\d{10,11}$/.test(String(s.contato.whatsapp || ""))) bad("WhatsApp: use 55 + DDD + número, só dígitos");
+  optText(s.contato.whatsappLabel, 40, "WhatsApp (como aparece)");
+  if (!isObj(s.contato.instagram)) bad("Instagram inválido");
+  optText(s.contato.instagram.handle, 60, "Instagram");
+  if (!/^https:\/\/(www\.)?instagram\.com\/[A-Za-z0-9._]{1,60}\/?$/.test(String(s.contato.instagram.url || ""))) bad("Instagram: link inválido");
+  if (!isObj(s.address)) bad("endereço inválido");
+  ["street", "neighborhood", "city", "state", "note"].forEach((k) => optText(s.address[k], 160, "Endereço"));
+  ["copyright", "hours"].forEach((k) => optText(s[k], 200, "Texto do rodapé"));
+  ["paymentsNote", "requestDisclaimer", "privacyNote", "heroVisitTitle", "heroVisitSubtitle"].forEach((k) => optText(s[k], 800, "Texto"));
+  if (!isObj(s.entrega)) bad("entrega inválida");
+  if (s.entrega.taxa !== null && (typeof s.entrega.taxa !== "number" || !Number.isFinite(s.entrega.taxa) || s.entrega.taxa < 0 || s.entrega.taxa > 2000)) {
+    bad("Taxa de entrega inválida");
+  }
+  if (s.instagramGallery != null) {
+    if (!Array.isArray(s.instagramGallery) || s.instagramGallery.length > 24) bad("fotos do Instagram inválidas");
+    s.instagramGallery.forEach((src) => assetOk(src, "Foto do Instagram"));
+  }
+}
+
+function validateSobre(s) {
+  if (!isObj(s)) bad("Sobre nós inválido");
+  optText(s.headline, 200, "Sobre nós (título)");
+  optText(s.lead, 2000, "Sobre nós (abertura)");
+  if (s.portrait != null) {
+    if (!isObj(s.portrait)) bad("Sobre nós: foto inválida");
+    assetOk(s.portrait.src, "Sobre nós (foto)", true);
+    optText(s.portrait.alt, 200, "Sobre nós (descrição da foto)");
+  }
+  if (!Array.isArray(s.story || []) || (s.story || []).length > 30) bad("Sobre nós: história inválida");
+  (s.story || []).forEach((t) => optText(t, 4000, "Sobre nós (história)"));
+  if (!Array.isArray(s.workGallery || []) || (s.workGallery || []).length > 40) bad("Sobre nós: galeria inválida");
+  (s.workGallery || []).forEach((w) => {
+    if (!isObj(w)) bad("Sobre nós: foto da galeria inválida");
+    assetOk(w.src, "Sobre nós (galeria)");
+    optText(w.alt, 200, "Sobre nós (descrição da foto)");
+    if (w.productSlug && !ID_RE.test(String(w.productSlug))) bad("Sobre nós: produto inválido");
+  });
+  if (!Array.isArray(s.press || []) || (s.press || []).length > 40) bad("Sobre nós: imprensa inválida");
+  (s.press || []).forEach((x) => {
+    if (!isObj(x)) bad("Sobre nós: item de imprensa inválido");
+    optText(x.title, 200, "Imprensa (título)");
+    optText(x.outlet, 120, "Imprensa (veículo)");
+    if (x.url && !/^https:\/\/[^\s"'<>]+$/.test(String(x.url))) bad("Imprensa: o link precisa começar com https://");
+  });
+}
+
+function validateSabores(s) {
+  if (!isObj(s)) bad("recheios inválidos");
+  optText(s.label, 80, "Recheios (título)");
+  if (!Array.isArray(s.flavors) || s.flavors.length > 80) bad("lista de recheios inválida");
+  s.flavors.forEach((f) => {
+    if (!isObj(f)) bad("recheio inválido");
+    reqText(f.nome, 80, "Recheio (nome)");
+    optText(f.descricao, 300, "Recheio (descrição)");
+  });
+}
+
+const VALIDATORS = {
+  "data/products.json": validateProducts,
+  "data/carousel.json": validateCarousel,
+  "data/areas.json": validateAreas,
+  "data/pausa.json": validatePausa,
+  "data/site.json": validateSite,
+  "data/sobre.json": validateSobre,
+  "data/sabores-bolos.json": validateSabores,
+};
+
+function imageKind(bytes) {
+  if (bytes.length > 12 && bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46 &&
+    bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50) return "webp";
+  if (bytes.length > 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return "jpg";
+  return "";
+}
+
+/* ---- rotas ---- */
+
+async function adminContentGet(env, request) {
+  const cfg = ghConfig(env);
+  if (!contentConfigured(env)) {
+    return json(env, request, { ok: true, configurado: false, motivo: "falta_token", branch: cfg.branch });
+  }
+  const head = await headState(env);
+  const arquivos = {};
+  await Promise.all(
+    CONTENT_READ.map(async (path) => {
+      const sha = head.shas[path] || null;
+      if (!sha) {
+        arquivos[path] = { sha: null, data: null };
+        return;
+      }
+      const text = await readBlobText(env, sha);
+      let data = null;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        data = null;
+      }
+      arquivos[path] = { sha, data };
+    })
+  );
+  return json(env, request, { ok: true, configurado: true, head: head.commitSha, branch: cfg.branch, arquivos });
+}
+
+async function adminContentPublish(env, request) {
+  if (!contentConfigured(env)) throw new HttpError(503, "falta configurar a publicação (chave do GitHub)");
+  const body = await readJson(request, MAX_CONTENT_BODY);
+  const arquivos = isObj(body.arquivos) ? body.arquivos : {};
+  const bases = isObj(body.bases) ? body.bases : {};
+  const paths = Object.keys(arquivos);
+  for (const p of paths) {
+    if (!CONTENT_WRITE.includes(p)) bad("arquivo não permitido: " + p);
+    VALIDATORS[p](arquivos[p]);
+  }
+  const rawImages = Array.isArray(body.imagens) ? body.imagens : [];
+  if (rawImages.length > MAX_IMAGES) bad("fotos demais de uma vez (máximo " + MAX_IMAGES + ")");
+  const images = rawImages.map((img) => {
+    const path = String((img && img.path) || "");
+    if (!IMAGE_PATH_RE.test(path)) bad("nome de foto inválido");
+    let bytes;
+    try {
+      bytes = b64ToBytes(String(img.base64 || ""));
+    } catch (e) {
+      bad("foto corrompida");
+    }
+    if (!bytes.length || bytes.length > MAX_IMAGE_BYTES) bad("foto grande demais (máximo 1,6 MB depois de reduzida)");
+    const kind = imageKind(bytes);
+    if (!kind || !path.endsWith("." + kind)) bad("a foto precisa ser WebP ou JPG");
+    return { path, b64: bytesToB64(bytes) };
+  });
+  if (!paths.length && !images.length) bad("nada para salvar");
+  const resumo = str(body.resumo, 140).replace(/\s+/g, " ") || "alterações no site";
+  const base = repoPath(env);
+  const cfg = ghConfig(env);
+
+  const imageShas = [];
+  for (const img of images) {
+    const blob = await ghOk(env, "POST", base + "/git/blobs", { content: img.b64, encoding: "base64" }, "gravar as fotos");
+    imageShas.push({ path: img.path, sha: blob.sha });
+  }
+
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const head = await headState(env);
+    const conflitos = paths.filter((p) => (bases[p] || null) !== (head.shas[p] || null));
+    if (conflitos.length) {
+      return json(
+        env,
+        request,
+        { ok: false, error: "conflito", mensagem: "Outra alteração foi salva antes desta. Recarregue para ver a versão mais nova.", arquivos: conflitos },
+        409
+      );
+    }
+    const texts = {};
+    for (const p of paths) {
+      let data = arquivos[p];
+      if (p === "data/site.json" && head.shas[p]) {
+        // o editor não mexe na ligação com o Worker de pedidos
+        const current = JSON.parse(await readBlobText(env, head.shas[p]));
+        data = Object.assign({}, data, { central: current.central, colors: current.colors });
+      }
+      texts[p] = JSON.stringify(data, null, 2) + "\n";
+    }
+    const tree = paths
+      .map((p) => ({ path: p, mode: "100644", type: "blob", content: texts[p] }))
+      .concat(imageShas.map((i) => ({ path: i.path, mode: "100644", type: "blob", sha: i.sha })));
+    const newTree = await ghOk(env, "POST", base + "/git/trees", { base_tree: head.treeSha, tree }, "gravar as alterações");
+    const commit = await ghOk(
+      env,
+      "POST",
+      base + "/git/commits",
+      { message: COMMIT_PREFIX + resumo, tree: newTree.sha, parents: [head.commitSha] },
+      "gravar as alterações"
+    );
+    const upd = await gh(env, "PATCH", base + "/git/refs/heads/" + encodeURIComponent(cfg.branch), { sha: commit.sha, force: false });
+    if (!upd.ok) {
+      if ((upd.status === 422 || upd.status === 409) && attempt === 0) continue; // alguém publicou no meio; tenta de novo
+      throw ghFail(upd, "publicar");
+    }
+    const shas = {};
+    for (const p of paths) shas[p] = await gitBlobSha(new TextEncoder().encode(texts[p]));
+    catalogCache = null;
+    return json(env, request, { ok: true, commit: commit.sha, shas, imagens: imageShas.map((i) => i.path) });
+  }
+  throw new HttpError(409, "o site mudou enquanto salvava; tente de novo");
+}
+
+async function adminContentHistory(env, request) {
+  if (!contentConfigured(env)) return json(env, request, { ok: true, configurado: false, alteracoes: [] });
+  const cfg = ghConfig(env);
+  const list = await ghOk(
+    env,
+    "GET",
+    repoPath(env) + "/commits?sha=" + encodeURIComponent(cfg.branch) + "&per_page=40",
+    undefined,
+    "ler o histórico"
+  );
+  const alteracoes = (Array.isArray(list) ? list : [])
+    .filter((c) => c && c.commit && String(c.commit.message || "").startsWith(COMMIT_PREFIX))
+    .slice(0, 25)
+    .map((c) => ({
+      sha: c.sha,
+      resumo: String(c.commit.message).slice(COMMIT_PREFIX.length).split("\n")[0],
+      data: (c.commit.committer && c.commit.committer.date) || (c.commit.author && c.commit.author.date) || "",
+    }));
+  return json(env, request, { ok: true, configurado: true, alteracoes });
+}
+
+async function adminContentUndo(env, request) {
+  if (!contentConfigured(env)) throw new HttpError(503, "falta configurar a publicação (chave do GitHub)");
+  const body = await readJson(request, 2048);
+  const sha = String(body.sha || "");
+  if (!/^[0-9a-f]{40}$/.test(sha)) bad("alteração inválida");
+  const base = repoPath(env);
+  const cfg = ghConfig(env);
+  const c = await ghOk(env, "GET", base + "/commits/" + sha, undefined, "ler o histórico");
+  const message = String((c.commit && c.commit.message) || "");
+  if (!message.startsWith(COMMIT_PREFIX)) bad("só dá para desfazer alterações feitas pelo editor");
+  if (!Array.isArray(c.parents) || c.parents.length !== 1) bad("esta alteração não pode ser desfeita aqui");
+  const parent = c.parents[0].sha;
+  const files = Array.isArray(c.files) ? c.files : [];
+  const head = await headState(env);
+  const cmp = await ghOk(env, "GET", base + "/compare/" + sha + "..." + head.commitSha, undefined, "ler o histórico");
+  if (!["ahead", "identical"].includes(cmp.status)) bad("esta alteração não está mais no site");
+  const tree = [];
+  for (const f of files) {
+    const p = String(f.filename || "");
+    if (CONTENT_WRITE.includes(p)) {
+      if ((head.shas[p] || null) !== (f.status === "removed" ? null : f.sha)) {
+        return json(
+          env,
+          request,
+          { ok: false, error: "conflito", mensagem: "Depois desta houve outra alteração nos mesmos dados. Desfaça primeiro a mais recente." },
+          409
+        );
+      }
+      if (f.status === "added") {
+        tree.push({ path: p, mode: "100644", type: "blob", sha: null });
+      } else {
+        const old = await ghOk(env, "GET", base + "/contents/" + p + "?ref=" + parent, undefined, "ler o histórico");
+        tree.push({ path: p, mode: "100644", type: "blob", sha: old.sha });
+      }
+    } else if (IMAGE_PATH_RE.test(p)) {
+      if (f.status === "added") tree.push({ path: p, mode: "100644", type: "blob", sha: null });
+    } else {
+      bad("esta alteração mexeu em arquivos que o editor não controla");
+    }
+  }
+  if (!tree.length) bad("nada para desfazer");
+  const newTree = await ghOk(env, "POST", base + "/git/trees", { base_tree: head.treeSha, tree }, "desfazer");
+  const resumo = message.slice(COMMIT_PREFIX.length).split("\n")[0];
+  const commit = await ghOk(
+    env,
+    "POST",
+    base + "/git/commits",
+    { message: COMMIT_PREFIX + "desfeito — " + resumo, tree: newTree.sha, parents: [head.commitSha] },
+    "desfazer"
+  );
+  const upd = await gh(env, "PATCH", base + "/git/refs/heads/" + encodeURIComponent(cfg.branch), { sha: commit.sha, force: false });
+  if (!upd.ok) throw upd.status === 422 ? new HttpError(409, "o site mudou agora mesmo; tente de novo") : ghFail(upd, "desfazer");
+  catalogCache = null;
+  return json(env, request, { ok: true, commit: commit.sha });
+}
+
+async function adminContentPublication(env, request, url) {
+  const commit = String(url.searchParams.get("commit") || "");
+  if (!contentConfigured(env)) return json(env, request, { ok: true, estado: "desconhecido" });
+  const r = await gh(env, "GET", repoPath(env) + "/pages/builds/latest");
+  if (!r.ok || !r.data) return json(env, request, { ok: true, estado: "desconhecido" });
+  const build = r.data;
+  let estado = "publicando";
+  if (build.commit === commit) {
+    estado = build.status === "built" ? "no_ar" : build.status === "errored" ? "erro" : "publicando";
+  }
+  return json(env, request, { ok: true, estado, build: { status: build.status, commit: build.commit } });
+}
+
 /* ---------------- roteador ---------------- */
 
 async function route(request, env, ctx) {
@@ -1085,6 +1620,11 @@ async function route(request, env, ctx) {
     if (path === "/admin/importar" && method === "POST") return adminImport(env, request);
     if (path === "/admin/webhooks" && method === "GET") return adminWebhookLog(env, request);
     if (path === "/admin/clientes" && method === "GET") return adminListClients(env, request);
+    if (path === "/admin/conteudo" && method === "GET") return adminContentGet(env, request);
+    if (path === "/admin/conteudo/publicar" && method === "POST") return adminContentPublish(env, request);
+    if (path === "/admin/conteudo/historico" && method === "GET") return adminContentHistory(env, request);
+    if (path === "/admin/conteudo/desfazer" && method === "POST") return adminContentUndo(env, request);
+    if (path === "/admin/conteudo/publicacao" && method === "GET") return adminContentPublication(env, request, url);
     m = path.match(/^\/admin\/pedidos\/([A-Za-z0-9-]{4,60})$/);
     if (m && method === "PATCH") return adminPatchOrder(env, request, m[1]);
     if (m && method === "DELETE") return adminDeleteOrder(env, request, m[1]);
@@ -1110,4 +1650,4 @@ export default {
   },
 };
 
-export const _test = { ipCustomer, resolveTaxa, fixedPrice, cleanItems, generateNsu, NSU_RE, validRedirect };
+export const _test = { ipCustomer, resolveTaxa, fixedPrice, cleanItems, generateNsu, NSU_RE, validRedirect, VALIDATORS, gitBlobSha, imageKind };

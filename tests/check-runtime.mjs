@@ -659,6 +659,36 @@ if (!/Pagamento via Pix — aguardando conferência/.test(pending) || /PAGO/.tes
   errors.push("pending Pix WhatsApp must wait for receipt and must not say PAGO");
 }
 
+// editor: links dos banners, banners por página e datas comemorativas
+{
+  const prods = [{ slug: "bolo-x", name: "Bolo X", active: true }];
+  const car = [
+    { id: "a", image: "assets/carousel/a.webp", order: 2, linkTipo: "url", url: "https://www.instagram.com/x/", title: "A", formato: "banner", imageMobile: "assets/carousel/a-cel.webp" },
+    { id: "b", image: "assets/carousel/b.webp", order: 1, productSlug: "bolo-x" },
+    { id: "c", image: "assets/carousel/c.webp", order: 1, linkTipo: "categoria", linkCategory: "bolos", pagina: "bolos", title: "C" },
+    { id: "d", image: "assets/carousel/d.webp", order: 3, linkTipo: "nenhum", title: "D" },
+    { id: "e", image: "assets/carousel/e.webp", order: 4, linkTipo: "url", url: "https://janaabreuconfeitaria.com.br/sobre-nos/", title: "E" },
+  ];
+  const home = Jana.pageCarouselSlides(car, prods, "home");
+  if (home.map((x) => x.image.slice(-6)).join(",") !== "b.webp,a.webp,d.webp,e.webp") errors.push("home banners: order/page filter wrong");
+  if (!/produto\/\?slug=bolo-x/.test(home[0].href) || home[0].external) errors.push("legacy productSlug banner must link to the product");
+  if (home[1].href !== "https://www.instagram.com/x/" || !home[1].external || home[1].imageMobile !== "assets/carousel/a-cel.webp" || !home[1].banner) errors.push("url banner must be external with mobile image");
+  if (home[2].href !== "") errors.push("nenhum banner must have no link");
+  if (home[3].external) errors.push("own-domain url banner must not open a new tab");
+  const bolos = Jana.pageCarouselSlides(car, prods, "bolos");
+  if (bolos.length !== 1 || !/bolos\/$/.test(bolos[0].href)) errors.push("category banner must link to the area page");
+  const site0 = {};
+  const now = new Date("2026-12-10T15:00:00Z");
+  const mk = (ativacao) => ({ id: "natal", seasonal: true, ativacao });
+  if (Jana.isAreaActive(mk({ modo: "desligado", inicio: "", fim: "" }), site0, now)) errors.push("desligado must hide");
+  if (!Jana.isAreaActive(mk({ modo: "ligado", inicio: "", fim: "" }), site0, now)) errors.push("ligado must show");
+  if (!Jana.isAreaActive(mk({ modo: "datas", inicio: "2026-12-10", fim: "2026-12-10" }), site0, now)) errors.push("datas must include both ends");
+  if (Jana.isAreaActive(mk({ modo: "datas", inicio: "2026-12-11", fim: "2026-12-25" }), site0, now)) errors.push("future datas must hide");
+  if (Jana.isAreaActive(mk({ modo: "datas", inicio: "2026-11-01", fim: "2026-12-09" }), site0, now)) errors.push("past datas must hide");
+  if (!Jana.isAreaActive({ id: "bolos" }, site0, now)) errors.push("non-seasonal areas always show");
+  if (Jana.todayYmd(new Date("2026-12-11T02:30:00Z")) !== "2026-12-10") errors.push("todayYmd must use São Paulo time");
+}
+
 if (errors.length) {
   console.error(errors.join("\n"));
   process.exit(1);

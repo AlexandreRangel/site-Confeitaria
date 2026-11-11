@@ -33,6 +33,12 @@ Hydra só dentro dos botões **Comprar**, carregado sob demanda. Painel sem Hydr
 
 Estados previstos no canal central: solicitado, confirmado, em produção, pronto, entregue, cancelado.
 
+## Editor do site
+
+Painel (`painel/index.html` + `js/editor.js` + `css/editor.css`) → Worker `jana-pedidos` (rotas `/admin/conteudo…`, mesma sessão dos pedidos) → API Git do GitHub (commit no branch `preview`) → GitHub Pages.
+O token do GitHub é segredo do Worker (`GITHUB_TOKEN`); o navegador nunca o vê. Cada salvamento é um commit `Editor: …` e pode ser desfeito no Histórico. Detalhes: `docs/EDITOR.md`.
+Natal e Páscoa são áreas sazonais com `ativacao` em `data/areas.json`, avaliadas no navegador no horário de Brasília (`Jana.isAreaActive`).
+
 ## Paleta
 
 Texto `#4c553a`, creme `#fdf6ec`, rosa decorativo `#b86e88`, rosa claro `#f5d5e0`.  
