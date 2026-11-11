@@ -692,8 +692,19 @@
     if (!grid) {
       return;
     }
+    const section = grid.closest("#instagram") || grid.closest(".instagram");
     const url = Jana.instagramUrl(state.site.contato.instagram);
-    const images = state.site.instagramGallery || [];
+    const images = (state.site.instagramGallery || []).filter(Boolean);
+    if (!images.length) {
+      grid.innerHTML = "";
+      if (section) {
+        section.hidden = true;
+      }
+      return;
+    }
+    if (section) {
+      section.hidden = false;
+    }
     grid.innerHTML = images
       .map(function tile(src, index) {
         return (
@@ -704,7 +715,7 @@
           '">' +
           '<img src="' +
           Jana.escapeHtml(Jana.assetUrl(src)) +
-          '" alt="Foto do Instagram" width="400" height="400" loading="lazy" decoding="async"></a>'
+          '" alt="Foto do Instagram" width="400" height="400" loading="eager" decoding="async"></a>'
         );
       })
       .join("");
@@ -722,6 +733,60 @@
     }
     wrap.hidden = false;
     node.innerHTML = html;
+  }
+
+  function workSlide(item, clone, index) {
+    const alt = clone ? "" : Jana.escapeHtml(item.alt || "");
+    const img =
+      '<img src="' +
+      Jana.escapeHtml(Jana.assetUrl(item.src)) +
+      '" alt="' +
+      alt +
+      '" width="600" height="600" loading="' +
+      (clone || index >= 4 ? "lazy" : "eager") +
+      '" decoding="async">';
+    const inner = item.productSlug
+      ? '<a href="' +
+        Jana.escapeHtml(Jana.productUrl(item.productSlug)) +
+        '"' +
+        (clone ? ' tabindex="-1"' : "") +
+        ">" +
+        img +
+        "</a>"
+      : img;
+    return '<li class="sobre__work-item"' + (clone ? ' aria-hidden="true"' : "") + ">" + inner + "</li>";
+  }
+
+  function workGalleryHtml(gallery) {
+    if (!gallery.length) {
+      return "";
+    }
+    const reduce =
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const loop = !reduce && gallery.length >= 2;
+    const slides = gallery
+      .map(function tile(item, index) {
+        return workSlide(item, false, index);
+      })
+      .join("");
+    const clones = loop
+      ? gallery
+          .map(function tile(item) {
+            return workSlide(item, true, 99);
+          })
+          .join("")
+      : "";
+    return (
+      '<div class="sobre__work-viewport" aria-label="Galeria de trabalhos">' +
+      '<ul class="sobre__work-track' +
+      (loop ? " is-animated" : "") +
+      '">' +
+      slides +
+      clones +
+      "</ul></div>"
+    );
   }
 
   function renderSobre() {
@@ -764,27 +829,7 @@
             .join("")
         : ""
     );
-    setOptionalHtml(
-      Jana.qs('[data-bind="sobre-work"]'),
-      gallery.length
-        ? gallery
-            .map(function tile(item) {
-              const img =
-                '<img src="' +
-                Jana.escapeHtml(Jana.assetUrl(item.src)) +
-                '" alt="' +
-                Jana.escapeHtml(item.alt || "") +
-                '" width="600" height="600" loading="lazy" decoding="async">';
-              if (item.productSlug) {
-                return (
-                  '<a href="' + Jana.escapeHtml(Jana.productUrl(item.productSlug)) + '">' + img + "</a>"
-                );
-              }
-              return img;
-            })
-            .join("")
-        : ""
-    );
+    setOptionalHtml(Jana.qs('[data-bind="sobre-work"]'), workGalleryHtml(gallery));
     setOptionalHtml(
       Jana.qs('[data-bind="sobre-press"]'),
       press.length

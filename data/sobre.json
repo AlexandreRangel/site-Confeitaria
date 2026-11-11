@@ -9,7 +9,7 @@
   "workGallery": [
     {
       "src": "assets/products/bolo-2-andares-g-p/01.webp",
-      "alt": "Bolo 2 andares",
+      "alt": "Bolo 2 andares G + P",
       "productSlug": "bolo-2-andares-g-p"
     },
     {
@@ -24,18 +24,38 @@
     },
     {
       "src": "assets/products/combo-prata/01.webp",
-      "alt": "Combo Prata",
+      "alt": "Combo prata",
       "productSlug": "combo-prata"
     },
     {
       "src": "assets/products/cesta-manha-dos-sonhos/01.webp",
-      "alt": "Cesta Manhã dos Sonhos",
+      "alt": "Cesta Manhã dos sonhos",
       "productSlug": "cesta-manha-dos-sonhos"
     },
     {
       "src": "assets/products/kit-festa-pequeno-artista/01.webp",
       "alt": "Kit festa Pequeno Artista",
       "productSlug": "kit-festa-pequeno-artista"
+    },
+    {
+      "src": "assets/products/bolo-naked-g/01.webp",
+      "alt": "Bolo Naked G",
+      "productSlug": "bolo-naked-g"
+    },
+    {
+      "src": "assets/products/cesta-rubi/01.webp",
+      "alt": "Cesta Rubi",
+      "productSlug": "cesta-rubi"
+    },
+    {
+      "src": "assets/products/caixa-parabens-individual-kit-com-10-und/01.webp",
+      "alt": "Caixa parabéns individual KIT COM 10 UND",
+      "productSlug": "caixa-parabens-individual-kit-com-10-und"
+    },
+    {
+      "src": "assets/products/caixa-12-cupcakes-personalizados/01.webp",
+      "alt": "Caixa 12 cupcakes personalizados",
+      "productSlug": "caixa-12-cupcakes-personalizados"
     }
   ],
   "press": [],

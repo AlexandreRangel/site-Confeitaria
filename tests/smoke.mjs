@@ -208,6 +208,108 @@ async function withPage(browserType, engine, viewport, fn) {
 
 
 
+
+async function checkSobreNos(page, engine, label) {
+  await page.goto(BASE + "/sobre-nos/", { waitUntil: "domcontentloaded" });
+  await page.waitForSelector('[data-bind="instagram-grid"] img, [data-bind="sobre-work"] img', { timeout: 15000 });
+  await page.waitForFunction(function loaded() {
+    const imgs = Array.from(document.querySelectorAll('[data-bind="instagram-grid"] img, .sobre__work-track .sobre__work-item:not([aria-hidden="true"]) img'));
+    return imgs.length >= 8 && imgs.every(function ok(img) { return img.complete && img.naturalWidth > 0; });
+  }, { timeout: 15000 });
+  const sobreTitle = ((await page.locator("h1").textContent()) || "").trim();
+  record(engine, "sobre-nos title at " + label, /Sobre nós/i.test(sobreTitle), sobreTitle);
+
+  const handle = page.locator(".instagram__handle").first();
+  record(engine, "instagram handle is clickable at " + label, await handle.count() === 1);
+  if (await handle.count()) {
+    const href = (await handle.getAttribute("href")) || "";
+    const text = ((await handle.textContent()) || "").trim();
+    record(
+      engine,
+      "instagram handle is @janaabreuconfeitaria and links to the profile at " + label,
+      text === "@janaabreuconfeitaria" && /instagram\.com\/janaabreuconfeitaria/.test(href),
+      text + " " + href
+    );
+  }
+  const cta = page.locator(".instagram__cta").first();
+  const ctaText = ((await cta.textContent().catch(function none() { return ""; })) || "").trim();
+  const ctaHref = (await cta.getAttribute("href").catch(function none() { return ""; })) || "";
+  record(
+    engine,
+    "Siga no Instagram button at " + label,
+    ctaText === "Siga no Instagram" && /instagram\.com\/janaabreuconfeitaria/.test(ctaHref),
+    ctaText + " " + ctaHref
+  );
+  record(engine, "instagram lives on sobre-nos at " + label, (await page.locator('[data-bind="instagram-grid"] a').count()) >= 1);
+  const ig = await page.evaluate(function measure() {
+    const grid = document.querySelector(".instagram--highlight .instagram__grid");
+    const tiles = grid ? Array.from(grid.querySelectorAll("a")) : [];
+    if (!tiles.length) return { count: 0 };
+    const widths = tiles.map(function w(el) { return Math.round(el.getBoundingClientRect().width); });
+    const ys = tiles.map(function y(el) { return Math.round(el.getBoundingClientRect().y); });
+    const firstRow = ys.filter(function same(y) { return Math.abs(y - ys[0]) < 8; }).length;
+    return { count: tiles.length, width: widths[0], cols: firstRow, highlight: !!document.querySelector(".instagram--highlight") };
+  });
+  const expectCols = label === "1280" ? 3 : 2;
+  const minWidth = label === "1280" ? 220 : 140;
+  record(engine, "instagram posts are wider in " + expectCols + " columns at " + label, ig.highlight && ig.cols === expectCols && ig.width >= minWidth, JSON.stringify(ig));
+
+  record(engine, "empty portrait stays hidden at " + label, await page.locator('[data-bind="sobre-portrait"]').isHidden());
+  record(engine, "empty press stays hidden at " + label, await page.locator('[data-bind="sobre-press"]').evaluate(function hidden(el) {
+    const wrap = el.closest("[data-optional]") || el;
+    return wrap.hasAttribute("hidden") || wrap.hidden === true;
+  }).catch(function none() { return true; }));
+
+  const work = await page.evaluate(function measure() {
+    const viewport = document.querySelector(".sobre__work-viewport");
+    const track = document.querySelector(".sobre__work-track");
+    if (track) {
+      track.style.animation = "none";
+      track.style.transform = "translate3d(0, 0, 0)";
+    }
+    const items = track ? Array.from(track.querySelectorAll(".sobre__work-item")) : [];
+    if (!viewport || !items.length) return { count: 0 };
+    const vr = viewport.getBoundingClientRect();
+    const visible = items.filter(function onScreen(el) {
+      const r = el.getBoundingClientRect();
+      return r.left < vr.right - 4 && r.right > vr.left + 4 && r.width > 8;
+    });
+    const alts = items.filter(function original(el) { return el.getAttribute("aria-hidden") !== "true"; }).map(function alt(el) {
+      const img = el.querySelector("img");
+      return (img && img.getAttribute("alt")) || "";
+    });
+    const ratio = visible.map(function size(el) {
+      const r = el.getBoundingClientRect();
+      return r.width ? Math.round((r.height / r.width) * 100) / 100 : 0;
+    });
+    return {
+      count: items.length,
+      originals: alts.length,
+      visible: visible.length,
+      sameRow: visible.length > 1 && visible.every(function row(el) {
+        return Math.abs(el.getBoundingClientRect().y - visible[0].getBoundingClientRect().y) < 8;
+      }),
+      square: ratio.length > 0 && ratio.every(function near(r) { return Math.abs(r - 1) < 0.12; }),
+      ratio: ratio,
+      animated: track.classList.contains("is-animated") && items.length > alts.length,
+      alts: alts,
+    };
+  });
+  const expectVisible = label === "1280" ? 4 : 2;
+  record(engine, "trabalhos carousel has about 10 photos at " + label, work.originals >= 10, JSON.stringify({ originals: work.originals, count: work.count }));
+  record(
+    engine,
+    "trabalhos shows " + expectVisible + " photos in one row at " + label,
+    work.sameRow && work.visible === expectVisible,
+    JSON.stringify({ visible: work.visible, sameRow: work.sameRow })
+  );
+  record(engine, "trabalhos photos are square at " + label, work.square === true, JSON.stringify(work.ratio));
+  record(engine, "trabalhos photos have alt text at " + label, work.alts.length >= 10 && work.alts.every(Boolean), JSON.stringify(work.alts));
+  record(engine, "trabalhos carousel is animated at " + label, work.animated === true, JSON.stringify({ animated: work.animated, count: work.count }));
+  await page.screenshot({ path: "tests/screenshots/sobre-nos-" + label + ".png", fullPage: true });
+  await safeShot(page, "/opt/cursor/artifacts/sobre-nos-" + label + ".png");
+}
+
 async function checkPhotoOpensProduct(page, engine, label) {
   const card = page.locator(".product-grid .card").first();
   await card.waitFor({ state: "visible", timeout: 15000 });
@@ -1057,11 +1159,7 @@ async function runEngine(browserType, engine) {
       record(engine, "alfajores buttons share baseline", aligned, JSON.stringify({ firstBtn, secondBtn }));
     }
 
-    await page.goto(BASE + "/sobre-nos/", { waitUntil: "domcontentloaded" });
-    const sobreTitle = ((await page.locator("h1").textContent()) || "").trim();
-    record(engine, "sobre-nos title", /Sobre nós/i.test(sobreTitle), sobreTitle);
-    record(engine, "instagram lives on sobre-nos", (await page.locator('[data-bind="instagram-grid"] a').count()) >= 1);
-    record(engine, "empty portrait stays hidden", await page.locator('[data-bind="sobre-portrait"]').isHidden());
+    await checkSobreNos(page, engine, "390");
 
     await page.goto(BASE + "/", { waitUntil: "domcontentloaded" });
     await page.locator('[data-action="toggle-menu"]').click();
@@ -1206,6 +1304,7 @@ async function runEngine(browserType, engine) {
         heroUiDesk.cursors.dot === "pointer",
       JSON.stringify(heroUiDesk.cursors)
     );
+    await checkSobreNos(page, engine, "1280");
     await page.goto(BASE + "/doces-personalizados/", { waitUntil: "domcontentloaded" });
     await page.waitForSelector(".product-grid .card");
     const desktopCards = await page.locator(".product-grid .card").evaluateAll(function measure(nodes) {

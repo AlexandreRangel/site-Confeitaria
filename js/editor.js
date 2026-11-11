@@ -1757,10 +1757,10 @@
       (sobre.portrait.src ? '<button type="button" class="btn btn--small btn--danger" data-ed-action="retrato-remover">Remover foto</button>' : "") + "</div>" +
       campo("Descrição da foto", "sobre.portrait.alt", sobre.portrait.alt, { max: 200 }) + "</fieldset>" +
       campo("História", "sobre.story", (sobre.story || []).join("\n\n"), { area: true, rows: 7, tipo: "paragrafos", opcional: true, dica: "Deixe uma linha em branco entre os parágrafos." }) +
-      '<fieldset class="ed-grupo"><legend>Galeria de trabalhos</legend>' + listaFotos("trabalhos", sobre.workGallery || [], { alt: true, produto: true, multiplo: true }) + "</fieldset>" +
+      '<fieldset class="ed-grupo"><legend>Galeria de trabalhos</legend><p class="ed-dica">Aparecem em carrossel na página Sobre nós, numa fileira só. A ordem da lista é a ordem das fotos.</p>' + listaFotos("trabalhos", sobre.workGallery || [], { alt: true, produto: true, multiplo: true }) + "</fieldset>" +
       '<fieldset class="ed-grupo"><legend>Na imprensa</legend><ul class="ed-imprensa">' + imprensa + "</ul>" +
       '<button type="button" class="btn btn--outline btn--small" data-ed-action="tx-novo" data-lista="imprensa">+ Adicionar matéria</button></fieldset>' +
-      '<fieldset class="ed-grupo"><legend>Fotos da faixa do Instagram</legend><p class="ed-dica">Aparecem em Sobre nós e levam para o Instagram.</p>' +
+      '<fieldset class="ed-grupo"><legend>Fotos da faixa do Instagram</legend><p class="ed-dica">Aparecem em destaque em Sobre nós e levam para o perfil.</p>' +
       listaFotos("instagram", (s.instagramGallery || []).map((src) => ({ src: src })), { multiplo: true }) + "</fieldset>" +
       "</section>";
   }

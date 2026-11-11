@@ -69,15 +69,18 @@
         <h2>Na imprensa</h2>
         <div class="sobre__press" data-bind="sobre-press"></div>
       </section>
-      <section id="instagram" class="instagram" aria-label="Instagram @janaabreuconfeitaria">
-        <p class="instagram__copy">
-          <a data-bind="instagram-link" href="https://www.instagram.com/janaabreuconfeitaria/" target="_blank" rel="noopener noreferrer">
-            Instagram <span data-bind="instagram-handle">@janaabreuconfeitaria</span>
-          </a>
-        </p>
-        <div class="instagram__grid" data-bind="instagram-grid"></div>
-      </section>
     </article>
+    <section id="instagram" class="instagram instagram--highlight" aria-labelledby="instagram-handle-label">
+      <div class="instagram__inner">
+        <header class="instagram__head">
+          <a id="instagram-handle-label" class="instagram__handle" data-bind="instagram-link" href="https://www.instagram.com/janaabreuconfeitaria/" target="_blank" rel="noopener noreferrer">
+            <span data-bind="instagram-handle">@janaabreuconfeitaria</span>
+          </a>
+          <a class="btn btn--solid instagram__cta" data-bind="instagram-link" href="https://www.instagram.com/janaabreuconfeitaria/" target="_blank" rel="noopener noreferrer">Siga no Instagram</a>
+        </header>
+        <div class="instagram__grid" data-bind="instagram-grid"></div>
+      </div>
+    </section>
   </main>
   <footer id="rodape" class="rodape">
     <p class="rodape__line">

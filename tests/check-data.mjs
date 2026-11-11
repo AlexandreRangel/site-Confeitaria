@@ -397,6 +397,9 @@ if (!existsSync(join(root, "sobre-nos/index.html"))) {
   if (!sobrePage.includes('data-bind="instagram-grid"')) {
     errors.push("Instagram preview must appear only on Sobre nós");
   }
+  if (!sobrePage.includes("instagram--highlight") || !sobrePage.includes("instagram__handle") || !sobrePage.includes("Siga no Instagram")) {
+    errors.push("Sobre nós Instagram must be a highlighted section with a clickable handle and Siga no Instagram");
+  }
 }
 if (!existsSync(join(root, "data/sobre.json"))) {
   errors.push("Missing data/sobre.json");
@@ -613,6 +616,21 @@ areas
     });
   });
 const sobre = JSON.parse(readFileSync(join(root, "data/sobre.json"), "utf8"));
+if (!Array.isArray(sobre.workGallery) || sobre.workGallery.length < 10) {
+  errors.push("workGallery must have about 10 real photos for the carousel");
+} else {
+  sobre.workGallery.forEach((item, i) => {
+    if (!item || !item.src || !existsSync(join(root, item.src))) {
+      errors.push("workGallery[" + i + "] must point to an existing photo");
+    }
+    if (!item || !String(item.alt || "").trim()) {
+      errors.push("workGallery[" + i + "] needs alt text");
+    }
+  });
+}
+if (!appJs.includes("workGalleryHtml") || !appJs.includes("prefers-reduced-motion") || !layoutCss.includes("sobre-work-marquee")) {
+  errors.push("Trabalhos must be a CSS carousel that respects prefers-reduced-motion");
+}
 const emptySobre = ["headline", "lead", "story", "press"].filter((key) => {
   const value = sobre[key];
   return !value || (Array.isArray(value) && value.length === 0);
