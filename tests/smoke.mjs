@@ -206,6 +206,138 @@ async function withPage(browserType, engine, viewport, fn) {
   }
 }
 
+
+async function checkDesiredDateRule(page, engine, waHits, label) {
+  const origin = page.url();
+  const info = await page.evaluate(function read() {
+    const input = document.querySelector('#checkout-form [name="data"]');
+    const hint = document.querySelector('[data-bind="checkout-date-min"]');
+    const min = window.Jana && Jana.firstAvailableDesiredDate ? Jana.firstAvailableDesiredDate() : "";
+    return {
+      minAttr: input ? input.getAttribute("min") : "",
+      required: !!(input && input.required),
+      hint: (hint && hint.textContent) || "",
+      min: min,
+      today: window.Jana && Jana.todayYmd ? Jana.todayYmd() : "",
+    };
+  });
+  record(engine, "date min is today+2 at " + label, !!info.min && info.minAttr === info.min, JSON.stringify(info));
+  record(engine, "date field stays optional at " + label, info.required === false);
+  record(
+    engine,
+    "date hint shows first available day at " + label,
+    /A partir de .+, \d{2}\/\d{2}\./.test(info.hint),
+    info.hint
+  );
+
+  const tz = await page.evaluate(function edge() {
+    return {
+      night: Jana.minLeadDateYmd(new Date("2026-11-12T02:30:00Z")),
+      morning: Jana.minLeadDateYmd(new Date("2026-11-12T03:30:00Z")),
+      todayNight: Jana.todayYmd(new Date("2026-11-12T02:30:00Z")),
+    };
+  });
+  record(
+    engine,
+    "min date uses Brasília time at 23:30 at " + label,
+    tz.todayNight === "2026-11-11" && tz.night === "2026-11-13" && tz.morning === "2026-11-14",
+    JSON.stringify(tz)
+  );
+
+  await page.locator('#checkout-form [name="modalidade"][value="retirada"]').check();
+  await page.locator('#checkout-form [name="nome"]').fill("Data Teste");
+  await page.locator('#checkout-form [name="telefone"]').fill("61900000000");
+
+  await page.evaluate(function setDate(ymd) {
+    const input = document.querySelector('#checkout-form [name="data"]');
+    input.value = ymd;
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  }, info.today);
+
+  const waBefore = waHits.length;
+  await page.locator('#checkout-form button[type="submit"]').click({ noWaitAfter: true }).catch(function ignore() {});
+  await page.waitForTimeout(400);
+  const blocked = await page.evaluate(function readMsg() {
+    const input = document.querySelector('#checkout-form [name="data"]');
+    const status = ((document.querySelector('[data-bind="checkout-status"]') || {}).textContent || "").trim();
+    return {
+      status: status,
+      validation: (input && input.validationMessage) || "",
+      valid: input ? input.validity.valid : true,
+    };
+  });
+  const blockedMsg = blocked.status || blocked.validation;
+  record(
+    engine,
+    "too-soon date is blocked at " + label,
+    waHits.length === waBefore && /pelo menos 2 dias/.test(blockedMsg) && /a partir de/i.test(blockedMsg),
+    JSON.stringify({ blocked: blocked, extraWa: waHits.length - waBefore })
+  );
+
+  await page.evaluate(function setDate(ymd) {
+    const input = document.querySelector('#checkout-form [name="data"]');
+    input.value = ymd;
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  }, info.min);
+  const ready = await page.evaluate(function check() {
+    const form = document.querySelector("#checkout-form");
+    const input = form && form.querySelector('[name="data"]');
+    const button = document.querySelector('[data-bind="checkout-submit"]') || (form && form.querySelector('button[type="submit"]'));
+    return {
+      valid: !!(input && input.validity.valid),
+      formValid: !!(form && form.checkValidity()),
+      label: ((button && button.textContent) || "").trim(),
+    };
+  });
+  const whatsappPath = /WhatsApp/i.test(ready.label);
+  if (whatsappPath) {
+    await page.locator('#checkout-form button[type="submit"]').click({ noWaitAfter: true }).catch(function ignore() {});
+    await page.waitForTimeout(600);
+    const waText = waHits.slice(waBefore).map(function decode(url) {
+      try {
+        return decodeURIComponent(url);
+      } catch (err) {
+        return url;
+      }
+    }).join(" ");
+    const parts = String(info.min).split("-");
+    const br = parts[2] + "/" + parts[1] + "/" + parts[0];
+    record(
+      engine,
+      "valid date can be submitted at " + label,
+      ready.valid && waHits.length > waBefore && waText.indexOf(br) !== -1,
+      "wa=" + (waHits.length - waBefore) + " " + waText.slice(0, 180)
+    );
+  } else {
+    record(
+      engine,
+      "valid date can be submitted at " + label,
+      ready.valid && ready.formValid,
+      JSON.stringify(ready)
+    );
+  }
+
+  const formGone = (await page.locator("#checkout-form [name='nome']").count()) === 0;
+  if (formGone) {
+    await page.goto(origin, { waitUntil: "domcontentloaded" });
+    await page.waitForSelector("#checkout-form, [data-action='open-cart']", { timeout: 15000 });
+    if (await page.locator("#encomendas").isHidden()) {
+      await page.locator('[data-action="open-cart"]').first().click();
+      await page.waitForSelector("#encomendas:not([hidden])");
+    }
+  } else {
+    await page.evaluate(function clear() {
+      const input = document.querySelector('#checkout-form [name="data"]');
+      if (input) {
+        input.value = "";
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+      const status = document.querySelector('[data-bind="checkout-status"]');
+      if (status) status.textContent = "";
+    });
+  }
+}
+
 async function runEngine(browserType, engine) {
   await withPage(browserType, engine, { width: 390, height: 844 }, async function mobile(page, waHits, engineName, centralHits) {
     await page.route("**/data/pix.json", function disablePix(route) {
@@ -435,6 +567,7 @@ async function runEngine(browserType, engine) {
     await page.locator('#checkout-form [name="modalidade"][value="retirada"]').check();
     record(engine, "retirada hides address again", await page.locator('[data-bind="checkout-address"]').isHidden());
     record(engine, "Pix hidden while disabled", await page.locator('[data-bind="pix-block"]').isHidden());
+    await checkDesiredDateRule(page, engine, waHits, "390");
     await page.locator('#checkout-form [name="nome"]').fill("Auditoria Teste");
     await page.locator('#checkout-form [name="telefone"]').fill("61900000000");
     await page.locator('#checkout-form [name="observacoes"]').fill("Teste automatizado — não enviar.");
@@ -894,7 +1027,7 @@ async function runEngine(browserType, engine) {
     record(engine, "Escape closes Categorias", await page.locator("#menu-categorias").isHidden());
   });
 
-  await withPage(browserType, engine, { width: 1280, height: 800 }, async function desktop(page) {
+  await withPage(browserType, engine, { width: 1280, height: 800 }, async function desktop(page, waHits) {
     await page.goto(BASE + "/", { waitUntil: "domcontentloaded" });
     await page.waitForSelector('[data-bind="areas"] a');
     await page.waitForFunction(function layoutReady() {
@@ -1103,6 +1236,7 @@ async function runEngine(browserType, engine) {
     await page.waitForSelector('[data-action="add-from-product"]', { timeout: 15000 });
     await page.locator('[data-action="add-from-product"]').click();
     await page.waitForSelector("#encomendas:not([hidden])");
+    await checkDesiredDateRule(page, engine, waHits, "1280");
     record(engine, "desktop pay options visible", await page.locator('[data-bind="pay-method"]').isVisible());
     const deskPixOpt = ((await page.locator('[data-bind="pay-option-pix"]').innerText()) || "").replace(/\s+/g, " ").trim();
     const deskCardOpt = ((await page.locator('[data-bind="pay-option-infinitepay"]').innerText()) || "").replace(/\s+/g, " ").trim();

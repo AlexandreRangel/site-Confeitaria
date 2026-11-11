@@ -135,6 +135,38 @@
     }
   };
 
+  /* Antecedência mínima fixa: a cliente só pode pedir para daqui a 2 dias (horário de Brasília). */
+  Jana.ANTECEDENCIA_MINIMA_DIAS = 2;
+
+  Jana.addDaysYmd = function addDaysYmd(ymd, days) {
+    const match = String(ymd || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!match) {
+      return "";
+    }
+    const date = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]) + Number(days || 0)));
+    const y = date.getUTCFullYear();
+    const m = ("0" + (date.getUTCMonth() + 1)).slice(-2);
+    const d = ("0" + date.getUTCDate()).slice(-2);
+    return y + "-" + m + "-" + d;
+  };
+
+  /* «sexta-feira, 13/11» — dia da semana e dd/mm, para recados à cliente. */
+  Jana.formatDateLongBR = function formatDateLongBR(ymd) {
+    const match = String(ymd || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!match) {
+      return "";
+    }
+    const date = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12));
+    const weekday = new Intl.DateTimeFormat("pt-BR", { weekday: "long", timeZone: "UTC" }).format(date);
+    return weekday + ", " + match[3] + "/" + match[2];
+  };
+
+  Jana.minLeadDateYmd = function minLeadDateYmd(now, days) {
+    const raw = days == null ? Jana.ANTECEDENCIA_MINIMA_DIAS : Number(days);
+    const lead = Number.isFinite(raw) && raw >= 0 ? Math.floor(raw) : Jana.ANTECEDENCIA_MINIMA_DIAS;
+    return Jana.addDaysYmd(Jana.todayYmd(now), lead);
+  };
+
   Jana.isSeasonalArea = function isSeasonalArea(area) {
     return Jana.isNatalArea(area);
   };

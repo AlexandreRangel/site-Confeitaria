@@ -689,6 +689,40 @@ if (!/Pagamento via Pix — aguardando conferência/.test(pending) || /PAGO/.tes
   if (Jana.todayYmd(new Date("2026-12-11T02:30:00Z")) !== "2026-12-10") errors.push("todayYmd must use São Paulo time");
 }
 
+{
+  const wedNight = new Date("2026-11-12T02:30:00Z"); // 23:30 de quarta em Brasília
+  const thuMorning = new Date("2026-11-12T03:30:00Z"); // 00:30 de quinta em Brasília
+  if (Jana.addDaysYmd("2026-11-11", 2) !== "2026-11-13") errors.push("addDaysYmd +2");
+  if (Jana.addDaysYmd("2026-12-31", 2) !== "2027-01-02") errors.push("addDaysYmd year wrap");
+  if (Jana.todayYmd(wedNight) !== "2026-11-11") errors.push("23:30 Brasília still Wednesday");
+  if (Jana.minLeadDateYmd(wedNight) !== "2026-11-13") errors.push("min at 23:30 Brasília must be Friday 13/11");
+  if (Jana.minLeadDateYmd(thuMorning) !== "2026-11-14") errors.push("min after midnight Brasília must be Saturday");
+  if (Jana.formatDateLongBR("2026-11-13") !== "sexta-feira, 13/11") errors.push("formatDateLongBR, got " + Jana.formatDateLongBR("2026-11-13"));
+  const empty = Jana.validateDesiredDate("", null, wedNight);
+  if (!empty.ok || !empty.empty) errors.push("empty date stays optional");
+  const today = Jana.validateDesiredDate("2026-11-11", null, wedNight);
+  if (today.ok || !/pelo menos 2 dias/.test(today.message) || !/sexta-feira, 13\/11/.test(today.message)) {
+    errors.push("today must be blocked, got " + today.message);
+  }
+  if (Jana.validateDesiredDate("2026-11-12", null, wedNight).ok) errors.push("tomorrow must be blocked");
+  if (!Jana.validateDesiredDate("2026-11-13", null, wedNight).ok) errors.push("Friday must be allowed");
+  const skipped = Jana.firstAvailableDesiredDate(
+    { ativo: false, inicio: "", fim: "", periodos: [{ inicio: "2026-11-13", fim: "2026-11-13" }], fimDeSemana: false },
+    wedNight
+  );
+  if (skipped !== "2026-11-14") errors.push("must skip paused Friday, got " + skipped);
+  const weekend = Jana.firstAvailableDesiredDate(
+    { ativo: false, inicio: "", fim: "", periodos: [], fimDeSemana: true },
+    new Date("2026-11-13T18:00:00-03:00")
+  );
+  if (weekend !== "2026-11-16") errors.push("weekend pause must skip to Monday, got " + weekend);
+  const indefinite = Jana.firstAvailableDesiredDate(
+    { ativo: true, inicio: "", fim: "", periodos: [], fimDeSemana: false },
+    wedNight
+  );
+  if (indefinite !== "2026-11-13") errors.push("indefinite pause must not shift delivery min, got " + indefinite);
+}
+
 if (errors.length) {
   console.error(errors.join("\n"));
   process.exit(1);

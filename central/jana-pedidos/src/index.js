@@ -26,6 +26,57 @@ function nowIso() {
   return new Date().toISOString();
 }
 
+const ANTECEDENCIA_MINIMA_DIAS = 2;
+
+function pad2(value) {
+  return ("0" + String(value)).slice(-2);
+}
+
+function todayYmd(now) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(now || new Date());
+  const map = {};
+  parts.forEach((part) => {
+    if (part.type !== "literal") map[part.type] = part.value;
+  });
+  return map.year + "-" + map.month + "-" + map.day;
+}
+
+function addDaysYmd(ymd, days) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(ymd || ""));
+  if (!match) return "";
+  const date = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]) + Number(days || 0)));
+  return date.getUTCFullYear() + "-" + pad2(date.getUTCMonth() + 1) + "-" + pad2(date.getUTCDate());
+}
+
+function formatDateLongBR(ymd) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(ymd || ""));
+  if (!match) return "";
+  const date = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12));
+  const weekday = new Intl.DateTimeFormat("pt-BR", { weekday: "long", timeZone: "UTC" }).format(date);
+  return weekday + ", " + match[3] + "/" + match[2];
+}
+
+function minDesiredDate(now) {
+  return addDaysYmd(todayYmd(now), ANTECEDENCIA_MINIMA_DIAS);
+}
+
+function assertCustomerDesiredDate(desired, now) {
+  if (!desired) return;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(desired)) throw new HttpError(400, "data inválida");
+  const min = minDesiredDate(now);
+  if (desired < min) {
+    throw new HttpError(
+      400,
+      "Precisamos de pelo menos 2 dias para preparar sua encomenda. Escolha a partir de " + formatDateLongBR(min) + "."
+    );
+  }
+}
+
 function str(value, max) {
   return String(value == null ? "" : value)
     .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "")
@@ -556,6 +607,7 @@ async function createOrder(env, request) {
   const regiao = str(body.regiao, 60);
   const desired = str(body.data, 10);
   if (desired && !/^\d{4}-\d{2}-\d{2}$/.test(desired)) throw new HttpError(400, "data inválida");
+  assertCustomerDesiredDate(desired);
   const notes = str(body.observacoes, 1500);
   const items = cleanItems(body.items);
   if (!items.length && !notes) throw new HttpError(400, "pedido vazio");

@@ -43,6 +43,30 @@ ok("corpo grande → 413", r.status === 413);
 r = await call("POST", "/pedidos", Object.assign({}, base, { method: "infinitepay", redirect_url: "https://evil.example/pagamento/" }));
 ok("redirect_url de fora → 400", r.status === 400);
 
+function ymdSP(now) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Sao_Paulo", year: "numeric", month: "2-digit", day: "2-digit",
+  }).formatToParts(now || new Date());
+  const map = {};
+  parts.forEach((p) => { if (p.type !== "literal") map[p.type] = p.value; });
+  return map.year + "-" + map.month + "-" + map.day;
+}
+function addDaysYmd(ymd, n) {
+  const [y, m, d] = ymd.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d + n));
+  const pad = (x) => ("0" + x).slice(-2);
+  return dt.getUTCFullYear() + "-" + pad(dt.getUTCMonth() + 1) + "-" + pad(dt.getUTCDate());
+}
+const todaySP = ymdSP();
+r = await call("POST", "/pedidos", Object.assign({}, base, { method: "whatsapp", data: todaySP }));
+ok("data de hoje recusada", r.status === 400 && /pelo menos 2 dias/.test((r.data && r.data.error) || ""), JSON.stringify(r.data));
+r = await call("POST", "/pedidos", Object.assign({}, base, { method: "whatsapp", data: addDaysYmd(todaySP, 1) }));
+ok("data de amanhã recusada", r.status === 400);
+r = await call("POST", "/pedidos", Object.assign({}, base, { method: "whatsapp", data: addDaysYmd(todaySP, 2) }));
+ok("data de hoje+2 aceita", r.status === 201, JSON.stringify(r.data && { status: r.status, error: r.data && r.data.error }));
+r = await call("POST", "/pedidos", Object.assign({}, base, { method: "whatsapp", data: "" }));
+ok("data vazia continua opcional", r.status === 201);
+
 // preço adulterado é corrigido pelo catálogo
 r = await call("POST", "/pedidos", Object.assign({}, base, { method: "infinitepay", redirect_url: redirect, total: 0.02, createLink: !!MOCK,
   items: [{ id: p.id, name: p.name, price: 0.01, quantity: 2 }] }));
@@ -115,8 +139,9 @@ ok("login correto", r.status === 200 && !!r.data.token);
 const auth = { Authorization: "Bearer " + r.data.token };
 r = await call("GET", "/admin/pedidos", null, auth);
 ok("lista pedidos", r.status === 200 && r.data.orders.some((o) => o.id === ip.nsu));
-r = await call("PATCH", "/admin/pedidos/" + pix.nsu, { status: "confirmado", paymentStatus: "pago", notes: "conferido" }, auth);
+r = await call("PATCH", "/admin/pedidos/" + pix.nsu, { status: "confirmado", paymentStatus: "pago", notes: "conferido", desiredDate: todaySP }, auth);
 ok("edita pedido", r.status === 200 && r.data.order.status === "confirmado" && r.data.order.paymentStatus === "pago");
+ok("painel pode gravar data de hoje", r.status === 200 && r.data.order.desiredDate === todaySP, r.data && r.data.order && r.data.order.desiredDate);
 r = await call("PATCH", "/admin/pedidos/" + pix.nsu, { status: "hackeado" }, auth);
 ok("status inválido → 400", r.status === 400);
 r = await call("GET", "/admin/clientes", null, auth);

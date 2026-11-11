@@ -256,6 +256,75 @@
     return { active: false, source: "", message: "" };
   };
 
+  /* Dia civil (AAAA-MM-DD) cai numa pausa datada ou num fim de semana pausado?
+     Pausa ligada sem datas (encomendas fechadas agora) não entra aqui: isso já bloqueia o carrinho. */
+  Jana.isDesiredDateUnavailable = function isDesiredDateUnavailable(ymd, pausa) {
+    const raw = String(ymd || "").trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+      return false;
+    }
+    const cfg = Jana.pausaConfig(pausa);
+    if (cfg.ativo && (cfg.inicio || cfg.fim) && Jana.pausaInRange(raw, cfg.inicio, cfg.fim)) {
+      return true;
+    }
+    for (let i = 0; i < cfg.periodos.length; i++) {
+      const periodo = cfg.periodos[i];
+      if ((periodo.inicio || periodo.fim) && Jana.pausaInRange(raw, periodo.inicio, periodo.fim)) {
+        return true;
+      }
+    }
+    if (cfg.fimDeSemana) {
+      const match = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      const date = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12));
+      const weekday = date.getUTCDay();
+      if (weekday === 0 || weekday === 6) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  Jana.firstAvailableDesiredDate = function firstAvailableDesiredDate(pausa, now, days) {
+    const start = Jana.minLeadDateYmd(now, days);
+    let ymd = start;
+    for (let i = 0; i < 60; i++) {
+      if (!Jana.isDesiredDateUnavailable(ymd, pausa)) {
+        return ymd;
+      }
+      ymd = Jana.addDaysYmd(ymd, 1);
+    }
+    return start;
+  };
+
+  Jana.desiredDateHint = function desiredDateHint(minYmd) {
+    const label = Jana.formatDateLongBR(minYmd);
+    return label ? "A partir de " + label + "." : "";
+  };
+
+  Jana.desiredDateError = function desiredDateError(minYmd) {
+    const label = Jana.formatDateLongBR(minYmd);
+    return "Precisamos de pelo menos 2 dias para preparar sua encomenda. Escolha a partir de " + label + ".";
+  };
+
+  Jana.validateDesiredDate = function validateDesiredDate(value, pausa, now, days) {
+    const raw = String(value || "").trim();
+    const min = Jana.firstAvailableDesiredDate(pausa, now, days);
+    if (!raw) {
+      return { ok: true, empty: true, min: min };
+    }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(raw) || raw < min) {
+      return { ok: false, min: min, message: Jana.desiredDateError(min) };
+    }
+    if (Jana.isDesiredDateUnavailable(raw, pausa)) {
+      return {
+        ok: false,
+        min: min,
+        message: "Essa data não está disponível. Escolha a partir de " + Jana.formatDateLongBR(min) + ".",
+      };
+    }
+    return { ok: true, min: min };
+  };
+
   Jana.resetPausaCache = function resetPausaCache() {
     csvCache = { at: 0, value: null, url: "" };
   };

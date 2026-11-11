@@ -179,6 +179,12 @@ storefrontPages.forEach((rel) => {
   if (!html.includes('role="dialog"') || !html.includes("checkout-status")) {
     errors.push(rel + " cart drawer needs dialog role and checkout status");
   }
+  if (!/name="data"[^>]*type="date"/.test(html) && !/type="date"[^>]*name="data"/.test(html)) {
+    errors.push(rel + " checkout must include the desired date field");
+  }
+  if (/name="data"[^>]*required/.test(html) || /required[^>]*name="data"/.test(html)) {
+    errors.push(rel + " desired date must stay optional");
+  }
   if (/hydra-synth@1\.4\.0/.test(html)) {
     errors.push(rel + " must not load Hydra as a blocking CDN script");
   }

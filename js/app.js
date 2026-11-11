@@ -1113,6 +1113,46 @@
     }
     renderPix(totals);
     syncCheckoutPayUi(totals);
+    syncDesiredDate();
+  }
+
+  function syncDesiredDate() {
+    const input = Jana.qs('#checkout-form [name="data"]');
+    if (!input || !Jana.firstAvailableDesiredDate) {
+      return;
+    }
+    const min = Jana.firstAvailableDesiredDate(state.pausa);
+    input.setAttribute("min", min);
+    input.removeAttribute("required");
+    if (input.value && Jana.validateDesiredDate && !Jana.validateDesiredDate(input.value, state.pausa).ok) {
+      input.value = "";
+    }
+    let hint = Jana.qs('[data-bind="checkout-date-min"]');
+    if (!hint && input.parentNode) {
+      hint = document.createElement("span");
+      hint.className = "checkout__hint";
+      hint.setAttribute("data-bind", "checkout-date-min");
+      const existing = input.parentNode.querySelector(".checkout__hint");
+      if (existing) {
+        input.parentNode.insertBefore(hint, existing);
+      } else {
+        input.parentNode.appendChild(hint);
+      }
+    }
+    if (hint && Jana.desiredDateHint) {
+      hint.textContent = Jana.desiredDateHint(min);
+    }
+    applyDesiredDateValidity(input);
+  }
+
+  function applyDesiredDateValidity(input) {
+    const field = input || Jana.qs('#checkout-form [name="data"]');
+    if (!field || !field.setCustomValidity || !Jana.validateDesiredDate) {
+      return { ok: true, empty: true };
+    }
+    const check = Jana.validateDesiredDate(field.value, state.pausa);
+    field.setCustomValidity(check.ok ? "" : check.message);
+    return check;
   }
 
   function checkoutPayOpts(totals) {
@@ -1475,6 +1515,7 @@
     });
     setPageLocked(true);
     setCartHash(true);
+    syncDesiredDate();
     const panel = Jana.qs(".drawer__panel");
     if (panel) {
       panel.setAttribute("tabindex", "-1");
@@ -1651,6 +1692,18 @@
       setCheckoutStatus("Adicione um item ou descreva o pedido em Observações.");
       openCart();
       return;
+    }
+    if (payload.data) {
+      const dateCheck = applyDesiredDateValidity();
+      if (!dateCheck.ok) {
+        setCheckoutStatus(dateCheck.message);
+        const dateInput = Jana.qs('#checkout-form [name="data"]');
+        if (dateInput && dateInput.focus) {
+          dateInput.focus();
+        }
+        openCart();
+        return;
+      }
     }
     const submit = form.querySelector('[type="submit"]');
     if (submit) {
@@ -2213,6 +2266,9 @@
         const name = event.target && event.target.name;
         if (name === "modalidade" || name === "regiao") {
           syncCheckoutMode();
+        }
+        if (name === "data") {
+          applyDesiredDateValidity(event.target);
         }
         if (name === "pagamento") {
           rememberPayMethod(event);
