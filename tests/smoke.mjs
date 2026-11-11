@@ -317,9 +317,9 @@ async function checkSobreNos(page, engine, label) {
       alts: alts,
     };
   });
-  const expectVisible = label === "1280" ? 3 : 2;
-  const minPhoto = label === "1280" ? 250 : 230;
-  const maxPhoto = label === "1280" ? 320 : 290;
+  const expectVisible = label === "1280" ? 4 : 2;
+  const minPhoto = label === "1280" ? 270 : 230;
+  const maxPhoto = label === "1280" ? 330 : 290;
   record(engine, "trabalhos carousel has about 10 photos at " + label, work.originals >= 10, JSON.stringify({ originals: work.originals, count: work.count }));
   record(
     engine,
@@ -327,10 +327,10 @@ async function checkSobreNos(page, engine, label) {
     work.sameRow && work.visible === expectVisible,
     JSON.stringify({ visible: work.visible, sameRow: work.sameRow })
   );
-  record(engine, "trabalhos photos are 1.5x larger and square at " + label, work.square === true && work.width >= minPhoto && work.width <= maxPhoto && work.band >= minPhoto, JSON.stringify({ width: work.width, height: work.height, band: work.band, ratio: work.ratio }));
+  record(engine, "trabalhos photos are large and square at " + label, work.square === true && work.width >= minPhoto && work.width <= maxPhoto && work.band >= minPhoto, JSON.stringify({ width: work.width, height: work.height, band: work.band, ratio: work.ratio }));
   record(engine, "trabalhos photos have alt text at " + label, work.alts.length >= 10 && work.alts.every(Boolean), JSON.stringify(work.alts));
   record(engine, "trabalhos carousel is animated at " + label, work.animated === true, JSON.stringify({ animated: work.animated, count: work.count }));
-  record(engine, "trabalhos carousel moves at half speed at " + label, work.duration === "72s" || work.duration === "72000ms", JSON.stringify({ duration: work.duration }));
+  record(engine, "trabalhos carousel moves at half speed at " + label, work.duration === "144s" || work.duration === "144000ms", JSON.stringify({ duration: work.duration }));
   record(engine, "sobre-nos has no horizontal overflow at " + label, work.overflow === false, JSON.stringify({ overflow: work.overflow }));
   record(engine, "visual break before trabalhos at " + label, !!work.break && parseFloat(work.break.paddingTop) >= 24 && parseFloat(work.break.marginTop) >= 24, JSON.stringify(work.break));
   await page.screenshot({ path: "tests/screenshots/sobre-nos-" + label + ".png", fullPage: true });

@@ -634,8 +634,8 @@ if (!Array.isArray(sobre.workGallery) || sobre.workGallery.length < 10) {
 if (!appJs.includes("workGalleryHtml") || !appJs.includes("prefers-reduced-motion") || !layoutCss.includes("sobre-work-marquee")) {
   errors.push("Trabalhos must be a CSS carousel that respects prefers-reduced-motion");
 }
-if (!layoutCss.includes("sobre-work-marquee 72s") || !layoutCss.includes("--work-visible: 1.333333") || !layoutCss.includes("--work-visible: 2.666667")) {
-  errors.push("Sobre nós work carousel must be 1.5x larger and move at half speed (72s)");
+if (!layoutCss.includes("sobre-work-marquee 144s") || !layoutCss.includes("--work-visible: 1.333333") || !layoutCss.includes("--work-visible: 4")) {
+  errors.push("Sobre nós work carousel must show 4 tiles on desktop and move at 144s");
 }
 if (/instagram--highlight\s*\{[^}]*linear-gradient/.test(layoutCss)) {
   errors.push("Sobre nós Instagram section must sit on the page background, without a coloured band");

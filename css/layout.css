@@ -867,6 +867,19 @@ body[data-page="home"] .areas {
   }
 }
 
+@media (min-width: 1024px) {
+  .sobre__work {
+    width: calc(100vw - 2 * var(--page-gutter));
+    max-width: calc(100vw - 2 * var(--page-gutter));
+    margin-left: calc(50% - 50vw + var(--page-gutter));
+    margin-right: calc(50% - 50vw + var(--page-gutter));
+  }
+
+  .sobre__work-viewport {
+    --work-visible: 4;
+  }
+}
+
 .sobre__work-track {
   display: flex;
   align-items: flex-start;
@@ -879,7 +892,7 @@ body[data-page="home"] .areas {
 
 .sobre__work-track.is-animated {
   will-change: transform;
-  animation: sobre-work-marquee 72s linear infinite;
+  animation: sobre-work-marquee 144s linear infinite;
 }
 
 .sobre__work-viewport:hover .sobre__work-track.is-animated,
