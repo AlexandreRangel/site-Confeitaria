@@ -507,6 +507,12 @@ if (!componentsCss.includes("aspect-ratio: 1 / 1") || !componentsCss.includes("-
 if (!appJs.includes("card__excerpt") || !appJs.includes("productCardExcerpt")) {
   errors.push("product cards must render a short description");
 }
+if (!/card__media-link"[^>]*tabindex="-1"[^>]*aria-hidden="true"/.test(appJs)) {
+  errors.push("product card photo must link to the product without an extra tab stop");
+}
+if (!componentsCss.includes("card__media-link") || !componentsCss.includes("cursor: pointer")) {
+  errors.push("product card photo link must show a pointer cursor");
+}
 if (!appJs.includes("Pagar com cartão") || !appJs.includes("PAID_DISCLAIMER")) {
   errors.push("checkout must switch to InfinitePay button copy when that method is selected");
 }

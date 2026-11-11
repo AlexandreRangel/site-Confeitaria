@@ -207,6 +207,54 @@ async function withPage(browserType, engine, viewport, fn) {
 }
 
 
+
+async function checkPhotoOpensProduct(page, engine, label) {
+  const card = page.locator(".product-grid .card").first();
+  await card.waitFor({ state: "visible", timeout: 15000 });
+  const info = await card.evaluate(function read(el) {
+    const photo = el.querySelector(".card__media-link");
+    const more = Array.from(el.querySelectorAll(".card__actions a")).find(function find(a) {
+      return (a.textContent || "").trim() === "Ver mais";
+    });
+    const img = el.querySelector(".card__media img");
+    const style = photo ? getComputedStyle(photo) : {};
+    const imgStyle = img ? getComputedStyle(img) : {};
+    return {
+      photoHref: photo ? photo.getAttribute("href") : "",
+      moreHref: more ? more.getAttribute("href") : "",
+      tabindex: photo ? photo.getAttribute("tabindex") : "",
+      ariaHidden: photo ? photo.getAttribute("aria-hidden") : "",
+      alt: img ? img.getAttribute("alt") : null,
+      cursor: style.cursor || "",
+      imgCursor: imgStyle.cursor || "",
+    };
+  });
+  const sameUrl = !!info.photoHref && info.photoHref === info.moreHref && /produto\/\?slug=/.test(info.photoHref);
+  record(engine, "card photo links to the same URL as Ver mais at " + label, sameUrl, JSON.stringify(info));
+  record(
+    engine,
+    "card photo link is not a tab stop and keeps alt at " + label,
+    info.tabindex === "-1" && info.ariaHidden === "true" && info.alt !== null,
+    JSON.stringify({ tabindex: info.tabindex, ariaHidden: info.ariaHidden, alt: info.alt })
+  );
+  record(
+    engine,
+    "card photo has pointer cursor at " + label,
+    info.cursor === "pointer" && info.imgCursor === "pointer",
+    JSON.stringify({ cursor: info.cursor, imgCursor: info.imgCursor })
+  );
+  if (!sameUrl) {
+    return;
+  }
+  const expected = new URL(info.moreHref, page.url()).href;
+  await card.locator(".card__media img").click();
+  await page.waitForURL(function arrived(url) {
+    return url.href === expected || url.pathname.indexOf("/produto/") !== -1;
+  }, { timeout: 8000 });
+  const landed = page.url();
+  record(engine, "clicking the card photo opens the product page at " + label, landed === expected, landed + " vs " + expected);
+}
+
 async function checkDesiredDateRule(page, engine, waHits, label) {
   const origin = page.url();
   const info = await page.evaluate(function read() {
@@ -957,6 +1005,7 @@ async function runEngine(browserType, engine) {
     record(engine, "doces cards taller than wide 390", taller, JSON.stringify(cardMetrics[0]));
     await page.screenshot({ path: "tests/screenshots/doces-personalizados-390.png", fullPage: true });
     await safeShot(page, "/opt/cursor/artifacts/doces-personalizados-390.png");
+    await checkPhotoOpensProduct(page, engine, "390");
 
     await page.goto(BASE + "/painel/", { waitUntil: "domcontentloaded" });
     const painelHydra = await page.locator("canvas.hydra-button-bg, [id*='hydra']").count();
@@ -1190,6 +1239,7 @@ async function runEngine(browserType, engine) {
     );
     await page.screenshot({ path: "tests/screenshots/doces-personalizados-1280.png", fullPage: true });
     await safeShot(page, "/opt/cursor/artifacts/doces-personalizados-1280.png");
+    await checkPhotoOpensProduct(page, engine, "1280");
 
     await page.route("**/data/pix.json", function fulfillPix(route) {
       return route.fulfill({

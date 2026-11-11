@@ -581,13 +581,16 @@
       Jana.escapeHtml(product.slug) +
       '">' +
       '<div class="card__media">' +
+      '<a class="card__media-link" href="' +
+      Jana.escapeHtml(Jana.productUrl(product.slug)) +
+      '" tabindex="-1" aria-hidden="true">' +
       (exemplo ? '<span class="badge">Exemplo</span>' : "") +
       '<img src="' +
       Jana.escapeHtml(Jana.assetUrl(product.images[0])) +
       '" alt="' +
       Jana.escapeHtml(Jana.productImageAlt(product, 0)) +
       '" width="600" height="600" loading="lazy" decoding="async">' +
-      "</div>" +
+      "</a></div>" +
       '<div class="card__body">' +
       "<h3>" +
       Jana.escapeHtml(product.name) +
