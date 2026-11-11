@@ -743,7 +743,7 @@
       '" alt="' +
       alt +
       '" width="600" height="600" loading="' +
-      (clone || index >= 4 ? "lazy" : "eager") +
+      (clone ? "lazy" : "eager") +
       '" decoding="async">';
     const inner = item.productSlug
       ? '<a href="' +

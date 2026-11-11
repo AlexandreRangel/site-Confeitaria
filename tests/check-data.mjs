@@ -400,6 +400,9 @@ if (!existsSync(join(root, "sobre-nos/index.html"))) {
   if (!sobrePage.includes("instagram--highlight") || !sobrePage.includes("instagram__handle") || !sobrePage.includes("Siga no Instagram")) {
     errors.push("Sobre nós Instagram must be a highlighted section with a clickable handle and Siga no Instagram");
   }
+  if (!sobrePage.includes('class="sobre__trabalhos"')) {
+    errors.push("Sobre nós must mark the Trabalhos section for the visual break");
+  }
 }
 if (!existsSync(join(root, "data/sobre.json"))) {
   errors.push("Missing data/sobre.json");
@@ -630,6 +633,15 @@ if (!Array.isArray(sobre.workGallery) || sobre.workGallery.length < 10) {
 }
 if (!appJs.includes("workGalleryHtml") || !appJs.includes("prefers-reduced-motion") || !layoutCss.includes("sobre-work-marquee")) {
   errors.push("Trabalhos must be a CSS carousel that respects prefers-reduced-motion");
+}
+if (!layoutCss.includes("sobre-work-marquee 72s") || !layoutCss.includes("--work-visible: 1.333333") || !layoutCss.includes("--work-visible: 2.666667")) {
+  errors.push("Sobre nós work carousel must be 1.5x larger and move at half speed (72s)");
+}
+if (/instagram--highlight\s*\{[^}]*linear-gradient/.test(layoutCss)) {
+  errors.push("Sobre nós Instagram section must sit on the page background, without a coloured band");
+}
+if (!layoutCss.includes(".sobre__trabalhos")) {
+  errors.push("Sobre nós must include a visual break before Trabalhos");
 }
 const emptySobre = ["headline", "lead", "story", "press"].filter((key) => {
   const value = sobre[key];

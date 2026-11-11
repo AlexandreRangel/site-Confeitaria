@@ -215,7 +215,7 @@ async function checkSobreNos(page, engine, label) {
   await page.waitForFunction(function loaded() {
     const imgs = Array.from(document.querySelectorAll('[data-bind="instagram-grid"] img, .sobre__work-track .sobre__work-item:not([aria-hidden="true"]) img'));
     return imgs.length >= 8 && imgs.every(function ok(img) { return img.complete && img.naturalWidth > 0; });
-  }, { timeout: 15000 });
+  }, null, { timeout: 20000 });
   const sobreTitle = ((await page.locator("h1").textContent()) || "").trim();
   record(engine, "sobre-nos title at " + label, /Sobre nós/i.test(sobreTitle), sobreTitle);
 
@@ -252,7 +252,19 @@ async function checkSobreNos(page, engine, label) {
   });
   const expectCols = label === "1280" ? 3 : 2;
   const minWidth = label === "1280" ? 220 : 140;
-  record(engine, "instagram posts are wider in " + expectCols + " columns at " + label, ig.highlight && ig.cols === expectCols && ig.width >= minWidth, JSON.stringify(ig));
+  const maxWidth = label === "1280" ? 360 : 170;
+  record(engine, "instagram posts are a bit smaller in " + expectCols + " columns at " + label, ig.highlight && ig.cols === expectCols && ig.width >= minWidth && ig.width <= maxWidth, JSON.stringify(ig));
+  const igBand = await page.evaluate(function style() {
+    const el = document.querySelector(".instagram--highlight");
+    if (!el) return { ok: false };
+    const s = getComputedStyle(el);
+    const image = s.backgroundImage || "";
+    const color = s.backgroundColor || "";
+    const transparent = !image || image === "none";
+    const noFill = !color || color === "transparent" || color === "rgba(0, 0, 0, 0)";
+    return { ok: transparent && noFill, image: image, color: color };
+  });
+  record(engine, "instagram sits on the page background at " + label, igBand.ok === true, JSON.stringify(igBand));
 
   record(engine, "empty portrait stays hidden at " + label, await page.locator('[data-bind="sobre-portrait"]').isHidden());
   record(engine, "empty press stays hidden at " + label, await page.locator('[data-bind="sobre-press"]').evaluate(function hidden(el) {
@@ -263,12 +275,13 @@ async function checkSobreNos(page, engine, label) {
   const work = await page.evaluate(function measure() {
     const viewport = document.querySelector(".sobre__work-viewport");
     const track = document.querySelector(".sobre__work-track");
+    const duration = track ? getComputedStyle(track).animationDuration : "";
     if (track) {
       track.style.animation = "none";
       track.style.transform = "translate3d(0, 0, 0)";
     }
     const items = track ? Array.from(track.querySelectorAll(".sobre__work-item")) : [];
-    if (!viewport || !items.length) return { count: 0 };
+    if (!viewport || !items.length) return { count: 0, duration: duration };
     const vr = viewport.getBoundingClientRect();
     const visible = items.filter(function onScreen(el) {
       const r = el.getBoundingClientRect();
@@ -278,24 +291,35 @@ async function checkSobreNos(page, engine, label) {
       const img = el.querySelector("img");
       return (img && img.getAttribute("alt")) || "";
     });
-    const ratio = visible.map(function size(el) {
+    const sizes = visible.map(function size(el) {
       const r = el.getBoundingClientRect();
-      return r.width ? Math.round((r.height / r.width) * 100) / 100 : 0;
+      return { w: Math.round(r.width), h: Math.round(r.height), ratio: r.width ? Math.round((r.height / r.width) * 100) / 100 : 0 };
     });
+    const overflow = document.documentElement.scrollWidth > document.documentElement.clientWidth + 1;
+    const breakEl = document.querySelector(".sobre__trabalhos");
+    const breakStyle = breakEl ? getComputedStyle(breakEl) : null;
     return {
       count: items.length,
       originals: alts.length,
       visible: visible.length,
-      sameRow: visible.length > 1 && visible.every(function row(el) {
+      sameRow: visible.length >= 1 && visible.every(function row(el) {
         return Math.abs(el.getBoundingClientRect().y - visible[0].getBoundingClientRect().y) < 8;
       }),
-      square: ratio.length > 0 && ratio.every(function near(r) { return Math.abs(r - 1) < 0.12; }),
-      ratio: ratio,
+      square: sizes.length > 0 && sizes.every(function near(s) { return Math.abs(s.ratio - 1) < 0.12; }),
+      width: sizes[0] ? sizes[0].w : 0,
+      height: sizes[0] ? sizes[0].h : 0,
+      band: Math.round(vr.height),
+      ratio: sizes.map(function r(s) { return s.ratio; }),
+      duration: duration,
+      overflow: overflow,
+      break: breakStyle ? { borderTopColor: breakStyle.borderTopColor, paddingTop: breakStyle.paddingTop, marginTop: breakStyle.marginTop } : null,
       animated: track.classList.contains("is-animated") && items.length > alts.length,
       alts: alts,
     };
   });
-  const expectVisible = label === "1280" ? 4 : 2;
+  const expectVisible = label === "1280" ? 3 : 2;
+  const minPhoto = label === "1280" ? 250 : 230;
+  const maxPhoto = label === "1280" ? 320 : 290;
   record(engine, "trabalhos carousel has about 10 photos at " + label, work.originals >= 10, JSON.stringify({ originals: work.originals, count: work.count }));
   record(
     engine,
@@ -303,9 +327,12 @@ async function checkSobreNos(page, engine, label) {
     work.sameRow && work.visible === expectVisible,
     JSON.stringify({ visible: work.visible, sameRow: work.sameRow })
   );
-  record(engine, "trabalhos photos are square at " + label, work.square === true, JSON.stringify(work.ratio));
+  record(engine, "trabalhos photos are 1.5x larger and square at " + label, work.square === true && work.width >= minPhoto && work.width <= maxPhoto && work.band >= minPhoto, JSON.stringify({ width: work.width, height: work.height, band: work.band, ratio: work.ratio }));
   record(engine, "trabalhos photos have alt text at " + label, work.alts.length >= 10 && work.alts.every(Boolean), JSON.stringify(work.alts));
   record(engine, "trabalhos carousel is animated at " + label, work.animated === true, JSON.stringify({ animated: work.animated, count: work.count }));
+  record(engine, "trabalhos carousel moves at half speed at " + label, work.duration === "72s" || work.duration === "72000ms", JSON.stringify({ duration: work.duration }));
+  record(engine, "sobre-nos has no horizontal overflow at " + label, work.overflow === false, JSON.stringify({ overflow: work.overflow }));
+  record(engine, "visual break before trabalhos at " + label, !!work.break && parseFloat(work.break.paddingTop) >= 24 && parseFloat(work.break.marginTop) >= 24, JSON.stringify(work.break));
   await page.screenshot({ path: "tests/screenshots/sobre-nos-" + label + ".png", fullPage: true });
   await safeShot(page, "/opt/cursor/artifacts/sobre-nos-" + label + ".png");
 }
