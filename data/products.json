@@ -1,5 +1,23 @@
 [
   {
+    "id": "p-biscoitos-de-parmesao-para-presentear",
+    "slug": "biscoitos-de-parmesao-para-presentear",
+    "name": "Biscoitos de parmesão para presentear",
+    "description": "",
+    "categoryId": "natal",
+    "categoryIds": [
+      "natal"
+    ],
+    "category": "Natal",
+    "price": 48.9,
+    "images": [
+      "assets/products/novo-produto/foto-mwdqq91hjjb0s.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
     "id": "p-grazing-para-presente",
     "slug": "grazing-para-presente",
     "name": "Grazing para presente",
