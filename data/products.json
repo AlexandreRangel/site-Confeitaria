@@ -1,5 +1,27 @@
 [
   {
+    "id": "p-grazing-para-presente",
+    "slug": "grazing-para-presente",
+    "name": "Grazing para presente",
+    "description": "",
+    "categoryId": "natal",
+    "categoryIds": [
+      "natal"
+    ],
+    "category": "Natal",
+    "price": 476,
+    "images": [
+      "assets/products/grazing-para-presente/foto-mwdqp9kkabekl.webp",
+      "assets/products/grazing-para-presente/foto-mwdqp9u6irmcv.webp",
+      "assets/products/grazing-para-presente/foto-mwdqpa4kp142i.webp",
+      "assets/products/grazing-para-presente/foto-mwdqpaf1k3wgr.webp",
+      "assets/products/grazing-para-presente/foto-mwdqpata1islt.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
     "id": "p-box-gratidao",
     "slug": "box-gratidao",
     "name": "Box Gratidão",
