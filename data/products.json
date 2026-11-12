@@ -1,5 +1,24 @@
 [
   {
+    "id": "p-caixa-de-biscoitos-colecionavel",
+    "slug": "caixa-de-biscoitos-colecionavel",
+    "name": "Caixa de biscoitos colecionável",
+    "description": "Uma seleção especial de nossas receitas de natal, com aquele toque de nostalgia em uma linda caixa de metal colecionável\nMix: Mini alfajores de doce deleite, ginger breads, biscoito amanteigado com chocolate e castanhas, biscoitos decorados com glacê e alfajor personalizado",
+    "categoryId": "natal",
+    "categoryIds": [
+      "natal"
+    ],
+    "category": "Natal",
+    "price": 166,
+    "images": [
+      "assets/products/novo-produto/foto-mwdpdkmpha5ku.webp",
+      "assets/products/novo-produto/foto-mwdpdm4ce24e2.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
     "id": "p-presente-4-alfajores",
     "slug": "presente-4-alfajores",
     "name": "Presente 4 alfajores",
