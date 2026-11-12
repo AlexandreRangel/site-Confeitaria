@@ -1,5 +1,24 @@
 [
   {
+    "id": "p-box-gratidao",
+    "slug": "box-gratidao",
+    "name": "Box Gratidão",
+    "description": "",
+    "categoryId": "natal",
+    "categoryIds": [
+      "natal"
+    ],
+    "category": "Natal",
+    "price": 143,
+    "images": [
+      "assets/products/box-gratidao/foto-mwdqhk8n0zb10.webp",
+      "assets/products/box-gratidao/foto-mwdqhkj0cppig.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
     "id": "p-caixa-de-biscoitos-colecionavel",
     "slug": "caixa-de-biscoitos-colecionavel",
     "name": "Caixa de biscoitos colecionável",
