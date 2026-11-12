@@ -1,5 +1,23 @@
 [
   {
+    "id": "p-presente-4-alfajores",
+    "slug": "presente-4-alfajores",
+    "name": "Presente 4 alfajores",
+    "description": "Caixa para presente contendo 4 alfajores (sabor doce de leite com coco) personalizados com tag de feliz natal",
+    "categoryId": "natal",
+    "categoryIds": [
+      "natal"
+    ],
+    "category": "Natal",
+    "price": 28.9,
+    "images": [
+      "assets/products/presente-4-alfajores/foto-mwdp2sqr0bm48.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
     "id": "p-bolo-2-andares-g-p",
     "sourceId": "6819251ef948b87a26509524",
     "slug": "bolo-2-andares-g-p",
