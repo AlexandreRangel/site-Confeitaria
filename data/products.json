@@ -1,5 +1,23 @@
 [
   {
+    "id": "p-lata-de-alfajor-para-presente",
+    "slug": "lata-de-alfajor-para-presente",
+    "name": "Lata de alfajor para presente",
+    "description": "",
+    "categoryId": "natal",
+    "categoryIds": [
+      "natal"
+    ],
+    "category": "Natal",
+    "price": 63,
+    "images": [
+      "assets/products/novo-produto/foto-mwdqrqlp2c0ha.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
     "id": "p-biscoitos-de-parmesao-para-presentear",
     "slug": "biscoitos-de-parmesao-para-presentear",
     "name": "Biscoitos de parmesão para presentear",
