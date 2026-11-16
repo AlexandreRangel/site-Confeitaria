@@ -690,6 +690,47 @@ if (!/Pagamento via Pix — aguardando conferência/.test(pending) || /PAGO/.tes
 }
 
 {
+  const prods = [
+    { slug: "bolo-x", name: "Bolo X", active: true, price: 80, description: "Recheio   de ninho", images: ["assets/products/bolo-x/1.webp"] },
+    { slug: "torta-y", name: "Torta Y", active: false, price: 50, images: ["assets/products/torta-y/1.webp"] },
+    { slug: "sem-foto", name: "Sem foto", active: true, price: 10, images: [] },
+    { slug: "consulta", name: "Bolo sob consulta", active: true, images: ["assets/products/consulta/1.webp"] },
+  ];
+  const car = [
+    { id: "p1", tipo: "produto", productSlug: "bolo-x", order: 1 },
+    { id: "p2", tipo: "produto", productSlug: "bolo-x", order: 2, overrides: { title: "Bolo especial", price: 99, description: "" } },
+    { id: "p3", tipo: "produto", productSlug: "torta-y", order: 3 },
+    { id: "p4", tipo: "produto", productSlug: "sumiu", order: 4 },
+    { id: "p5", tipo: "produto", productSlug: "sem-foto", order: 5 },
+    { id: "img", tipo: "imagem", image: "assets/carousel/a.webp", title: "A", order: 6, linkTipo: "nenhum" },
+  ];
+  const home = Jana.pageCarouselSlides(car, prods, "home");
+  if (home.length !== 3 || home[0].title !== "Bolo X" || home[1].title !== "Bolo especial" || home[2].image !== "assets/carousel/a.webp") {
+    errors.push("product banners: resolve/filter/order wrong");
+  }
+  if (home[0].priceLabel !== Jana.formatBRL(80) || home[0].description !== "Recheio de ninho" || !/produto\/\?slug=bolo-x/.test(home[0].href)) {
+    errors.push("product banner must pull live name, description, price and product link");
+  }
+  if (home[1].priceLabel !== Jana.formatBRL(99) || home[1].description) errors.push("product banner overrides must replace price and hide empty description");
+  prods[0].price = 120;
+  prods[0].name = "Bolo X novo";
+  const live = Jana.pageCarouselSlides(car, prods, "home");
+  if (live[0].title !== "Bolo X novo" || live[0].priceLabel !== Jana.formatBRL(120)) errors.push("product banner without override must follow live product data");
+  if (live[1].title !== "Bolo especial" || live[1].priceLabel !== Jana.formatBRL(99)) errors.push("overridden product banner fields must stay as saved");
+  const html = Jana.productBannerHtml(home[0]);
+  if (!/^<a class="hero__slide hero__slide--produto"/.test(html) || (html.match(/<a /g) || []).length !== 1) errors.push("product banner must be a single link");
+  if (!html.includes("Comprar") || !html.includes("span class=\"btn btn--solid btn--acquire\"") || /hydra/i.test(html)) {
+    errors.push("product banner Comprar must be a visual span without Hydra");
+  }
+  if (!html.includes("Bolo X") || !html.includes(Jana.formatBRL(80))) errors.push("product banner html must show name and price");
+  const preview = Jana.productBannerHtml(home[0], { preview: true });
+  if (/<a /.test(preview) || !preview.includes("hero__produto")) errors.push("editor product banner preview must skip the wrapping link");
+  const consulta = Jana.resolveProductBanner({ tipo: "produto", productSlug: "consulta" }, prods[3]);
+  if (consulta.priceLabel !== "Sob consulta") errors.push("product without fixed price must say Sob consulta");
+}
+
+
+{
   const wedNight = new Date("2026-11-12T02:30:00Z"); // 23:30 de quarta em Brasília
   const thuMorning = new Date("2026-11-12T03:30:00Z"); // 00:30 de quinta em Brasília
   if (Jana.addDaysYmd("2026-11-11", 2) !== "2026-11-13") errors.push("addDaysYmd +2");

@@ -1,3 +1,5 @@
+@import url("banner-produto.css");
+
 /* Editor do site — mobile primeiro. Paleta: texto #4c553a, creme #fdf6ec, acento #b86e88, rosa claro #f5d5e0.
    Botões preenchidos usam #9a5870 (contraste AA no branco). */
 
@@ -1038,4 +1040,93 @@ body.ed-ocupado .ed-form [type="submit"] {
     font-size: 0.92rem;
     white-space: nowrap;
   }
+}
+
+/* Banner de produto no editor */
+.ed-banner-previews {
+  display: grid;
+  grid-template-columns: 1.7fr 1fr;
+  gap: 0.6rem;
+  margin: 0 0 1rem;
+  container-type: inline-size;
+}
+
+.ed-banner-previews figure {
+  margin: 0;
+}
+
+.ed-banner-previews figcaption {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 0.2rem;
+}
+
+.ed-banner-preview {
+  container-type: inline-size;
+}
+
+.ed-banner__fotos--produto {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.ed-banner__escolhido {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.8rem;
+}
+
+.ed-picks {
+  display: grid;
+  gap: 0.4rem;
+  max-height: 16rem;
+  overflow: auto;
+  margin: 0 0 1rem;
+  padding: 0.15rem;
+}
+
+.ed-pick {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  min-height: 44px;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+}
+
+.ed-pick:hover,
+.ed-pick:focus-visible {
+  border-color: var(--primary);
+}
+
+.ed-pick.is-selected {
+  border-color: var(--btn-solid);
+  box-shadow: 0 0 0 2px rgba(154, 88, 112, 0.25);
+}
+
+.ed-pick__foto {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex: 0 0 auto;
+}
+
+.ed-pick span {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.ed-pick strong {
+  font-weight: 600;
 }

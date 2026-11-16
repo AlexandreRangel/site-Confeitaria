@@ -1284,7 +1284,14 @@ function validateCarousel(list) {
     const label = "Banner " + (i + 1);
     if (!ID_RE.test(String(s.id || "")) || ids.has(s.id)) bad(label + ": código inválido");
     ids.add(s.id);
-    assetOk(s.image, label + " (imagem do computador)");
+    if (s.tipo != null && s.tipo !== "produto" && s.tipo !== "imagem") bad(label + ": tipo de banner inválido");
+    const isProduct = s.tipo === "produto";
+    if (isProduct) {
+      if (!ID_RE.test(String(s.productSlug || ""))) bad(label + ": escolha o produto");
+      assetOk(s.image, label + " (imagem do computador)", true);
+    } else {
+      assetOk(s.image, label + " (imagem do computador)");
+    }
     assetOk(s.imageMobile, label + " (imagem do celular)", true);
     optText(s.title, 200, label + " (descrição)");
     if (s.pagina != null && !ID_RE.test(String(s.pagina))) bad(label + ": página inválida");
@@ -1293,6 +1300,18 @@ function validateCarousel(list) {
     if (s.linkCategory != null && s.linkCategory !== "" && !ID_RE.test(String(s.linkCategory))) bad(label + ": categoria inválida");
     if (s.linkTipo === "url" && !s.url) bad(label + ": falta o link");
     linkOk(s.url, label);
+    if (s.overrides != null) {
+      if (!isObj(s.overrides)) bad(label + ": alterações do banner inválidas");
+      const o = s.overrides;
+      optText(o.title, 200, label + " (nome)");
+      optText(o.description, 800, label + " (descrição)");
+      assetOk(o.image, label + " (foto)", true);
+      assetOk(o.imageMobile, label + " (foto do celular)", true);
+      if (o.price != null && (typeof o.price !== "number" || !Number.isFinite(o.price) || o.price <= 0)) {
+        bad(label + ": preço inválido");
+      }
+      linkOk(o.url, label + " (link)");
+    }
     if (s.order != null && !Number.isFinite(s.order)) bad(label + ": ordem inválida");
   });
 }

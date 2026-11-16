@@ -468,6 +468,116 @@
     };
   };
 
+  Jana.isProductBanner = function isProductBanner(slide) {
+    return !!(slide && slide.tipo === "produto");
+  };
+
+  Jana.productBannerAvailable = function productBannerAvailable(product) {
+    return !!(product && product.active !== false && product.slug && product.images && product.images[0]);
+  };
+
+  Jana.productBannerDefaults = function productBannerDefaults(product) {
+    if (!product) {
+      return { title: "", description: "", image: "", price: null, href: "", alt: "" };
+    }
+    return {
+      title: String(product.name || "").trim(),
+      description: String(product.description || product.shortDescription || "").replace(/\s+/g, " ").trim(),
+      image: (product.images && product.images[0]) || "",
+      price: typeof product.price === "number" && Number.isFinite(product.price) ? product.price : null,
+      href: Jana.productUrl(product.slug),
+      alt: String(product.name || "").trim(),
+    };
+  };
+
+  Jana.resolveProductBanner = function resolveProductBanner(slide, product) {
+    const base = Jana.productBannerDefaults(product);
+    const o = slide && slide.overrides && typeof slide.overrides === "object" ? slide.overrides : {};
+    const hasKey = function hasKey(key) {
+      return Object.prototype.hasOwnProperty.call(o, key);
+    };
+    const hasValue = function hasValue(key) {
+      return hasKey(key) && o[key] != null && o[key] !== "";
+    };
+    const title = hasValue("title") ? String(o.title).trim() : base.title;
+    const description = hasKey("description") ? String(o.description || "").trim() : base.description;
+    const image = hasValue("image") ? String(o.image) : base.image;
+    const price = hasKey("price") ? o.price : base.price;
+    const priced = typeof price === "number" && Number.isFinite(price) && price > 0;
+    let href = base.href;
+    let external = false;
+    if (hasValue("url")) {
+      const link = Jana.slideLink({ linkTipo: "url", url: o.url }, product);
+      href = link.href;
+      external = link.external;
+    }
+    return {
+      tipo: "produto",
+      banner: true,
+      productSlug: (product && product.slug) || (slide && slide.productSlug) || "",
+      title: title,
+      description: description,
+      image: image,
+      price: priced ? price : price,
+      priceLabel: priced ? Jana.formatBRL(price) : "Sob consulta",
+      href: href,
+      external: external,
+      alt: title || base.alt,
+      matched: !!product,
+    };
+  };
+
+  Jana.productBannerHtml = function productBannerHtml(data, options) {
+    const opt = options || {};
+    if (!data || !data.image) {
+      return "";
+    }
+    const eager = !!opt.eager;
+    const toUrl = opt.assetUrl || Jana.assetUrl;
+    const img =
+      '<img src="' +
+      Jana.escapeHtml(toUrl(data.image)) +
+      '" alt="' +
+      Jana.escapeHtml(data.alt || data.title || "") +
+      '" width="900" height="900"' +
+      (eager ? ' fetchpriority="high"' : ' loading="lazy"') +
+      ' decoding="async">';
+    const desc = data.description
+      ? '<p class="hero__produto-desc">' + Jana.escapeHtml(data.description) + "</p>"
+      : "";
+    const inner =
+      '<div class="hero__produto">' +
+      '<div class="hero__produto-inner">' +
+      '<div class="hero__produto-foto">' +
+      img +
+      "</div>" +
+      '<div class="hero__produto-copy">' +
+      '<p class="hero__produto-nome">' +
+      Jana.escapeHtml(data.title || "") +
+      "</p>" +
+      desc +
+      '<p class="hero__produto-preco">' +
+      Jana.escapeHtml(data.priceLabel || "") +
+      "</p>" +
+      '<span class="btn btn--solid btn--acquire" aria-hidden="true">Comprar</span>' +
+      "</div></div></div>";
+    if (opt.preview) {
+      return inner;
+    }
+    if (data.href) {
+      return (
+        '<a class="hero__slide hero__slide--produto" href="' +
+        Jana.escapeHtml(data.href) +
+        '"' +
+        (data.external ? ' target="_blank" rel="noopener noreferrer"' : "") +
+        ">" +
+        inner +
+        "</a>"
+      );
+    }
+    return '<article class="hero__slide hero__slide--produto">' + inner + "</article>";
+  };
+
   /* Link de um banner do carrossel. linkTipo: produto | categoria | url | nenhum.
      Banners antigos (sem linkTipo) abrem o produto de productSlug, como antes. */
   Jana.slideLink = function slideLink(slide, product) {
@@ -503,14 +613,23 @@
   Jana.pageCarouselSlides = function pageCarouselSlides(carousel, products, pagina) {
     const target = pagina || "home";
     return (carousel || [])
-      .filter(function hasImage(slide) {
-        return slide && slide.image && (slide.pagina || "home") === target;
+      .filter(function keepSlide(slide) {
+        if (!slide || (slide.pagina || "home") !== target) {
+          return false;
+        }
+        if (Jana.isProductBanner(slide)) {
+          return Jana.productBannerAvailable(Jana.productBySlug(products, slide.productSlug));
+        }
+        return !!slide.image;
       })
       .slice()
       .sort(function byOrder(a, b) {
         return (a.order || 0) - (b.order || 0);
       })
       .map(function toSlide(slide) {
+        if (Jana.isProductBanner(slide)) {
+          return Jana.resolveProductBanner(slide, Jana.productBySlug(products, slide.productSlug));
+        }
         const product = Jana.productBySlug(products, slide.productSlug);
         const tipo = slide.linkTipo || (slide.productSlug ? "produto" : "nenhum");
         const link = Jana.slideLink(slide, product);

@@ -1093,7 +1093,21 @@
     return pagina === "home" ? BANNER_SIZES.home : BANNER_SIZES.area;
   }
 
+  function bannerTipo(s) {
+    return s && s.tipo === "produto" ? "produto" : "imagem";
+  }
+
+  function produtoDoBanner(s) {
+    return s && s.productSlug ? products().find((x) => x.slug === s.productSlug) || null : null;
+  }
+
   function linkResumo(s) {
+    if (bannerTipo(s) === "produto") {
+      const p = produtoDoBanner(s);
+      if (!p) return "Banner de produto — este produto não está mais no site";
+      if (p.active === false) return "Banner de produto «" + p.name + "» — oculto no site (produto indisponível)";
+      return "Banner de produto «" + p.name + "»";
+    }
     const tipo = s.linkTipo || (s.productSlug ? "produto" : "nenhum");
     if (tipo === "produto") {
       const p = products().find((x) => x.slug === s.productSlug);
@@ -1130,7 +1144,7 @@
         )
         .join("") +
       "</div></fieldset>" +
-      '<p class="painel-note">Tamanho recomendado: <strong>computador ' + tam.pc[0] + " × " + tam.pc[1] + " px</strong> e <strong>celular " + tam.cel[0] + " × " + tam.cel[1] +
+      '<p class="painel-note">O modo padrão é o <strong>banner de produto</strong>: você escolhe o produto e o site monta o banner com a foto, o nome, a descrição, o preço e o link. Também é possível criar um <strong>banner de imagem</strong>, como antes. Tamanho recomendado para imagens: <strong>computador ' + tam.pc[0] + " × " + tam.pc[1] + " px</strong> e <strong>celular " + tam.cel[0] + " × " + tam.cel[1] +
       " px</strong>. Quando todos os banners da página têm o formato novo, eles aparecem inteiros, sem cortes. Sem imagem de celular, o celular mostra a do computador.</p>" +
       (area && !list.length
         ? '<p class="ed-vazio">Sem banners: a página «' + esc(area.name) + "» mostra as fotos dos produtos automaticamente. Se você adicionar banners, eles aparecem no lugar.</p>"
@@ -1140,14 +1154,22 @@
       list
         .map(function card(s, i) {
           const novo = !savedIds.has(JSON.stringify(s));
+          const isProd = bannerTipo(s) === "produto";
+          const resolved = isProd && Jana.resolveProductBanner ? Jana.resolveProductBanner(s, produtoDoBanner(s)) : null;
+          const titulo = isProd ? (resolved && resolved.title) || s.productSlug || "(sem produto)" : s.title || "(sem descrição)";
+          const fotos = isProd
+            ? '<div class="ed-banner__fotos ed-banner__fotos--produto"><div class="ed-banner-preview ed-banner-preview--pc" style="aspect-ratio:' + tam.pc[0] + "/" + tam.pc[1] + '">' +
+              (resolved && resolved.image && Jana.productBannerHtml ? Jana.productBannerHtml(resolved, { preview: true, eager: true, assetUrl: imgSrc }) : '<span class="ed-semfoto">escolha um produto</span>') +
+              "</div></div>"
+            : '<div class="ed-banner__fotos">' +
+              '<figure class="ed-banner__pc">' + imgTag(s.image, "", "") + "<figcaption>Computador</figcaption></figure>" +
+              '<figure class="ed-banner__cel">' + (s.imageMobile ? imgTag(s.imageMobile, "", "") : '<span class="ed-semfoto">usa a do computador</span>') + "<figcaption>Celular</figcaption></figure>" +
+              "</div>";
           return (
             '<li class="ed-banner">' +
-            '<div class="ed-banner__fotos">' +
-            '<figure class="ed-banner__pc">' + imgTag(s.image, "", "") + "<figcaption>Computador</figcaption></figure>" +
-            '<figure class="ed-banner__cel">' + (s.imageMobile ? imgTag(s.imageMobile, "", "") : '<span class="ed-semfoto">usa a do computador</span>') + "<figcaption>Celular</figcaption></figure>" +
-            "</div>" +
-            '<div class="ed-banner__info"><p class="ed-banner__titulo">' + (i + 1) + ". " + esc(s.title || "(sem descrição)") + (novo ? ' <span class="ed-chip ed-chip--novo">não publicado</span>' : "") + "</p>" +
-            '<p class="ed-dica">' + esc(linkResumo(s)) + (s.formato === "banner" ? "" : " · foto antiga, sem versão de celular") + "</p>" +
+            fotos +
+            '<div class="ed-banner__info"><p class="ed-banner__titulo">' + (i + 1) + ". " + esc(titulo) + (novo ? ' <span class="ed-chip ed-chip--novo">não publicado</span>' : "") + "</p>" +
+            '<p class="ed-dica">' + esc(linkResumo(s)) + (isProd || s.formato === "banner" ? "" : " · foto antiga, sem versão de celular") + "</p>" +
             '<div class="ed-banner__acoes">' +
             '<button type="button" class="btn btn--small btn--outline" data-ed-action="banner-mover" data-id="' + esc(s.id) + '" data-dir="-1"' + (i === 0 ? " disabled" : "") + ' aria-label="Subir banner ' + (i + 1) + '">↑</button>' +
             '<button type="button" class="btn btn--small btn--outline" data-ed-action="banner-mover" data-id="' + esc(s.id) + '" data-dir="1"' + (i === list.length - 1 ? " disabled" : "") + ' aria-label="Descer banner ' + (i + 1) + '">↓</button>' +
@@ -1194,23 +1216,76 @@
   function abrirBanner(id) {
     const d = ED.drafts.carrossel;
     const s = id ? d.carousel.find((x) => x.id === id) : null;
+    const tipo = s ? bannerTipo(s) : "produto";
     ED.banner = {
       original: s,
       pagina: s ? s.pagina || "home" : ED.carrosselPagina,
-      image: s ? s.image : "",
+      tipo: tipo,
+      image: s ? s.image || "" : "",
       imageMobile: s ? s.imageMobile || "" : "",
       title: s ? s.title || "" : "",
       linkTipo: s ? s.linkTipo || (s.productSlug ? "produto" : "nenhum") : "nenhum",
       productSlug: s ? s.productSlug || "" : "",
       linkCategory: s ? s.linkCategory || "" : "",
       url: s ? s.url || "" : "",
-      formato: s ? s.formato || "" : "banner",
+      overrides: s && s.overrides && typeof s.overrides === "object" ? Object.assign({}, s.overrides) : {},
+      buscaProduto: "",
+      trocandoProduto: false,
+      formato: s ? s.formato || (tipo === "produto" ? "banner" : "") : "banner",
       avisoPc: "",
       avisoCel: "",
       mudou: false,
     };
     renderBannerDialog();
     qs('[data-ed="dialog-banner"]').showModal();
+  }
+
+  function produtosParaBanner() {
+    const q = semAcento((ED.banner && ED.banner.buscaProduto) || "");
+    return products()
+      .filter((p) => p && p.active !== false && p.slug && p.images && p.images[0])
+      .filter((p) => !q || semAcento(p.name + " " + p.slug).indexOf(q) !== -1)
+      .slice()
+      .sort((x, y) => x.name.localeCompare(y.name, "pt-BR"));
+  }
+
+  function setOverride(b, key, value) {
+    const next = Object.assign({}, b.overrides || {});
+    const prev = Object.prototype.hasOwnProperty.call(next, key) ? next[key] : null;
+    if (value == null || value === "") delete next[key];
+    else next[key] = value;
+    const now = Object.prototype.hasOwnProperty.call(next, key) ? next[key] : null;
+    if (JSON.stringify(prev) !== JSON.stringify(now)) b.mudou = true;
+    b.overrides = next;
+  }
+
+  function reverterCampoBanner(campo) {
+    lerBannerForm();
+    const b = ED.banner;
+    if (!b) return;
+    const next = Object.assign({}, b.overrides || {});
+    delete next[campo];
+    b.overrides = next;
+    b.mudou = true;
+    renderBannerDialog();
+    const btn = qs('[data-ed="form-banner"] [data-ed-action="banner-reverter"][data-campo="' + campo + '"]');
+    const field = qs('[data-ed="form-banner"] [name="' + campo + '"]');
+    if (field) field.focus();
+    else if (btn) btn.focus();
+  }
+
+  function escolherProdutoBanner(slug) {
+    lerBannerForm();
+    const b = ED.banner;
+    if (!b) return;
+    b.productSlug = slug || "";
+    b.overrides = {};
+    b.trocandoProduto = false;
+    b.buscaProduto = "";
+    b.mudou = true;
+    renderBannerDialog();
+    const el = qs('[data-ed="form-banner"] [name="buscaProduto"], [data-ed="form-banner"] [name="title"]');
+    if (el) el.focus();
   }
 
   function renderBannerDialog(erros) {
@@ -1221,6 +1296,67 @@
     const errOf = (c) => errs.find((e) => e.campo === c);
     const fe = (c) => (errOf(c) ? '<span class="ed-erro" id="erro-b-' + c + '">' + esc(errOf(c).msg) + "</span>" : "");
     const inv = (c) => (errOf(c) ? ' aria-invalid="true" aria-describedby="erro-b-' + c + '"' : "");
+    const prodTipo = b.tipo === "produto";
+    const product = prodTipo ? products().find((x) => x.slug === b.productSlug) || null : null;
+    const defaults = Jana.productBannerDefaults ? Jana.productBannerDefaults(product) : {};
+    const resolved = prodTipo && Jana.resolveProductBanner ? Jana.resolveProductBanner({ productSlug: b.productSlug, overrides: b.overrides, tipo: "produto" }, product) : null;
+    const ov = b.overrides || {};
+    const hasOv = (k) => Object.prototype.hasOwnProperty.call(ov, k);
+    const modo = (v, label) =>
+      '<label class="ed-pilula"><input type="radio" name="bannerTipo" value="' + v + '"' + (b.tipo === v ? " checked" : "") + "> <span>" + label + "</span></label>";
+    const reverter = (campo) =>
+      hasOv(campo) ? '<button type="button" class="btn btn--outline btn--small" data-ed-action="banner-reverter" data-campo="' + campo + '">Usar o do produto</button>' : "";
+    const chip = (campo) => (hasOv(campo) ? ' <span class="ed-chip">editado neste banner</span>' : ' <span class="ed-dica-inline">do produto</span>');
+    let corpoProduto = "";
+    if (prodTipo) {
+      const lista = produtosParaBanner()
+        .slice(0, 40)
+        .map((p) => {
+          const preco = hasFixedPrice(p) ? Jana.formatBRL(p.price) : "Sob consulta";
+          return (
+            '<button type="button" class="ed-pick' + (p.slug === b.productSlug ? " is-selected" : "") + '" data-ed-action="banner-escolher-produto" data-slug="' +
+            esc(p.slug) + '">' + imgTag(p.images[0], "", "ed-pick__foto") + "<span><strong>" + esc(p.name) + "</strong><span class=\"ed-dica-inline\">" +
+            esc(preco) + "</span></span></button>"
+          );
+        })
+        .join("");
+      const mostrarBusca = !b.productSlug || b.trocandoProduto;
+      corpoProduto =
+        '<p class="ed-dica">Escolha o produto. O banner usa a foto, o nome, a descrição, o preço e o link da página dele. Você pode mudar qualquer um só neste banner e voltar ao dado do produto quando quiser.</p>' +
+        (product && product.active === false ? '<p class="ed-alerta">Este produto está oculto no site. O banner não aparece até você escolher outro ou voltar a mostrar o produto.</p>' : "") +
+        (b.productSlug && !product ? '<p class="ed-alerta">Este produto não está mais no catálogo. Escolha outro.</p>' : "") +
+        fe("productSlug") +
+        (product && !b.trocandoProduto
+          ? '<p class="ed-banner__escolhido"><strong>' + esc(product.name) + '</strong> <button type="button" class="btn btn--outline btn--small" data-ed-action="banner-trocar-produto">Trocar produto</button></p>'
+          : "") +
+        (mostrarBusca
+          ? '<label class="ed-field">Buscar produto <input type="search" name="buscaProduto" value="' + esc(b.buscaProduto || "") + '" placeholder="Nome do produto" autocomplete="off"' + inv("productSlug") + "></label>" +
+            '<div class="ed-picks" role="listbox" aria-label="Produtos">' + (lista || '<p class="ed-vazio">Nenhum produto encontrado.</p>') + "</div>"
+          : "") +
+        (product
+          ? '<div class="ed-banner-previews">' +
+            '<figure><div class="ed-banner-preview ed-banner-preview--pc" style="aspect-ratio:' + tam.pc[0] + "/" + tam.pc[1] + '">' +
+            (resolved && resolved.image && Jana.productBannerHtml ? Jana.productBannerHtml(resolved, { preview: true, eager: true, assetUrl: imgSrc }) : '<span class="ed-semfoto">sem foto</span>') +
+            "</div><figcaption>Computador</figcaption></figure>" +
+            '<figure><div class="ed-banner-preview ed-banner-preview--cel" style="aspect-ratio:' + tam.cel[0] + "/" + tam.cel[1] + '">' +
+            (resolved && resolved.image && Jana.productBannerHtml ? Jana.productBannerHtml(resolved, { preview: true, eager: true, assetUrl: imgSrc }) : '<span class="ed-semfoto">sem foto</span>') +
+            "</div><figcaption>Celular</figcaption></figure></div>" +
+            '<label class="ed-field">Nome' + chip("title") + '<input type="text" name="title" maxlength="200" value="' + esc(resolved.title) + '"' + inv("title") + ">" + fe("title") + reverter("title") + "</label>" +
+            '<label class="ed-field">Descrição' + chip("description") + '<textarea name="description" rows="3" maxlength="800">' + esc(resolved.description) + "</textarea>" + reverter("description") + "</label>" +
+            '<label class="ed-field">Preço' + chip("price") + '<input type="text" name="price" inputmode="decimal" placeholder="' + (hasFixedPrice(product) ? "" : "Sob consulta") + '" value="' +
+            esc(hasOv("price") ? precoTexto(ov.price) : hasFixedPrice(product) ? precoTexto(product.price) : "") + '">' + reverter("price") +
+            '<span class="ed-dica-inline">Deixe em branco para usar o preço do produto' + (hasFixedPrice(product) ? "" : " (sob consulta)") + ".</span></label>" +
+            '<fieldset class="ed-grupo"><legend>Foto' + chip("image") + "</legend>" +
+            '<div class="ed-preview ed-preview--foto">' + (resolved.image ? imgTag(resolved.image, resolved.alt || "", "") : '<span class="ed-semfoto">sem foto</span>') + "</div>" +
+            fe("image") +
+            '<div class="ed-linha"><label class="btn btn--outline ed-arquivo">Trocar foto<input type="file" accept="image/*" data-ed-file="banner-produto-foto"></label>' +
+            (hasOv("image") ? '<button type="button" class="btn btn--outline" data-ed-action="banner-reverter" data-campo="image">Usar a foto do produto</button>' : "") +
+            "</div></fieldset>" +
+            '<label class="ed-field">Link' + chip("url") + '<input type="url" name="url" inputmode="url" placeholder="Página do produto" value="' + esc(ov.url || "") + '"' + inv("url") + ">" +
+            fe("url") + reverter("url") +
+            '<span class="ed-dica-inline">Vazio usa a página do produto. Links de fora do site abrem numa nova aba.</span></label>'
+          : "");
+    }
     const prods = products()
       .slice()
       .sort((x, y) => x.name.localeCompare(y.name, "pt-BR"))
@@ -1231,20 +1367,13 @@
       .join("");
     const radio = (v, label) =>
       '<label class="ed-check"><input type="radio" name="linkTipo" value="' + v + '"' + (b.linkTipo === v ? " checked" : "") + "> <span>" + label + "</span></label>";
-    dialog.innerHTML =
-      '<form class="ed-form" data-ed="form-banner" novalidate>' +
-      '<header class="ed-dialog__topo"><h2 id="ed-banner-titulo">' + (b.original ? "Editar banner" : "Novo banner") + "</h2>" +
-      '<button type="button" class="ed-fechar" data-ed-action="fechar-banner" aria-label="Fechar sem aplicar">×</button></header>' +
-      '<div class="ed-dialog__corpo">' +
-      (errs.length ? '<div class="ed-erros" role="alert"><strong>Confira:</strong><ul>' + errs.map((e) => "<li>" + esc(e.msg) + "</li>").join("") + "</ul></div>" : "") +
-      '<p class="ed-dica">Página: <strong>' + esc((paginas().find((p) => p.id === b.pagina) || {}).name || "") + "</strong></p>" +
+    const corpoImagem =
+      '<p class="ed-dica">' + tam.pc[0] + " × " + tam.pc[1] + " px no computador; " + tam.cel[0] + " × " + tam.cel[1] + " px no celular. Sem a imagem de celular, o celular mostra a do computador.</p>" +
       '<fieldset class="ed-grupo"><legend>Imagem para computador <span class="ed-obrigatorio">(obrigatória)</span></legend>' +
-      '<p class="ed-dica">' + tam.pc[0] + " × " + tam.pc[1] + " px</p>" +
       '<div class="ed-preview ed-preview--pc" style="aspect-ratio:' + tam.pc[0] + "/" + tam.pc[1] + '">' + (b.image ? imgTag(b.image, "", "") : '<span class="ed-semfoto">sem imagem</span>') + "</div>" +
       (b.avisoPc ? '<p class="ed-alerta">' + esc(b.avisoPc) + "</p>" : "") + fe("image") +
       '<label class="btn btn--outline ed-arquivo">' + (b.image ? "Trocar imagem" : "Escolher imagem") + '<input type="file" accept="image/*" data-ed-file="banner-pc"' + inv("image") + "></label></fieldset>" +
       '<fieldset class="ed-grupo"><legend>Imagem para celular <span class="ed-opcional">(opcional)</span></legend>' +
-      '<p class="ed-dica">' + tam.cel[0] + " × " + tam.cel[1] + " px. Sem ela, o celular mostra a imagem do computador.</p>" +
       '<div class="ed-preview ed-preview--cel" style="aspect-ratio:' + tam.cel[0] + "/" + tam.cel[1] + '">' + (b.imageMobile ? imgTag(b.imageMobile, "", "") : '<span class="ed-semfoto">sem imagem</span>') + "</div>" +
       (b.avisoCel ? '<p class="ed-alerta">' + esc(b.avisoCel) + "</p>" : "") +
       '<div class="ed-linha"><label class="btn btn--outline ed-arquivo">' + (b.imageMobile ? "Trocar imagem" : "Escolher imagem") + '<input type="file" accept="image/*" data-ed-file="banner-cel"></label>' +
@@ -1263,7 +1392,19 @@
         ? '<label class="ed-field ed-sub">Endereço<input type="url" name="url" inputmode="url" placeholder="https://…" value="' + esc(b.url) + '"' + inv("url") + ">" + fe("url") +
           '<span class="ed-dica-inline">Links de fora do site abrem numa nova aba.</span></label>'
         : "") +
+      "</div></fieldset>";
+    dialog.innerHTML =
+      '<form class="ed-form" data-ed="form-banner" novalidate>' +
+      '<header class="ed-dialog__topo"><h2 id="ed-banner-titulo">' + (b.original ? "Editar banner" : "Novo banner") + "</h2>" +
+      '<button type="button" class="ed-fechar" data-ed-action="fechar-banner" aria-label="Fechar sem aplicar">×</button></header>' +
+      '<div class="ed-dialog__corpo">' +
+      (errs.length ? '<div class="ed-erros" role="alert"><strong>Confira:</strong><ul>' + errs.map((e) => "<li>" + esc(e.msg) + "</li>").join("") + "</ul></div>" : "") +
+      '<p class="ed-dica">Página: <strong>' + esc((paginas().find((p) => p.id === b.pagina) || {}).name || "") + "</strong></p>" +
+      '<fieldset class="ed-grupo"><legend>Tipo de banner</legend><div class="ed-pilulas">' +
+      modo("produto", "Produto (recomendado)") +
+      modo("imagem", "Imagem") +
       "</div></fieldset>" +
+      (prodTipo ? corpoProduto : corpoImagem) +
       "</div>" +
       '<footer class="ed-dialog__acoes">' +
       '<button type="button" class="btn btn--outline" data-ed-action="fechar-banner">Cancelar</button>' +
@@ -1281,12 +1422,53 @@
         b.mudou = true;
       }
     };
-    set("title", form.title.value);
-    const tipo = qs('input[name="linkTipo"]:checked', form);
-    set("linkTipo", tipo ? tipo.value : "nenhum");
-    if (form.productSlug) set("productSlug", form.productSlug.value);
-    if (form.linkCategory) set("linkCategory", form.linkCategory.value);
-    if (form.url) set("url", form.url.value.trim());
+    const tipoBanner = qs('input[name="bannerTipo"]:checked', form);
+    if (tipoBanner) set("tipo", tipoBanner.value);
+    if (form.buscaProduto) b.buscaProduto = form.buscaProduto.value;
+    if (b.tipo === "produto") {
+      const product = products().find((x) => x.slug === b.productSlug) || null;
+      const defaults = Jana.productBannerDefaults ? Jana.productBannerDefaults(product) : {};
+      if (form.title) {
+        const title = form.title.value.trim();
+        if (!product || title === defaults.title) setOverride(b, "title", null);
+        else setOverride(b, "title", title);
+      }
+      if (form.description) {
+        const description = form.description.value;
+        if (!product || description.trim() === defaults.description) {
+          const next = Object.assign({}, b.overrides || {});
+          delete next.description;
+          b.overrides = next;
+        } else {
+          const next = Object.assign({}, b.overrides || {});
+          next.description = description;
+          b.overrides = next;
+          b.mudou = true;
+        }
+      }
+      if (form.price) {
+        const raw = form.price.value.trim();
+        if (!raw) setOverride(b, "price", null);
+        else {
+          const n = parsePreco(raw);
+          if (Number.isFinite(n) && n > 0) {
+            if (product && hasFixedPrice(product) && n === product.price) setOverride(b, "price", null);
+            else setOverride(b, "price", n);
+          }
+        }
+      }
+      if (form.url) {
+        const url = form.url.value.trim();
+        setOverride(b, "url", url || null);
+      }
+    } else {
+      if (form.title) set("title", form.title.value);
+      const tipo = qs('input[name="linkTipo"]:checked', form);
+      set("linkTipo", tipo ? tipo.value : "nenhum");
+      if (form.productSlug) set("productSlug", form.productSlug.value);
+      if (form.linkCategory) set("linkCategory", form.linkCategory.value);
+      if (form.url) set("url", form.url.value.trim());
+    }
   }
 
   async function bannerArquivo(input, qual) {
@@ -1298,18 +1480,23 @@
     const tam = tamanhos(b.pagina);
     setStatus("salvando", "Preparando a imagem…");
     try {
-      const res = await processImage(file, qual === "pc" ? IMG.bannerPc : IMG.bannerCel);
+      const kind = qual === "produto" ? IMG.produto : qual === "pc" ? IMG.bannerPc : IMG.bannerCel;
+      const res = await processImage(file, kind);
       const base = (b.original ? b.original.id : "banner").replace(/^slide-/, "").slice(0, 60);
-      const path = addPending("assets/carousel", base + (qual === "pc" ? "-pc" : "-cel"), res);
-      if (qual === "pc") {
+      const suffix = qual === "produto" ? "-foto" : qual === "pc" ? "-pc" : "-cel";
+      const path = addPending("assets/carousel", base + suffix, res);
+      if (qual === "produto") {
+        setOverride(b, "image", path);
+      } else if (qual === "pc") {
         b.image = path;
         b.formato = "banner";
         b.avisoPc = proporcaoAviso(res, tam.pc);
+        b.mudou = true;
       } else {
         b.imageMobile = path;
         b.avisoCel = proporcaoAviso(res, tam.cel);
+        b.mudou = true;
       }
-      b.mudou = true;
       setStatus("", "");
     } catch (err) {
       setStatus("erro", err.message);
@@ -1319,12 +1506,37 @@
 
   function validarBanner(b) {
     const e = [];
-    if (!b.image) e.push({ campo: "image", msg: "Escolha a imagem para computador." });
-    if (!b.title.trim()) e.push({ campo: "title", msg: "Escreva a descrição da imagem." });
-    if (b.linkTipo === "produto" && !b.productSlug) e.push({ campo: "productSlug", msg: "Escolha o produto." });
-    if (b.linkTipo === "categoria" && !b.linkCategory) e.push({ campo: "linkCategory", msg: "Escolha a categoria." });
-    if (b.linkTipo === "url") {
-      if (!/^https:\/\/[^\s"'<>]+\.[^\s"'<>]+$/i.test(b.url)) e.push({ campo: "url", msg: "Escreva um endereço completo, começando com https://" });
+    if (b.tipo === "produto") {
+      if (!b.productSlug) e.push({ campo: "productSlug", msg: "Escolha o produto." });
+      else {
+        const p = products().find((x) => x.slug === b.productSlug);
+        if (!p) e.push({ campo: "productSlug", msg: "Este produto não está mais no catálogo. Escolha outro." });
+        else {
+          const foto = (b.overrides && b.overrides.image) || (p.images && p.images[0]);
+          if (!foto) e.push({ campo: "image", msg: "Este produto não tem foto. Escolha uma foto para o banner ou outro produto." });
+        }
+      }
+      if (b.overrides && b.overrides.url) {
+        const url = String(b.overrides.url);
+        if (!/^https:\/\/[^\s"'<>]+$/i.test(url) && !/^\/?[a-z0-9][a-z0-9\/?=&#._%-]*$/i.test(url)) {
+          e.push({ campo: "url", msg: "Escreva um endereço completo, começando com https://, ou um endereço do site." });
+        }
+      }
+      if (qs('[data-ed="form-banner"] [name="price"]')) {
+        const raw = qs('[data-ed="form-banner"] [name="price"]').value.trim();
+        if (raw) {
+          const n = parsePreco(raw);
+          if (!Number.isFinite(n) || n <= 0) e.push({ campo: "price", msg: "Escreva um preço válido, ou deixe em branco para usar o do produto." });
+        }
+      }
+    } else {
+      if (!b.image) e.push({ campo: "image", msg: "Escolha a imagem para computador." });
+      if (!String(b.title || "").trim()) e.push({ campo: "title", msg: "Escreva a descrição da imagem." });
+      if (b.linkTipo === "produto" && !b.productSlug) e.push({ campo: "productSlug", msg: "Escolha o produto." });
+      if (b.linkTipo === "categoria" && !b.linkCategory) e.push({ campo: "linkCategory", msg: "Escolha a categoria." });
+      if (b.linkTipo === "url") {
+        if (!/^https:\/\/[^\s"'<>]+\.[^\s"'<>]+$/i.test(b.url)) e.push({ campo: "url", msg: "Escreva um endereço completo, começando com https://" });
+      }
     }
     return e;
   }
@@ -1341,23 +1553,46 @@
     }
     const d = ED.drafts.carrossel;
     const out = b.original ? Object.assign({}, b.original) : { id: "banner-" + randomId() };
-    out.title = b.title.trim();
-    out.image = b.image;
-    if (b.imageMobile) out.imageMobile = b.imageMobile;
-    else delete out.imageMobile;
     if (b.pagina !== "home") out.pagina = b.pagina;
     else delete out.pagina;
-    const legacyProduto = b.original && !b.original.linkTipo && b.linkTipo === "produto" && b.productSlug === b.original.productSlug;
-    if (!legacyProduto) {
-      out.linkTipo = b.linkTipo;
-      delete out.productSlug;
+    if (b.tipo === "produto") {
+      out.tipo = "produto";
+      out.productSlug = b.productSlug;
+      out.linkTipo = "produto";
+      const p = products().find((x) => x.slug === b.productSlug);
+      const resolved = Jana.resolveProductBanner({ tipo: "produto", productSlug: b.productSlug, overrides: b.overrides }, p);
+      out.title = resolved.title;
+      delete out.image;
+      delete out.imageMobile;
       delete out.linkCategory;
       delete out.url;
-      if (b.linkTipo === "produto") out.productSlug = b.productSlug;
-      if (b.linkTipo === "categoria") out.linkCategory = b.linkCategory;
-      if (b.linkTipo === "url") out.url = b.url;
+      delete out.subtitle;
+      delete out.formato;
+      const ov = b.overrides && typeof b.overrides === "object" ? Object.assign({}, b.overrides) : {};
+      Object.keys(ov).forEach((k) => {
+        if (ov[k] == null || ov[k] === "") delete ov[k];
+      });
+      if (Object.keys(ov).length) out.overrides = ov;
+      else delete out.overrides;
+    } else {
+      out.tipo = "imagem";
+      out.title = b.title.trim();
+      out.image = b.image;
+      if (b.imageMobile) out.imageMobile = b.imageMobile;
+      else delete out.imageMobile;
+      delete out.overrides;
+      const legacyProduto = b.original && !b.original.linkTipo && !b.original.tipo && b.linkTipo === "produto" && b.productSlug === b.original.productSlug;
+      if (!legacyProduto) {
+        out.linkTipo = b.linkTipo;
+        delete out.productSlug;
+        delete out.linkCategory;
+        delete out.url;
+        if (b.linkTipo === "produto") out.productSlug = b.productSlug;
+        if (b.linkTipo === "categoria") out.linkCategory = b.linkCategory;
+        if (b.linkTipo === "url") out.url = b.url;
+      }
+      if (b.formato) out.formato = b.formato;
     }
-    if (b.formato) out.formato = b.formato;
     if (b.original) {
       const i = d.carousel.indexOf(b.original);
       d.carousel[i] = out;
@@ -1993,6 +2228,22 @@
         ED.banner.mudou = true;
         renderBannerDialog();
         break;
+      case "banner-escolher-produto":
+        escolherProdutoBanner(el.getAttribute("data-slug"));
+        break;
+      case "banner-trocar-produto":
+        lerBannerForm();
+        ED.banner.trocandoProduto = true;
+        ED.banner.buscaProduto = "";
+        renderBannerDialog();
+        {
+          const busca = qs('[data-ed="form-banner"] [name="buscaProduto"]');
+          if (busca) busca.focus();
+        }
+        break;
+      case "banner-reverter":
+        reverterCampoBanner(el.getAttribute("data-campo"));
+        break;
       case "salvar-aba":
         salvarAba();
         break;
@@ -2110,6 +2361,27 @@
       const r = qs('[data-ed="form-banner"] input[name="linkTipo"][value="' + t.value + '"]');
       if (r) r.focus();
     }
+    if (t.closest('[data-ed="form-banner"]') && event.type === "change" && t.name === "bannerTipo") {
+      lerBannerForm();
+      if (t.value === "produto") {
+        ED.banner.linkTipo = "produto";
+        ED.banner.formato = "banner";
+        if (!ED.banner.productSlug) ED.banner.trocandoProduto = true;
+      }
+      renderBannerDialog();
+      const r = qs('[data-ed="form-banner"] input[name="bannerTipo"][value="' + t.value + '"]');
+      if (r) r.focus();
+    }
+    if (t.closest('[data-ed="form-banner"]') && t.name === "buscaProduto" && event.type === "input") {
+      ED.banner.buscaProduto = t.value;
+      const start = t.selectionStart;
+      renderBannerDialog();
+      const el = qs('[data-ed="form-banner"] [name="buscaProduto"]');
+      if (el) {
+        el.focus();
+        try { el.setSelectionRange(start, start); } catch (err) {}
+      }
+    }
   }
 
   function onChange(event) {
@@ -2131,6 +2403,7 @@
       if (kind === "produto") adicionarFotosProduto(t);
       else if (kind === "banner-pc") bannerArquivo(t, "pc");
       else if (kind === "banner-cel") bannerArquivo(t, "cel");
+      else if (kind === "banner-produto-foto") bannerArquivo(t, "produto");
       else textosArquivo(t);
       return;
     }

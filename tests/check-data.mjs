@@ -528,13 +528,31 @@ if (!painelJs.includes("status_pagamento") || !painelJs.includes("order_nsu") ||
 
 const productBySlug = new Map(products.map((item) => [item.slug, item]));
 carousel.forEach((slide) => {
-  if (!slide.productSlug || !productBySlug.has(slide.productSlug)) {
-    errors.push("home carousel slide missing catalog product: " + (slide.productSlug || slide.id));
+  if (slide.tipo && slide.tipo !== "produto" && slide.tipo !== "imagem") {
+    errors.push("carousel slide has invalid tipo: " + slide.id);
+  }
+  if (slide.tipo === "produto") {
+    if (!slide.productSlug || !productBySlug.has(slide.productSlug)) {
+      errors.push("product banner missing catalog product: " + (slide.productSlug || slide.id));
+    }
+  } else if (slide.productSlug && !productBySlug.has(slide.productSlug)) {
+    errors.push("home carousel slide missing catalog product: " + slide.productSlug);
   }
 });
-const unmatchedHome = carousel.filter((slide) => !productBySlug.has(slide.productSlug));
+const unmatchedHome = carousel.filter((slide) => slide.tipo !== "produto" && slide.productSlug && !productBySlug.has(slide.productSlug));
 if (unmatchedHome.length) {
   errors.push("unmatched home carousel photos: " + unmatchedHome.map((slide) => slide.image).join(", "));
+}
+if (!utilsJs.includes("productBannerHtml") || !utilsJs.includes("resolveProductBanner") || !appJs.includes("productBannerHtml")) {
+  errors.push("product banners must resolve from the catalog and render as HTML");
+}
+const editorJs = readFileSync(join(root, "js/editor.js"), "utf8");
+const bannerCss = readFileSync(join(root, "css/banner-produto.css"), "utf8");
+if (!editorJs.includes("bannerTipo") || !editorJs.includes("Usar o do produto") || !editorJs.includes('tipo: "produto"')) {
+  errors.push("editor must default new banners to product mode with per-field revert");
+}
+if (!bannerCss.includes("hero__slide--produto") || !bannerCss.includes("1300px") || !layoutCss.includes("banner-produto.css")) {
+  errors.push("product banner CSS must use the 1300px center band and be loaded on the site");
 }
 
 if (/TODO/i.test(JSON.stringify(site))) {

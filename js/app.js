@@ -345,6 +345,9 @@
     track.style.setProperty("--carousel-transition", Jana.CAROUSEL_TRANSITION_MS + "ms");
     track.innerHTML = slides
       .map(function slideHtml(slide, index) {
+        if (slide.tipo === "produto" && Jana.productBannerHtml) {
+          return Jana.productBannerHtml(slide, { eager: index === 0 });
+        }
         const eager = index === 0;
         let img =
           '<img src="' +
