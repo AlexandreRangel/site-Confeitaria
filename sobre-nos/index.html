@@ -10,9 +10,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/base.css">
-  <link rel="stylesheet" href="../css/layout.css">
-  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/base.css?v=20261116d">
+  <link rel="stylesheet" href="../css/layout.css?v=20261116d">
+  <link rel="stylesheet" href="../css/components.css?v=20261116d">
 </head>
 <body data-page="about" data-root="../">
   <a class="skip-link" href="#sobre">Ir para Sobre nós</a>
@@ -118,6 +118,7 @@
         <button type="button" class="modal__close" data-action="close-cart" aria-label="Fechar encomendas">×</button>
       </header>
       <div class="drawer__items" data-bind="cart-items"></div>
+      <p class="cart-min-aviso" id="cart-min-qty" data-bind="cart-min-qty" role="alert" hidden></p>
       <p class="drawer__total"><span data-bind="cart-total-label">Total</span>: <strong data-bind="cart-total">R$ 0,00</strong></p>
       <form id="checkout-form" class="checkout">
         <label>Nome <input name="nome" type="text" required autocomplete="name"></label>
@@ -190,15 +191,15 @@
     </div>
   </aside>
   <div class="backdrop" data-action="close-cart" hidden></div>
-  <script defer src="../js/background-hydra.js"></script>
-  <script defer src="../js/utils.js"></script>
-  <script defer src="../js/pix.js"></script>
-  <script defer src="../js/pagamento.js"></script>
-  <script defer src="../js/pausa.js"></script>
-  <script defer src="../js/vendor/qrcode-generator.js"></script>
-  <script defer src="../js/cart.js"></script>
-  <script defer src="../js/store.js"></script>
-  <script defer src="../js/central.js"></script>
-  <script defer src="../js/app.js"></script>
+  <script defer src="../js/background-hydra.js?v=20261116d"></script>
+  <script defer src="../js/utils.js?v=20261116d"></script>
+  <script defer src="../js/pix.js?v=20261116d"></script>
+  <script defer src="../js/pagamento.js?v=20261116d"></script>
+  <script defer src="../js/pausa.js?v=20261116d"></script>
+  <script defer src="../js/vendor/qrcode-generator.js?v=20261116d"></script>
+  <script defer src="../js/cart.js?v=20261116d"></script>
+  <script defer src="../js/store.js?v=20261116d"></script>
+  <script defer src="../js/central.js?v=20261116d"></script>
+  <script defer src="../js/app.js?v=20261116d"></script>
 </body>
 </html>

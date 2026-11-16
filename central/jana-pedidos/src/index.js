@@ -350,6 +350,13 @@ function resolveTaxa(site, modalidade, regiao) {
   return Number.isFinite(t) ? { taxa: t, pendente: false } : { taxa: 0, pendente: true };
 }
 
+function productMinQty(product) {
+  const n = product && product.minQty;
+  if (typeof n !== "number" || !Number.isFinite(n)) return 1;
+  const qty = Math.floor(n);
+  return qty >= 2 && qty <= 1000 ? qty : 1;
+}
+
 function fixedPrice(product) {
   if (!product || product.active === false) return null;
   const price = product.price;
@@ -366,7 +373,7 @@ function cleanItems(rawItems) {
   if (rawItems.length > MAX_ITEMS) throw new HttpError(400, "itens demais");
   return rawItems.map((it) => {
     const quantity = Math.floor(Number(it && it.quantity));
-    if (!Number.isFinite(quantity) || quantity < 1 || quantity > 500) {
+    if (!Number.isFinite(quantity) || quantity < 1 || quantity > 1000) {
       throw new HttpError(400, "quantidade inválida");
     }
     const price = Number(it && it.price);
@@ -387,6 +394,13 @@ async function priceOrder(env, items, modalidade, regiao, requireFixed) {
   const priced = items.map((it) => {
     if (!catalog) return Object.assign({}, it);
     const product = catalog.products.get(it.id);
+    const minQty = productMinQty(product);
+    if (product && minQty >= 2 && it.quantity < minQty) {
+      throw new HttpError(
+        422,
+        "«" + (str(product.name, 160) || it.name || "Produto") + "»: pedido mínimo de " + minQty + " unidades."
+      );
+    }
     const official = fixedPrice(product);
     if (official == null) {
       verified = false;
@@ -1357,6 +1371,11 @@ function validateProducts(list) {
     if (p.active != null && typeof p.active !== "boolean") bad(label + ": campo «mostrar no site» inválido");
     if (p.aceitaImagemPersonalizacao != null && typeof p.aceitaImagemPersonalizacao !== "boolean") {
       bad(label + ": campo de imagem para personalização inválido");
+    }
+    if (p.minQty != null) {
+      if (typeof p.minQty !== "number" || !Number.isFinite(p.minQty) || p.minQty < 2 || p.minQty > 1000 || Math.floor(p.minQty) !== p.minQty) {
+        bad(label + ": quantidade mínima inválida");
+      }
     }
     if (p.tags != null && (!Array.isArray(p.tags) || p.tags.some((t) => typeof t !== "string" || t.length > 80))) {
       bad(label + ": palavras-chave inválidas");

@@ -742,6 +742,9 @@
           ? Jana.formatBRL(product.price)
           : "Sob consulta"
       ) +
+      (Jana.productHasMinQty && Jana.productHasMinQty(product)
+        ? '<span class="card__min">mín. ' + Jana.productMinQty(product) + "</span>"
+        : "") +
       "</p>" +
       '<div class="card__actions">' +
       '<a class="btn btn--outline" href="' +
@@ -1079,10 +1082,7 @@
     if (state.site && state.site.brandName) {
       document.title = product.name + " · " + state.site.brandName;
     }
-    const qty = Jana.qs("#product-qty") || Jana.qs("#modal-qty");
-    if (qty) {
-      qty.value = "1";
-    }
+    applyProductMinQty(product);
     renderFlavorPicker(product);
     updateModalImage();
     const img = Jana.qs('[data-bind="product-image"]');
@@ -1233,6 +1233,80 @@
     if (location.hash.indexOf("#produto:") === 0) {
       clearPageHash();
     }
+  }
+
+  function applyProductMinQty(product) {
+    const min = Jana.productMinQty ? Jana.productMinQty(product) : 1;
+    const inputs = Jana.qsa("#product-qty, #modal-qty");
+    inputs.forEach(function setInput(input) {
+      input.setAttribute("min", String(min));
+      if (min >= 2) {
+        input.setAttribute("aria-describedby", "product-min-qty");
+      } else {
+        input.removeAttribute("aria-describedby");
+      }
+      const current = Math.floor(Number(input.value) || 0);
+      if (current < min) {
+        input.value = String(min);
+      }
+    });
+    Jana.qsa("[data-bind='product-min-qty']").forEach(function setNote(note) {
+      if (min >= 2) {
+        note.hidden = false;
+        note.textContent = "Pedido mínimo: " + min + " unidades";
+      } else {
+        note.hidden = true;
+        note.textContent = "";
+      }
+    });
+  }
+
+  function clampProductQtyInput(input) {
+    if (!input || (input.id !== "product-qty" && input.id !== "modal-qty")) {
+      return;
+    }
+    const product = state.currentProduct;
+    const min = Jana.productMinQty ? Jana.productMinQty(product) : 1;
+    const raw = String(input.value || "").trim();
+    if (raw === "") {
+      return;
+    }
+    const n = Math.floor(Number(raw));
+    if (!Number.isFinite(n) || n < min) {
+      input.value = String(min);
+    } else if (n > (Jana.MIN_QTY_LIMIT || 1000)) {
+      input.value = String(Jana.MIN_QTY_LIMIT || 1000);
+    } else if (String(n) !== raw) {
+      input.value = String(n);
+    }
+  }
+
+  function productForCartItem(item) {
+    if (!item) {
+      return null;
+    }
+    if (Jana.productBySlug) {
+      const bySlug = Jana.productBySlug(state.products, item.slug);
+      if (bySlug) {
+        return bySlug;
+      }
+    }
+    return (state.products || []).find(function find(p) {
+      return p.id === item.id || p.slug === item.slug;
+    }) || null;
+  }
+
+  function cartMinQtyIssues() {
+    return Jana.Cart.items()
+      .map(function issue(item) {
+        const product = productForCartItem(item);
+        const min = Jana.productMinQty ? Jana.productMinQty(product) : 1;
+        if (min >= 2 && item.quantity < min) {
+          return { item: item, product: product, min: min };
+        }
+        return null;
+      })
+      .filter(Boolean);
   }
 
   function addProduct(slug, quantity) {
@@ -1503,6 +1577,13 @@
       }
       submit.classList.toggle("btn--whatsapp", opensWhatsApp);
       submit.classList.toggle("btn--solid", !opensWhatsApp);
+      const blocked = cartMinQtyIssues().length > 0;
+      submit.disabled = blocked;
+      if (blocked) {
+        submit.setAttribute("aria-describedby", "cart-min-qty");
+      } else {
+        submit.removeAttribute("aria-describedby");
+      }
     }
     const site = state.site || {};
     let disclaimer = site.requestDisclaimer || Jana.REQUEST_DISCLAIMER;
@@ -1707,11 +1788,15 @@
     }
     return (
       '<div class="cart-row__foto">' +
-      '<label class="cart-row__foto-envia">' +
-      '<span>Enviar imagem para personalizar (opcional, JPG ou PNG)</span>' +
+      '<label class="cart-row__foto-envia arquivo-escolha">' +
+      '<span class="arquivo-escolha__legenda">Enviar imagem para personalizar (opcional, JPG ou PNG)</span>' +
+      '<span class="arquivo-escolha__controle">' +
+      '<span class="btn btn--outline btn--small arquivo-escolha__botao">Escolher arquivo' +
       '<input type="file" accept="image/jpeg,image/jpg,image/png,.jpg,.jpeg,.png" data-action="personalizacao-arquivo" data-id="' +
       Jana.escapeHtml(lineId) +
-      '"></label></div>'
+      '"></span>' +
+      '<span class="arquivo-escolha__status">Nenhum arquivo escolhido</span>' +
+      "</span></label></div>"
     );
   }
 
@@ -1790,12 +1875,48 @@
               Jana.escapeHtml(item.name) +
               '">+</button>' +
               "</div>" +
+              (function minNote() {
+                const product = productForCartItem(item);
+                const min = Jana.productMinQty ? Jana.productMinQty(product) : 1;
+                if (min < 2) return "";
+                if (item.quantity < min) {
+                  return (
+                    '<p class="cart-row__aviso" role="status">Pedido mínimo: ' +
+                    min +
+                    " unidades. Abaixo dessa quantidade este produto fica indisponível.</p>"
+                  );
+                }
+                return '<p class="cart-row__min">Pedido mínimo: ' + min + " unidades</p>";
+              })() +
               personalizacaoBlock(item) +
               "</article>"
             );
           })
           .join("")
       : '<p class="empty">Sua encomenda está vazia. Escolha um item do catálogo.</p>';
+    const minIssues = cartMinQtyIssues();
+    const minBox = Jana.qs('[data-bind="cart-min-qty"]');
+    if (minBox) {
+      if (minIssues.length) {
+        minBox.hidden = false;
+        minBox.textContent = minIssues
+          .map(function line(issue) {
+            return (
+              "«" +
+              issue.item.name +
+              "»: pedido mínimo de " +
+              issue.min +
+              " unidades (há " +
+              issue.item.quantity +
+              " no pedido)."
+            );
+          })
+          .join(" ");
+      } else {
+        minBox.hidden = true;
+        minBox.textContent = "";
+      }
+    }
     syncCheckoutMode();
   }
 
@@ -2084,6 +2205,24 @@
     }
     if (!Jana.Cart.items().length && !payload.observacoes) {
       setCheckoutStatus("Adicione um item ou descreva o pedido em Observações.");
+      openCart();
+      return;
+    }
+    const minIssues = cartMinQtyIssues();
+    if (minIssues.length) {
+      setCheckoutStatus(
+        minIssues
+          .map(function line(issue) {
+            return (
+              "«" +
+              issue.item.name +
+              "»: este produto só está disponível a partir de " +
+              issue.min +
+              " unidades."
+            );
+          })
+          .join(" ")
+      );
       openCart();
       return;
     }
@@ -2697,7 +2836,11 @@
         }
       });
     }
+    document.addEventListener("input", function onQtyInput(event) {
+      clampProductQtyInput(event.target);
+    });
     document.addEventListener("change", function onChange(event) {
+      clampProductQtyInput(event.target);
       const fileInput = event.target.closest("[data-action='personalizacao-arquivo']");
       if (fileInput) {
         handlePersonalizacaoArquivo(fileInput);

@@ -57,7 +57,8 @@
       return loadItems();
     },
     add: function add(product, quantity, options) {
-      const qty = Math.max(1, Number(quantity) || 1);
+      const requested = Math.max(1, Number(quantity) || 1);
+      const minQty = Jana.productMinQty ? Jana.productMinQty(product) : 1;
       const flavor = options && options.flavor ? String(options.flavor) : "";
       const lineId = String(product.id) + "::" + flavor;
       const current = loadItems();
@@ -65,9 +66,10 @@
         return lineIdOf(item) === lineId;
       });
       if (existing) {
-        existing.quantity += qty;
+        existing.quantity += requested;
         existing.lineId = lineId;
       } else {
+        const qty = Math.max(minQty, requested);
         current.push({
           id: product.id,
           lineId: lineId,

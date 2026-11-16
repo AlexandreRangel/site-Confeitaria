@@ -680,6 +680,20 @@ if (!workerJs.includes("order_images") || !workerJs.includes("sniffImageMime") |
   errors.push("Worker must validate and store personalization images (R2 or D1 migration 0002)");
 }
 
+if (!editorJs.includes("Pedido mínimo") || !editorJs.includes("Quantidade mínima") || !editorJs.includes("pedidoMinimo") || !editorJs.includes("minQty")) {
+  errors.push("product editor must have the Pedido mínimo toggle and minQty field");
+}
+if (!utilsJs.includes("productMinQty") || !appJs.includes("Pedido mínimo:") || !appJs.includes("Escolher arquivo") || !appJs.includes("Nenhum arquivo escolhido")) {
+  errors.push("storefront must show minQty notes and a Portuguese file picker");
+}
+const productPageMin = readFileSync(join(root, "produto/index.html"), "utf8");
+if (!componentsCss.includes("arquivo-escolha__botao") || !home.includes("cart-min-qty") || !productPageMin.includes("product-min-qty")) {
+  errors.push("file picker must hide the native control and product/cart must expose minQty messages");
+}
+if (!workerJs.includes("minQty") || !workerJs.includes("pedido mínimo de")) {
+  errors.push("Worker must validate minQty and reject orders below the minimum");
+}
+
 const pausaJs = readFileSync(join(root, "js/pausa.js"), "utf8");
 if (!pausaJs.includes("datasBloqueadas") || !pausaJs.includes("mountDesiredDateCalendar") || !pausaJs.includes("formatDateExtensoBR")) {
   errors.push("cart calendar must show blocked dates and be keyboard accessible");

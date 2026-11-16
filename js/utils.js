@@ -949,6 +949,24 @@
     return !!(product && product.aceitaImagemPersonalizacao === true);
   };
 
+  Jana.MIN_QTY_LIMIT = 1000;
+
+  Jana.productMinQty = function productMinQty(product) {
+    const n = product && product.minQty;
+    if (typeof n !== "number" || !Number.isFinite(n)) {
+      return 1;
+    }
+    const qty = Math.floor(n);
+    if (qty !== n || qty < 2 || qty > Jana.MIN_QTY_LIMIT) {
+      return 1;
+    }
+    return qty;
+  };
+
+  Jana.productHasMinQty = function productHasMinQty(product) {
+    return Jana.productMinQty(product) >= 2;
+  };
+
   Jana.personalizacaoWhatsAppLinha = function personalizacaoWhatsAppLinha(info) {
     const data = info || {};
     if (data.enviadas > 0) {

@@ -933,6 +933,15 @@ if (typeof Jana.siteText !== "function") {
   if (Jana.personalizacaoWhatsAppLinha({}) || Jana.personalizacaoWhatsAppLinha()) {
     errors.push("whatsapp must stay quiet when there is no personalization image");
   }
+  if (Jana.productMinQty({}) !== 1 || Jana.productMinQty({ minQty: 1 }) !== 1 || Jana.productMinQty(null) !== 1) {
+    errors.push("missing minQty must behave as no minimum");
+  }
+  if (Jana.productMinQty({ minQty: 6 }) !== 6 || !Jana.productHasMinQty({ minQty: 6 })) {
+    errors.push("minQty 6 must be honored");
+  }
+  if (Jana.productHasMinQty({ minQty: 1 }) || Jana.productMinQty({ minQty: 1001 }) !== 1 || Jana.productMinQty({ minQty: 2.5 }) !== 1) {
+    errors.push("invalid minQty must be ignored");
+  }
 }
 
 

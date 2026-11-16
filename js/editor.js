@@ -854,6 +854,8 @@
       areas: ED.filtro && areaById(ED.filtro) ? [ED.filtro] : [],
       ativo: true,
       aceitaImagem: false,
+      pedidoMinimo: false,
+      minQty: "",
       tags: "",
       fotos: [],
     };
@@ -869,6 +871,8 @@
       areas: productAreas(p).map((a) => a.id),
       ativo: p.active !== false,
       aceitaImagem: p.aceitaImagemPersonalizacao === true,
+      pedidoMinimo: Jana.productHasMinQty ? Jana.productHasMinQty(p) : (Number(p.minQty) >= 2),
+      minQty: Jana.productHasMinQty && Jana.productHasMinQty(p) ? String(Jana.productMinQty(p)) : "",
       tags: (p.tags || []).join(", "),
       fotos: (p.images || []).map((src, i) => ({ path: src, alt: (p.imagesAlt && p.imagesAlt[i]) || "" })),
     };
@@ -921,12 +925,15 @@
     out.active = !!d.ativo;
     if (d.aceitaImagem) out.aceitaImagemPersonalizacao = true;
     else delete out.aceitaImagemPersonalizacao;
+    const minQty = d.pedidoMinimo ? Math.floor(Number(String(d.minQty).replace(",", "."))) : 0;
+    if (d.pedidoMinimo && minQty >= 2) out.minQty = minQty;
+    else delete out.minQty;
     const sameTags = base && same((base.tags || []).map((t) => t.trim()).filter(Boolean), tags);
     out.tags = sameTags ? base.tags : tags;
     if (base && base.description === undefined && !out.description) delete out.description;
     if (base && (base.description || "").trim() === out.description) out.description = base.description;
     // ordem de campos igual à dos produtos existentes
-    const order = ["id", "sourceId", "slug", "name", "description", "categoryId", "categoryIds", "category", "price", "images", "imagesAlt", "featured", "active", "aceitaImagemPersonalizacao", "tags"];
+    const order = ["id", "sourceId", "slug", "name", "description", "categoryId", "categoryIds", "category", "price", "images", "imagesAlt", "featured", "active", "aceitaImagemPersonalizacao", "minQty", "tags"];
     const sorted = {};
     order.forEach((k) => {
       if (out[k] !== undefined) sorted[k] = out[k];
@@ -956,6 +963,11 @@
       if (p === null) erros.push({ campo: "preco", msg: "Escreva o preço (ex.: 168,90) ou marque «Sob consulta»." });
       else if (!Number.isFinite(p) || p <= 0) erros.push({ campo: "preco", msg: "Preço inválido. Use só números, com vírgula para os centavos (ex.: 168,90)." });
       else if (p > 100000) erros.push({ campo: "preco", msg: "Preço alto demais." });
+    }
+    if (d.pedidoMinimo) {
+      const n = Math.floor(Number(String(d.minQty).replace(",", ".")));
+      if (!Number.isFinite(n) || n < 2) erros.push({ campo: "minQty", msg: "A quantidade mínima precisa ser um número inteiro a partir de 2." });
+      else if (n > 1000) erros.push({ campo: "minQty", msg: "A quantidade mínima pode ser no máximo 1000." });
     }
     if (!d.fotos.length) erros.push({ campo: "fotos", msg: "Coloque pelo menos uma foto." });
     if (d.fotos.length > 12) erros.push({ campo: "fotos", msg: "No máximo 12 fotos por produto." });
@@ -1029,6 +1041,8 @@
       '<div class="ed-checks">' + cats + "</div></fieldset>" +
       '<label class="ed-check"><input type="checkbox" name="ativo"' + (d.ativo ? " checked" : "") + "> <span>Mostrar no site</span></label>" +
       '<label class="ed-check"><input type="checkbox" name="aceitaImagem"' + (d.aceitaImagem ? " checked" : "") + '> <span>Aceita imagem para personalização <span class="ed-dica-inline">(a cliente pode enviar uma foto JPG ou PNG no pedido)</span></span></label>' +
+      '<label class="ed-check"><input type="checkbox" name="pedidoMinimo"' + (d.pedidoMinimo ? " checked" : "") + '> <span>Pedido mínimo <span class="ed-dica-inline">(abaixo desta quantidade o produto fica indisponível)</span></span></label>' +
+      '<div class="ed-field" data-ed="min-qty-wrap"' + (d.pedidoMinimo ? "" : " hidden") + '><label>Quantidade mínima <span class="ed-obrigatorio">(obrigatório quando o pedido mínimo está ligado)</span><input type="number" name="minQty" inputmode="numeric" min="2" max="1000" step="1" placeholder="2" value="' + esc(d.minQty) + '"' + inv("minQty") + ">" + fieldErr("minQty") + "</label></div>" +
       '<details class="ed-mais"><summary>Mais opções</summary>' +
       '<label class="ed-field">Palavras-chave <span class="ed-opcional">(separadas por vírgula; não aparecem no site)</span><input type="text" name="tags" maxlength="400" value="' + esc(d.tags) + '"></label>' +
       (pageUrl ? '<p class="ed-dica">Endereço da página: <code>' + esc(pageUrl) + "</code>" + (d.original ? "" : " (criado a partir do nome)") + "</p>" : "") +
@@ -1052,6 +1066,8 @@
     d.descricao = form.descricao.value;
     d.ativo = form.ativo.checked;
     d.aceitaImagem = !!(form.aceitaImagem && form.aceitaImagem.checked);
+    d.pedidoMinimo = !!(form.pedidoMinimo && form.pedidoMinimo.checked);
+    d.minQty = form.minQty ? form.minQty.value : "";
     d.tags = form.tags.value;
     d.areas = qsa('input[name="area"]:checked', form).map((i) => i.value);
     qsa("[data-foto-alt]", form).forEach((inp) => {
@@ -3240,6 +3256,12 @@
     if (t.closest('[data-ed="form-produto"]') && event.type === "change" && t.name === "sobConsulta") {
       const preco = qs('[data-ed="form-produto"] [name="preco"]');
       if (preco) preco.disabled = t.checked;
+    }
+    if (t.closest('[data-ed="form-produto"]') && event.type === "change" && t.name === "pedidoMinimo") {
+      const wrap = qs('[data-ed="min-qty-wrap"]');
+      const input = qs('[data-ed="form-produto"] [name="minQty"]');
+      if (wrap) wrap.hidden = !t.checked;
+      if (t.checked && input && !String(input.value || "").trim()) input.value = "2";
     }
     if (t.closest('[data-ed="form-banner"]') && event.type === "change" && t.name === "linkTipo") {
       lerBannerForm();

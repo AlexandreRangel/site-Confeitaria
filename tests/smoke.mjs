@@ -31,7 +31,7 @@ function todayYmdSP(now) {
   return map.year + "-" + map.month + "-" + map.day;
 }
 
-function expectedVisibleAreaNames() {
+function expectedVisibleAreas() {
   const areas = JSON.parse(readFileSync(join(root, "data/areas.json"), "utf8"));
   const site = JSON.parse(readFileSync(join(root, "data/site.json"), "utf8"));
   const today = todayYmdSP();
@@ -52,10 +52,56 @@ function expectedVisibleAreaNames() {
     .slice()
     .sort(function byOrder(a, b) {
       return (a.order || 0) - (b.order || 0);
+    });
+}
+
+function expectedVisibleAreaNames() {
+  return expectedVisibleAreas().map(function nameOf(area) {
+    return area.name;
+  });
+}
+
+function expectedCoreAreaNames() {
+  const ids = ["corporate", "bolos", "cestas", "doces-personalizados"];
+  return expectedVisibleAreas()
+    .filter(function keep(area) {
+      return ids.indexOf(area.id) !== -1 || ids.indexOf(area.slug) !== -1;
     })
     .map(function nameOf(area) {
       return area.name;
     });
+}
+
+function expectedFirstHomeSlide() {
+  const slides = JSON.parse(readFileSync(join(root, "data/carousel.json"), "utf8"));
+  const list = (Array.isArray(slides) ? slides : [])
+    .slice()
+    .sort(function byOrder(a, b) {
+      return (a.order || 0) - (b.order || 0);
+    });
+  const first = list[0] || {};
+  if ((first.linkTipo === "categoria" || first.linkCategory) && first.linkTipo !== "produto" && first.linkCategory) {
+    const slug = String(first.linkCategory).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return new RegExp(slug + "/$");
+  }
+  if (first.productSlug || first.linkTipo === "produto") {
+    return /produto\/\?slug=/;
+  }
+  return /produto\/\?slug=|\/[a-z0-9-]+\/$/;
+}
+
+function sobrePressItems() {
+  const sobre = JSON.parse(readFileSync(join(root, "data/sobre.json"), "utf8"));
+  return ((sobre && sobre.press) || []).filter(function keep(item) {
+    return item && (item.url || item.title || item.outlet);
+  });
+}
+
+function workGalleryItems() {
+  const sobre = JSON.parse(readFileSync(join(root, "data/sobre.json"), "utf8"));
+  return ((sobre && sobre.workGallery) || []).filter(function keep(item) {
+    return item && item.src;
+  });
 }
 
 
@@ -312,10 +358,12 @@ async function checkSobreNos(page, engine, label) {
   record(engine, "instagram sits on the page background at " + label, igBand.ok === true, JSON.stringify(igBand));
 
   record(engine, "empty portrait stays hidden at " + label, await page.locator('[data-bind="sobre-portrait"]').isHidden());
-  record(engine, "empty press stays hidden at " + label, await page.locator('[data-bind="sobre-press"]').evaluate(function hidden(el) {
+  const pressHidden = await page.locator('[data-bind="sobre-press"]').evaluate(function hidden(el) {
     const wrap = el.closest("[data-optional]") || el;
     return wrap.hasAttribute("hidden") || wrap.hidden === true;
-  }).catch(function none() { return true; }));
+  }).catch(function none() { return true; });
+  const pressEmpty = sobrePressItems().length === 0;
+  record(engine, pressEmpty ? "empty press stays hidden at " + label : "press is visible at " + label, pressHidden === pressEmpty, JSON.stringify({ hidden: pressHidden, empty: pressEmpty }));
 
   const work = await page.evaluate(function measure() {
     const viewport = document.querySelector(".sobre__work-viewport");
@@ -365,7 +413,8 @@ async function checkSobreNos(page, engine, label) {
   const expectVisible = label === "1280" ? 4 : 2;
   const minPhoto = label === "1280" ? 270 : 230;
   const maxPhoto = label === "1280" ? 330 : 290;
-  record(engine, "trabalhos carousel has about 10 photos at " + label, work.originals >= 10, JSON.stringify({ originals: work.originals, count: work.count }));
+  const gallery = workGalleryItems();
+  record(engine, "trabalhos carousel has the gallery photos at " + label, work.originals === gallery.length, JSON.stringify({ originals: work.originals, expected: gallery.length, count: work.count }));
   record(
     engine,
     "trabalhos shows " + expectVisible + " photos in one row at " + label,
@@ -373,7 +422,8 @@ async function checkSobreNos(page, engine, label) {
     JSON.stringify({ visible: work.visible, sameRow: work.sameRow })
   );
   record(engine, "trabalhos photos are large and square at " + label, work.square === true && work.width >= minPhoto && work.width <= maxPhoto && work.band >= minPhoto, JSON.stringify({ width: work.width, height: work.height, band: work.band, ratio: work.ratio }));
-  record(engine, "trabalhos photos have alt text at " + label, work.alts.length >= 10 && work.alts.every(Boolean), JSON.stringify(work.alts));
+  const expectedAlts = gallery.map(function altOf(item) { return String(item.alt || ""); });
+  record(engine, "trabalhos photos keep gallery alt text at " + label, work.alts.length === expectedAlts.length && work.alts.join("\n") === expectedAlts.join("\n"), JSON.stringify({ alts: work.alts, expected: expectedAlts }));
   record(engine, "trabalhos carousel is animated at " + label, work.animated === true, JSON.stringify({ animated: work.animated, count: work.count }));
   record(engine, "trabalhos carousel moves at half speed at " + label, work.duration === "144s" || work.duration === "144000ms", JSON.stringify({ duration: work.duration }));
   record(engine, "sobre-nos has no horizontal overflow at " + label, work.overflow === false, JSON.stringify({ overflow: work.overflow }));
@@ -600,12 +650,16 @@ async function runEngine(browserType, engine) {
     });
     const expectedAreas = expectedVisibleAreaNames();
     record(engine, "home area buttons match visible categories", areaLabels.join(" | ") === expectedAreas.join(" | "), String(areaCount) + " " + areaLabels.join(" | ") + " vs " + expectedAreas.join(" | "));
-    const core = areaLabels.filter(function keep(n) { return ["Corporativo", "Bolos", "Cestas", "Doces personalizados"].indexOf(n) !== -1; });
-    record(engine, "home order Corporativo Bolos Cestas Doces", core.join(" | ") === "Corporativo | Bolos | Cestas | Doces personalizados", core.join(" | "));
+    const expectedCore = expectedCoreAreaNames();
+    const core = expectedCore.filter(function present(n) { return areaLabels.indexOf(n) !== -1; });
+    const coreOrder = areaLabels.filter(function keep(n) { return expectedCore.indexOf(n) !== -1; });
+    record(engine, "home year-round areas keep data order", coreOrder.join(" | ") === expectedCore.join(" | "), coreOrder.join(" | ") + " vs " + expectedCore.join(" | "));
     const natalExpected = expectedAreas.indexOf("Natal") !== -1;
     record(engine, natalExpected ? "Natal visible while enabled" : "Natal hidden while disabled", (areaLabels.indexOf("Natal") !== -1) === natalExpected, areaLabels.join(" | "));
     const catHref = await areaLinks.first().getAttribute("href");
-    record(engine, "area url is folder", /corporate\/$/.test(catHref || ""), catHref);
+    const firstArea = expectedVisibleAreas()[0];
+    const firstSlug = firstArea && firstArea.slug ? firstArea.slug : "corporate";
+    record(engine, "area url is folder", new RegExp(firstSlug.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "/$").test(catHref || ""), catHref);
     const natalNav = await page.locator("#menu-categorias a", { hasText: "Natal" }).count();
     record(engine, natalExpected ? "Natal linked in Categorias" : "Natal not linked in Categorias", natalExpected ? natalNav >= 1 : natalNav === 0);
     const squareBoxes = await areaLinks.evaluateAll(function measureSquares(nodes) {
@@ -622,7 +676,9 @@ async function runEngine(browserType, engine) {
       (squareBoxes.length < 3 || squareBoxes[2].y - squareBoxes[0].y > 40);
     record(engine, "home area squares 2 columns", squaresOk && twoCol, JSON.stringify(squareBoxes));
     const slideHref = await page.locator(".hero__slide").first().getAttribute("href");
-    record(engine, "home carousel slide links to product", /produto\/\?slug=/.test(slideHref || ""), slideHref);
+    const firstSlide = expectedFirstHomeSlide();
+    const slideOk = firstSlide.test(slideHref || "");
+    record(engine, "home carousel first slide has an internal link", slideOk, slideHref);
     record(engine, "home has no Instagram strip", (await page.locator('[data-bind="instagram-grid"]').count()) === 0);
     record(engine, "footer has two lines", (await page.locator("#rodape p").count()) === 2);
     record(engine, "nav has Sobre nós", (await page.locator('#menu-principal a[href="sobre-nos/"]').count()) === 1);
