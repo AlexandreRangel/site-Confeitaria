@@ -2390,7 +2390,7 @@
     "id": "p-coffee-break-corporativo",
     "sourceId": "6a62a54f0143fac716071115",
     "slug": "coffee-break-corporativo",
-    "name": "Coffee Break corporativo ",
+    "name": "Coffee Break corporativo",
     "description": "Nossos coffee breaks são sempre muito elogiados pela variedade de itens, sempre frescos e de alta qualidade, conheça nossos pacotes que podem incluir opções salgadas, bolos e itens de confeitaria, além de frutas, suco, café, chá. Temos opções de itens sem glúten e sem leite.Solicite seu orçamento de acordo com o número de convidados",
     "categoryId": "personalizado-para-empresas",
     "categoryIds": [
@@ -2399,8 +2399,8 @@
     "category": "Personalizado para Empresas",
     "price": 0,
     "images": [
-      "assets/products/coffee-break-corporativo/01.webp",
       "assets/products/coffee-break-corporativo/02.webp",
+      "assets/products/coffee-break-corporativo/01.webp",
       "assets/products/coffee-break-corporativo/03.webp",
       "assets/products/coffee-break-corporativo/04.webp",
       "assets/products/coffee-break-corporativo/05.webp"
