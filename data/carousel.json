@@ -35,8 +35,9 @@
     "title": "Conheça nosso catálogo de Natal & personalize com a marca da sua empresa",
     "image": "assets/carousel/banner-pc-mwjlsmyw3vncz.webp",
     "linkTipo": "categoria",
-    "linkCategory": "natal",
     "formato": "banner",
-    "order": 1
+    "order": 1,
+    "imageMobile": "assets/carousel/banner-mwjltdguji9lj-cel-mwjly5836k9gc.webp",
+    "linkCategory": "natal"
   }
 ]
