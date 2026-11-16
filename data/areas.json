@@ -13,7 +13,21 @@
       "modo": "ligado",
       "inicio": "",
       "fim": ""
-    }
+    },
+    "productOrder": [
+      "cesta-encanto-de-natal",
+      "amanteigado-flocos-de-neve",
+      "caixa-2-alfajores-natal",
+      "alfajor-natalino-und",
+      "mini-amanteigado",
+      "lata-de-alfajor-para-presente",
+      "biscoitos-de-parmesao-para-presentear",
+      "grazing-para-presente",
+      "box-gratidao",
+      "caixa-de-biscoitos-colecionavel",
+      "presente-4-alfajores"
+    ],
+    "productSort": "preco-desc"
   },
   {
     "id": "corporate",
@@ -23,7 +37,8 @@
     "sourceCategoryIds": [
       "personalizado-para-empresas"
     ],
-    "order": 2
+    "order": 2,
+    "productSort": "preco-desc"
   },
   {
     "id": "bolos",
@@ -33,7 +48,8 @@
     "sourceCategoryIds": [
       "bolos"
     ],
-    "order": 3
+    "order": 3,
+    "productSort": "preco-desc"
   },
   {
     "id": "cestas",
@@ -43,7 +59,8 @@
     "sourceCategoryIds": [
       "cestas-presentes"
     ],
-    "order": 4
+    "order": 4,
+    "productSort": "preco-desc"
   },
   {
     "id": "doces-personalizados",
@@ -55,7 +72,8 @@
       "doces-festa",
       "festa-personalizada"
     ],
-    "order": 5
+    "order": 5,
+    "productSort": "preco-desc"
   },
   {
     "id": "pascoa",
