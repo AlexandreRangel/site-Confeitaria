@@ -1,13 +1,29 @@
 [
   {
+    "id": "natal",
+    "name": "Natal",
+    "slug": "natal",
+    "image": "assets/areas/natal-mwjk6kqx5va9h.webp",
+    "sourceCategoryIds": [
+      "natal"
+    ],
+    "order": 1,
+    "seasonal": true,
+    "ativacao": {
+      "modo": "ligado",
+      "inicio": "",
+      "fim": ""
+    }
+  },
+  {
     "id": "corporate",
     "name": "Corporativo",
     "slug": "corporate",
-    "image": "assets/categories/personalizado-para-empresas.webp",
+    "image": "assets/areas/corporate-mwjk58nd5316s.webp",
     "sourceCategoryIds": [
       "personalizado-para-empresas"
     ],
-    "order": 1
+    "order": 2
   },
   {
     "id": "bolos",
@@ -17,7 +33,7 @@
     "sourceCategoryIds": [
       "bolos"
     ],
-    "order": 2
+    "order": 3
   },
   {
     "id": "cestas",
@@ -27,7 +43,7 @@
     "sourceCategoryIds": [
       "cestas-presentes"
     ],
-    "order": 3
+    "order": 4
   },
   {
     "id": "doces-personalizados",
@@ -39,23 +55,7 @@
       "doces-festa",
       "festa-personalizada"
     ],
-    "order": 4
-  },
-  {
-    "id": "natal",
-    "name": "Natal",
-    "slug": "natal",
-    "image": "assets/categories/cestas-presentes.webp",
-    "sourceCategoryIds": [
-      "natal"
-    ],
-    "order": 5,
-    "seasonal": true,
-    "ativacao": {
-      "modo": "ligado",
-      "inicio": "",
-      "fim": ""
-    }
+    "order": 5
   },
   {
     "id": "pascoa",
