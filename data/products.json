@@ -527,7 +527,7 @@
     "id": "p-bolo-p-15-mini-alfajor-lembranca",
     "sourceId": "681b5fc481187e4f6e2db690",
     "slug": "bolo-p-15-mini-alfajor-lembranca",
-    "name": "Bolo P + 15 mini alfajor lembrança ",
+    "name": "Bolo P + 15 mini alfajor lembrança",
     "description": "Combo inclui:bolo P 15 mini alfajores personalizados no tema escolhidoObs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp!",
     "categoryId": "combos-festa",
     "categoryIds": [
@@ -540,6 +540,7 @@
     ],
     "featured": false,
     "active": true,
+    "aceitaImagemPersonalizacao": true,
     "tags": []
   },
   {
