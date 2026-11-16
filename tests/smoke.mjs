@@ -1,4 +1,6 @@
-import { mkdirSync, existsSync } from "node:fs";
+import { mkdirSync, existsSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
@@ -13,6 +15,49 @@ const { chromium, webkit } = playwright;
 const BASE = process.env.BASE_URL || "http://127.0.0.1:8765";
 const engines = (process.env.ENGINES || "chromium").split(",").filter(Boolean);
 const errors = [];
+const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+
+function todayYmdSP(now) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(now || new Date());
+  const map = {};
+  parts.forEach(function put(part) {
+    map[part.type] = part.value;
+  });
+  return map.year + "-" + map.month + "-" + map.day;
+}
+
+function expectedVisibleAreaNames() {
+  const areas = JSON.parse(readFileSync(join(root, "data/areas.json"), "utf8"));
+  const site = JSON.parse(readFileSync(join(root, "data/site.json"), "utf8"));
+  const today = todayYmdSP();
+  return areas
+    .filter(function keep(area) {
+      if (!area || area.enabled === false) return false;
+      const seasonal = area.id === "natal" || area.slug === "natal" || area.seasonal === true;
+      if (!seasonal) return true;
+      const rule = area.ativacao;
+      if (rule && typeof rule === "object") {
+        if (rule.modo === "ligado") return true;
+        if (rule.modo === "datas") return !!(rule.inicio && rule.fim) && today >= rule.inicio && today <= rule.fim;
+        return false;
+      }
+      if (area.id === "natal" || area.slug === "natal") return !!(site.natal && site.natal.enabled === true);
+      return false;
+    })
+    .slice()
+    .sort(function byOrder(a, b) {
+      return (a.order || 0) - (b.order || 0);
+    })
+    .map(function nameOf(area) {
+      return area.name;
+    });
+}
+
 
 function ensureDir(path) {
   try {
@@ -553,26 +598,29 @@ async function runEngine(browserType, engine) {
     const areaLabels = (await areaLinks.allTextContents()).map(function trim(text) {
       return text.replace(/\s+/g, " ").trim();
     });
-    record(engine, "home has 4 area buttons", areaCount === 4, String(areaCount) + " " + areaLabels.join(" | "));
-    record(engine, "home order Corporativo Bolos Cestas Doces", areaLabels.join(" | ") === "Corporativo | Bolos | Cestas | Doces personalizados", areaLabels.join(" | "));
-    record(engine, "Natal hidden while disabled", areaLabels.indexOf("Natal") === -1);
+    const expectedAreas = expectedVisibleAreaNames();
+    record(engine, "home area buttons match visible categories", areaLabels.join(" | ") === expectedAreas.join(" | "), String(areaCount) + " " + areaLabels.join(" | ") + " vs " + expectedAreas.join(" | "));
+    const core = areaLabels.filter(function keep(n) { return ["Corporativo", "Bolos", "Cestas", "Doces personalizados"].indexOf(n) !== -1; });
+    record(engine, "home order Corporativo Bolos Cestas Doces", core.join(" | ") === "Corporativo | Bolos | Cestas | Doces personalizados", core.join(" | "));
+    const natalExpected = expectedAreas.indexOf("Natal") !== -1;
+    record(engine, natalExpected ? "Natal visible while enabled" : "Natal hidden while disabled", (areaLabels.indexOf("Natal") !== -1) === natalExpected, areaLabels.join(" | "));
     const catHref = await areaLinks.first().getAttribute("href");
     record(engine, "area url is folder", /corporate\/$/.test(catHref || ""), catHref);
     const natalNav = await page.locator("#menu-categorias a", { hasText: "Natal" }).count();
-    record(engine, "Natal not linked in Categorias", natalNav === 0);
+    record(engine, natalExpected ? "Natal linked in Categorias" : "Natal not linked in Categorias", natalExpected ? natalNav >= 1 : natalNav === 0);
     const squareBoxes = await areaLinks.evaluateAll(function measureSquares(nodes) {
       return nodes.map(function boxOf(el) {
         const rect = el.getBoundingClientRect();
         return { x: Math.round(rect.x), y: Math.round(rect.y), w: Math.round(rect.width), h: Math.round(rect.height) };
       });
     });
-    const twoByTwo =
-      squareBoxes.length === 4 &&
+    const squaresOk = squareBoxes.length >= 4 && squareBoxes.every(function sq(box) {
+      return Math.abs(box.w - box.h) / Math.max(box.h, 1) < 0.25;
+    });
+    const twoCol =
       Math.abs(squareBoxes[0].y - squareBoxes[1].y) < 8 &&
-      Math.abs(squareBoxes[2].y - squareBoxes[3].y) < 8 &&
-      squareBoxes[2].y - squareBoxes[0].y > 40 &&
-      Math.abs(squareBoxes[0].w - squareBoxes[0].h) / Math.max(squareBoxes[0].h, 1) < 0.25;
-    record(engine, "home area squares 2x2", twoByTwo, JSON.stringify(squareBoxes));
+      (squareBoxes.length < 3 || squareBoxes[2].y - squareBoxes[0].y > 40);
+    record(engine, "home area squares 2 columns", squaresOk && twoCol, JSON.stringify(squareBoxes));
     const slideHref = await page.locator(".hero__slide").first().getAttribute("href");
     record(engine, "home carousel slide links to product", /produto\/\?slug=/.test(slideHref || ""), slideHref);
     record(engine, "home has no Instagram strip", (await page.locator('[data-bind="instagram-grid"]').count()) === 0);
@@ -1223,18 +1271,20 @@ async function runEngine(browserType, engine) {
     record(engine, "desktop no horizontal overflow", !overflow);
     const mixed = await page.locator('#catalogo [data-bind="products"]').count();
     record(engine, "home is not mixed vitrine", mixed === 0);
+    const expectedDesktop = expectedVisibleAreaNames();
     const natalDesktop = await page.locator('[data-bind="areas"] a', { hasText: "Natal" }).count();
-    record(engine, "desktop Natal hidden", natalDesktop === 0);
+    const natalOn = expectedDesktop.indexOf("Natal") !== -1;
+    record(engine, natalOn ? "desktop Natal visible" : "desktop Natal hidden", (natalDesktop > 0) === natalOn);
     const desktopSquares = await page.locator('[data-bind="areas"] a').evaluateAll(function measure(nodes) {
       return nodes.map(function boxOf(el) {
         const rect = el.getBoundingClientRect();
         return { x: Math.round(rect.x), y: Math.round(rect.y) };
       });
     });
-    const fourAcross = desktopSquares.length === 4 && desktopSquares.every(function sameRow(box) {
+    const rowOk = desktopSquares.length === expectedDesktop.length && desktopSquares.every(function sameRow(box) {
       return Math.abs(box.y - desktopSquares[0].y) < 12;
     });
-    record(engine, "desktop area squares 4 across", fourAcross, JSON.stringify(desktopSquares));
+    record(engine, "desktop area squares in one row", rowOk, JSON.stringify(desktopSquares));
     await page.locator('[data-action="toggle-categories"]').click();
     record(engine, "desktop Categorias dropdown", await page.locator("#menu-categorias").isVisible());
     await page.keyboard.press("Escape");

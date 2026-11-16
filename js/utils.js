@@ -105,6 +105,69 @@
     return Jana.areaUrl(slug);
   };
 
+  /* Pastas e rotas que uma categoria nova não pode usar como endereço. */
+  Jana.RESERVED_AREA_SLUGS = [
+    "painel", "produto", "produtos", "encomendas", "pagamento", "sobre-nos", "sobre",
+    "assets", "css", "js", "data", "tests", "test", "central", "docs", "screenshots",
+    "scripts", "area", "areas", "catalogo", "index", "404", "admin", "login", "api",
+    "corporativo", "personalizado-para-empresas", "cestas-presentes", "combos-festa",
+    "doces-festa", "festa-personalizada", "sobremesas", "favicon", "robots", "sitemap",
+  ];
+
+  Jana.isReservedAreaSlug = function isReservedAreaSlug(slug) {
+    const key = String(slug || "");
+    if (!key) return true;
+    if (Jana.RESERVED_AREA_SLUGS.indexOf(key) !== -1) return true;
+    if (Object.prototype.hasOwnProperty.call(Jana.AREA_REDIRECTS, key)) return true;
+    return false;
+  };
+
+  Jana.slugifyArea = function slugifyArea(name, taken) {
+    const used = {};
+    (taken || []).forEach(function mark(s) {
+      if (s) used[String(s)] = true;
+    });
+    Jana.RESERVED_AREA_SLUGS.forEach(function mark(s) {
+      used[s] = true;
+    });
+    Object.keys(Jana.AREA_REDIRECTS).forEach(function mark(s) {
+      used[s] = true;
+    });
+    let base = String(name || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 80)
+      .replace(/-+$/g, "");
+    if (!base || !/^[a-z0-9]/.test(base)) base = "categoria";
+    let slug = base;
+    let n = 2;
+    while (used[slug] || Jana.isReservedAreaSlug(slug)) {
+      slug = (base + "-" + n).slice(0, 80);
+      n += 1;
+      if (n > 99) break;
+    }
+    return slug;
+  };
+
+  /* Slug da página de categoria: data-area, ?c=, ou o último segmento do caminho. */
+  Jana.areaPageSlug = function areaPageSlug() {
+    if (typeof document === "undefined") return "";
+    const attr = document.body && document.body.getAttribute("data-area");
+    if (attr) return attr;
+    try {
+      const params = new URLSearchParams(location.search);
+      const q = String(params.get("c") || params.get("area") || "").replace(/^\/+|\/+$/g, "");
+      if (q) return q;
+    } catch (err) {}
+    const parts = String(location.pathname || "").split("/").filter(Boolean);
+    const last = parts.length ? parts[parts.length - 1] : "";
+    if (last && last !== "area" && last !== "index.html") return last;
+    return "";
+  };
+
   Jana.isNatalEnabled = function isNatalEnabled(site) {
     return !!(site && site.natal && site.natal.enabled === true);
   };
@@ -306,9 +369,77 @@
   };
 
 
+  Jana.PRODUCT_SORTS = ["manual", "alfa", "preco-asc", "preco-desc"];
+
+  Jana.isProductSort = function isProductSort(value) {
+    return Jana.PRODUCT_SORTS.indexOf(value) !== -1;
+  };
+
+  /* Preço numérico para ordenação; sem preço ou «Sob consulta» devolve null. */
+  Jana.productSortPrice = function productSortPrice(product) {
+    if (!product) {
+      return null;
+    }
+    if (typeof Jana.productHasFixedPrice === "function") {
+      return Jana.productHasFixedPrice(product) && typeof product.price === "number" ? product.price : null;
+    }
+    if (typeof product.price === "number" && Number.isFinite(product.price) && product.price > 0) {
+      const label = String(product.priceLabel || product.precoLabel || "");
+      if (/\ba combinar\b|\bsob consulta\b/i.test(label)) {
+        return null;
+      }
+      return product.price;
+    }
+    return null;
+  };
+
+  Jana.sortProductsForArea = function sortProductsForArea(products, area) {
+    const list = (products || []).slice();
+    const mode = area && area.productSort;
+    if (mode === "alfa") {
+      return list.sort(function byName(x, y) {
+        return String((x && x.name) || "").localeCompare(String((y && y.name) || ""), "pt-BR");
+      });
+    }
+    if (mode === "preco-asc" || mode === "preco-desc") {
+      const dir = mode === "preco-asc" ? 1 : -1;
+      return list.sort(function byPrice(x, y) {
+        const px = Jana.productSortPrice(x);
+        const py = Jana.productSortPrice(y);
+        const xOk = px != null;
+        const yOk = py != null;
+        if (xOk && yOk) {
+          if (px !== py) return (px - py) * dir;
+          return String((x && x.name) || "").localeCompare(String((y && y.name) || ""), "pt-BR");
+        }
+        if (xOk) return -1;
+        if (yOk) return 1;
+        return String((x && x.name) || "").localeCompare(String((y && y.name) || ""), "pt-BR");
+      });
+    }
+    if (mode === "manual") {
+      const index = Object.create(null);
+      ((area && area.productOrder) || []).forEach(function mark(slug, i) {
+        const key = String(slug || "");
+        if (key && index[key] == null) index[key] = i;
+      });
+      return list.sort(function byManual(x, y) {
+        const ix = index[(x && x.slug) || ""];
+        const iy = index[(y && y.slug) || ""];
+        const xOk = ix != null;
+        const yOk = iy != null;
+        if (xOk && yOk) return ix - iy;
+        if (xOk) return -1;
+        if (yOk) return 1;
+        return 0;
+      });
+    }
+    return list;
+  };
+
   Jana.productsForArea = function productsForArea(products, area) {
     const ids = (area && area.sourceCategoryIds) || [];
-    return (products || []).filter(function inArea(product) {
+    const list = (products || []).filter(function inArea(product) {
       if (product.active === false) {
         return false;
       }
@@ -317,6 +448,7 @@
         return ids.indexOf(id) !== -1;
       });
     });
+    return Jana.sortProductsForArea(list, area);
   };
 
   Jana.areaForProduct = function areaForProduct(product, areas) {

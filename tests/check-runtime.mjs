@@ -835,6 +835,50 @@ if (typeof Jana.siteText !== "function") {
         errors.push("empty map query must fall back to brand name plus address");
       }
     }
+    if (typeof Jana.slugifyArea !== "function" || typeof Jana.isReservedAreaSlug !== "function") {
+      errors.push("Jana.slugifyArea must exist");
+    } else {
+      if (Jana.slugifyArea("Páscoa Feliz", []) !== "pascoa-feliz") errors.push("slugifyArea must fold Portuguese accents, got " + Jana.slugifyArea("Páscoa Feliz", []));
+      if (!Jana.isReservedAreaSlug("painel") || !Jana.isReservedAreaSlug("sobremesas")) errors.push("reserved slugs must include painel and redirect folders");
+      const taken = Jana.slugifyArea("Bolos", ["bolos"]);
+      if (taken === "bolos" || taken.indexOf("bolos-") !== 0) errors.push("slugifyArea must avoid taken slugs, got " + taken);
+    }
+    const hidden = { id: "x", slug: "x", seasonal: false, enabled: false };
+    const vis = Jana.visibleAreas([{ id: "a", slug: "a", name: "A", order: 1 }, hidden], {});
+    if (vis.length !== 1 || vis[0].id !== "a") errors.push("enabled:false must hide a category from the public site");
+
+    const catalog = [
+      { slug: "b-torta", name: "Torta", price: 80, active: true, categoryIds: ["bolos"] },
+      { slug: "a-acai", name: "Açaí", price: 20, active: true, categoryIds: ["bolos"] },
+      { slug: "c-consulta", name: "Bolo especial", price: 0, priceLabel: "Sob consulta", active: true, categoryIds: ["bolos"] },
+      { slug: "d-arvore", name: "Árvore", price: 40, active: true, categoryIds: ["bolos"] },
+      { slug: "e-oculto", name: "Oculto", price: 10, active: false, categoryIds: ["bolos"] },
+      { slug: "f-outra", name: "Outra", price: 5, active: true, categoryIds: ["cestas"] },
+    ];
+    const areaCat = { id: "bolos", sourceCategoryIds: ["bolos"] };
+    const bySlug = (list) => list.map((p) => p.slug).join(",");
+    const catalogOrder = Jana.productsForArea(catalog, areaCat);
+    if (bySlug(catalogOrder) !== "b-torta,a-acai,c-consulta,d-arvore") errors.push("default area order must stay catalogue order, got " + bySlug(def));
+    const alfa = Jana.productsForArea(catalog, Object.assign({}, areaCat, { productSort: "alfa" }));
+    if (bySlug(alfa) !== "a-acai,d-arvore,c-consulta,b-torta") errors.push("alfa sort must be pt-BR accent-aware, got " + bySlug(alfa));
+    const cheap = Jana.productsForArea(catalog, Object.assign({}, areaCat, { productSort: "preco-asc" }));
+    if (bySlug(cheap) !== "a-acai,d-arvore,b-torta,c-consulta") errors.push("preco-asc must put unpriced last, got " + bySlug(cheap));
+    const dear = Jana.productsForArea(catalog, Object.assign({}, areaCat, { productSort: "preco-desc" }));
+    if (bySlug(dear) !== "b-torta,d-arvore,a-acai,c-consulta") errors.push("preco-desc must put unpriced last, got " + bySlug(dear));
+    const manual = Jana.productsForArea(catalog, Object.assign({}, areaCat, { productSort: "manual", productOrder: ["d-arvore", "b-torta"] }));
+    if (bySlug(manual) !== "d-arvore,b-torta,a-acai,c-consulta") errors.push("manual sort must follow productOrder and append new slugs, got " + bySlug(manual));
+    const natalArea = { id: "natal", sourceCategoryIds: ["natal"], productSort: "preco-asc" };
+    const natalList = Jana.productsForArea(
+      [
+        { slug: "n2", name: "Dois", price: 30, active: true, categoryIds: ["natal"] },
+        { slug: "n1", name: "Um", price: 10, active: true, categoryIds: ["natal"] },
+        { slug: "n0", name: "Consulta", priceLabel: "Sob consulta", active: true, categoryIds: ["natal"] },
+      ],
+      natalArea
+    );
+    if (bySlug(natalList) !== "n1,n2,n0") errors.push("seasonal area pages must honor productSort, got " + bySlug(natalList));
+    const other = Jana.productsForArea(catalog, { id: "cestas", sourceCategoryIds: ["cestas"], productSort: "manual", productOrder: ["f-outra"] });
+    if (bySlug(other) !== "f-outra") errors.push("product position must be independent per category");
   }
 }
 

@@ -21,8 +21,8 @@
     sobre: "data/sobre.json",
     sabores: "data/sabores-bolos.json",
   };
-  const EDITOR_TABS = ["produtos", "carrossel", "datas", "textos", "historico"];
-  const STAGED_TABS = ["carrossel", "datas", "textos"];
+  const EDITOR_TABS = ["produtos", "carrossel", "datas", "categorias", "sobre", "textos", "historico"];
+  const STAGED_TABS = ["carrossel", "datas", "categorias", "sobre", "textos"];
   const RAW_BASE = "https://raw.githubusercontent.com/AlexandreRangel/site-Confeitaria/preview/";
   const BANNER_SIZES = {
     home: { pc: [2400, 700], cel: [1200, 800] },
@@ -562,7 +562,8 @@
         return { pausa: clone(ED.saved[F.pausa] || {}), sazonais: ativ };
       },
       files: function files(d) {
-        const list = clone(ED.saved[F.areas] || []).map(function apply(a) {
+        const source = (ED.drafts.categorias && ED.drafts.categorias.areas) || ED.saved[F.areas] || [];
+        const list = clone(source).map(function apply(a) {
           if (d.sazonais[a.id]) a.ativacao = clone(d.sazonais[a.id]);
           return a;
         });
@@ -581,24 +582,64 @@
     textos: {
       from: () => ({
         site: clone(ED.saved[F.site] || {}),
-        areas: areas().map((a) => ({ id: a.id, name: a.name, description: a.description || "", image: a.image, order: a.order })),
         sabores: clone(ED.saved[F.sabores] || { label: "Recheio do bolo", flavors: [] }),
-        sobre: clone(ED.saved[F.sobre] || {}),
       }),
       files: function files(d) {
-        const list = clone(ED.saved[F.areas] || []).map(function apply(a) {
-          const t = d.areas.find((x) => x.id === a.id);
-          if (!t) return a;
-          a.name = t.name;
-          a.image = t.image;
-          a.order = t.order;
-          if (t.description) a.description = t.description;
-          else delete a.description;
-          return a;
-        });
-        return changed({ [F.site]: d.site, [F.areas]: list, [F.sabores]: d.sabores, [F.sobre]: d.sobre });
+        return changed({ [F.site]: d.site, [F.sabores]: d.sabores });
       },
       resumo: () => "textos do site",
+    },
+    categorias: {
+      from: () => ({ areas: clone(ED.saved[F.areas] || []).slice().sort(byOrder) }),
+      files: function files(d) {
+        const list = clone(d.areas || []);
+        list.forEach(function mergeAtiv(a, i) {
+          a.order = i + 1;
+          delete a._buscaFoto;
+          if (a.enabled !== false) delete a.enabled;
+          if (!a.description) delete a.description;
+          if (!Jana.isProductSort || !Jana.isProductSort(a.productSort)) delete a.productSort;
+          if (Array.isArray(a.productOrder)) {
+            const seen = Object.create(null);
+            a.productOrder = a.productOrder.filter(function keepSlug(slug) {
+              const s = String(slug || "");
+              if (!/^[a-z0-9][a-z0-9-]{0,119}$/.test(s) || seen[s]) return false;
+              seen[s] = true;
+              return true;
+            });
+            if (!a.productOrder.length) delete a.productOrder;
+          } else {
+            delete a.productOrder;
+          }
+          if (a.productSort === "manual" && !a.productOrder) {
+            a.productOrder = Jana.productsForArea(products(), Object.assign({}, a, { productSort: "" })).map(function slugOf(item) { return item.slug; });
+          }
+          if (ED.drafts.datas && ED.drafts.datas.sazonais && ED.drafts.datas.sazonais[a.id]) {
+            a.ativacao = clone(ED.drafts.datas.sazonais[a.id]);
+          } else {
+            const saved = (ED.saved[F.areas] || []).find((x) => x.id === a.id);
+            if (saved && saved.ativacao) a.ativacao = clone(saved.ativacao);
+          }
+        });
+        return changed({ [F.areas]: list });
+      },
+      resumo: () => "categorias",
+    },
+    sobre: {
+      from: function from() {
+        const sobre = clone(ED.saved[F.sobre] || {});
+        sobre.portrait = sobre.portrait || { src: "", alt: "Jana Abreu" };
+        if (sobre.introText == null) sobre.introText = "";
+        if (!Array.isArray(sobre.introPhotos)) sobre.introPhotos = [];
+        if (!Array.isArray(sobre.instagramGallery)) {
+          sobre.instagramGallery = clone(((ED.saved[F.site] || {}).instagramGallery) || []);
+        }
+        return { sobre: sobre };
+      },
+      files: function files(d) {
+        return changed({ [F.sobre]: d.sobre });
+      },
+      resumo: () => "Sobre nós",
     },
   };
 
@@ -608,6 +649,30 @@
       if (!same(files[p], ED.saved[p])) out[p] = files[p];
     });
     return out;
+  }
+
+  function syncAreasDrafts(written) {
+    if (!written) return;
+    if (ED.drafts.categorias) ED.drafts.categorias.areas = clone(written);
+    if (ED.drafts.datas) {
+      const ativ = {};
+      written
+        .filter(function seasonal(a) { return Jana.isSeasonalArea(a); })
+        .forEach(function each(a) {
+          ativ[a.id] = clone(a.ativacao || { modo: "desligado", inicio: "", fim: "" });
+        });
+      ED.drafts.datas.sazonais = ativ;
+    }
+  }
+
+  function produtosSoNestaCategoria(area) {
+    const ids = (area && area.sourceCategoryIds) || [];
+    const others = (ED.drafts.categorias ? ED.drafts.categorias.areas : areas()).filter((a) => a.id !== (area && area.id));
+    return products().filter(function onlyHere(p) {
+      const cats = productCats(p);
+      if (!cats.some((c) => ids.indexOf(c) !== -1)) return false;
+      return !others.some((o) => ((o.sourceCategoryIds || []).some((c) => cats.indexOf(c) !== -1)));
+    });
   }
 
   function tabDirty(tab) {
@@ -651,6 +716,7 @@
     if (!Object.keys(files).length) return;
     const r = await publish(files, DRAFTS[tab].resumo(d));
     if (r.ok) {
+      if (files[F.areas]) syncAreasDrafts(files[F.areas]);
       resetDrafts(tab);
       renderTab(tab);
     }
@@ -682,7 +748,7 @@
     ED.carregado = false;
     setAviso("");
     const msg = '<p class="ed-vazio">Entre com a senha da loja (no alto desta página) para editar o site.</p>';
-    ["carrossel", "datas", "textos", "historico"].forEach((t) => {
+    ["carrossel", "datas", "categorias", "sobre", "textos", "historico"].forEach((t) => {
       const el = qs('[data-ed="' + t + '"]');
       if (el) el.innerHTML = msg;
     });
@@ -694,7 +760,7 @@
   }
 
   function renderLoading() {
-    ["carrossel", "datas", "textos"].forEach((t) => {
+    ["carrossel", "datas", "categorias", "sobre", "textos"].forEach((t) => {
       const el = qs('[data-ed="' + t + '"]');
       if (el) el.innerHTML = '<p class="ed-vazio">Carregando…</p>';
     });
@@ -707,6 +773,8 @@
     renderProdutos();
     renderCarrossel();
     renderDatas();
+    renderCategorias();
+    renderSobreTab();
     renderTextos();
     if (ED.tab === "historico") loadHistorico();
     updateSavebar();
@@ -716,6 +784,8 @@
     if (tab === "produtos") renderProdutos();
     if (tab === "carrossel") renderCarrossel();
     if (tab === "datas") renderDatas();
+    if (tab === "categorias") renderCategorias();
+    if (tab === "sobre") renderSobreTab();
     if (tab === "textos") renderTextos();
     if (tab === "historico") loadHistorico();
     updateSavebar();
@@ -2128,6 +2198,28 @@
         if (r.modo === "datas" && r.inicio > r.fim) return nome + ": a data de fim vem antes do início.";
       }
     }
+    if (tab === "categorias") {
+      const list = ED.drafts.categorias.areas || [];
+      if (!list.length) return "Deixe pelo menos uma categoria.";
+      if (list.length > 30) return "São categorias demais (máximo 30).";
+      const slugs = {};
+      for (const a of list) {
+        if (!String(a.name || "").trim()) return "Toda categoria precisa de nome.";
+        if (!a.image) return "«" + (a.name || "Categoria") + "» precisa de uma foto.";
+        if (!a.slug || !/^[a-z0-9][a-z0-9-]{0,119}$/.test(a.slug)) return "«" + a.name + "»: endereço inválido.";
+        if (slugs[a.slug]) return "Duas categorias não podem ter o mesmo endereço («" + a.slug + "»).";
+        slugs[a.slug] = true;
+        if (Jana.isReservedAreaSlug && Jana.isReservedAreaSlug(a.slug)) return "«" + a.name + "»: este endereço é reservado pelo site. Escolha outro nome.";
+        if (a.productSort && (!Jana.isProductSort || !Jana.isProductSort(a.productSort))) return "«" + a.name + "»: escolha uma ordem dos produtos válida.";
+        if (a.productOrder && (!Array.isArray(a.productOrder) || a.productOrder.length > 300)) return "«" + a.name + "»: a lista de ordem dos produtos está inválida.";
+      }
+    }
+    if (tab === "sobre") {
+      const sobre = ED.drafts.sobre.sobre;
+      for (const x of sobre.press || []) {
+        if (x.url && !/^https:\/\/\S+\.\S+$/.test(x.url)) return "Imprensa: o link precisa começar com https://";
+      }
+    }
     if (tab === "textos") {
       const t = ED.drafts.textos;
       const s = t.site;
@@ -2135,11 +2227,7 @@
       if (!/^55\d{10,11}$/.test(String((s.contato || {}).whatsapp || ""))) return "WhatsApp: escreva o número com DDD (ex.: 61 98124-6112).";
       if (!/^[A-Za-z0-9._]{1,60}$/.test(String(((s.contato || {}).instagram || {}).handle || "").replace(/^@/, ""))) return "Instagram: escreva só o nome do perfil, como @janaabreuconfeitaria.";
       if (s.entrega && s.entrega.taxa !== null && !(Number.isFinite(s.entrega.taxa) && s.entrega.taxa >= 0)) return "Taxa de entrega inválida. Use números, ex.: 40 ou 25,50.";
-      for (const a of t.areas) if (!String(a.name || "").trim()) return "Toda categoria precisa de nome.";
       for (const f of t.sabores.flavors || []) if (!String(f.nome || "").trim()) return "Todo recheio precisa de nome (ou remova o que está vazio).";
-      for (const x of t.sobre.press || []) {
-        if (x.url && !/^https:\/\/\S+\.\S+$/.test(x.url)) return "Imprensa: o link precisa começar com https://";
-      }
     }
     return "";
   }
@@ -2198,16 +2286,389 @@
   }
 
   function txLista(kind) {
-    const t = ED.drafts.textos;
-    if (kind === "trabalhos") return (t.sobre.workGallery = t.sobre.workGallery || []);
-    if (kind === "instagram") {
-      t.site.instagramGallery = t.site.instagramGallery || [];
-      return t.site.instagramGallery;
+    if (kind === "recheios") {
+      const t = ED.drafts.textos;
+      return (t.sabores.flavors = t.sabores.flavors || []);
     }
-    if (kind === "recheios") return (t.sabores.flavors = t.sabores.flavors || []);
-    if (kind === "imprensa") return (t.sobre.press = t.sobre.press || []);
-    if (kind === "areas") return t.areas;
+    const s = ED.drafts.sobre && ED.drafts.sobre.sobre;
+    if (!s) return [];
+    if (kind === "trabalhos") return (s.workGallery = s.workGallery || []);
+    if (kind === "instagram") return (s.instagramGallery = s.instagramGallery || []);
+    if (kind === "intro") return (s.introPhotos = s.introPhotos || []);
+    if (kind === "imprensa") return (s.press = s.press || []);
     return [];
+  }
+
+  function renderCurrentEditor() {
+    renderTab(ED.tab);
+  }
+
+
+  function categoriasList() {
+    return (ED.drafts.categorias && ED.drafts.categorias.areas) || [];
+  }
+
+  function pickerProdutosComFoto() {
+    return products()
+      .filter(function hasImg(p) { return p && (p.images || [])[0]; })
+      .slice()
+      .sort(function byName(a, b) { return String(a.name || "").localeCompare(b.name || "", "pt-BR"); });
+  }
+
+  function produtosDaCategoria(area, modo) {
+    const copy = Object.assign({}, area || {});
+    if (modo === "") delete copy.productSort;
+    else if (modo) copy.productSort = modo;
+    return Jana.productsForArea(products(), copy);
+  }
+
+  function garantirOrdemManual(area) {
+    if (!area) return;
+    const atuais = produtosDaCategoria(area, area.productSort === "manual" ? "" : area.productSort).map(function slugOf(p) { return p.slug; });
+    if (!Array.isArray(area.productOrder) || !area.productOrder.length) {
+      area.productOrder = atuais.slice();
+      return;
+    }
+    const seen = Object.create(null);
+    const next = [];
+    area.productOrder.forEach(function keep(slug) {
+      if (atuais.indexOf(slug) !== -1 && !seen[slug]) {
+        next.push(slug);
+        seen[slug] = true;
+      }
+    });
+    atuais.forEach(function append(slug) {
+      if (!seen[slug]) next.push(slug);
+    });
+    area.productOrder = next;
+  }
+
+  function moverProdutoCategoria(area, slug, dir) {
+    garantirOrdemManual(area);
+    const list = area.productOrder;
+    const i = list.indexOf(slug);
+    if (i < 0) return false;
+    const j = i + Number(dir);
+    if (j < 0 || j >= list.length) return false;
+    const tmp = list[i];
+    list[i] = list[j];
+    list[j] = tmp;
+    return true;
+  }
+
+  function renderCategoriasPreservingScroll() {
+    const y = window.scrollY;
+    const open = document.activeElement;
+    const focusSel = open && open.getAttribute
+      ? (open.getAttribute("data-cat-campo") && open.getAttribute("data-id")
+        ? '[data-cat-campo="' + open.getAttribute("data-cat-campo") + '"][data-id="' + open.getAttribute("data-id") + '"]'
+        : "")
+      : "";
+    const lists = {};
+    qsa("[data-ed-prod-order]").forEach(function store(el) {
+      lists[el.getAttribute("data-id")] = el.scrollTop;
+    });
+    renderCategorias();
+    window.scrollTo(0, y);
+    Object.keys(lists).forEach(function restore(id) {
+      const el = qs('[data-ed-prod-order][data-id="' + id + '"]');
+      if (el) el.scrollTop = lists[id];
+    });
+    if (focusSel) {
+      const el = qs(focusSel);
+      if (el && el.focus) el.focus();
+    }
+  }
+
+  function ordemProdutosDica(mode) {
+    if (mode === "alfa") return "Os produtos aparecem em ordem alfabética (português, com acentos).";
+    if (mode === "preco-asc") return "Do menor preço para o maior. Produtos sem preço ou «Sob consulta» ficam no final.";
+    if (mode === "preco-desc") return "Do maior preço para o menor. Produtos sem preço ou «Sob consulta» ficam no final.";
+    if (mode === "manual") return "Arraste pela alça ou use os botões para cima e para baixo. Produtos novos entram no final. A ordem vale só nesta categoria.";
+    return "Os produtos aparecem na ordem do catálogo (como hoje), até você escolher outra.";
+  }
+
+  function precoProdutoRotulo(p) {
+    if (Jana.productSortPrice && Jana.productSortPrice(p) != null && Jana.formatBRL) return Jana.formatBRL(p.price);
+    return "Sob consulta";
+  }
+
+  function renderOrdemProdutos(a) {
+    const mode = a.productSort || "";
+    const options = [
+      ["", "Ordem do catálogo"],
+      ["alfa", "Ordem alfabética"],
+      ["preco-asc", "Preço: menor primeiro"],
+      ["preco-desc", "Preço: maior primeiro"],
+      ["manual", "Manual"],
+    ]
+      .map(function opt(pair) {
+        return '<option value="' + esc(pair[0]) + '"' + (mode === pair[0] ? " selected" : "") + ">" + esc(pair[1]) + "</option>";
+      })
+      .join("");
+    let lista = "";
+    if (mode === "manual") {
+      garantirOrdemManual(a);
+      const itens = produtosDaCategoria(a, "manual");
+      lista =
+        '<ol class="ed-area-prods" data-ed-prod-order data-id="' + esc(a.id) + '">' +
+        (itens
+          .map(function item(p, i, arr) {
+            const img = (p.images && p.images[0]) || "";
+            return (
+              '<li class="ed-area-prod" data-slug="' + esc(p.slug) + '" data-id="' + esc(a.id) + '">' +
+              (img ? imgTag(img, "", "") : '<span class="ed-semfoto" aria-hidden="true"></span>') +
+              '<span class="ed-area-prod__info"><strong>' + esc(p.name) + "</strong><span>" + esc(precoProdutoRotulo(p)) + "</span></span>" +
+              '<div class="ed-area-prod__acoes">' +
+              '<button type="button" class="btn btn--small btn--outline" data-ed-action="area-prod-mover" data-id="' + esc(a.id) + '" data-slug="' + esc(p.slug) + '" data-dir="-1"' + (i === 0 ? " disabled" : "") + ' aria-label="Subir ' + esc(p.name) + '">↑</button>' +
+              '<button type="button" class="btn btn--small btn--outline" data-ed-action="area-prod-mover" data-id="' + esc(a.id) + '" data-slug="' + esc(p.slug) + '" data-dir="1"' + (i === arr.length - 1 ? " disabled" : "") + ' aria-label="Descer ' + esc(p.name) + '">↓</button>' +
+              '<button type="button" class="ed-drag" data-ed-drag="area-prod" data-id="' + esc(a.id) + '" data-slug="' + esc(p.slug) + '" aria-label="Arrastar ' + esc(p.name) + ' para reordenar" title="Arrastar para reordenar">⋮⋮</button>' +
+              "</div></li>"
+            );
+          })
+          .join("") || '<li class="ed-vazio">Nenhum produto nesta categoria ainda.</li>') +
+        "</ol>";
+    }
+    return (
+      '<label class="ed-field">Ordem dos produtos na página<select data-cat-campo="productSort" data-id="' + esc(a.id) + '">' + options + "</select></label>" +
+      '<p class="ed-dica">' + ordemProdutosDica(mode) + "</p>" +
+      lista
+    );
+  }
+
+  function renderCategorias() {
+    const root = qs('[data-ed="categorias"]');
+    if (!root || !ED.carregado) return;
+    const list = categoriasList().slice().sort(byOrder);
+    const cards = list
+      .map(function area(a, i, arr) {
+        const saz = Jana.isSeasonalArea(a);
+        const oculta = a.enabled === false;
+        const url = "/" + a.slug + "/";
+        const produtosSo = produtosSoNestaCategoria(a);
+        const status = oculta
+          ? "oculta no site"
+          : saz
+            ? seasonalStatusText(a, a.ativacao)
+            : "visível no site";
+        const produtos = pickerProdutosComFoto();
+        const busca = a._buscaFoto || "";
+        const fold = Jana.foldText ? Jana.foldText(busca) : String(busca || "").toLowerCase();
+        const sugeridos = busca
+          ? produtos.filter(function match(p) { return (Jana.foldText ? Jana.foldText(p.name) : String(p.name || "").toLowerCase()).indexOf(fold) !== -1; }).slice(0, 20)
+          : produtos.slice(0, 12);
+        return (
+          '<li class="ed-card ed-area' + (oculta ? " ed-area--oculta" : "") + '">' +
+          '<div class="ed-area__foto">' +
+          imgTag(a.image, a.name || "", "") +
+          '<div class="ed-foto__acoes">' +
+          '<label class="btn btn--small btn--outline ed-arquivo">Enviar foto<input type="file" accept="image/*" data-ed-file="area" data-id="' + esc(a.id) + '"></label>' +
+          (a.image ? '<button type="button" class="btn btn--small btn--outline" data-ed-action="area-foto-remover" data-id="' + esc(a.id) + '">Remover foto</button>' : "") +
+          "</div>" +
+          '<details class="ed-area__pick">' +
+          "<summary>Usar foto de um produto</summary>" +
+          '<label class="ed-field ed-field--small">Buscar produto<input type="search" data-cat-campo="buscaFoto" data-id="' + esc(a.id) + '" value="' + esc(busca) + '" placeholder="Nome do produto"></label>' +
+          '<div class="ed-picks ed-picks--mini" role="list">' +
+          sugeridos
+            .map(function item(p) {
+              return (
+                '<button type="button" class="ed-pick" data-ed-action="area-foto-produto" data-id="' + esc(a.id) + '" data-src="' + esc(p.images[0]) + '" aria-label="Usar foto de ' + esc(p.name) + '">' +
+                imgTag(p.images[0], "", "") +
+                "<span>" + esc(p.name) + "</span></button>"
+              );
+            })
+            .join("") +
+          (sugeridos.length ? "" : '<p class="ed-dica">Nenhum produto encontrado.</p>') +
+          "</div></details></div>" +
+          '<div class="ed-area__campos">' +
+          '<p class="ed-dica">Endereço da página: <code>' + esc(url) + "</code> · " + esc(status) +
+          (saz ? " (data comemorativa — liga e desliga na aba Datas)" : "") + "</p>" +
+          '<label class="ed-field">Nome<input type="text" maxlength="80" data-cat-campo="name" data-id="' + esc(a.id) + '" value="' + esc(a.name) + '"></label>' +
+          '<label class="ed-field">Descrição <span class="ed-opcional">(opcional; aparece no topo da página da categoria)</span>' +
+          '<textarea rows="2" maxlength="800" data-cat-campo="description" data-id="' + esc(a.id) + '">' + esc(a.description || "") + "</textarea></label>" +
+          renderOrdemProdutos(a) +
+          '<div class="ed-foto__acoes">' +
+          '<button type="button" class="btn btn--small btn--outline" data-ed-action="area-mover" data-id="' + esc(a.id) + '" data-dir="-1"' + (i === 0 ? " disabled" : "") + ' aria-label="Mover ' + esc(a.name) + ' para antes">◀ Antes</button>' +
+          '<button type="button" class="btn btn--small btn--outline" data-ed-action="area-mover" data-id="' + esc(a.id) + '" data-dir="1"' + (i === arr.length - 1 ? " disabled" : "") + ' aria-label="Mover ' + esc(a.name) + ' para depois">Depois ▶</button>' +
+          (saz
+            ? ""
+            : '<button type="button" class="btn btn--small btn--outline" data-ed-action="area-ocultar" data-id="' + esc(a.id) + '">' + (oculta ? "Mostrar no site" : "Ocultar no site") + "</button>") +
+          (saz
+            ? ""
+            : '<button type="button" class="btn btn--small btn--danger" data-ed-action="area-excluir" data-id="' + esc(a.id) + '">Excluir</button>') +
+          "</div>" +
+          (produtosSo.length
+            ? '<p class="ed-dica">Atenção: ' + produtosSo.length + " produto(s) só estão nesta categoria (ex.: " + esc(produtosSo[0].name) + ").</p>"
+            : "") +
+          "</div></li>"
+        );
+      })
+      .join("");
+    const nova = ED.novaCategoria || { name: "", description: "", image: "" };
+    const slugPrev = Jana.slugifyArea
+      ? Jana.slugifyArea(nova.name, list.map(function idOf(a) { return a.slug; }))
+      : "";
+    root.innerHTML =
+      '<section class="ed-secao" aria-labelledby="cat-lista"><h3 id="cat-lista">Categorias do site</h3>' +
+      '<p class="ed-dica">A ordem aqui é a das caixinhas da página inicial e do menu Categorias. A foto aparece na caixinha. A ordem dos produtos vale na página de cada categoria (incluindo Natal e Páscoa). Natal e Páscoa ligam e desligam na aba Datas; não dá para excluí-las.</p>' +
+      '<ol class="ed-areas">' + (cards || '<li class="ed-vazio">Nenhuma categoria ainda.</li>') + "</ol></section>" +
+      '<section class="ed-secao" aria-labelledby="cat-nova"><h3 id="cat-nova">Nova categoria</h3>' +
+      '<label class="ed-field">Nome<input type="text" maxlength="80" data-cat-nova="name" value="' + esc(nova.name) + '" placeholder="Ex.: Sobremesas"></label>' +
+      (nova.name ? '<p class="ed-dica">Endereço: <code>/' + esc(slugPrev) + "/</code></p>" : '<p class="ed-dica">O endereço da página é criado automaticamente a partir do nome, em português (sem acento).</p>') +
+      '<label class="ed-field">Descrição <span class="ed-opcional">(opcional)</span><textarea rows="2" maxlength="800" data-cat-nova="description">' + esc(nova.description || "") + "</textarea></label>" +
+      '<div class="ed-area__foto">' + imgTag(nova.image, "", "") +
+      '<label class="btn btn--small btn--outline ed-arquivo">Escolher foto<input type="file" accept="image/*" data-ed-file="area-nova"></label></div>' +
+      '<button type="button" class="btn btn--solid" data-ed-action="area-criar">Adicionar categoria</button></section>';
+  }
+
+  function onCategoriasInput(target) {
+    const list = categoriasList();
+    if (target.hasAttribute("data-cat-campo")) {
+      const a = list.find((x) => x.id === target.getAttribute("data-id"));
+      if (!a) return;
+      const campo = target.getAttribute("data-cat-campo");
+      if (campo === "productSort") {
+        const value = target.value;
+        const anterior = a.productSort || "";
+        if (value === "manual" && (!Array.isArray(a.productOrder) || !a.productOrder.length)) {
+          a.productOrder = produtosDaCategoria(a, anterior).map(function slugOf(item) { return item.slug; });
+        }
+        if (!value) delete a.productSort;
+        else a.productSort = value;
+        if (value === "manual") garantirOrdemManual(a);
+        renderCategoriasPreservingScroll();
+        const el = qs('[data-cat-campo="productSort"][data-id="' + a.id + '"]');
+        if (el) el.focus();
+        updateSavebar();
+        return;
+      }
+      if (campo === "buscaFoto") {
+        a._buscaFoto = target.value;
+        renderCategorias();
+        const el = qs('[data-cat-campo="buscaFoto"][data-id="' + a.id + '"]');
+        if (el) {
+          el.focus();
+          const v = el.value;
+          el.setSelectionRange(v.length, v.length);
+        }
+        return;
+      }
+      a[campo] = target.value;
+    } else if (target.hasAttribute("data-cat-nova")) {
+      ED.novaCategoria = ED.novaCategoria || { name: "", description: "", image: "" };
+      ED.novaCategoria[target.getAttribute("data-cat-nova")] = target.value;
+      if (target.getAttribute("data-cat-nova") === "name") {
+        renderCategorias();
+        const el = qs('[data-cat-nova="name"]');
+        if (el) {
+          el.focus();
+          const v = el.value;
+          el.setSelectionRange(v.length, v.length);
+        }
+        return;
+      }
+    }
+    updateSavebar();
+  }
+
+  async function criarCategoria() {
+    const nova = ED.novaCategoria || {};
+    const name = String(nova.name || "").trim();
+    if (!name) {
+      setStatus("erro", "Escreva o nome da nova categoria.");
+      return;
+    }
+    if (!nova.image) {
+      setStatus("erro", "A nova categoria precisa de uma foto (envie uma imagem ou use a foto de um produto depois de criar).");
+      return;
+    }
+    const list = categoriasList();
+    const taken = list.map(function s(a) { return a.slug; }).concat(list.map(function s(a) { return a.id; }));
+    const slug = Jana.slugifyArea(name, taken);
+    if (Jana.isReservedAreaSlug(slug)) {
+      setStatus("erro", "Este nome gera um endereço reservado pelo site. Escolha outro.");
+      return;
+    }
+    list.push({
+      id: slug,
+      slug: slug,
+      name: name,
+      description: String(nova.description || "").trim(),
+      image: nova.image,
+      sourceCategoryIds: [slug],
+      order: list.length + 1,
+    });
+    list.forEach(function ord(a, i) { a.order = i + 1; });
+    ED.novaCategoria = { name: "", description: "", image: "" };
+    renderCategorias();
+    updateSavebar();
+    setStatus("", "Categoria «" + name + "» adicionada. Toque em Salvar e publicar para ela aparecer no site.");
+  }
+
+  function renderSobreTab() {
+    const root = qs('[data-ed="sobre"]');
+    if (!root || !ED.carregado) return;
+    const sobre = ED.drafts.sobre.sobre;
+    sobre.portrait = sobre.portrait || { src: "", alt: "Jana Abreu" };
+    const imprensa = (sobre.press || [])
+      .map(
+        (x, i) =>
+          '<li class="ed-card"><div class="ed-linha">' +
+          '<label class="ed-field">Título<input type="text" maxlength="200" data-tx-lista="imprensa" data-i="' + i + '" data-campo="title" value="' + esc(x.title || "") + '"></label>' +
+          '<label class="ed-field">Veículo<input type="text" maxlength="120" data-tx-lista="imprensa" data-i="' + i + '" data-campo="outlet" value="' + esc(x.outlet || "") + '"></label></div>' +
+          '<label class="ed-field">Link <span class="ed-opcional">(opcional)</span><input type="url" inputmode="url" placeholder="https://…" data-tx-lista="imprensa" data-i="' + i + '" data-campo="url" value="' + esc(x.url || "") + '"></label>' +
+          '<button type="button" class="btn btn--small btn--danger" data-ed-action="tx-remover" data-lista="imprensa" data-i="' + i + '">Remover</button></li>'
+      )
+      .join("");
+    root.innerHTML =
+      '<section class="ed-secao" aria-labelledby="sb-abertura"><h3 id="sb-abertura">Sobre nós</h3>' +
+      '<p class="ed-dica">Campos vazios não aparecem no site. Escreva só o que for real — não invente biografia, datas ou veículos.</p>' +
+      campo("Abertura", "sobre.lead", sobre.lead, { area: true, max: 2000, opcional: true }) +
+      '<fieldset class="ed-grupo"><legend>Foto da Jana <span class="ed-opcional">(opcional)</span></legend>' +
+      (sobre.portrait.src ? '<div class="ed-retrato">' + imgTag(sobre.portrait.src, "", "") + "</div>" : "") +
+      '<div class="ed-linha"><label class="btn btn--outline btn--small ed-arquivo">' + (sobre.portrait.src ? "Trocar foto" : "Escolher foto") + '<input type="file" accept="image/*" data-ed-file="retrato"></label>' +
+      (sobre.portrait.src ? '<button type="button" class="btn btn--small btn--danger" data-ed-action="retrato-remover">Remover foto</button>' : "") + "</div>" +
+      campo("Descrição da foto", "sobre.portrait.alt", sobre.portrait.alt, { max: 200 }) + "</fieldset>" +
+      campo("História", "sobre.story", (sobre.story || []).join("\n\n"), { area: true, rows: 7, tipo: "paragrafos", opcional: true, dica: "Deixe uma linha em branco entre os parágrafos." }) +
+      "</section>" +
+      '<section class="ed-secao" aria-labelledby="sb-intro"><h3 id="sb-intro">Acima de Trabalhos</h3>' +
+      '<p class="ed-dica">Texto e fotos que aparecem na página Sobre nós, acima da seção Trabalhos. Se a lista de fotos estiver vazia e o texto também, o bloco não aparece.</p>' +
+      campo("Texto", "sobre.introText", sobre.introText, { area: true, rows: 4, max: 4000, opcional: true }) +
+      listaFotos("intro", sobre.introPhotos || [], { alt: true, multiplo: true }) +
+      "</section>" +
+      '<fieldset class="ed-grupo"><legend>Galeria de trabalhos</legend><p class="ed-dica">Aparecem em carrossel na página Sobre nós, numa fileira só. A ordem da lista é a ordem das fotos.</p>' + listaFotos("trabalhos", sobre.workGallery || [], { alt: true, produto: true, multiplo: true }) + "</fieldset>" +
+      '<fieldset class="ed-grupo"><legend>Na imprensa</legend><ul class="ed-imprensa">' + imprensa + "</ul>" +
+      '<button type="button" class="btn btn--outline btn--small" data-ed-action="tx-novo" data-lista="imprensa">+ Adicionar matéria</button></fieldset>' +
+      '<fieldset class="ed-grupo"><legend>Fotos da faixa do Instagram</legend><p class="ed-dica">Aparecem em destaque em Sobre nós e levam para o perfil.</p>' +
+      listaFotos("instagram", (sobre.instagramGallery || []).map(function wrap(src) { return { src: src }; }), { multiplo: true }) + "</fieldset>";
+  }
+
+  function onSobreInput(target) {
+    const s = ED.drafts.sobre.sobre;
+    if (target.hasAttribute("data-tx")) {
+      const path = target.getAttribute("data-tx");
+      const tipo = target.getAttribute("data-tipo");
+      const obj = { sobre: s };
+      const root = path.split(".")[0];
+      const rest = path.slice(root.length + 1);
+      let value = target.value;
+      if (tipo === "paragrafos") {
+        value = value
+          .split(/\n\s*\n/)
+          .map((x) => x.trim())
+          .filter(Boolean);
+      }
+      setPath(obj[root], rest, value);
+    } else if (target.hasAttribute("data-tx-lista")) {
+      const list = txLista(target.getAttribute("data-tx-lista"));
+      const item = list[Number(target.getAttribute("data-i"))];
+      const campoNome = target.getAttribute("data-campo");
+      if (campoNome === "productSlug") {
+        if (target.value) item.productSlug = target.value;
+        else delete item.productSlug;
+      } else item[campoNome] = target.value;
+    }
+    updateSavebar();
   }
 
   function renderTextos() {
@@ -2219,30 +2680,7 @@
     s.contato.instagram = s.contato.instagram || {};
     s.address = s.address || {};
     s.entrega = s.entrega || { taxa: null };
-    const sobre = t.sobre;
-    sobre.portrait = sobre.portrait || { src: "", alt: "Jana Abreu" };
     const taxaNull = s.entrega.taxa === null || s.entrega.taxa === undefined;
-    const areasHtml = t.areas
-      .slice()
-      .sort(byOrder)
-      .map(function area(a, i, arr) {
-        const real = areaById(a.id) || {};
-        return (
-          '<li class="ed-card ed-area">' +
-          '<div class="ed-area__foto">' + imgTag(a.image, "", "") +
-          '<label class="btn btn--small btn--outline ed-arquivo">Trocar foto<input type="file" accept="image/*" data-ed-file="area" data-id="' + esc(a.id) + '"></label></div>' +
-          '<div class="ed-area__campos">' +
-          '<label class="ed-field">Nome' + (Jana.isSeasonalArea(real) ? ' <span class="ed-dica-inline">(data comemorativa — liga e desliga na aba Datas)</span>' : "") +
-          '<input type="text" maxlength="80" data-tx-area="' + esc(a.id) + '" data-campo="name" value="' + esc(a.name) + '"></label>' +
-          '<label class="ed-field">Descrição <span class="ed-opcional">(opcional; aparece no topo da página da categoria)</span>' +
-          '<textarea rows="2" maxlength="800" data-tx-area="' + esc(a.id) + '" data-campo="description">' + esc(a.description || "") + "</textarea></label>" +
-          '<div class="ed-foto__acoes">' +
-          '<button type="button" class="btn btn--small btn--outline" data-ed-action="area-mover" data-id="' + esc(a.id) + '" data-dir="-1"' + (i === 0 ? " disabled" : "") + ' aria-label="Mover ' + esc(a.name) + ' para antes">◀ Antes</button>' +
-          '<button type="button" class="btn btn--small btn--outline" data-ed-action="area-mover" data-id="' + esc(a.id) + '" data-dir="1"' + (i === arr.length - 1 ? " disabled" : "") + ' aria-label="Mover ' + esc(a.name) + ' para depois">Depois ▶</button>' +
-          "</div></div></li>"
-        );
-      })
-      .join("");
     const recheios = (t.sabores.flavors || [])
       .map(
         (f, i, arr) =>
@@ -2253,16 +2691,6 @@
           '<button type="button" class="btn btn--small btn--outline" data-ed-action="tx-mover" data-lista="recheios" data-i="' + i + '" data-dir="-1"' + (i === 0 ? " disabled" : "") + ' aria-label="Subir recheio">↑</button>' +
           '<button type="button" class="btn btn--small btn--outline" data-ed-action="tx-mover" data-lista="recheios" data-i="' + i + '" data-dir="1"' + (i === arr.length - 1 ? " disabled" : "") + ' aria-label="Descer recheio">↓</button>' +
           '<button type="button" class="btn btn--small btn--danger" data-ed-action="tx-remover" data-lista="recheios" data-i="' + i + '">Remover</button></div></li>'
-      )
-      .join("");
-    const imprensa = (sobre.press || [])
-      .map(
-        (x, i) =>
-          '<li class="ed-card"><div class="ed-linha">' +
-          '<label class="ed-field">Título<input type="text" maxlength="200" data-tx-lista="imprensa" data-i="' + i + '" data-campo="title" value="' + esc(x.title || "") + '"></label>' +
-          '<label class="ed-field">Veículo<input type="text" maxlength="120" data-tx-lista="imprensa" data-i="' + i + '" data-campo="outlet" value="' + esc(x.outlet || "") + '"></label></div>' +
-          '<label class="ed-field">Link <span class="ed-opcional">(opcional)</span><input type="url" inputmode="url" placeholder="https://…" data-tx-lista="imprensa" data-i="' + i + '" data-campo="url" value="' + esc(x.url || "") + '"></label>' +
-          '<button type="button" class="btn btn--small btn--danger" data-ed-action="tx-remover" data-lista="imprensa" data-i="' + i + '">Remover</button></li>'
       )
       .join("");
     root.innerHTML =
@@ -2292,28 +2720,13 @@
       campo("Instrução na caixa do QR Pix", "site.pixNote", s.pixNote, { area: true, max: 800, dica: "Aparece dentro da caixa do QR Code do Pix, no carrinho. Se ficar vazio, não aparece." }) +
       campo("Aviso ao escolher cartão", "site.paidDisclaimer", s.paidDisclaimer, { area: true, max: 800, dica: "Aparece no carrinho quando a cliente escolhe pagar com cartão, e também na mensagem do WhatsApp depois do pagamento. Se ficar vazio, não aparece." }) +
       "</section>" +
-      '<section class="ed-secao" aria-labelledby="tx-areas"><h3 id="tx-areas">Categorias (caixinhas da página inicial)</h3>' +
-      '<p class="ed-dica">A ordem aqui é a ordem das caixinhas e do menu Categorias.</p><ol class="ed-areas">' + areasHtml + "</ol></section>" +
       '<section class="ed-secao" aria-labelledby="tx-recheios"><h3 id="tx-recheios">Recheios de bolo</h3>' +
       '<p class="ed-dica">Aparecem para a cliente escolher em todos os produtos da categoria Bolos.</p>' +
       campo("Título da escolha", "sabores.label", t.sabores.label, { max: 80 }) +
       '<ol class="ed-recheios">' + recheios + "</ol>" +
       '<button type="button" class="btn btn--outline btn--small" data-ed-action="tx-novo" data-lista="recheios">+ Adicionar recheio</button></section>' +
-      '<section class="ed-secao" aria-labelledby="tx-sobre"><h3 id="tx-sobre">Sobre nós</h3>' +
-      '<p class="ed-dica">Campos vazios não aparecem no site. Escreva só o que for real.</p>' +
-      campo("Abertura", "sobre.lead", sobre.lead, { area: true, max: 2000, opcional: true }) +
-      '<fieldset class="ed-grupo"><legend>Foto da Jana <span class="ed-opcional">(opcional)</span></legend>' +
-      (sobre.portrait.src ? '<div class="ed-retrato">' + imgTag(sobre.portrait.src, "", "") + "</div>" : "") +
-      '<div class="ed-linha"><label class="btn btn--outline btn--small ed-arquivo">' + (sobre.portrait.src ? "Trocar foto" : "Escolher foto") + '<input type="file" accept="image/*" data-ed-file="retrato"></label>' +
-      (sobre.portrait.src ? '<button type="button" class="btn btn--small btn--danger" data-ed-action="retrato-remover">Remover foto</button>' : "") + "</div>" +
-      campo("Descrição da foto", "sobre.portrait.alt", sobre.portrait.alt, { max: 200 }) + "</fieldset>" +
-      campo("História", "sobre.story", (sobre.story || []).join("\n\n"), { area: true, rows: 7, tipo: "paragrafos", opcional: true, dica: "Deixe uma linha em branco entre os parágrafos." }) +
-      '<fieldset class="ed-grupo"><legend>Galeria de trabalhos</legend><p class="ed-dica">Aparecem em carrossel na página Sobre nós, numa fileira só. A ordem da lista é a ordem das fotos.</p>' + listaFotos("trabalhos", sobre.workGallery || [], { alt: true, produto: true, multiplo: true }) + "</fieldset>" +
-      '<fieldset class="ed-grupo"><legend>Na imprensa</legend><ul class="ed-imprensa">' + imprensa + "</ul>" +
-      '<button type="button" class="btn btn--outline btn--small" data-ed-action="tx-novo" data-lista="imprensa">+ Adicionar matéria</button></fieldset>' +
-      '<fieldset class="ed-grupo"><legend>Fotos da faixa do Instagram</legend><p class="ed-dica">Aparecem em destaque em Sobre nós e levam para o perfil.</p>' +
-      listaFotos("instagram", (s.instagramGallery || []).map((src) => ({ src: src })), { multiplo: true }) + "</fieldset>" +
-      "</section>";
+      '<section class="ed-secao"><h3>Categorias e Sobre nós</h3>' +
+      '<p class="ed-dica">As fotos, o nome e as novas categorias editam-se na aba <button type="button" class="btn btn--small btn--outline" data-ed-action="ir-aba" data-tab="categorias">Categorias</button>. O texto e as fotos de Sobre nós (incluindo a faixa do Instagram) editam-se na aba <button type="button" class="btn btn--small btn--outline" data-ed-action="ir-aba" data-tab="sobre">Sobre nós</button>.</p></section>';
   }
 
   function onTextosInput(target) {
@@ -2321,7 +2734,7 @@
     if (target.hasAttribute("data-tx")) {
       const path = target.getAttribute("data-tx");
       const tipo = target.getAttribute("data-tipo");
-      const obj = { site: t.site, sabores: t.sabores, sobre: t.sobre };
+      const obj = { site: t.site, sabores: t.sabores };
       const root = path.split(".")[0];
       const rest = path.slice(root.length + 1);
       let value = target.value;
@@ -2347,9 +2760,6 @@
       }
       if (path === "site.slogan" && (t.site.tagline === undefined || t.site.tagline === t.site.slogan)) t.site.tagline = value;
       setPath(obj[root], rest, value);
-    } else if (target.hasAttribute("data-tx-area")) {
-      const a = t.areas.find((x) => x.id === target.getAttribute("data-tx-area"));
-      a[target.getAttribute("data-campo")] = target.value;
     } else if (target.hasAttribute("data-tx-lista")) {
       const list = txLista(target.getAttribute("data-tx-lista"));
       const item = list[Number(target.getAttribute("data-i"))];
@@ -2374,7 +2784,6 @@
     const files = Array.from(input.files || []);
     input.value = "";
     if (!files.length) return;
-    const t = ED.drafts.textos;
     setStatus("salvando", "Preparando a imagem…");
     const erros = [];
     for (const file of files) {
@@ -2382,13 +2791,21 @@
         if (kind === "area") {
           const id = input.getAttribute("data-id");
           const res = await processImage(file, IMG.area);
-          t.areas.find((a) => a.id === id).image = addPending("assets/areas", id, res);
+          const a = categoriasList().find((x) => x.id === id);
+          if (a) a.image = addPending("assets/areas", id, res);
+        } else if (kind === "area-nova") {
+          const res = await processImage(file, IMG.area);
+          ED.novaCategoria = ED.novaCategoria || { name: "", description: "", image: "" };
+          ED.novaCategoria.image = addPending("assets/areas", "nova", res);
         } else if (kind === "retrato") {
           const res = await processImage(file, IMG.sobre);
-          t.sobre.portrait.src = addPending("assets/sobre", "jana", res);
+          ED.drafts.sobre.sobre.portrait.src = addPending("assets/sobre", "jana", res);
         } else if (kind === "tx-trabalhos") {
           const res = await processImage(file, IMG.sobre);
           txLista("trabalhos").push({ src: addPending("assets/sobre", "trabalho", res), alt: "" });
+        } else if (kind === "tx-intro") {
+          const res = await processImage(file, IMG.sobre);
+          txLista("intro").push({ src: addPending("assets/sobre", "intro", res), alt: "" });
         } else if (kind === "tx-instagram") {
           const res = await processImage(file, IMG.area);
           txLista("instagram").push(addPending("assets/sobre", "instagram", res));
@@ -2398,7 +2815,7 @@
       }
     }
     setStatus(erros.length ? "erro" : "", erros.join(" "));
-    renderTextos();
+    renderCurrentEditor();
     updateSavebar();
   }
 
@@ -2628,19 +3045,89 @@
         renderProdutos();
         qs('.painel-tabs [data-tab="produtos"]').click();
         break;
+      case "ir-aba": {
+        const dest = el.getAttribute("data-tab");
+        const btn = qs('.painel-tabs [data-tab="' + dest + '"]');
+        if (btn) btn.click();
+        break;
+      }
       case "area-mover": {
-        const list = ED.drafts.textos.areas.slice().sort(byOrder);
+        const list = categoriasList().slice().sort(byOrder);
         const i = list.findIndex((a) => a.id === id);
         if (moverItem(list, i, Number(el.getAttribute("data-dir")))) {
           list.forEach((a, k) => (a.order = k + 1));
-          renderTextos();
+          ED.drafts.categorias.areas = list;
+          renderCategorias();
+          updateSavebar();
+        }
+        break;
+      }
+      case "area-prod-mover": {
+        const a = categoriasList().find((x) => x.id === id);
+        if (a && moverProdutoCategoria(a, el.getAttribute("data-slug"), el.getAttribute("data-dir"))) {
+          a.productSort = "manual";
+          renderCategoriasPreservingScroll();
+          updateSavebar();
+        }
+        break;
+      }
+      case "area-criar":
+        criarCategoria();
+        break;
+      case "area-foto-produto": {
+        const a = categoriasList().find((x) => x.id === id);
+        if (a) {
+          a.image = el.getAttribute("data-src");
+          renderCategorias();
+          updateSavebar();
+        }
+        break;
+      }
+      case "area-foto-remover": {
+        const a = categoriasList().find((x) => x.id === id);
+        if (!a) break;
+        const ok = await confirmar({ titulo: "Remover a foto?", texto: "A categoria precisa de uma foto para ser publicada. Escolha outra antes de salvar.", botao: "Remover foto", perigo: true });
+        if (ok) {
+          a.image = "";
+          renderCategorias();
+          updateSavebar();
+        }
+        break;
+      }
+      case "area-ocultar": {
+        const a = categoriasList().find((x) => x.id === id);
+        if (!a || Jana.isSeasonalArea(a)) break;
+        a.enabled = a.enabled === false ? true : false;
+        if (a.enabled) delete a.enabled;
+        renderCategorias();
+        updateSavebar();
+        break;
+      }
+      case "area-excluir": {
+        const list = categoriasList();
+        const a = list.find((x) => x.id === id);
+        if (!a || Jana.isSeasonalArea(a)) break;
+        const so = produtosSoNestaCategoria(a);
+        const extra = so.length
+          ? " Atenção: " + so.length + " produto(s) só estão nesta categoria (ex.: «" + so[0].name + "»). Eles ficam sem categoria no site até você escolher outra."
+          : "";
+        const ok = await confirmar({
+          titulo: "Excluir a categoria «" + a.name + "»?",
+          texto: "Ela sai do menu e da página inicial quando você tocar em Salvar e publicar." + extra,
+          botao: "Excluir categoria",
+          perigo: true,
+        });
+        if (ok) {
+          ED.drafts.categorias.areas = list.filter((x) => x.id !== id);
+          ED.drafts.categorias.areas.forEach(function ord(item, i) { item.order = i + 1; });
+          renderCategorias();
           updateSavebar();
         }
         break;
       }
       case "tx-mover":
         if (moverItem(txLista(el.getAttribute("data-lista")), Number(el.getAttribute("data-i")), Number(el.getAttribute("data-dir")))) {
-          renderTextos();
+          renderCurrentEditor();
           updateSavebar();
         }
         break;
@@ -2648,7 +3135,7 @@
         const ok = await confirmar({ titulo: "Remover este item?", texto: "Ele sai do site quando você tocar em Salvar e publicar.", botao: "Remover", perigo: true });
         if (ok) {
           txLista(el.getAttribute("data-lista")).splice(Number(el.getAttribute("data-i")), 1);
-          renderTextos();
+          renderCurrentEditor();
           updateSavebar();
         }
         break;
@@ -2656,7 +3143,7 @@
       case "tx-novo": {
         const kind = el.getAttribute("data-lista");
         txLista(kind).push(kind === "recheios" ? { nome: "", descricao: "" } : { title: "", outlet: "", url: "" });
-        renderTextos();
+        renderCurrentEditor();
         updateSavebar();
         const inputs = qsa('[data-tx-lista="' + kind + '"]');
         if (inputs.length) inputs[inputs.length - (kind === "recheios" ? 2 : 3)].focus();
@@ -2665,8 +3152,8 @@
       case "retrato-remover": {
         const ok = await confirmar({ titulo: "Remover a foto?", texto: "A foto sai de Sobre nós quando você tocar em Salvar e publicar.", botao: "Remover foto", perigo: true });
         if (ok) {
-          ED.drafts.textos.sobre.portrait.src = "";
-          renderTextos();
+          ED.drafts.sobre.sobre.portrait.src = "";
+          renderSobreTab();
           updateSavebar();
         }
         break;
@@ -2701,6 +3188,18 @@
       if (event.type === "change" && t.type !== "checkbox" && t.tagName !== "SELECT") return;
       if (event.type === "input" && (t.type === "checkbox" || t.tagName === "SELECT")) return;
       onTextosInput(t);
+      return;
+    }
+    if (t.closest('[data-ed="categorias"]')) {
+      if (event.type === "change" && t.type !== "checkbox" && t.tagName !== "SELECT" && t.type !== "search") return;
+      if (event.type === "input" && (t.type === "checkbox" || t.tagName === "SELECT")) return;
+      onCategoriasInput(t);
+      return;
+    }
+    if (t.closest('[data-ed="sobre"]')) {
+      if (event.type === "change" && t.type !== "checkbox" && t.tagName !== "SELECT") return;
+      if (event.type === "input" && (t.type === "checkbox" || t.tagName === "SELECT")) return;
+      onSobreInput(t);
       return;
     }
     if (t.closest('[data-ed="form-produto"]') && event.type === "change" && t.name === "sobConsulta") {
@@ -2801,9 +3300,77 @@
       });
   }
 
+  let areaProdDrag = null;
+
+  function onAreaProdPointerDown(event) {
+    const handle = event.target.closest('[data-ed-drag="area-prod"]');
+    if (!handle || (event.pointerType === "mouse" && event.button !== 0)) return false;
+    const row = handle.closest(".ed-area-prod");
+    const list = handle.closest("[data-ed-prod-order]");
+    if (!row || !list) return false;
+    areaProdDrag = {
+      pointerId: event.pointerId,
+      handle: handle,
+      row: row,
+      list: list,
+      id: handle.getAttribute("data-id") || list.getAttribute("data-id"),
+      slug: handle.getAttribute("data-slug") || row.getAttribute("data-slug"),
+      startY: event.clientY,
+      moved: false,
+    };
+    try { handle.setPointerCapture(event.pointerId); } catch (err) {}
+    event.preventDefault();
+    return true;
+  }
+
+  function onAreaProdPointerMove(event) {
+    if (!areaProdDrag || event.pointerId !== areaProdDrag.pointerId) return false;
+    const drag = areaProdDrag;
+    if (!drag.moved && Math.abs(event.clientY - drag.startY) < 5) return true;
+    drag.moved = true;
+    drag.row.classList.add("is-dragging");
+    const y = event.clientY;
+    const rows = Array.prototype.slice.call(drag.list.querySelectorAll(".ed-area-prod"));
+    let placed = false;
+    for (let i = 0; i < rows.length; i++) {
+      const item = rows[i];
+      if (item === drag.row) continue;
+      const box = item.getBoundingClientRect();
+      if (y < box.top + box.height / 2) {
+        drag.list.insertBefore(drag.row, item);
+        placed = true;
+        break;
+      }
+    }
+    if (!placed) drag.list.appendChild(drag.row);
+    event.preventDefault();
+    return true;
+  }
+
+  function onAreaProdPointerUp(event) {
+    if (!areaProdDrag || event.pointerId !== areaProdDrag.pointerId) return false;
+    const drag = areaProdDrag;
+    areaProdDrag = null;
+    drag.row.classList.remove("is-dragging");
+    try { drag.handle.releasePointerCapture(event.pointerId); } catch (err) {}
+    if (!drag.moved) return true;
+    const a = categoriasList().find(function find(x) { return x.id === drag.id; });
+    if (a) {
+      a.productSort = "manual";
+      a.productOrder = Array.prototype.map.call(drag.list.querySelectorAll(".ed-area-prod[data-slug]"), function slugOf(row) {
+        return row.getAttribute("data-slug");
+      }).filter(Boolean);
+      renderCategoriasPreservingScroll();
+      updateSavebar();
+    }
+    event.preventDefault();
+    return true;
+  }
+
   let fotoDrag = null;
 
   function onFotoPointerDown(event) {
+    if (onAreaProdPointerDown(event)) return;
     const frame = event.target.closest("[data-ed-foto-frame]");
     if (!frame || !ED.banner || event.button) return;
     const img = frame.querySelector("img");
@@ -2825,6 +3392,7 @@
   }
 
   function onFotoPointerMove(event) {
+    if (onAreaProdPointerMove(event)) return;
     if (!fotoDrag || event.pointerId !== fotoDrag.pointerId || !ED.banner) return;
     const next = Jana.fotoPanFromDrag(
       fotoDrag.foto,
@@ -2842,6 +3410,7 @@
   }
 
   function onFotoPointerUp(event) {
+    if (onAreaProdPointerUp(event)) return;
     if (!fotoDrag || event.pointerId !== fotoDrag.pointerId) return;
     fotoDrag.frame.classList.remove("is-dragging");
     try { fotoDrag.frame.releasePointerCapture(event.pointerId); } catch (err) {}

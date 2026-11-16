@@ -42,7 +42,9 @@
   }
 
   function pageAreaId() {
-    return document.body.getAttribute("data-area") || pageCategoryId();
+    const fromAttr = document.body.getAttribute("data-area") || pageCategoryId();
+    if (fromAttr) return fromAttr;
+    return Jana.areaPageSlug ? Jana.areaPageSlug() : "";
   }
 
   function currentArea() {
@@ -714,6 +716,14 @@
     renderCategoriesNav();
   }
 
+  function instagramGalleryImages() {
+    const sobre = state.sobre || {};
+    if (Object.prototype.hasOwnProperty.call(sobre, "instagramGallery") && Array.isArray(sobre.instagramGallery)) {
+      return sobre.instagramGallery.filter(Boolean);
+    }
+    return ((state.site && state.site.instagramGallery) || []).filter(Boolean);
+  }
+
   function renderInstagram() {
     const grid = Jana.qs('[data-bind="instagram-grid"]');
     if (!grid) {
@@ -721,7 +731,7 @@
     }
     const section = grid.closest("#instagram") || grid.closest(".instagram");
     const url = Jana.instagramUrl(state.site.contato.instagram);
-    const images = (state.site.instagramGallery || []).filter(Boolean);
+    const images = instagramGalleryImages();
     if (!images.length) {
       grid.innerHTML = "";
       if (section) {
@@ -816,6 +826,47 @@
     );
   }
 
+  function renderSobreIntro(sobre) {
+    const node = Jana.qs('[data-bind="sobre-intro"]');
+    if (!node) {
+      return;
+    }
+    const text = String((sobre && sobre.introText) || "").trim();
+    const photos = ((sobre && sobre.introPhotos) || []).filter(function keep(item) {
+      return item && item.src;
+    });
+    if (!text && !photos.length) {
+      setOptionalHtml(node, "");
+      return;
+    }
+    const paragraphs = text
+      ? text.split(/\n\n+/).map(function p(block) {
+          return "<p>" + Jana.escapeHtml(block.trim()).replace(/\n/g, "<br>") + "</p>";
+        }).join("")
+      : "";
+    const textHtml = paragraphs ? '<div class="sobre__intro-text">' + paragraphs + "</div>" : "";
+    const grid = photos.length
+      ? '<ul class="sobre__intro-grid">' +
+        photos
+          .map(function tile(item) {
+            return (
+              "<li><img src=\"" +
+              Jana.escapeHtml(Jana.assetUrl(item.src)) +
+              '" alt="' +
+              Jana.escapeHtml(item.alt || "") +
+              '" width="800" height="800" loading="lazy" decoding="async"></li>'
+            );
+          })
+          .join("") +
+        "</ul>"
+      : "";
+    const cls =
+      "sobre__intro-inner" +
+      (text ? " sobre__intro-inner--texto" : "") +
+      (photos.length ? " sobre__intro-inner--fotos" : "");
+    setOptionalHtml(node, '<div class="' + cls + '">' + textHtml + grid + "</div>");
+  }
+
   function renderSobre() {
     if (!isAboutPage()) {
       return;
@@ -856,6 +907,7 @@
             .join("")
         : ""
     );
+    renderSobreIntro(sobre);
     setOptionalHtml(Jana.qs('[data-bind="sobre-work"]'), workGalleryHtml(gallery));
     setOptionalHtml(
       Jana.qs('[data-bind="sobre-press"]'),

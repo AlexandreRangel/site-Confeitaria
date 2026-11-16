@@ -1344,3 +1344,136 @@ body.ed-ocupado .ed-form [type="submit"] {
     grid-column: 1;
   }
 }
+
+
+.ed-area--oculta {
+  opacity: 0.78;
+}
+
+.ed-area__pick {
+  margin-top: 0.45rem;
+}
+
+.ed-area__pick summary {
+  cursor: pointer;
+  font-weight: 600;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.ed-picks--mini {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+  gap: 0.4rem;
+  max-height: 14rem;
+  overflow: auto;
+  margin-top: 0.35rem;
+}
+
+.ed-picks--mini .ed-pick {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.25rem;
+  border: 1px solid var(--line, #e4c4ce);
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+  text-align: left;
+  font-size: 0.78rem;
+}
+
+.ed-picks--mini .ed-pick img,
+.ed-picks--mini .ed-pick .ed-semfoto {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.ed-area-prods {
+  list-style: none;
+  margin: 0.3rem 0 0.7rem;
+  padding: 0;
+  max-height: 22rem;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.ed-area-prod {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  gap: 0.45rem;
+  align-items: center;
+  padding: 0.3rem 0.45rem;
+  border-bottom: 1px solid var(--line);
+  background: #fff;
+}
+
+.ed-area-prod:last-child {
+  border-bottom: 0;
+}
+
+.ed-area-prod img,
+.ed-area-prod .ed-semfoto {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.ed-area-prod__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.ed-area-prod__info strong {
+  font-size: 0.9rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ed-area-prod__info span {
+  font-size: 0.8rem;
+  color: var(--muted, #666);
+}
+
+.ed-area-prod__acoes {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.ed-drag {
+  touch-action: none;
+  cursor: grab;
+  min-width: 44px;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 1rem;
+  letter-spacing: -0.15em;
+  line-height: 1;
+}
+
+.ed-drag:active,
+.ed-area-prod.is-dragging .ed-drag {
+  cursor: grabbing;
+}
+
+.ed-area-prod.is-dragging {
+  opacity: 0.7;
+  background: #f7f1f3;
+}
+
+.ed-area-prod.is-dragging * {
+  user-select: none;
+}

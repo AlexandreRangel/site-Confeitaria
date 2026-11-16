@@ -72,8 +72,9 @@ if (!natalArea || natalArea.seasonal !== true) {
 ["natal", "pascoa"].forEach((id) => {
   const a = areaById.get(id);
   if (!a || a.seasonal !== true) errors.push(id + " area must be marked seasonal");
-  // datas comemorativas começam desligadas; a Jana liga na aba Datas do editor
-  if (a && (!a.ativacao || a.ativacao.modo !== "desligado")) errors.push(id + " must start with ativacao.modo desligado");
+  if (a && (!a.ativacao || ["desligado", "ligado", "datas"].indexOf(a.ativacao.modo) === -1)) {
+    errors.push(id + " must have ativacao.modo desligado, ligado or datas");
+  }
 });
 const corporate = areaById.get("corporate");
 if (!corporate || corporate.sourceCategoryIds.join(",") !== "personalizado-para-empresas") {
@@ -167,6 +168,7 @@ const storefrontPages = [
   "sobre-nos/index.html",
   "encomendas/index.html",
   ...expectedAreas.map((id) => id + "/index.html"),
+  "area/index.html",
 ];
 storefrontPages.forEach((rel) => {
   const html = readFileSync(join(root, rel), "utf8");
@@ -617,6 +619,47 @@ if (!workerJs.includes("footerAddress") || !workerJs.includes("footerMapQuery"))
 }
 if (!utilsJs.includes("Jana.footerMap") || !appJs.includes("footer-map-embed")) {
   errors.push("footer map must be filled from site.json and hidden when the address is empty");
+}
+
+if (!editorJs.includes("renderCategorias") || !editorJs.includes("area-criar") || !editorJs.includes("renderSobreTab") || !editorJs.includes("introPhotos")) {
+  errors.push("editor must have Categorias and Sobre nós tabs, including the block above Trabalhos");
+}
+if (!editorJs.includes("productSort") || !editorJs.includes("productOrder") || !editorJs.includes("Ordem alfabética") || !editorJs.includes("area-prod-mover") || !editorJs.includes("data-ed-drag=\"area-prod\"")) {
+  errors.push("Categorias tab must let Jana choose product order, including manual drag and up/down buttons");
+}
+if (!utilsJs.includes("sortProductsForArea") || !utilsJs.includes("productSort") || !utilsJs.includes("preco-desc")) {
+  errors.push("productsForArea must apply per-category productSort");
+}
+if (!workerJs.includes("productSort") || !workerJs.includes("productOrder") || !workerJs.includes("preco-asc")) {
+  errors.push("Worker validateAreas must accept productSort and productOrder");
+}
+if (!painel.includes('data-tab="categorias"') || !painel.includes('data-tab="sobre"') || !painel.includes('id="tab-categorias"') || !painel.includes('id="tab-sobre"')) {
+  errors.push("painel must expose the Categorias and Sobre nós tabs");
+}
+if (!utilsJs.includes("slugifyArea") || !utilsJs.includes("RESERVED_AREA_SLUGS") || !utilsJs.includes("areaPageSlug")) {
+  errors.push("area slug helpers must exist");
+}
+if (!workerJs.includes("areaPageHtml") || !workerJs.includes("introPhotos") || !workerJs.includes("RESERVED_AREA_SLUGS")) {
+  errors.push("Worker must validate new category fields and generate category pages");
+}
+if (!existsSync(join(root, "area/index.html"))) {
+  errors.push("generic area/index.html page is missing");
+} else {
+  const areaPage = readFileSync(join(root, "area/index.html"), "utf8");
+  if (!areaPage.includes('data-page="area"') || !areaPage.includes("setAreaFromUrl") || !areaPage.includes("js/app.js")) {
+    errors.push("generic area page must boot as a category page from the URL");
+  }
+}
+const notFound = readFileSync(join(root, "404.html"), "utf8");
+if (!notFound.includes("maybeAreaPage") || !notFound.includes("area/?c=")) {
+  errors.push("404.html must route unknown category slugs to the generic area page");
+}
+const sobreHtml = readFileSync(join(root, "sobre-nos/index.html"), "utf8");
+if (!sobreHtml.includes('data-bind="sobre-intro"') || !sobreHtml.includes("sobre__trabalhos") || sobreHtml.indexOf("sobre-intro") > sobreHtml.indexOf("sobre__trabalhos")) {
+  errors.push("Sobre nós must have the intro photo block above Trabalhos");
+}
+if (!appJs.includes("renderSobreIntro") || !layoutCss.includes("sobre__intro-grid")) {
+  errors.push("Sobre nós intro block must render and hide when empty");
 }
 if (!editorJs.includes("Aceita imagem para personalização") || !editorJs.includes("aceitaImagemPersonalizacao")) {
   errors.push("product editor must have the personalization image checkbox");
