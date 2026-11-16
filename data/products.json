@@ -693,12 +693,10 @@
     "category": "Bolos",
     "price": 217,
     "images": [
-      "assets/products/bolo-buttercream-p/01.webp",
-      "assets/products/bolo-buttercream-p/02.webp",
       "assets/products/bolo-buttercream-p/03.webp",
+      "assets/products/bolo-buttercream-p/02.webp",
       "assets/products/bolo-buttercream-p/04.webp",
-      "assets/products/bolo-buttercream-p/05.webp",
-      "assets/products/bolo-buttercream-p/06.webp"
+      "assets/products/bolo-buttercream-p/05.webp"
     ],
     "featured": false,
     "active": true,
