@@ -117,7 +117,7 @@ function corsHeaders(env, request) {
   const origin = request.headers.get("Origin") || "";
   const h = {
     "Access-Control-Allow-Methods": "GET, POST, PATCH, DELETE, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization, Idempotency-Key",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, Idempotency-Key, X-Order-Token, X-Item-Key, X-File-Name",
     "Access-Control-Max-Age": "600",
     Vary: "Origin",
   };
@@ -898,7 +898,9 @@ async function requireAdmin(env, request) {
 async function adminListOrders(env, request, url) {
   const limit = Math.min(1000, Math.max(1, Number(url.searchParams.get("limit")) || 500));
   const { results } = await env.DB.prepare("SELECT * FROM orders ORDER BY created_at DESC LIMIT ?").bind(limit).all();
-  return json(env, request, { ok: true, orders: results.map(rowToOrder) });
+  const orders = results.map(rowToOrder);
+  await attachImagesToOrders(env, orders);
+  return json(env, request, { ok: true, orders });
 }
 
 async function adminPatchOrder(env, request, nsu) {
@@ -1270,6 +1272,9 @@ function validateProducts(list) {
     }
     if (p.categoryId != null && !ID_RE.test(String(p.categoryId))) bad(label + ": categoria inválida");
     if (p.active != null && typeof p.active !== "boolean") bad(label + ": campo «mostrar no site» inválido");
+    if (p.aceitaImagemPersonalizacao != null && typeof p.aceitaImagemPersonalizacao !== "boolean") {
+      bad(label + ": campo de imagem para personalização inválido");
+    }
     if (p.tags != null && (!Array.isArray(p.tags) || p.tags.some((t) => typeof t !== "string" || t.length > 80))) {
       bad(label + ": palavras-chave inválidas");
     }
@@ -1642,6 +1647,201 @@ async function adminContentPublication(env, request, url) {
   return json(env, request, { ok: true, estado, build: { status: build.status, commit: build.commit } });
 }
 
+
+/* ---------------- imagens de personalização ---------------- */
+
+const MAX_PERSONALIZATION_BYTES = 1200000;
+const MAX_IMAGES_PER_ORDER = 8;
+
+function sniffImageMime(bytes) {
+  if (!bytes || bytes.length < 8) return "";
+  if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return "image/jpeg";
+  if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47 && bytes[4] === 0x0d && bytes[5] === 0x0a && bytes[6] === 0x1a && bytes[7] === 0x0a) {
+    return "image/png";
+  }
+  return "";
+}
+
+function safeImageName(name, mime) {
+  const raw = String(name || "")
+    .replace(/\\/g, "/")
+    .split("/")
+    .pop()
+    .replace(/[^\w.\-() ]+/g, "")
+    .slice(0, 80);
+  const ext = mime === "image/png" ? ".png" : ".jpg";
+  const base = raw.replace(/\.(jpe?g|png)$/i, "") || "personalizacao";
+  return base.slice(0, 70) + ext;
+}
+
+async function orderImagesTableReady(env) {
+  try {
+    await env.DB.prepare("SELECT 1 FROM order_images LIMIT 1").first();
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
+async function personalizacaoInfo(env, request) {
+  const ready = await orderImagesTableReady(env);
+  if (!ready) throw new HttpError(503, "imagens de personalização indisponíveis");
+  return json(env, request, {
+    ok: true,
+    maxBytes: 1000000,
+    maxSide: 2000,
+    types: ["image/jpeg", "image/png"],
+    storage: env.IMAGENS ? "r2" : "d1",
+  });
+}
+
+function imageMeta(row) {
+  return {
+    id: row.id,
+    itemId: row.item_id || "",
+    itemName: row.item_name || "",
+    itemFlavor: row.item_flavor || "",
+    filename: row.filename || "",
+    mime: row.mime,
+    size: row.size,
+    createdAt: row.created_at,
+  };
+}
+
+async function listOrderImages(env, nsu) {
+  if (!(await orderImagesTableReady(env))) return [];
+  const { results } = await env.DB.prepare(
+    "SELECT id, order_nsu, item_id, item_name, item_flavor, filename, mime, size, storage, created_at FROM order_images WHERE order_nsu = ? ORDER BY created_at"
+  )
+    .bind(nsu)
+    .all();
+  return (results || []).map(imageMeta);
+}
+
+async function attachImagesToOrders(env, orders) {
+  if (!orders.length || !(await orderImagesTableReady(env))) {
+    orders.forEach((o) => {
+      if (!o.imagens) o.imagens = [];
+    });
+    return orders;
+  }
+  const nsUS = orders.map((o) => o.orderNsu || o.id).filter(Boolean);
+  if (!nsUS.length) return orders;
+  // D1 has a variable bind limit; chunk in groups of 80.
+  const all = [];
+  for (let i = 0; i < nsUS.length; i += 80) {
+    const chunk = nsUS.slice(i, i + 80);
+    const placeholders = chunk.map(() => "?").join(",");
+    const { results } = await env.DB.prepare(
+      "SELECT id, order_nsu, item_id, item_name, item_flavor, filename, mime, size, storage, created_at FROM order_images WHERE order_nsu IN (" +
+        placeholders +
+        ") ORDER BY created_at"
+    )
+      .bind(...chunk)
+      .all();
+    all.push(...(results || []));
+  }
+  const byNsu = new Map();
+  all.forEach((row) => {
+    const list = byNsu.get(row.order_nsu) || [];
+    list.push(imageMeta(row));
+    byNsu.set(row.order_nsu, list);
+  });
+  orders.forEach((o) => {
+    o.imagens = byNsu.get(o.orderNsu || o.id) || [];
+  });
+  return orders;
+}
+
+async function addOrderImage(env, request, nsu) {
+  if (!NSU_RE.test(nsu)) throw new HttpError(404, "pedido não encontrado");
+  if (!(await orderImagesTableReady(env))) throw new HttpError(503, "imagens de personalização indisponíveis");
+  const row = await getOrderRow(env, nsu);
+  const token = str(request.headers.get("X-Order-Token"), 100);
+  if (!row || !token || !safeEqual(row.token_hash, await sha256(token))) {
+    throw new HttpError(404, "pedido não encontrado");
+  }
+  const countRow = await env.DB.prepare("SELECT COUNT(*) AS n FROM order_images WHERE order_nsu = ?").bind(nsu).first();
+  if (countRow && Number(countRow.n) >= MAX_IMAGES_PER_ORDER) throw new HttpError(400, "limite de imagens neste pedido");
+  const len = Number(request.headers.get("Content-Length") || 0);
+  if (len > MAX_PERSONALIZATION_BYTES) throw new HttpError(413, "imagem grande demais (máximo 1 MB)");
+  const buf = new Uint8Array(await request.arrayBuffer());
+  if (buf.length > MAX_PERSONALIZATION_BYTES) throw new HttpError(413, "imagem grande demais (máximo 1 MB)");
+  if (buf.length < 24) throw new HttpError(400, "imagem inválida");
+  const mime = sniffImageMime(buf);
+  if (mime !== "image/jpeg" && mime !== "image/png") throw new HttpError(400, "envie uma imagem JPG ou PNG");
+  const itemKey = str(request.headers.get("X-Item-Key"), 180);
+  const filename = safeImageName(request.headers.get("X-File-Name"), mime);
+  let itemName = "";
+  let itemFlavor = "";
+  let itemId = itemKey;
+  try {
+    const items = JSON.parse(row.items_json || "[]");
+    const found = items.find((it, i) => String(it.id || "") + "::" + String(it.flavor || "") === itemKey || String(i) === itemKey);
+    if (found) {
+      itemName = str(found.name, 160);
+      itemFlavor = str(found.flavor, 120);
+      itemId = itemKey || str(found.id, 120);
+    }
+  } catch (err) {}
+  if (itemKey) {
+    const prev = await env.DB.prepare("SELECT id, storage, r2_key FROM order_images WHERE order_nsu = ? AND item_id = ?")
+      .bind(nsu, itemId)
+      .first();
+    if (prev) {
+      if (prev.storage === "r2" && prev.r2_key && env.IMAGENS) {
+        try { await env.IMAGENS.delete(prev.r2_key); } catch (err) {}
+      }
+      await env.DB.prepare("DELETE FROM order_images WHERE id = ?").bind(prev.id).run();
+    }
+  }
+  const id = "img-" + randomToken(10);
+  const t = nowIso();
+  let storage = "d1";
+  let r2Key = null;
+  if (env.IMAGENS) {
+    r2Key = "pedidos/" + nsu + "/" + id + (mime === "image/png" ? ".png" : ".jpg");
+    await env.IMAGENS.put(r2Key, buf, { httpMetadata: { contentType: mime } });
+    storage = "r2";
+  }
+  await env.DB.prepare(
+    `INSERT INTO order_images (id, order_nsu, item_id, item_name, item_flavor, filename, mime, size, storage, r2_key, data, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+  )
+    .bind(id, nsu, itemId, itemName, itemFlavor, filename, mime, buf.length, storage, r2Key, storage === "d1" ? buf : null, t)
+    .run();
+  return json(env, request, { ok: true, id, mime, size: buf.length, filename }, 201);
+}
+
+async function adminGetOrderImage(env, request, nsu, id, url) {
+  if (!(await orderImagesTableReady(env))) throw new HttpError(404, "imagem não encontrada");
+  const row = await env.DB.prepare("SELECT * FROM order_images WHERE id = ? AND order_nsu = ?").bind(id, nsu).first();
+  if (!row) throw new HttpError(404, "imagem não encontrada");
+  let bytes = row.data;
+  if (row.storage === "r2") {
+    if (!env.IMAGENS || !row.r2_key) throw new HttpError(404, "imagem não encontrada");
+    const obj = await env.IMAGENS.get(row.r2_key);
+    if (!obj) throw new HttpError(404, "imagem não encontrada");
+    bytes = await obj.arrayBuffer();
+  }
+  if (!bytes) throw new HttpError(404, "imagem não encontrada");
+  const download = url.searchParams.get("download") === "1";
+  const headers = Object.assign(
+    {
+      "Content-Type": row.mime || "application/octet-stream",
+      "Cache-Control": "private, no-store",
+      "X-Content-Type-Options": "nosniff",
+    },
+    corsHeaders(env, request)
+  );
+  if (download) {
+    headers["Content-Disposition"] = 'attachment; filename="' + safeImageName(row.filename, row.mime) + '"';
+  } else {
+    headers["Content-Disposition"] = 'inline; filename="' + safeImageName(row.filename, row.mime) + '"';
+  }
+  return new Response(bytes, { status: 200, headers });
+}
+
 /* ---------------- roteador ---------------- */
 
 async function route(request, env, ctx) {
@@ -1656,6 +1856,10 @@ async function route(request, env, ctx) {
 
   if (path === "/" && method === "GET") {
     return json(env, request, { ok: true, service: "jana-pedidos" });
+  }
+
+  if (path === "/personalizacao" && method === "GET") {
+    return personalizacaoInfo(env, request);
   }
 
   if (path === "/webhook/infinitepay" && method === "POST") {
@@ -1682,6 +1886,12 @@ async function route(request, env, ctx) {
     return declarePix(env, request, m[1]);
   }
 
+  m = path.match(/^\/pedidos\/([A-Z0-9-]{6,40})\/imagens$/);
+  if (m && method === "POST") {
+    if (!originAllowed(env, origin)) throw new HttpError(403, "origem não permitida");
+    return addOrderImage(env, request, m[1]);
+  }
+
   if (path === "/admin/login" && method === "POST") return adminLogin(env, request);
 
   if (path.startsWith("/admin/")) {
@@ -1701,6 +1911,8 @@ async function route(request, env, ctx) {
     if (m && method === "DELETE") return adminDeleteOrder(env, request, m[1]);
     m = path.match(/^\/admin\/pedidos\/([A-Za-z0-9-]{4,60})\/verificar$/);
     if (m && method === "POST") return adminVerify(env, request, m[1]);
+    m = path.match(/^\/admin\/pedidos\/([A-Za-z0-9-]{4,60})\/imagens\/([A-Za-z0-9_-]{4,80})$/);
+    if (m && method === "GET") return adminGetOrderImage(env, request, m[1], m[2], url);
     m = path.match(/^\/admin\/clientes\/([A-Za-z0-9_-]{4,60})$/);
     if (m && method === "PATCH") return adminPatchClient(env, request, m[1]);
     if (m && method === "DELETE") return adminDeleteClient(env, request, m[1]);
@@ -1721,4 +1933,4 @@ export default {
   },
 };
 
-export const _test = { ipCustomer, resolveTaxa, fixedPrice, cleanItems, generateNsu, NSU_RE, validRedirect, VALIDATORS, gitBlobSha, imageKind };
+export const _test = { ipCustomer, resolveTaxa, fixedPrice, cleanItems, generateNsu, NSU_RE, validRedirect, VALIDATORS, gitBlobSha, imageKind, sniffImageMime, safeImageName };

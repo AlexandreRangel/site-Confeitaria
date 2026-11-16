@@ -290,6 +290,78 @@
     Jana.bindText("detail-total", Jana.formatBRL(calculateSubtotal(order) + frete));
   }
 
+
+  const imageUrlCache = {};
+
+  function renderOrderImages(order) {
+    const box = Jana.qs('[data-bind="detail-imagens"]');
+    if (!box) return;
+    const list = (order && order.imagens) || [];
+    if (!list.length) {
+      box.hidden = true;
+      box.innerHTML = "";
+      return;
+    }
+    box.hidden = false;
+    box.innerHTML =
+      "<h3>Imagens para personalização</h3><ul class=\"painel-imagens__lista\">" +
+      list
+        .map(function item(img) {
+          const label = (img.itemName || "Item") + (img.itemFlavor ? " (" + img.itemFlavor + ")" : "");
+          return (
+            '<li data-img-id="' +
+            Jana.escapeHtml(img.id) +
+            '"><span class="painel-imagens__thumb"></span><div><p>' +
+            Jana.escapeHtml(label) +
+            "</p><p class=\"ed-dica-inline\">" +
+            Jana.escapeHtml(img.filename || "") +
+            '</p><button type="button" class="btn btn--outline btn--small" data-action="baixar-imagem" data-nsu="' +
+            Jana.escapeHtml(order.orderNsu || order.id) +
+            '" data-img="' +
+            Jana.escapeHtml(img.id) +
+            '">Baixar</button></div></li>'
+          );
+        })
+        .join("") +
+      "</ul>";
+    list.forEach(function load(img) {
+      fillOrderThumb(order.orderNsu || order.id, img.id);
+    });
+  }
+
+  async function fillOrderThumb(nsu, id) {
+    if (!Jana.Central || !Jana.Central.adminGetOrderImage) return;
+    const cacheKey = nsu + "/" + id;
+    let url = imageUrlCache[cacheKey];
+    if (!url) {
+      const res = await Jana.Central.adminGetOrderImage(state.site, nsu, id, false);
+      if (!res || !res.ok || !res.blob) return;
+      url = URL.createObjectURL(res.blob);
+      imageUrlCache[cacheKey] = url;
+    }
+    const slot = Jana.qs('[data-bind="detail-imagens"] [data-img-id="' + CSS.escape(id) + '"] .painel-imagens__thumb');
+    if (slot) {
+      slot.innerHTML = '<img src="' + url + '" alt="Imagem enviada para personalização">';
+    }
+  }
+
+  async function baixarImagemPedido(nsu, id) {
+    if (!Jana.Central || !Jana.Central.adminGetOrderImage) return;
+    const res = await Jana.Central.adminGetOrderImage(state.site, nsu, id, true);
+    if (!res || !res.ok || !res.blob) {
+      setCentralMessage("Não deu para baixar a imagem agora.", "erro");
+      return;
+    }
+    const url = URL.createObjectURL(res.blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = res.filename || "personalizacao";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function later() { URL.revokeObjectURL(url); }, 2000);
+  }
+
   function renderDetail(order) {
     const panel = Jana.qs('[data-bind="order-detail"]');
     if (!order) {
@@ -362,6 +434,8 @@
         );
       })
       .join("") || "<li>Sem itens</li>";
+
+    renderOrderImages(order);
 
     const phone = Jana.Store.digitsOnly(order.clientPhone);
     const wa = phone
@@ -636,6 +710,10 @@
       const action = actionEl.getAttribute("data-action");
       if (action === "open-order") {
         selectOrder(actionEl.getAttribute("data-id"));
+        return;
+      }
+      if (action === "baixar-imagem") {
+        baixarImagemPedido(actionEl.getAttribute("data-nsu"), actionEl.getAttribute("data-img"));
         return;
       }
       if (action === "edit-order") {

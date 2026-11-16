@@ -555,6 +555,20 @@ if (!bannerCss.includes("hero__slide--produto") || !bannerCss.includes("1300px")
   errors.push("product banner CSS must use the 1300px center band and be loaded on the site");
 }
 
+const workerJs = readFileSync(join(root, "central/jana-pedidos/src/index.js"), "utf8");
+if (!editorJs.includes("Aceita imagem para personalização") || !editorJs.includes("aceitaImagemPersonalizacao")) {
+  errors.push("product editor must have the personalization image checkbox");
+}
+if (!appJs.includes("personalizacao-arquivo") || !utilsJs.includes("compressPersonalizationImage") || !utilsJs.includes("productAceitaImagem")) {
+  errors.push("cart must compress personalization images and show the upload only for flagged products");
+}
+if (!centralJs.includes("/personalizacao") || !centralJs.includes("uploadOrderImage")) {
+  errors.push("Central must probe /personalizacao and upload order images");
+}
+if (!workerJs.includes("order_images") || !workerJs.includes("sniffImageMime") || !existsSync(join(root, "central/jana-pedidos/migrations/0002_order_images.sql"))) {
+  errors.push("Worker must validate and store personalization images (R2 or D1 migration 0002)");
+}
+
 if (/TODO/i.test(JSON.stringify(site))) {
   errors.push("site.json still contains TODO placeholders");
 }

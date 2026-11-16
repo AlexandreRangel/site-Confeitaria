@@ -512,6 +512,10 @@
       lines.push("*Pedido:* " + order.orderNsu);
     }
     lines.push("Vou enviar o comprovante por aqui.");
+    const perso = Jana.personalizacaoWhatsAppLinha
+      ? Jana.personalizacaoWhatsAppLinha(order && order.personalizacao)
+      : "";
+    if (perso) lines.push(perso);
     if (order && (order.notes || order.observacoes)) {
       lines.push("", "*Observações:* " + (order.notes || order.observacoes));
     }

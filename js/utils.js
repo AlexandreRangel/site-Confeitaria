@@ -650,5 +650,132 @@
     return Jana.pageCarouselSlides(carousel, products, "home");
   };
 
+
+  Jana.productAceitaImagem = function productAceitaImagem(product) {
+    return !!(product && product.aceitaImagemPersonalizacao === true);
+  };
+
+  Jana.personalizacaoWhatsAppLinha = function personalizacaoWhatsAppLinha(info) {
+    const data = info || {};
+    if (data.enviadas > 0) {
+      return "Este pedido inclui imagem anexada para personalização.";
+    }
+    if (data.pendentes > 0) {
+      return "Vou enviar a imagem da personalização nesta conversa.";
+    }
+    return "";
+  };
+
+  function loadImageForCompress(file) {
+    return new Promise(function load(resolve, reject) {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = function onLoad() {
+        URL.revokeObjectURL(url);
+        resolve(img);
+      };
+      img.onerror = function onError() {
+        URL.revokeObjectURL(url);
+        reject(new Error("Não foi possível ler a imagem."));
+      };
+      img.src = url;
+    });
+  }
+
+  function canvasToBlob(canvas, type, quality) {
+    return new Promise(function toBlob(resolve, reject) {
+      if (!canvas.toBlob) {
+        reject(new Error("Este navegador não consegue compactar a imagem."));
+        return;
+      }
+      canvas.toBlob(function done(blob) {
+        if (blob) resolve(blob);
+        else reject(new Error("Não foi possível compactar a imagem."));
+      }, type, quality);
+    });
+  }
+
+  /* Reduz a imagem no navegador: lado longo ~2000 px, alvo de até ~1 MB. Aceita JPG e PNG. */
+  Jana.compressPersonalizationImage = function compressPersonalizationImage(file, options) {
+    const opt = options || {};
+    const maxSide = opt.maxSide || 2000;
+    const maxBytes = opt.maxBytes || 1000000;
+    const name = String((file && file.name) || "personalizacao");
+    const type = String((file && file.type) || "").toLowerCase();
+    const isPng = type === "image/png" || /\.png$/i.test(name);
+    const isJpg = type === "image/jpeg" || type === "image/jpg" || /\.jpe?g$/i.test(name);
+    if (!isPng && !isJpg) {
+      return Promise.reject(new Error("Envie uma imagem JPG ou PNG."));
+    }
+    if (file && file.size > 25 * 1024 * 1024) {
+      return Promise.reject(new Error("Essa imagem é grande demais. Escolha outra, por favor."));
+    }
+    return loadImageForCompress(file).then(function resize(img) {
+      const w0 = img.naturalWidth || img.width;
+      const h0 = img.naturalHeight || img.height;
+      if (!w0 || !h0) return Promise.reject(new Error("Não foi possível ler a imagem."));
+      let w = w0;
+      let h = h0;
+      const long = Math.max(w, h);
+      if (long > maxSide) {
+        const scale = maxSide / long;
+        w = Math.max(1, Math.round(w * scale));
+        h = Math.max(1, Math.round(h * scale));
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d", { alpha: isPng });
+      if (!ctx) return Promise.reject(new Error("Não foi possível compactar a imagem."));
+      if (!isPng) {
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, w, h);
+      }
+      ctx.drawImage(img, 0, 0, w, h);
+      function asJpeg(quality, ww, hh) {
+        if (ww !== canvas.width || hh !== canvas.height) {
+          canvas.width = ww;
+          canvas.height = hh;
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, ww, hh);
+          ctx.drawImage(img, 0, 0, ww, hh);
+        }
+        return canvasToBlob(canvas, "image/jpeg", quality);
+      }
+      const tryPng = isPng
+        ? canvasToBlob(canvas, "image/png").then(function maybePng(blob) {
+            if (blob.size <= maxBytes) {
+              return { blob: blob, mime: "image/png", name: name.replace(/\.[^.]+$/, "") + ".png", width: w, height: h };
+            }
+            return null;
+          })
+        : Promise.resolve(null);
+      return tryPng.then(function next(png) {
+        if (png) return png;
+        let quality = 0.86;
+        let ww = w;
+        let hh = h;
+        function shrink(blob) {
+          if (blob.size <= maxBytes) {
+            return { blob: blob, mime: "image/jpeg", name: name.replace(/\.[^.]+$/, "") + ".jpg", width: ww, height: hh };
+          }
+          if (quality > 0.6) {
+            quality = Math.max(0.6, quality - 0.12);
+            return asJpeg(quality, ww, hh).then(shrink);
+          }
+          if (Math.max(ww, hh) > 1200) {
+            const scale = 1200 / Math.max(ww, hh);
+            ww = Math.max(1, Math.round(ww * scale));
+            hh = Math.max(1, Math.round(hh * scale));
+            quality = 0.8;
+            return asJpeg(quality, ww, hh).then(shrink);
+          }
+          return Promise.reject(new Error("Não deu para reduzir a imagem a 1 MB. Tente outra foto, por favor."));
+        }
+        return asJpeg(quality, ww, hh).then(shrink);
+      });
+    });
+  };
+
   global.Jana = Jana;
 })(window);

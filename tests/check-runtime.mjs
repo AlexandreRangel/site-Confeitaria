@@ -764,6 +764,23 @@ if (!/Pagamento via Pix — aguardando conferência/.test(pending) || /PAGO/.tes
   if (indefinite !== "2026-11-13") errors.push("indefinite pause must not shift delivery min, got " + indefinite);
 }
 
+
+{
+  if (!Jana.productAceitaImagem({ aceitaImagemPersonalizacao: true })) errors.push("flag true must accept personalization image");
+  if (Jana.productAceitaImagem({ aceitaImagemPersonalizacao: false }) || Jana.productAceitaImagem({}) || Jana.productAceitaImagem(null)) {
+    errors.push("missing or false flag must not accept personalization image");
+  }
+  if (Jana.personalizacaoWhatsAppLinha({ enviadas: 1 }) !== "Este pedido inclui imagem anexada para personalização.") {
+    errors.push("whatsapp must mention an attached personalization image");
+  }
+  if (Jana.personalizacaoWhatsAppLinha({ pendentes: 1 }) !== "Vou enviar a imagem da personalização nesta conversa.") {
+    errors.push("whatsapp must ask to send the personalization image when upload failed");
+  }
+  if (Jana.personalizacaoWhatsAppLinha({}) || Jana.personalizacaoWhatsAppLinha()) {
+    errors.push("whatsapp must stay quiet when there is no personalization image");
+  }
+}
+
 if (errors.length) {
   console.error(errors.join("\n"));
   process.exit(1);

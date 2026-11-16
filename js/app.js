@@ -26,6 +26,7 @@
     pagamento: { infinitepay: { enabled: false, handle: "" } },
     pausa: { ativo: false, inicio: "", fim: "", mensagem: "", periodos: [], fimDeSemana: false },
     pausaEval: { active: false, message: "" },
+    personalizacao: { ready: false, checked: false, checking: null, files: {} },
   };
 
   function isCategoryPage() {
@@ -1427,7 +1428,136 @@
     done(ok);
   }
 
+
+  function personalizacaoFile(lineId) {
+    return state.personalizacao.files[lineId] || null;
+  }
+
+  function revokePersonalizacao(lineId) {
+    const cur = state.personalizacao.files[lineId];
+    if (cur && cur.url) {
+      try { URL.revokeObjectURL(cur.url); } catch (err) {}
+    }
+    delete state.personalizacao.files[lineId];
+  }
+
+  function prunePersonalizacao() {
+    const ids = {};
+    Jana.Cart.items().forEach(function mark(item) {
+      ids[Jana.Cart.lineIdOf(item)] = true;
+    });
+    Object.keys(state.personalizacao.files).forEach(function drop(id) {
+      if (!ids[id]) revokePersonalizacao(id);
+    });
+  }
+
+  function personalizacaoCounts() {
+    const files = state.personalizacao.files;
+    const keys = Object.keys(files);
+    let enviadas = 0;
+    let pendentes = 0;
+    keys.forEach(function count(id) {
+      if (files[id] && files[id].enviada) enviadas += 1;
+      else if (files[id]) pendentes += 1;
+    });
+    return { enviadas: enviadas, pendentes: pendentes, total: keys.length };
+  }
+
+  async function ensurePersonalizacao() {
+    if (state.personalizacao.checked) return state.personalizacao.ready;
+    if (state.personalizacao.checking) return state.personalizacao.checking;
+    if (!Jana.Central || !Jana.Central.isEnabled(state.site) || !Jana.Central.personalizacaoInfo) {
+      state.personalizacao.checked = true;
+      state.personalizacao.ready = false;
+      return false;
+    }
+    const job = Jana.Central.personalizacaoInfo(state.site)
+      .then(function done(res) {
+        state.personalizacao.checked = true;
+        state.personalizacao.ready = !!(res && res.ok && res.data && res.data.ok);
+        state.personalizacao.checking = null;
+        return state.personalizacao.ready;
+      })
+      .catch(function fail() {
+        state.personalizacao.checked = true;
+        state.personalizacao.ready = false;
+        state.personalizacao.checking = null;
+        return false;
+      });
+    state.personalizacao.checking = job;
+    return job;
+  }
+
+  function personalizacaoBlock(item) {
+    if (!state.personalizacao.ready) return "";
+    const product = Jana.productBySlug ? Jana.productBySlug(state.products, item.slug) : state.products.find(function find(p) { return p.slug === item.slug; });
+    if (!Jana.productAceitaImagem || !Jana.productAceitaImagem(product)) return "";
+    const lineId = Jana.Cart.lineIdOf(item);
+    const file = personalizacaoFile(lineId);
+    if (file) {
+      return (
+        '<div class="cart-row__foto">' +
+        '<img src="' + Jana.escapeHtml(file.url) + '" alt="Prévia da imagem para personalizar ' + Jana.escapeHtml(item.name) + '">' +
+        '<p class="cart-row__foto-nome">' + Jana.escapeHtml(file.name) + '</p>' +
+        '<button type="button" class="btn btn--outline btn--small" data-action="personalizacao-remover" data-id="' +
+        Jana.escapeHtml(lineId) +
+        '">Remover imagem</button></div>'
+      );
+    }
+    return (
+      '<div class="cart-row__foto">' +
+      '<label class="cart-row__foto-envia">' +
+      '<span>Enviar imagem para personalizar (opcional, JPG ou PNG)</span>' +
+      '<input type="file" accept="image/jpeg,image/jpg,image/png,.jpg,.jpeg,.png" data-action="personalizacao-arquivo" data-id="' +
+      Jana.escapeHtml(lineId) +
+      '"></label></div>'
+    );
+  }
+
+  async function handlePersonalizacaoArquivo(input) {
+    const lineId = input.getAttribute("data-id");
+    const file = input.files && input.files[0];
+    input.value = "";
+    if (!file || !lineId) return;
+    setCheckoutStatus("Preparando a imagem…");
+    try {
+      const res = await Jana.compressPersonalizationImage(file);
+      revokePersonalizacao(lineId);
+      state.personalizacao.files[lineId] = {
+        blob: res.blob,
+        url: URL.createObjectURL(res.blob),
+        name: res.name,
+        mime: res.mime,
+        enviada: false,
+      };
+      setCheckoutStatus("");
+    } catch (err) {
+      setCheckoutStatus(err && err.message ? err.message : "Não foi possível usar esta imagem.");
+    }
+    renderCart();
+  }
+
+  async function uploadPersonalizacao(nsu, token) {
+    const files = state.personalizacao.files;
+    const keys = Object.keys(files);
+    if (!nsu || !token || !keys.length || !Jana.Central || !Jana.Central.uploadOrderImage) {
+      return personalizacaoCounts();
+    }
+    setCheckoutStatus("Enviando a imagem da personalização…");
+    for (let i = 0; i < keys.length; i++) {
+      const item = files[keys[i]];
+      if (!item || item.enviada) continue;
+      const result = await Jana.Central.uploadOrderImage(state.site, nsu, token, item.blob, {
+        itemKey: keys[i],
+        filename: item.name,
+      });
+      if (result && result.ok) item.enviada = true;
+    }
+    return personalizacaoCounts();
+  }
+
   function renderCart() {
+    prunePersonalizacao();
     Jana.bindText("cart-count", String(Jana.Cart.count()));
     const items = Jana.Cart.items();
     Jana.qs('[data-bind="cart-items"]').innerHTML = items.length
@@ -1458,7 +1588,9 @@
               '" aria-label="Aumentar quantidade de ' +
               Jana.escapeHtml(item.name) +
               '">+</button>' +
-              "</div></article>"
+              "</div>" +
+              personalizacaoBlock(item) +
+              "</article>"
             );
           })
           .join("")
@@ -1547,6 +1679,9 @@
     if (blockEncomenda()) {
       return;
     }
+    ensurePersonalizacao().then(function maybe(ready) {
+      if (ready) renderCart();
+    });
     const drawer = Jana.qs("#encomendas");
     const backdrop = Jana.qs(".backdrop");
     if (!drawer || !backdrop) {
@@ -1677,6 +1812,10 @@
     }
     if (Jana.pixIsReady(state.pix) && !(Jana.infinitePayIsReady && Jana.infinitePayIsReady(state.pagamento))) {
       lines.push("", "O pagamento será por Pix após a confirmação da Jana. Total: " + totals.totalLabel);
+    }
+    const perso = Jana.personalizacaoWhatsAppLinha ? Jana.personalizacaoWhatsAppLinha(personalizacaoCounts()) : "";
+    if (perso) {
+      lines.push("", perso);
     }
     if (payload.observacoes) {
       lines.push("", "*Observações:* " + payload.observacoes);
@@ -1815,6 +1954,10 @@
       );
       if (central && central.ok && central.data && central.data.nsu) {
         order.orderNsu = central.data.nsu;
+        if (central.data.token) {
+          const up = await uploadPersonalizacao(central.data.nsu, central.data.token);
+          order.personalizacao = up;
+        }
       }
     }
     const message = Jana.buildPixPendingWhatsAppMessage
@@ -1857,6 +2000,9 @@
     const centralNsu = central && central.ok && central.data && central.data.nsu;
     const nsu = centralNsu || Jana.generateOrderNsu();
     payload.orderNsu = nsu;
+    if (centralNsu && central.data.token) {
+      await uploadPersonalizacao(centralNsu, central.data.token);
+    }
     let localOrder = null;
     try {
       localOrder = Jana.Store.saveCheckout(payload);
@@ -1975,6 +2121,9 @@
       centralResult.attempted = true;
       if (centralResult.ok && centralResult.data && centralResult.data.nsu) {
         payload.orderNsu = centralResult.data.nsu;
+        if (centralResult.data.token) {
+          await uploadPersonalizacao(centralResult.data.nsu, centralResult.data.token);
+        }
       }
     }
     const parts = [
@@ -2097,6 +2246,11 @@
       if (action === "copy-pix") {
         event.preventDefault();
         copyPixCode();
+      }
+      if (action === "personalizacao-remover") {
+        event.preventDefault();
+        revokePersonalizacao(target.getAttribute("data-id"));
+        renderCart();
       }
     });
     const hero = Jana.qs("#hero-carrossel");
@@ -2336,6 +2490,11 @@
       });
     }
     document.addEventListener("change", function onChange(event) {
+      const fileInput = event.target.closest("[data-action='personalizacao-arquivo']");
+      if (fileInput) {
+        handlePersonalizacaoArquivo(fileInput);
+        return;
+      }
       const flavorControl = event.target.closest("[data-action='set-flavor']") || event.target;
       if (flavorControl && (flavorControl.getAttribute("data-action") === "set-flavor" || flavorControl.name === "sabor-bolo")) {
         state.selectedFlavor = flavorControl.value || "";

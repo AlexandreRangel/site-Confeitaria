@@ -177,6 +177,74 @@
     });
   }
 
+
+  async function personalizacaoInfo(site) {
+    return request(site, "GET", "/personalizacao");
+  }
+
+  async function uploadOrderImage(site, nsu, token, file, meta) {
+    const cfg = configFrom(site);
+    if (!cfg.enabled) {
+      return { ok: false, reason: "disabled", status: 0, data: {} };
+    }
+    const headers = {
+      "Content-Type": (file && file.type) || "application/octet-stream",
+      "X-Order-Token": token || "",
+      "X-Item-Key": (meta && meta.itemKey) || "",
+      "X-File-Name": (meta && meta.filename) || (file && file.name) || "personalizacao",
+    };
+    try {
+      const response = await fetch(cfg.endpoint + "/pedidos/" + encodeURIComponent(nsu) + "/imagens", {
+        method: "POST",
+        headers: headers,
+        body: file,
+        credentials: "omit",
+      });
+      const data = await response.json().catch(function noJson() {
+        return {};
+      });
+      return { ok: response.ok, status: response.status, reason: response.ok ? "ok" : "rejected", data: data || {} };
+    } catch (err) {
+      return { ok: false, status: 0, reason: "network", data: {} };
+    }
+  }
+
+  async function adminGetOrderImage(site, nsu, id, download) {
+    const cfg = configFrom(site);
+    const session = loadSession();
+    if (!cfg.enabled || !session) {
+      return { ok: false, reason: "denied", status: 401, blob: null };
+    }
+    const path =
+      "/admin/pedidos/" +
+      encodeURIComponent(nsu) +
+      "/imagens/" +
+      encodeURIComponent(id) +
+      (download ? "?download=1" : "");
+    try {
+      const response = await fetch(cfg.endpoint + path, {
+        method: "GET",
+        headers: { Authorization: "Bearer " + session.token },
+        credentials: "omit",
+      });
+      if (response.status === 401) clearSession();
+      if (!response.ok) {
+        return { ok: false, status: response.status, reason: "rejected", blob: null };
+      }
+      const blob = await response.blob();
+      const filename = (metaFilename(response) || id);
+      return { ok: true, status: 200, reason: "ok", blob: blob, filename: filename, mime: blob.type };
+    } catch (err) {
+      return { ok: false, status: 0, reason: "network", blob: null };
+    }
+  }
+
+  function metaFilename(response) {
+    const disp = response.headers.get("Content-Disposition") || "";
+    const m = disp.match(/filename="([^"]+)"/i);
+    return m ? m[1] : "";
+  }
+
   Jana.Central = {
     configFrom: configFrom,
     isEnabled: isEnabled,
@@ -200,6 +268,9 @@
     adminVerifyOrder: function adminVerifyOrder(site, id) {
       return admin(site, "POST", "/admin/pedidos/" + encodeURIComponent(id) + "/verificar", {});
     },
+    personalizacaoInfo: personalizacaoInfo,
+    uploadOrderImage: uploadOrderImage,
+    adminGetOrderImage: adminGetOrderImage,
     adminClients: function adminClients(site) {
       return admin(site, "GET", "/admin/clientes");
     },

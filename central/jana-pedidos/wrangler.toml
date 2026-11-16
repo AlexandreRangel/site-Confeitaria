@@ -21,3 +21,10 @@ enabled = true
 # GITHUB_REPO = "AlexandreRangel/site-Confeitaria"
 # GITHUB_BRANCH = "preview"
 # Segredo (no painel do Cloudflare, nunca aqui): GITHUB_TOKEN — ver docs/EDITOR.md
+
+# Imagens de personalização dos pedidos (opcional).
+# Se a conta tiver R2, crie o bucket e descomente:
+# [[r2_buckets]]
+# binding = "IMAGENS"
+# bucket_name = "jana-pedidos-imagens"
+# Sem R2, o Worker usa a tabela order_images no D1 (migrations/0002_order_images.sql).

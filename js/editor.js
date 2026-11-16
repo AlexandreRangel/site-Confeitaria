@@ -783,6 +783,7 @@
       descricao: "",
       areas: ED.filtro && areaById(ED.filtro) ? [ED.filtro] : [],
       ativo: true,
+      aceitaImagem: false,
       tags: "",
       fotos: [],
     };
@@ -797,6 +798,7 @@
       descricao: p.description || "",
       areas: productAreas(p).map((a) => a.id),
       ativo: p.active !== false,
+      aceitaImagem: p.aceitaImagemPersonalizacao === true,
       tags: (p.tags || []).join(", "),
       fotos: (p.images || []).map((src, i) => ({ path: src, alt: (p.imagesAlt && p.imagesAlt[i]) || "" })),
     };
@@ -847,12 +849,14 @@
     else delete out.imagesAlt;
     if (out.featured === undefined) out.featured = false;
     out.active = !!d.ativo;
+    if (d.aceitaImagem) out.aceitaImagemPersonalizacao = true;
+    else delete out.aceitaImagemPersonalizacao;
     const sameTags = base && same((base.tags || []).map((t) => t.trim()).filter(Boolean), tags);
     out.tags = sameTags ? base.tags : tags;
     if (base && base.description === undefined && !out.description) delete out.description;
     if (base && (base.description || "").trim() === out.description) out.description = base.description;
     // ordem de campos igual à dos produtos existentes
-    const order = ["id", "sourceId", "slug", "name", "description", "categoryId", "categoryIds", "category", "price", "images", "imagesAlt", "featured", "active", "tags"];
+    const order = ["id", "sourceId", "slug", "name", "description", "categoryId", "categoryIds", "category", "price", "images", "imagesAlt", "featured", "active", "aceitaImagemPersonalizacao", "tags"];
     const sorted = {};
     order.forEach((k) => {
       if (out[k] !== undefined) sorted[k] = out[k];
@@ -954,6 +958,7 @@
       '<fieldset class="ed-grupo"><legend>Categorias</legend><p class="ed-dica">Pode marcar mais de uma. Natal e Páscoa só aparecem no site quando estão ligadas na aba Datas.</p>' +
       '<div class="ed-checks">' + cats + "</div></fieldset>" +
       '<label class="ed-check"><input type="checkbox" name="ativo"' + (d.ativo ? " checked" : "") + "> <span>Mostrar no site</span></label>" +
+      '<label class="ed-check"><input type="checkbox" name="aceitaImagem"' + (d.aceitaImagem ? " checked" : "") + '> <span>Aceita imagem para personalização <span class="ed-dica-inline">(a cliente pode enviar uma foto JPG ou PNG no pedido)</span></span></label>' +
       '<details class="ed-mais"><summary>Mais opções</summary>' +
       '<label class="ed-field">Palavras-chave <span class="ed-opcional">(separadas por vírgula; não aparecem no site)</span><input type="text" name="tags" maxlength="400" value="' + esc(d.tags) + '"></label>' +
       (pageUrl ? '<p class="ed-dica">Endereço da página: <code>' + esc(pageUrl) + "</code>" + (d.original ? "" : " (criado a partir do nome)") + "</p>" : "") +
@@ -976,6 +981,7 @@
     d.sobConsulta = form.sobConsulta.checked;
     d.descricao = form.descricao.value;
     d.ativo = form.ativo.checked;
+    d.aceitaImagem = !!(form.aceitaImagem && form.aceitaImagem.checked);
     d.tags = form.tags.value;
     d.areas = qsa('input[name="area"]:checked', form).map((i) => i.value);
     qsa("[data-foto-alt]", form).forEach((inp) => {

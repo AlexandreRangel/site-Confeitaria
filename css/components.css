@@ -535,11 +535,43 @@ a.promo-card:focus-visible {
   padding-bottom: 0.7rem;
 }
 
-.cart-row img {
+.cart-row > img {
   width: 64px;
   height: 64px;
   object-fit: cover;
   border-radius: 14px;
+}
+
+.cart-row__foto {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.cart-row__foto img {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 14px;
+}
+
+.cart-row__foto-nome {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.cart-row__foto-envia {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-height: 44px;
+}
+
+.cart-row__foto-envia input[type="file"] {
+  min-height: 44px;
+  max-width: 100%;
 }
 
 .cart-row__qty {
