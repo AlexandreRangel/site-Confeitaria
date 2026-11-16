@@ -41,7 +41,13 @@
       "alt": ""
     }
   ],
-  "press": [],
+  "press": [
+    {
+      "title": "Empreededores do DF",
+      "outlet": "Globo",
+      "url": "https://globoplay.globo.com/v/14977589/"
+    }
+  ],
   "notes": "Campos vazios (headline, lead, portrait.src, story, press) ficam ocultos na página. Preencha só o que for fato confirmado — não inventar biografia, datas ou veículos.",
   "introText": "",
   "introPhotos": [],
