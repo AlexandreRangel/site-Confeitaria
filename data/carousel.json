@@ -6,7 +6,7 @@
     "image": "assets/products/tabua-signature/01.webp",
     "linkCategory": "cestas",
     "productSlug": "tabua-signature",
-    "order": 2
+    "order": 3
   },
   {
     "id": "banner-mwjey5949d0nl",
@@ -14,7 +14,7 @@
     "productSlug": "coffee-break-corporativo",
     "linkTipo": "produto",
     "title": "Coffee Break corporativo",
-    "order": 1
+    "order": 2
   },
   {
     "id": "banner-mwjhnktkx5b3g",
@@ -26,7 +26,17 @@
     "foto": {
       "y": 69.2
     },
-    "order": 3,
+    "order": 4,
     "linkCategory": "cestas"
+  },
+  {
+    "id": "banner-mwjltdguji9lj",
+    "tipo": "imagem",
+    "title": "Conheça nosso catálogo de Natal & personalize com a marca da sua empresa",
+    "image": "assets/carousel/banner-pc-mwjlsmyw3vncz.webp",
+    "linkTipo": "categoria",
+    "linkCategory": "natal",
+    "formato": "banner",
+    "order": 1
   }
 ]
