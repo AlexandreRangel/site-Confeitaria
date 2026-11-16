@@ -1,5 +1,23 @@
 [
   {
+    "id": "p-cesta-encanto-de-natal",
+    "slug": "cesta-encanto-de-natal",
+    "name": "Cesta Encanto de Natal",
+    "description": "",
+    "categoryId": "natal",
+    "categoryIds": [
+      "natal"
+    ],
+    "category": "Natal",
+    "price": 655,
+    "images": [
+      "assets/products/cesta-encanto-de-natal/foto-mwjjmu4skn1q8.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
     "id": "p-amanteigado-flocos-de-neve",
     "slug": "amanteigado-flocos-de-neve",
     "name": "Amanteigado Flocos de Neve",
