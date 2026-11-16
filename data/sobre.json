@@ -18,11 +18,6 @@
       "productSlug": "tabua-signature"
     },
     {
-      "src": "assets/products/combo-prata/01.webp",
-      "alt": "Combo prata",
-      "productSlug": "combo-prata"
-    },
-    {
       "src": "assets/products/cesta-manha-dos-sonhos/01.webp",
       "alt": "Cesta Manhã dos sonhos",
       "productSlug": "cesta-manha-dos-sonhos"
@@ -33,14 +28,13 @@
       "productSlug": "cesta-rubi"
     },
     {
-      "src": "assets/products/caixa-12-cupcakes-personalizados/01.webp",
-      "alt": "Caixa 12 cupcakes personalizados",
-      "productSlug": "caixa-12-cupcakes-personalizados"
-    },
-    {
       "src": "assets/sobre/trabalho-mwjkskvfw2i8l.webp",
       "alt": "Coffee Break corporativo",
       "productSlug": "coffee-break-corporativo"
+    },
+    {
+      "src": "assets/sobre/trabalho-mwjnom7d7w2qo.webp",
+      "alt": "Coquetel volante"
     }
   ],
   "press": [],
