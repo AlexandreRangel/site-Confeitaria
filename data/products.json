@@ -229,8 +229,8 @@
     "category": "Bolos",
     "price": 590,
     "images": [
-      "assets/products/bolo-retangular-gg/01.webp",
-      "assets/products/bolo-retangular-gg/02.webp"
+      "assets/products/bolo-retangular-gg/02.webp",
+      "assets/products/bolo-retangular-gg/01.webp"
     ],
     "featured": false,
     "active": true,
