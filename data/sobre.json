@@ -18,11 +18,6 @@
       "productSlug": "tabua-signature"
     },
     {
-      "src": "assets/products/caixa-4-alfajores-logo/01.webp",
-      "alt": "Caixa 4 alfajores logo",
-      "productSlug": "caixa-4-alfajores-logo"
-    },
-    {
       "src": "assets/products/combo-prata/01.webp",
       "alt": "Combo prata",
       "productSlug": "combo-prata"
@@ -33,16 +28,6 @@
       "productSlug": "cesta-manha-dos-sonhos"
     },
     {
-      "src": "assets/products/kit-festa-pequeno-artista/01.webp",
-      "alt": "Kit festa Pequeno Artista",
-      "productSlug": "kit-festa-pequeno-artista"
-    },
-    {
-      "src": "assets/products/bolo-naked-g/01.webp",
-      "alt": "Bolo Naked G",
-      "productSlug": "bolo-naked-g"
-    },
-    {
       "src": "assets/products/cesta-rubi/01.webp",
       "alt": "Cesta Rubi",
       "productSlug": "cesta-rubi"
@@ -51,6 +36,10 @@
       "src": "assets/products/caixa-12-cupcakes-personalizados/01.webp",
       "alt": "Caixa 12 cupcakes personalizados",
       "productSlug": "caixa-12-cupcakes-personalizados"
+    },
+    {
+      "src": "assets/sobre/trabalho-mwjkskvfw2i8l.webp",
+      "alt": "Coffee Break corporativo"
     }
   ],
   "press": [],
