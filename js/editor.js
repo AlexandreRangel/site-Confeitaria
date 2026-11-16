@@ -2014,9 +2014,12 @@
       '<div class="ed-linha">' +
       campo("Taxa de entrega (R$)", "site.entrega.taxa", taxaNull ? "" : precoTexto(s.entrega.taxa) || "0", { tipo: "taxa", inputmode: "decimal", disabled: taxaNull }) +
       '<label class="ed-check ed-check--meio"><input type="checkbox" data-tx-taxa-null' + (taxaNull ? " checked" : "") + "> <span>A combinar com a Jana</span></label></div>" +
-      campo("Aviso no carrinho", "site.requestDisclaimer", s.requestDisclaimer, { area: true, max: 800, dica: "Aparece acima do botão de enviar a encomenda." }) +
-      campo("Texto sobre os dados da cliente", "site.privacyNote", s.privacyNote, { area: true, max: 800 }) +
-      campo("Texto sobre o pagamento", "site.paymentsNote", s.paymentsNote, { area: true, max: 800 }) +
+      campo("Aviso no carrinho", "site.requestDisclaimer", s.requestDisclaimer, { area: true, max: 800, dica: "Aparece acima do botão de enviar a encomenda, quando a cliente ainda não escolheu Pix ou cartão." }) +
+      campo("Texto sobre os dados da cliente", "site.privacyNote", s.privacyNote, { area: true, max: 800, dica: "Aparece no carrinho, perto dos dados que a cliente preenche." }) +
+      campo("Texto sobre o pagamento", "site.paymentsNote", s.paymentsNote, { area: true, max: 800, dica: "Aparece sempre no carrinho, com qualquer forma de pagamento. Se ficar vazio, não aparece." }) +
+      campo("Aviso ao escolher Pix", "site.pixDisclaimer", s.pixDisclaimer, { area: true, max: 800, dica: "Aparece no carrinho quando a cliente escolhe pagar com Pix. Se ficar vazio, não aparece." }) +
+      campo("Instrução na caixa do QR Pix", "site.pixNote", s.pixNote, { area: true, max: 800, dica: "Aparece dentro da caixa do QR Code do Pix, no carrinho. Se ficar vazio, não aparece." }) +
+      campo("Aviso ao escolher cartão", "site.paidDisclaimer", s.paidDisclaimer, { area: true, max: 800, dica: "Aparece no carrinho quando a cliente escolhe pagar com cartão, e também na mensagem do WhatsApp depois do pagamento. Se ficar vazio, não aparece." }) +
       "</section>" +
       '<section class="ed-secao" aria-labelledby="tx-areas"><h3 id="tx-areas">Categorias (caixinhas da página inicial)</h3>' +
       '<p class="ed-dica">A ordem aqui é a ordem das caixinhas e do menu Categorias.</p><ol class="ed-areas">' + areasHtml + "</ol></section>" +

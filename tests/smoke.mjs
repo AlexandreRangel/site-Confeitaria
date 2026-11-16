@@ -830,6 +830,12 @@ async function runEngine(browserType, engine) {
     await page.locator('[data-bind="pay-option-pix"]').click();
     await page.waitForSelector('[data-bind="pix-block"]:not([hidden])', { timeout: 5000 });
     record(engine, "Pix QR shown in the cart after selecting Pix", await page.locator('[data-bind="pix-block"]').isVisible());
+    const pixDisc = ((await page.locator('[data-bind="request-disclaimer"]').textContent()) || "").trim();
+    record(engine, "Pix disclaimer after choosing Pix", /Depois de pagar, toque em Já paguei/.test(pixDisc), pixDisc.slice(0, 80));
+    const paymentsOnPix = ((await page.locator('[data-bind="payments"]').textContent()) || "").trim();
+    record(engine, "payments note stays visible on Pix", /Aceitamos pagamento via pix/.test(paymentsOnPix) && await page.locator('[data-bind="payments"]').isVisible(), paymentsOnPix.slice(0, 80));
+    const pixNote = ((await page.locator('[data-bind="pix-note"]').textContent()) || "").trim();
+    record(engine, "Pix QR box shows pixNote", /Pague o valor indicado/.test(pixNote) && await page.locator('[data-bind="pix-note"]').isVisible(), pixNote.slice(0, 80));
     const jaPagueiLabel = ((await page.locator('[data-bind="checkout-submit"]').textContent()) || "").trim();
     record(engine, "pay button says Já paguei when Pix is selected", jaPagueiLabel === "Já paguei", jaPagueiLabel);
     await page.locator('#checkout-form [name="nome"]').fill("Pix Teste");
@@ -1012,6 +1018,8 @@ async function runEngine(browserType, engine) {
     record(engine, "Pix QR hidden on InfinitePay choice", await page.locator('[data-bind="pix-block"]').isHidden());
     const paidDisclaimer = ((await page.locator('[data-bind="request-disclaimer"]').textContent()) || "").trim();
     record(engine, "paid-flow disclaimer", /Após o pagamento, seu pedido é enviado/.test(paidDisclaimer), paidDisclaimer.slice(0, 80));
+    const paymentsOnCard = ((await page.locator('[data-bind="payments"]').textContent()) || "").trim();
+    record(engine, "payments note stays visible on card", /Aceitamos pagamento via pix/.test(paymentsOnCard) && await page.locator('[data-bind="payments"]').isVisible(), paymentsOnCard.slice(0, 80));
     ensureDir("tests/screenshots");
     ensureDir("/opt/cursor/artifacts");
     await page.screenshot({ path: "tests/screenshots/carrinho-pagar-390.png", fullPage: false });
@@ -1047,6 +1055,7 @@ async function runEngine(browserType, engine) {
     await page.waitForTimeout(1200);
     record(engine, "paid flow opened WhatsApp", waHits.length >= 1 || /wa\.me/.test(paidHref), String(waHits.length));
     record(engine, "WhatsApp says PAGO via InfinitePay", /PAGO via InfinitePay/.test(paidWa + waHits.join(" ")), paidWa.slice(0, 160));
+    record(engine, "paid WhatsApp uses paidDisclaimer", /Após o pagamento, seu pedido é enviado/.test(paidWa + waHits.join(" ")));
 
     const linksBeforeUnpriced = linkBodies.length;
     await page.goto(BASE + "/corporate/", { waitUntil: "domcontentloaded" });

@@ -459,7 +459,8 @@
     if (order && order.notes) {
       lines.push("", "*Observações:* " + order.notes);
     }
-    lines.push("", Jana.PAID_DISCLAIMER);
+    const paidText = Jana.siteText ? Jana.siteText(site, "paidDisclaimer", Jana.PAID_DISCLAIMER) : Jana.PAID_DISCLAIMER;
+    if (paidText) lines.push("", paidText);
     return lines.join("\n");
   };
 

@@ -286,6 +286,15 @@
     return response.json();
   };
 
+  /* Texto editável do site.json: se a chave não existir, usa o fallback;
+     se existir e estiver vazia, devolve vazio (não mostra). */
+  Jana.siteText = function siteText(site, key, fallback) {
+    if (!site || !Object.prototype.hasOwnProperty.call(site, key) || site[key] == null) {
+      return fallback == null ? "" : String(fallback);
+    }
+    return String(site[key]).trim();
+  };
+
   Jana.bindText = function bindText(key, value) {
     Jana.qsa('[data-bind="' + key + '"]').forEach(function setText(node) {
       node.textContent = value || "";

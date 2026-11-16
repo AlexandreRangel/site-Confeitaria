@@ -659,6 +659,42 @@ if (!/Pagamento via Pix — aguardando conferência/.test(pending) || /PAGO/.tes
   errors.push("pending Pix WhatsApp must wait for receipt and must not say PAGO");
 }
 
+if (typeof Jana.siteText !== "function") {
+  errors.push("Jana.siteText must exist");
+} else {
+  const fallback = "texto fixo";
+  if (Jana.siteText({}, "paidDisclaimer", fallback) !== fallback) {
+    errors.push("siteText must use the fallback when the key is missing");
+  }
+  if (Jana.siteText({ paidDisclaimer: null }, "paidDisclaimer", fallback) !== fallback) {
+    errors.push("siteText must use the fallback when the key is null");
+  }
+  if (Jana.siteText({ paidDisclaimer: "  Aviso editado  " }, "paidDisclaimer", fallback) !== "Aviso editado") {
+    errors.push("siteText must use the trimmed site.json value when the key exists");
+  }
+  if (Jana.siteText({ paidDisclaimer: "   " }, "paidDisclaimer", fallback) !== "") {
+    errors.push("siteText must return empty when the key exists and is blank");
+  }
+}
+{
+  const order = { clientName: "Ada", clientPhone: "61999999999", items: [{ name: "Bolo", quantity: 1, price: 10 }], total: 10 };
+  const check = { order_nsu: "NSU1", receipt_url: "https://r.example/1" };
+  const params = { slug: "abc" };
+  const custom = Jana.buildPaidWhatsAppMessage(order, { nome: "Jana", paidDisclaimer: "Aviso do cartão editado." }, check, params);
+  if (!/Aviso do cartão editado/.test(custom) || /Após o pagamento, seu pedido é enviado/.test(custom)) {
+    errors.push("paid WhatsApp must use site.paidDisclaimer when the key exists");
+  }
+  const blank = Jana.buildPaidWhatsAppMessage(order, { nome: "Jana", paidDisclaimer: "" }, check, params);
+  if (/Após o pagamento, seu pedido é enviado/.test(blank) || /Aviso do cartão editado/.test(blank)) {
+    errors.push("paid WhatsApp must omit the disclaimer when paidDisclaimer is empty");
+  }
+  const missing = Jana.buildPaidWhatsAppMessage(order, { nome: "Jana" }, check, params);
+  if (!/Após o pagamento, seu pedido é enviado/.test(missing)) {
+    errors.push("paid WhatsApp must fall back to PAID_DISCLAIMER when the key is missing");
+  }
+}
+
+
 // editor: links dos banners, banners por página e datas comemorativas
 {
   const prods = [{ slug: "bolo-x", name: "Bolo X", active: true }];

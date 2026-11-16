@@ -190,7 +190,16 @@
     Jana.bindText("visit-subtitle", site.heroVisitSubtitle);
     Jana.bindText("address", address);
     Jana.bindText("hours", site.hours);
-    Jana.bindText("payments", site.paymentsNote);
+    const paymentsNote = Jana.siteText ? Jana.siteText(site, "paymentsNote", "") : String(site.paymentsNote || "").trim();
+    Jana.bindText("payments", paymentsNote);
+    Jana.qsa('[data-bind="payments"]').forEach(function hidePayments(node) {
+      node.hidden = !paymentsNote;
+    });
+    const pixNote = Jana.siteText ? Jana.siteText(site, "pixNote", "Pague o valor indicado. Depois toque em Já paguei e envie o comprovante pelo WhatsApp.") : (site.pixNote != null ? String(site.pixNote).trim() : "Pague o valor indicado. Depois toque em Já paguei e envie o comprovante pelo WhatsApp.");
+    Jana.bindText("pix-note", pixNote);
+    Jana.qsa('[data-bind="pix-note"]').forEach(function hidePixNote(node) {
+      node.hidden = !pixNote;
+    });
     Jana.bindText(
       "request-disclaimer",
       site.requestDisclaimer || Jana.REQUEST_DISCLAIMER
@@ -1318,17 +1327,22 @@
       submit.classList.toggle("btn--whatsapp", opensWhatsApp);
       submit.classList.toggle("btn--solid", !opensWhatsApp);
     }
-    let disclaimer = state.site.requestDisclaimer || Jana.REQUEST_DISCLAIMER;
-    let payments = state.site.paymentsNote || "";
+    const site = state.site || {};
+    let disclaimer = site.requestDisclaimer || Jana.REQUEST_DISCLAIMER;
     if (method === "pix") {
-      disclaimer = Jana.PIX_DISCLAIMER || disclaimer;
-      payments = "";
+      disclaimer = Jana.siteText ? Jana.siteText(site, "pixDisclaimer", Jana.PIX_DISCLAIMER) : Jana.PIX_DISCLAIMER;
     } else if (method === "infinitepay") {
-      disclaimer = Jana.PAID_DISCLAIMER || disclaimer;
-      payments = "";
+      disclaimer = Jana.siteText ? Jana.siteText(site, "paidDisclaimer", Jana.PAID_DISCLAIMER) : Jana.PAID_DISCLAIMER;
     }
     Jana.bindText("request-disclaimer", disclaimer);
+    Jana.qsa('[data-bind="request-disclaimer"]').forEach(function hideDisc(node) {
+      node.hidden = !disclaimer;
+    });
+    const payments = Jana.siteText ? Jana.siteText(site, "paymentsNote", "") : String(site.paymentsNote || "").trim();
     Jana.bindText("payments", payments);
+    Jana.qsa('[data-bind="payments"]').forEach(function hidePayments(node) {
+      node.hidden = !payments;
+    });
     const unpricedNote = Jana.qs("[data-bind='checkout-unpriced']");
     if (unpricedNote) {
       const methodsReady = !!(
@@ -1837,9 +1851,12 @@
       taxaPendente: totals.taxaPendente,
       total: totals.total,
     });
+    const paidText = Jana.siteText
+      ? Jana.siteText(state.site, "paidDisclaimer", Jana.PAID_DISCLAIMER)
+      : Jana.PAID_DISCLAIMER;
     lines.push(
       "",
-      pay ? Jana.PAID_DISCLAIMER : state.site.requestDisclaimer || Jana.REQUEST_DISCLAIMER,
+      pay ? paidText : state.site.requestDisclaimer || Jana.REQUEST_DISCLAIMER,
       "",
       pay ? "" : state.site.paymentsNote
     );

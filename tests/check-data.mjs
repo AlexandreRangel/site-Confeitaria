@@ -56,8 +56,8 @@ if (!sobremesas || sobremesas.hidden !== true) {
 if (site.natal && site.natal.enabled !== false) {
   errors.push("Natal must stay off by default (site.natal.enabled, legado)");
 }
-if (site.copyright !== "© 2026 Jana Abreu") {
-  errors.push("Copyright must be «© 2026 Jana Abreu»");
+if (!/^© 2026 Jana Abreu/.test(String(site.copyright || ""))) {
+  errors.push("Copyright must start with «© 2026 Jana Abreu» (aceita o texto atual do site.json)");
 }
 
 const expectedAreas = ["corporate", "bolos", "cestas", "doces-personalizados", "natal", "pascoa"];
@@ -522,6 +522,15 @@ if (!componentsCss.includes("card__media-link") || !componentsCss.includes("curs
 if (!appJs.includes("Pagar com cartão") || !appJs.includes("PAID_DISCLAIMER")) {
   errors.push("checkout must switch to InfinitePay button copy when that method is selected");
 }
+if (!site.pixDisclaimer || !site.pixNote || !site.paidDisclaimer) {
+  errors.push("site.json must include the current Pix and card disclaimer texts");
+}
+if (!appJs.includes("paymentsNote") || appJs.includes("payments = \"\"")) {
+  errors.push("cart must keep paymentsNote visible for every payment method");
+}
+if (!utilsJs.includes("siteText") || !home.includes('data-bind="pix-note"')) {
+  errors.push("Pix QR box must bind pixNote from site.json via siteText");
+}
 if (!painelJs.includes("status_pagamento") || !painelJs.includes("order_nsu") || !painelJs.includes("comprovante")) {
   errors.push("painel CSV must include payment columns");
 }
@@ -556,6 +565,12 @@ if (!bannerCss.includes("hero__slide--produto") || !bannerCss.includes("1300px")
 }
 
 const workerJs = readFileSync(join(root, "central/jana-pedidos/src/index.js"), "utf8");
+if (!editorJs.includes("Aviso ao escolher Pix") || !editorJs.includes("Instrução na caixa do QR Pix") || !editorJs.includes("Aviso ao escolher cartão")) {
+  errors.push("editor must expose pixDisclaimer, pixNote and paidDisclaimer with clear labels");
+}
+if (!workerJs.includes("pixDisclaimer") || !workerJs.includes("pixNote") || !workerJs.includes("paidDisclaimer")) {
+  errors.push("Worker validateSite must accept pixDisclaimer, pixNote and paidDisclaimer");
+}
 if (!editorJs.includes("Aceita imagem para personalização") || !editorJs.includes("aceitaImagemPersonalizacao")) {
   errors.push("product editor must have the personalization image checkbox");
 }
