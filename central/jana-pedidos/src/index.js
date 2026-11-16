@@ -65,17 +65,100 @@ function minDesiredDate(now) {
   return addDaysYmd(todayYmd(now), ANTECEDENCIA_MINIMA_DIAS);
 }
 
-function assertCustomerDesiredDate(desired, now) {
+function pausaInRange(ymd, inicio, fim) {
+  const start = inicio || "";
+  const end = fim || "";
+  if (!ymd) return false;
+  if (start && end) return ymd >= start && ymd <= end;
+  if (start && !end) return ymd >= start;
+  if (!start && end) return ymd <= end;
+  return !!ymd;
+}
+
+function weekdayUtc(ymd) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(ymd || "");
+  if (!m) return null;
+  return new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]), 12)).getUTCDay();
+}
+
+function desiredDateUnavailability(ymd, pausa) {
+  const cfg = pausa || {};
+  const blocked = Array.isArray(cfg.datasBloqueadas)
+    ? cfg.datasBloqueadas.find((item) => item && (item.data || item.date) === ymd)
+    : null;
+  if (blocked) return { kind: "bloqueada", motivo: String(blocked.motivo || "").trim() };
+  if (cfg.ativo && (cfg.inicio || cfg.fim) && pausaInRange(ymd, cfg.inicio, cfg.fim)) {
+    return { kind: "pausa", motivo: String(cfg.mensagem || "").trim() };
+  }
+  const periodos = Array.isArray(cfg.periodos) ? cfg.periodos : [];
+  for (const periodo of periodos) {
+    if (periodo && (periodo.inicio || periodo.fim) && pausaInRange(ymd, periodo.inicio, periodo.fim)) {
+      return { kind: "pausa", motivo: String(periodo.mensagem || cfg.mensagem || "").trim() };
+    }
+  }
+  if (cfg.fimDeSemana) {
+    const wd = weekdayUtc(ymd);
+    if (wd === 0 || wd === 6) return { kind: "fimDeSemana", motivo: String(cfg.mensagem || "").trim() };
+  }
+  return null;
+}
+
+function firstAvailableDesiredDate(pausa, now) {
+  let ymd = minDesiredDate(now);
+  for (let i = 0; i < 60; i++) {
+    if (!desiredDateUnavailability(ymd, pausa)) return ymd;
+    ymd = addDaysYmd(ymd, 1);
+  }
+  return minDesiredDate(now);
+}
+
+function unavailableDateMessage(info, minYmd) {
+  const next = " A próxima data livre é " + formatDateLongBR(minYmd) + ".";
+  const motivo = info && info.motivo ? info.motivo : "";
+  if (info && info.kind === "bloqueada") {
+    return motivo ? "Esta data não está disponível (" + motivo + ")." + next : "Esta data não está disponível." + next;
+  }
+  return motivo ? "Esta data não está disponível (" + motivo + ")." + next : "Essa data não está disponível." + next;
+}
+
+let pausaCache = null;
+
+async function loadPausa(env) {
+  if (pausaCache && Date.now() - pausaCache.at < 5 * 60 * 1000) return pausaCache.data;
+  const bases = String(env.SITE_DATA_URL || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  for (const base of bases) {
+    try {
+      const root = base.endsWith("/") ? base : base + "/";
+      const res = await fetch(root + "data/pausa.json", { cf: { cacheTtl: 120 } });
+      if (!res.ok) continue;
+      const data = await res.json();
+      if (!data || typeof data !== "object") continue;
+      pausaCache = { at: Date.now(), data };
+      return data;
+    } catch (e) {}
+  }
+  return null;
+}
+
+async function assertCustomerDesiredDate(desired, env, now) {
   if (!desired) return;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(desired)) throw new HttpError(400, "data inválida");
-  const min = minDesiredDate(now);
-  if (desired < min) {
+  const minLead = minDesiredDate(now);
+  if (desired < minLead) {
     throw new HttpError(
       400,
-      "Precisamos de pelo menos 2 dias para preparar sua encomenda. Escolha a partir de " + formatDateLongBR(min) + "."
+      "Precisamos de pelo menos 2 dias para preparar sua encomenda. Escolha a partir de " + formatDateLongBR(minLead) + "."
     );
   }
+  const pausa = env ? await loadPausa(env) : null;
+  const min = firstAvailableDesiredDate(pausa, now);
+  const unavail = desiredDateUnavailability(desired, pausa);
+  if (unavail) throw new HttpError(400, unavailableDateMessage(unavail, min));
 }
+
 
 function str(value, max) {
   return String(value == null ? "" : value)
@@ -607,7 +690,7 @@ async function createOrder(env, request) {
   const regiao = str(body.regiao, 60);
   const desired = str(body.data, 10);
   if (desired && !/^\d{4}-\d{2}-\d{2}$/.test(desired)) throw new HttpError(400, "data inválida");
-  assertCustomerDesiredDate(desired);
+  await assertCustomerDesiredDate(desired, env);
   const notes = str(body.observacoes, 1500);
   const items = cleanItems(body.items);
   if (!items.length && !notes) throw new HttpError(400, "pedido vazio");
@@ -1364,6 +1447,18 @@ function validatePausa(p) {
   });
   if (typeof p.fimDeSemana !== "boolean") bad("pausa: fim de semana inválido");
   if (p.planilhaCsv && !/^https:\/\/[^\s"'<>]+$/.test(String(p.planilhaCsv))) bad("pausa: link da planilha inválido");
+  if (p.datasBloqueadas != null) {
+    if (!Array.isArray(p.datasBloqueadas) || p.datasBloqueadas.length > 200) bad("pausa: datas bloqueadas inválidas");
+    const seen = new Set();
+    p.datasBloqueadas.forEach((x, i) => {
+      if (!isObj(x)) bad("pausa: data bloqueada inválida");
+      dateOk(x.data, "data bloqueada");
+      if (!x.data) bad("data bloqueada " + (i + 1) + ": escolha a data");
+      if (seen.has(x.data)) bad("data bloqueada repetida: " + x.data);
+      seen.add(x.data);
+      optText(x.motivo, 200, "data bloqueada (motivo)");
+    });
+  }
 }
 
 function validateSite(s) {
@@ -1933,4 +2028,4 @@ export default {
   },
 };
 
-export const _test = { ipCustomer, resolveTaxa, fixedPrice, cleanItems, generateNsu, NSU_RE, validRedirect, VALIDATORS, gitBlobSha, imageKind, sniffImageMime, safeImageName };
+export const _test = { ipCustomer, resolveTaxa, fixedPrice, cleanItems, generateNsu, NSU_RE, validRedirect, VALIDATORS, gitBlobSha, imageKind, sniffImageMime, safeImageName, desiredDateUnavailability, firstAvailableDesiredDate, unavailableDateMessage };

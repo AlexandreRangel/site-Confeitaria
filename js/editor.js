@@ -1650,6 +1650,36 @@
     return Jana.composePausaMensagem ? Jana.composePausaMensagem(p.inicio, p.fim, p.mensagem) : "";
   }
 
+
+  function datasBloqueadasHtml(p) {
+    const hojeY = hoje();
+    const list = (p.datasBloqueadas || [])
+      .slice()
+      .map(function withIndex(item, i) { return { item: item, i: i }; })
+      .sort(function byDate(a, b) { return String(a.item.data || "").localeCompare(String(b.item.data || "")); })
+      .map(function row(entry) {
+        const x = entry.item;
+        const i = entry.i;
+        const passada = x.data && x.data < hojeY;
+        return (
+          '<li class="ed-bloqueio' + (passada ? " is-passada" : "") + '">' +
+          '<div class="ed-linha">' +
+          '<label class="ed-field">Data<input type="date" data-bloqueio="' + i + '" data-campo="data" value="' + esc(x.data || "") + '"></label>' +
+          '<label class="ed-field">Motivo <span class="ed-opcional">(opcional)</span><input type="text" maxlength="200" data-bloqueio="' + i + '" data-campo="motivo" value="' + esc(x.motivo || "") + '" placeholder="Ex.: Natal, agenda cheia"></label></div>' +
+          (passada ? '<p class="ed-dica">Já passou — a cliente não vê esta data no calendário como futura.</p>' : "") +
+          '<button type="button" class="btn btn--small btn--danger" data-ed-action="bloqueio-remover" data-i="' + i + '">Remover esta data</button></li>'
+        );
+      })
+      .join("");
+    return (
+      '<div class="ed-bloqueios">' +
+      "<h4>Datas específicas bloqueadas</h4>" +
+      '<p class="ed-dica">Feriados ou dias com a agenda cheia. Combinam com as pausas acima. A cliente vê essas datas acinzentadas no calendário do pedido.</p>' +
+      '<ul class="ed-periodos">' + (list || "") + "</ul>" +
+      '<button type="button" class="btn btn--outline btn--small" data-ed-action="bloqueio-novo">+ Adicionar uma data</button></div>'
+    );
+  }
+
   function renderDatas() {
     const root = qs('[data-ed="datas"]');
     if (!root || !ED.carregado) return;
@@ -1726,6 +1756,7 @@
       '<label class="ed-field">Recado extra <span class="ed-opcional">(opcional, vai depois do aviso)</span><input type="text" name="pausa-mensagem" maxlength="300" value="' + esc(p.mensagem || "") + '" placeholder="Ex.: Voltamos em breve!"></label>' +
       '<label class="ed-check"><input type="checkbox" name="pausa-fds"' + (p.fimDeSemana ? " checked" : "") + "> <span>Pausar todo fim de semana (sábado e domingo)</span></label>" +
       (modo !== "aberto" ? '<div class="ed-previa"><span class="ed-previa__rotulo">A cliente vê:</span> «' + esc(pausaPreview(p)) + "»</div>" : "") +
+      datasBloqueadasHtml(p) +
       '<details class="ed-mais"' + ((p.periodos || []).length ? " open" : "") + "><summary>Pausas programadas (férias etc.)</summary>" +
       '<p class="ed-dica">Ficam guardadas e ligam sozinhas no dia de início (horário de Brasília).</p>' +
       '<ul class="ed-periodos">' + periodos + "</ul>" +
@@ -1770,6 +1801,11 @@
     } else if (target.name === "pausa-fds") {
       p.fimDeSemana = target.checked;
       rerender = true;
+    } else if (target.hasAttribute("data-bloqueio")) {
+      const i = Number(target.getAttribute("data-bloqueio"));
+      p.datasBloqueadas = p.datasBloqueadas || [];
+      if (p.datasBloqueadas[i]) p.datasBloqueadas[i][target.getAttribute("data-campo")] = target.value;
+      rerender = target.getAttribute("data-campo") === "data";
     } else if (target.hasAttribute("data-periodo")) {
       const i = Number(target.getAttribute("data-periodo"));
       p.periodos[i][target.getAttribute("data-campo")] = target.value;
@@ -2268,6 +2304,22 @@
         break;
       case "periodo-remover":
         ED.drafts.datas.pausa.periodos.splice(Number(el.getAttribute("data-i")), 1);
+        renderDatas();
+        updateSavebar();
+        break;
+      case "bloqueio-novo":
+        ED.drafts.datas.pausa.datasBloqueadas = ED.drafts.datas.pausa.datasBloqueadas || [];
+        ED.drafts.datas.pausa.datasBloqueadas.push({ data: "", motivo: "" });
+        renderDatas();
+        updateSavebar();
+        {
+          const last = qsa("[data-bloqueio][data-campo='data']").pop();
+          if (last) last.focus();
+        }
+        break;
+      case "bloqueio-remover":
+        ED.drafts.datas.pausa.datasBloqueadas = ED.drafts.datas.pausa.datasBloqueadas || [];
+        ED.drafts.datas.pausa.datasBloqueadas.splice(Number(el.getAttribute("data-i")), 1);
         renderDatas();
         updateSavebar();
         break;

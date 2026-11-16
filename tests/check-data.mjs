@@ -569,6 +569,20 @@ if (!workerJs.includes("order_images") || !workerJs.includes("sniffImageMime") |
   errors.push("Worker must validate and store personalization images (R2 or D1 migration 0002)");
 }
 
+const pausaJs = readFileSync(join(root, "js/pausa.js"), "utf8");
+if (!pausaJs.includes("datasBloqueadas") || !pausaJs.includes("mountDesiredDateCalendar") || !pausaJs.includes("formatDateExtensoBR")) {
+  errors.push("cart calendar must show blocked dates and be keyboard accessible");
+}
+if (!editorJs.includes("Datas específicas bloqueadas") || !editorJs.includes("bloqueio-novo")) {
+  errors.push("editor Datas tab must allow a list of specific blocked dates");
+}
+if (!appJs.includes("mountDesiredDateCalendar") || !componentsCss.includes("cal-encomenda")) {
+  errors.push("checkout must mount the custom calendar with brand styles");
+}
+if (!workerJs.includes("datasBloqueadas") || !workerJs.includes("loadPausa")) {
+  errors.push("Worker must reject orders on blocked dates using pausa.json");
+}
+
 if (/TODO/i.test(JSON.stringify(site))) {
   errors.push("site.json still contains TODO placeholders");
 }

@@ -781,6 +781,41 @@ if (!/Pagamento via Pix — aguardando conferência/.test(pending) || /PAGO/.tes
   }
 }
 
+
+{
+  const pausa = {
+    ativo: false,
+    inicio: "",
+    fim: "",
+    periodos: [{ inicio: "2026-11-20", fim: "2026-11-22", mensagem: "Evento fechado" }],
+    fimDeSemana: false,
+    datasBloqueadas: [{ data: "2026-11-19", motivo: "Feriado municipal" }],
+  };
+  const wedNight = new Date("2026-11-12T02:30:00Z");
+  if (!Jana.isDesiredDateUnavailable("2026-11-19", pausa)) errors.push("blocked date must be unavailable");
+  if (!Jana.isDesiredDateUnavailable("2026-11-20", pausa) || !Jana.isDesiredDateUnavailable("2026-11-22", pausa)) {
+    errors.push("pause range must still block desired dates");
+  }
+  const blocked = Jana.validateDesiredDate("2026-11-19", pausa, wedNight);
+  if (blocked.ok || !/Feriado municipal/.test(blocked.message) || !/13\/11/.test(blocked.message)) {
+    errors.push("blocked date must explain the reason and next free day, got " + blocked.message);
+  }
+  if (Jana.firstAvailableDesiredDate(pausa, wedNight) !== "2026-11-13") {
+    errors.push("first free day stays Friday when the block is later, got " + Jana.firstAvailableDesiredDate(pausa, wedNight));
+  }
+  const later = {
+    ativo: false, inicio: "", fim: "", periodos: [], fimDeSemana: false,
+    datasBloqueadas: [{ data: "2026-11-13", motivo: "" }, { data: "2026-11-14", motivo: "" }],
+  };
+  if (Jana.firstAvailableDesiredDate(later, wedNight) !== "2026-11-15") {
+    errors.push("must skip blocked Fri/Sat to Sunday 15/11, got " + Jana.firstAvailableDesiredDate(later, wedNight));
+  }
+  const ext = Jana.formatDateExtensoBR("2026-11-19");
+  if (!/quinta-feira/.test(ext) || !/novembro/.test(ext) || !/2026/.test(ext)) {
+    errors.push("formatDateExtensoBR must be long pt-BR, got " + ext);
+  }
+}
+
 if (errors.length) {
   console.error(errors.join("\n"));
   process.exit(1);

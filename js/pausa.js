@@ -121,6 +121,16 @@
         : [],
       fimDeSemana: data.fimDeSemana === true,
       planilhaCsv: String(data.planilhaCsv || "").trim(),
+      datasBloqueadas: Array.isArray(data.datasBloqueadas)
+        ? data.datasBloqueadas
+            .map(function mapBloqueio(item) {
+              if (!item || typeof item !== "object") return null;
+              const dia = Jana.normalizePausaDate(item.data || item.date || item);
+              if (!dia) return null;
+              return { data: dia, motivo: String(item.motivo || "").trim().slice(0, 200) };
+            })
+            .filter(Boolean)
+        : [],
     };
   };
 
@@ -273,15 +283,67 @@
         return true;
       }
     }
+    return !!Jana.desiredDateUnavailability(raw, pausa);
+  };
+
+  Jana.formatDateExtensoBR = function formatDateExtensoBR(ymd) {
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(ymd || ""));
+    if (!match) return "";
+    const date = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12));
+    return new Intl.DateTimeFormat("pt-BR", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      timeZone: "UTC",
+    }).format(date);
+  };
+
+  /* Motivo pelo qual uma data civil não pode ser escolhida (além da antecedência mínima). */
+  Jana.desiredDateUnavailability = function desiredDateUnavailability(ymd, pausa) {
+    const raw = String(ymd || "").trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) return null;
+    const cfg = Jana.pausaConfig(pausa);
+    const blocked = (cfg.datasBloqueadas || []).find(function find(item) {
+      return item.data === raw;
+    });
+    if (blocked) {
+      return { kind: "bloqueada", motivo: blocked.motivo || "", data: raw };
+    }
+    if (cfg.ativo && (cfg.inicio || cfg.fim) && Jana.pausaInRange(raw, cfg.inicio, cfg.fim)) {
+      return { kind: "pausa", motivo: cfg.mensagem || "", data: raw };
+    }
+    for (let i = 0; i < cfg.periodos.length; i++) {
+      const periodo = cfg.periodos[i];
+      if ((periodo.inicio || periodo.fim) && Jana.pausaInRange(raw, periodo.inicio, periodo.fim)) {
+        return { kind: "pausa", motivo: periodo.mensagem || cfg.mensagem || "", data: raw };
+      }
+    }
     if (cfg.fimDeSemana) {
       const match = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
       const date = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12));
-      const weekday = date.getUTCDay();
-      if (weekday === 0 || weekday === 6) {
-        return true;
+      if (date.getUTCDay() === 0 || date.getUTCDay() === 6) {
+        return { kind: "fimDeSemana", motivo: cfg.mensagem || "", data: raw };
       }
     }
-    return false;
+    return null;
+  };
+
+  Jana.desiredDateUnavailableMessage = function desiredDateUnavailableMessage(info, minYmd) {
+    const minLabel = Jana.formatDateLongBR(minYmd);
+    const next = minLabel ? " A próxima data livre é " + minLabel + "." : "";
+    const motivo = info && info.motivo ? info.motivo : "";
+    if (info && info.kind === "bloqueada") {
+      return motivo
+        ? "Esta data não está disponível (" + motivo + ")." + next
+        : "Esta data não está disponível." + next;
+    }
+    if (info && (info.kind === "pausa" || info.kind === "fimDeSemana")) {
+      return motivo
+        ? "Esta data não está disponível (" + motivo + ")." + next
+        : "Essa data não está disponível." + next;
+    }
+    return "Essa data não está disponível." + next;
   };
 
   Jana.firstAvailableDesiredDate = function firstAvailableDesiredDate(pausa, now, days) {
@@ -315,12 +377,9 @@
     if (!/^\d{4}-\d{2}-\d{2}$/.test(raw) || raw < min) {
       return { ok: false, min: min, message: Jana.desiredDateError(min) };
     }
-    if (Jana.isDesiredDateUnavailable(raw, pausa)) {
-      return {
-        ok: false,
-        min: min,
-        message: "Essa data não está disponível. Escolha a partir de " + Jana.formatDateLongBR(min) + ".",
-      };
+    const unavail = Jana.desiredDateUnavailability(raw, pausa);
+    if (unavail) {
+      return { ok: false, min: min, message: Jana.desiredDateUnavailableMessage(unavail, min), reason: unavail };
     }
     return { ok: true, min: min };
   };
@@ -489,6 +548,218 @@
         first.focus();
       }
     });
+  };
+
+
+  const WEEKDAYS = ["seg", "ter", "qua", "qui", "sex", "sáb", "dom"];
+
+  function ymdFromParts(y, m, d) {
+    return y + "-" + pad2(m) + "-" + pad2(d);
+  }
+
+  function shiftMonth(year, month, delta) {
+    const date = new Date(Date.UTC(year, month - 1 + delta, 1));
+    return { year: date.getUTCFullYear(), month: date.getUTCMonth() + 1 };
+  }
+
+  function monthLabel(year, month) {
+    const date = new Date(Date.UTC(year, month - 1, 1, 12));
+    return new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric", timeZone: "UTC" }).format(date);
+  }
+
+  function mondayIndex(jsWeekday) {
+    return (jsWeekday + 6) % 7;
+  }
+
+  Jana.mountDesiredDateCalendar = function mountDesiredDateCalendar(input, options) {
+    if (!input || !input.parentNode) return null;
+    const opt = options || {};
+    const getPausa = typeof opt.getPausa === "function" ? opt.getPausa : function empty() { return null; };
+    const getNow = typeof opt.getNow === "function" ? opt.getNow : function now() { return new Date(); };
+    let root = input.parentNode.querySelector(".cal-encomenda");
+    if (!root) {
+      root = document.createElement("div");
+      root.className = "cal-encomenda";
+      root.setAttribute("data-cal", "encomenda");
+      const hint = input.parentNode.querySelector(".checkout__hint");
+      if (hint) input.parentNode.insertBefore(root, hint);
+      else input.parentNode.appendChild(root);
+    }
+    input.classList.add("checkout__date-native");
+    input.setAttribute("aria-hidden", "true");
+    input.tabIndex = -1;
+    const aparelhoHint = Array.prototype.find.call(input.parentNode.querySelectorAll(".checkout__hint"), function find(el) {
+      return el.getAttribute("data-bind") !== "checkout-date-min";
+    });
+    if (aparelhoHint) aparelhoHint.hidden = true;
+
+    const state = root._calState || { year: 0, month: 0, focusYmd: "" };
+    root._calState = state;
+
+    function refresh() {
+      const pausa = getPausa();
+      const now = getNow();
+      const today = Jana.todayYmd(now);
+      const min = Jana.firstAvailableDesiredDate(pausa, now);
+      const selected = /^\d{4}-\d{2}-\d{2}$/.test(input.value) ? input.value : "";
+      if (!state.year) {
+        const base = selected && selected >= today ? selected : min || today;
+        const m = base.match(/^(\d{4})-(\d{2})/);
+        state.year = Number(m[1]);
+        state.month = Number(m[2]);
+      }
+      const first = ymdFromParts(state.year, state.month, 1);
+      const daysInMonth = new Date(Date.UTC(state.year, state.month, 0)).getUTCDate();
+      const startWeekday = mondayIndex(new Date(Date.UTC(state.year, state.month - 1, 1)).getUTCDay());
+      const minMonth = today.slice(0, 7);
+      const curMonth = ymdFromParts(state.year, state.month, 1).slice(0, 7);
+      const prevDisabled = curMonth <= minMonth;
+      const maxMonthDate = shiftMonth(Number(today.slice(0, 4)), Number(today.slice(5, 7)), 18);
+      const maxMonth = ymdFromParts(maxMonthDate.year, maxMonthDate.month, 1).slice(0, 7);
+      const nextDisabled = curMonth >= maxMonth;
+
+      if (!state.focusYmd || state.focusYmd.slice(0, 7) !== curMonth) {
+        state.focusYmd = selected && selected.slice(0, 7) === curMonth ? selected : min && min.slice(0, 7) === curMonth ? min : first;
+      }
+
+      let cells = "";
+      for (let i = 0; i < startWeekday; i++) {
+        cells += '<div class="cal-encomenda__vazio" aria-hidden="true"></div>';
+      }
+      for (let day = 1; day <= daysInMonth; day++) {
+        const ymd = ymdFromParts(state.year, state.month, day);
+        const ante = ymd < min;
+        const unavail = Jana.desiredDateUnavailability(ymd, pausa);
+        const blocked = ante || !!unavail;
+        const motivo = unavail && unavail.motivo ? unavail.motivo : ante ? "Precisamos de pelo menos 2 dias para preparar a encomenda." : "";
+        const extenso = Jana.formatDateExtensoBR(ymd);
+        const label = motivo ? extenso + " — indisponível. " + motivo : extenso + (blocked ? " — indisponível" : " — disponível");
+        const isSel = selected === ymd;
+        const tab = state.focusYmd === ymd ? "0" : "-1";
+        cells +=
+          '<button type="button" class="cal-encomenda__dia' +
+          (blocked ? " is-indisponivel" : "") +
+          (isSel ? " is-selecionado" : "") +
+          (ymd === today ? " is-hoje" : "") +
+          '" data-ymd="' +
+          ymd +
+          '" role="gridcell" tabindex="' +
+          tab +
+          '" aria-label="' +
+          escapeCal(label) +
+          '"' +
+          (blocked ? ' aria-disabled="true"' : "") +
+          (isSel ? ' aria-selected="true"' : ' aria-selected="false"') +
+          (motivo ? ' title="' + escapeCal(motivo) + '"' : "") +
+          ">" +
+          day +
+          "</button>";
+      }
+
+      root.innerHTML =
+        '<div class="cal-encomenda__topo">' +
+        '<button type="button" class="cal-encomenda__nav" data-cal-nav="-1" aria-label="Mês anterior"' +
+        (prevDisabled ? " disabled" : "") +
+        ">‹</button>" +
+        '<p class="cal-encomenda__mes" tabindex="-1" aria-live="polite">' +
+        escapeCal(monthLabel(state.year, state.month)) +
+        "</p>" +
+        '<button type="button" class="cal-encomenda__nav" data-cal-nav="1" aria-label="Próximo mês"' +
+        (nextDisabled ? " disabled" : "") +
+        ">›</button></div>" +
+        '<div class="cal-encomenda__semana" aria-hidden="true">' +
+        WEEKDAYS.map(function wd(name) {
+          return "<span>" + name + "</span>";
+        }).join("") +
+        "</div>" +
+        '<div class="cal-encomenda__grade" role="grid" aria-label="Calendário para escolher a data">' +
+        cells +
+        "</div>" +
+        '<p class="cal-encomenda__legenda"><span class="cal-encomenda__legenda-ok">Disponível</span>' +
+        '<span class="cal-encomenda__legenda-off">Indisponível</span></p>';
+    }
+
+    function addDaysYmdLocal(ymd, days) {
+      return Jana.addDaysYmd(ymd, days);
+    }
+
+    function escapeCal(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/</g, "&lt;");
+    }
+
+    function focusDay(ymd) {
+      state.focusYmd = ymd;
+      const match = ymd.match(/^(\d{4})-(\d{2})/);
+      if (match) {
+        state.year = Number(match[1]);
+        state.month = Number(match[2]);
+      }
+      refresh();
+      const btn = root.querySelector('.cal-encomenda__dia[data-ymd="' + ymd + '"]');
+      if (btn) btn.focus();
+    }
+
+    if (!root._calBound) {
+      root._calBound = true;
+      root.addEventListener("click", function onClick(event) {
+        const nav = event.target.closest("[data-cal-nav]");
+        if (nav && !nav.disabled) {
+          const next = shiftMonth(state.year, state.month, Number(nav.getAttribute("data-cal-nav")));
+          state.year = next.year;
+          state.month = next.month;
+          state.focusYmd = "";
+          refresh();
+          const mes = root.querySelector(".cal-encomenda__mes");
+          if (mes) mes.focus();
+          return;
+        }
+        const day = event.target.closest(".cal-encomenda__dia");
+        if (!day) return;
+        if (day.getAttribute("aria-disabled") === "true") return;
+        input.value = day.getAttribute("data-ymd");
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+        if (typeof opt.onChange === "function") opt.onChange(input.value);
+        refresh();
+      });
+      root.addEventListener("keydown", function onKey(event) {
+        const day = event.target.closest(".cal-encomenda__dia");
+        if (!day) return;
+        const ymd = day.getAttribute("data-ymd");
+        let next = null;
+        if (event.key === "ArrowLeft") next = Jana.addDaysYmd(ymd, -1);
+        else if (event.key === "ArrowRight") next = Jana.addDaysYmd(ymd, 1);
+        else if (event.key === "ArrowUp") next = Jana.addDaysYmd(ymd, -7);
+        else if (event.key === "ArrowDown") next = Jana.addDaysYmd(ymd, 7);
+        else if (event.key === "Home") next = ymd.slice(0, 8) + "01";
+        else if (event.key === "End") {
+          const last = new Date(Date.UTC(Number(ymd.slice(0, 4)), Number(ymd.slice(5, 7)), 0)).getUTCDate();
+          next = ymd.slice(0, 8) + pad2(last);
+        } else if (event.key === "PageUp") {
+          const s = shiftMonth(state.year, state.month, event.shiftKey ? -12 : -1);
+          next = ymdFromParts(s.year, s.month, Math.min(Number(ymd.slice(8)), new Date(Date.UTC(s.year, s.month, 0)).getUTCDate()));
+        } else if (event.key === "PageDown") {
+          const s = shiftMonth(state.year, state.month, event.shiftKey ? 12 : 1);
+          next = ymdFromParts(s.year, s.month, Math.min(Number(ymd.slice(8)), new Date(Date.UTC(s.year, s.month, 0)).getUTCDate()));
+        } else if (event.key === "Enter" || event.key === " ") {
+          if (day.getAttribute("aria-disabled") === "true") {
+            event.preventDefault();
+            return;
+          }
+          event.preventDefault();
+          day.click();
+          return;
+        }
+        if (next) {
+          event.preventDefault();
+          focusDay(next);
+        }
+      });
+    }
+    refresh();
+    return root;
   };
 
   global.Jana = Jana;

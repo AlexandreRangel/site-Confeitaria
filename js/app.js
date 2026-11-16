@@ -1194,6 +1194,16 @@
     if (hint && Jana.desiredDateHint) {
       hint.textContent = Jana.desiredDateHint(min);
     }
+    if (Jana.mountDesiredDateCalendar) {
+      Jana.mountDesiredDateCalendar(input, {
+        getPausa: function getPausa() {
+          return state.pausa;
+        },
+        onChange: function onChange() {
+          applyDesiredDateValidity(input);
+        },
+      });
+    }
     applyDesiredDateValidity(input);
   }
 
