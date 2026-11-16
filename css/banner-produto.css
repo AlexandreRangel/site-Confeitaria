@@ -41,9 +41,7 @@ body[data-page="area"] .hero__slide--produto {
   min-height: 0;
   overflow: hidden;
   background-color: var(--cream);
-  background-image: url("../assets/brand/padronagem.webp");
-  background-repeat: repeat;
-  background-size: 470px auto;
+  background-image: none;
   color: var(--ink);
 }
 

@@ -2430,9 +2430,12 @@
         "</ol>";
     }
     return (
-      '<label class="ed-field">Ordem dos produtos na página<select data-cat-campo="productSort" data-id="' + esc(a.id) + '">' + options + "</select></label>" +
+      '<section class="ed-area__ordem" aria-label="Ordem dos produtos em ' + esc(a.name || "") + '">' +
+      '<h4 class="ed-area__ordem-titulo">Ordem dos produtos nesta categoria</h4>' +
+      '<label class="ed-field">Como os produtos aparecem<select data-cat-campo="productSort" data-id="' + esc(a.id) + '">' + options + "</select></label>" +
       '<p class="ed-dica">' + ordemProdutosDica(mode) + "</p>" +
-      lista
+      lista +
+      "</section>"
     );
   }
 

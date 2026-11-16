@@ -1,4 +1,4 @@
-@import url("banner-produto.css");
+@import url("banner-produto.css?v=20261116b");
 
 /* Editor do site — mobile primeiro. Paleta: texto #4c553a, creme #fdf6ec, acento #b86e88, rosa claro #f5d5e0.
    Botões preenchidos usam #9a5870 (contraste AA no branco). */
@@ -1476,4 +1476,17 @@ body.ed-ocupado .ed-form [type="submit"] {
 
 .ed-area-prod.is-dragging * {
   user-select: none;
+}
+
+/* Ordem dos produtos: bloco destacado em cada categoria */
+.ed-area__ordem {
+  margin-top: 1rem;
+  padding: 0.9rem 1rem;
+  border: 2px solid var(--primary, #fc7e8e);
+  border-radius: 12px;
+  background: #fff;
+}
+.ed-area__ordem-titulo {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
 }
