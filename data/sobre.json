@@ -8,11 +8,6 @@
   "story": [],
   "workGallery": [
     {
-      "src": "assets/products/bolo-2-andares-g-p/01.webp",
-      "alt": "Bolo 2 andares G + P",
-      "productSlug": "bolo-2-andares-g-p"
-    },
-    {
       "src": "assets/products/tabua-signature/01.webp",
       "alt": "Tábua Signature",
       "productSlug": "tabua-signature"
@@ -23,22 +18,19 @@
       "productSlug": "cesta-manha-dos-sonhos"
     },
     {
-      "src": "assets/products/cesta-rubi/01.webp",
-      "alt": "Cesta Rubi",
-      "productSlug": "cesta-rubi"
-    },
-    {
       "src": "assets/sobre/trabalho-mwjkskvfw2i8l.webp",
       "alt": "Coffee Break corporativo",
       "productSlug": "coffee-break-corporativo"
     },
     {
       "src": "assets/sobre/trabalho-mwjnom7d7w2qo.webp",
-      "alt": "Coquetel volante"
+      "alt": "Coquetel volante",
+      "url": "https://wa.me/message/YXTQT5S4GEWZN1"
     },
     {
       "src": "assets/sobre/trabalho-mwjojrhhv58dv.webp",
-      "alt": ""
+      "alt": "",
+      "url": "https://wa.me/message/YXTQT5S4GEWZN1"
     }
   ],
   "press": [
