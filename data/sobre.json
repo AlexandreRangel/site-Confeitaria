@@ -1,6 +1,6 @@
 {
   "headline": "",
-  "lead": "",
+  "lead": "Somos uma confeitaria especializada em personalizações 100% comestíveis",
   "portrait": {
     "src": "",
     "alt": "Jana Abreu"
@@ -48,16 +48,21 @@
       "productSlug": "cesta-rubi"
     },
     {
-      "src": "assets/products/caixa-parabens-individual-kit-com-10-und/01.webp",
-      "alt": "Caixa parabéns individual KIT COM 10 UND",
-      "productSlug": "caixa-parabens-individual-kit-com-10-und"
-    },
-    {
       "src": "assets/products/caixa-12-cupcakes-personalizados/01.webp",
       "alt": "Caixa 12 cupcakes personalizados",
       "productSlug": "caixa-12-cupcakes-personalizados"
     }
   ],
   "press": [],
-  "notes": "Campos vazios (headline, lead, portrait.src, story, press) ficam ocultos na página. Preencha só o que for fato confirmado — não inventar biografia, datas ou veículos."
+  "notes": "Campos vazios (headline, lead, portrait.src, story, press) ficam ocultos na página. Preencha só o que for fato confirmado — não inventar biografia, datas ou veículos.",
+  "introText": "",
+  "introPhotos": [],
+  "instagramGallery": [
+    "assets/instagram/ig-1.webp",
+    "assets/instagram/ig-2.webp",
+    "assets/instagram/ig-3.webp",
+    "assets/instagram/ig-4.webp",
+    "assets/instagram/ig-5.webp",
+    "assets/instagram/ig-6.webp"
+  ]
 }
