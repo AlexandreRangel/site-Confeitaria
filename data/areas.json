@@ -52,7 +52,7 @@
     "order": 5,
     "seasonal": true,
     "ativacao": {
-      "modo": "desligado",
+      "modo": "ligado",
       "inicio": "",
       "fim": ""
     }
