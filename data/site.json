@@ -46,7 +46,7 @@
   "hours": "Encomendas sob consulta · combine data e horário pelo WhatsApp",
   "paymentsNote": "Aceitamos pagamento via pix e cartão de crédito. Para empresas: consulte condições de faturamento. Emitimos NF",
   "requestDisclaimer": "Esta é uma solicitação de encomenda. A confirmação depende da disponibilidade e da confirmação com nossa equipe pelo WhatsApp.",
-  "privacyNote": "Usamos os dados que você informar para entrar em contato caso seja necessário. Informe um número de telefone com WhatsApp.",
+  "privacyNote": "Usamos os dados que você informar para entrar em contato caso seja necessário! Informe um número de telefone com WhatsApp. \nUse o campo das observações para colocar todas as informações necessárias sobre seu pedido e personalização",
   "central": {
     "enabled": true,
     "endpoint": "https://jana-pedidos.janaabreu.workers.dev",
