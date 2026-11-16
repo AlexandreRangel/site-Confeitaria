@@ -44,9 +44,9 @@
     "note": ""
   },
   "hours": "Encomendas sob consulta · combine data e horário pelo WhatsApp",
-  "paymentsNote": "Depois que a Jana confirmar a encomenda no WhatsApp, combinamos Pix, cartão ou boleto.",
-  "requestDisclaimer": "Esta é uma solicitação de encomenda. A confirmação depende da disponibilidade e da confirmação da Jana pelo WhatsApp.",
-  "privacyNote": "Usamos nome, telefone e o que você escrever só para a Jana responder esta solicitação. Não publicamos sua lista de pedidos.",
+  "paymentsNote": "Aceitamos pagamento via pix e cartão de crédito. Para empresas: consulte condições de faturamento. Emitimos NF",
+  "requestDisclaimer": "Esta é uma solicitação de encomenda. A confirmação depende da disponibilidade e da confirmação com nossa equipe pelo WhatsApp.",
+  "privacyNote": "Usamos os dados que você informar para entrar em contato caso seja necessário. Informe um número de telefone com WhatsApp.",
   "central": {
     "enabled": true,
     "endpoint": "https://jana-pedidos.janaabreu.workers.dev",
