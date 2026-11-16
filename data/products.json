@@ -1,5 +1,27 @@
 [
   {
+    "id": "p-caixa-2-alfajores-natal",
+    "slug": "caixa-2-alfajores-natal",
+    "name": "Caixa 2 alfajores Natal",
+    "description": "",
+    "categoryId": "natal",
+    "categoryIds": [
+      "natal"
+    ],
+    "category": "Natal",
+    "price": 13,
+    "images": [
+      "assets/products/caixa-2-alfajores-natal/foto-mwjhdyllc7rsz.webp",
+      "assets/products/caixa-2-alfajores-natal/foto-mwjhf5w2vz6k8.webp",
+      "assets/products/caixa-2-alfajores-natal/foto-mwjhf66cgvlhg.webp",
+      "assets/products/caixa-2-alfajores-natal/foto-mwjhf6f03umpt.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "aceitaImagemPersonalizacao": true,
+    "tags": []
+  },
+  {
     "id": "p-alfajor-natalino-und",
     "slug": "alfajor-natalino-und",
     "name": "Alfajor Natalino Und",
