@@ -1236,6 +1236,7 @@
       url: s ? s.url || "" : "",
       overrides: s && s.overrides && typeof s.overrides === "object" ? Object.assign({}, s.overrides) : {},
       buscaProduto: "",
+      vistaProdutos: "grupos",
       trocandoProduto: false,
       formato: s ? s.formato || (tipo === "produto" ? "banner" : "") : "banner",
       avisoPc: "",
@@ -1246,13 +1247,123 @@
     qs('[data-ed="dialog-banner"]').showModal();
   }
 
+  function nomesCategoriasBanner() {
+    const map = {};
+    (ED.saved[F.categories] || []).forEach(function add(c) {
+      if (c && c.id) map[c.id] = c.name || c.id;
+    });
+    return map;
+  }
+
   function produtosParaBanner() {
+    if (Jana.catalogProductsForPicker) {
+      return Jana.catalogProductsForPicker(products(), (ED.banner && ED.banner.buscaProduto) || "");
+    }
     const q = semAcento((ED.banner && ED.banner.buscaProduto) || "");
     return products()
-      .filter((p) => p && p.active !== false && p.slug && p.images && p.images[0])
+      .filter((p) => p && p.slug)
       .filter((p) => !q || semAcento(p.name + " " + p.slug).indexOf(q) !== -1)
       .slice()
-      .sort((x, y) => x.name.localeCompare(y.name, "pt-BR"));
+      .sort((x, y) => String(x.name || "").localeCompare(String(y.name || ""), "pt-BR"));
+  }
+
+  function gruposProdutosBanner() {
+    if (Jana.productPickerGroups) {
+      return Jana.productPickerGroups(products(), areas(), {
+        query: (ED.banner && ED.banner.buscaProduto) || "",
+        categoryNames: nomesCategoriasBanner(),
+      });
+    }
+    return [{ id: "todos", name: "Todos", products: produtosParaBanner() }];
+  }
+
+  function pickProdutoHtml(p, selectedSlug) {
+    const preco = hasFixedPrice(p) ? Jana.formatBRL(p.price) : "Sob consulta";
+    const oculto = p.active === false;
+    const selected = p.slug === selectedSlug;
+    const foto = p.images && p.images[0] ? p.images[0] : "";
+    const rotulo = (p.name || p.slug) + (oculto ? ", oculto" : "") + ", " + preco;
+    return (
+      '<button type="button" class="ed-pick' +
+      (selected ? " is-selected" : "") +
+      (oculto ? " is-oculto" : "") +
+      '" data-ed-action="banner-escolher-produto" data-slug="' +
+      esc(p.slug) +
+      '" aria-label="' +
+      esc(rotulo) +
+      '"' +
+      (selected ? ' aria-current="true"' : "") +
+      ">" +
+      imgTag(foto, "", "ed-pick__foto") +
+      "<span><strong>" +
+      esc(p.name || p.slug) +
+      (oculto ? ' <span class="ed-chip">oculto</span>' : "") +
+      "</strong><span class=\"ed-dica-inline\">" +
+      esc(preco) +
+      (oculto ? " · o banner não aparece no site enquanto o produto estiver oculto" : "") +
+      "</span></span></button>"
+    );
+  }
+
+  function listaProdutosBannerHtml(b) {
+    const lista = produtosParaBanner();
+    const grupos = gruposProdutosBanner();
+    const q = String((b && b.buscaProduto) || "").trim();
+    const vista = (b && b.vistaProdutos) === "az" ? "az" : "grupos";
+    const selected = (b && b.productSlug) || "";
+    const hiddenCount = lista.filter((p) => p.active === false).length;
+    const conta =
+      lista.length +
+      (lista.length === 1 ? " produto" : " produtos") +
+      (q ? " encontrados" : " no catálogo") +
+      (hiddenCount ? " · " + hiddenCount + (hiddenCount === 1 ? " oculto" : " ocultos") : "");
+    const vistaBtn = function (v, label) {
+      return (
+        '<label class="ed-pilula"><input type="radio" name="vistaProdutos" value="' +
+        v +
+        '"' +
+        (vista === v ? " checked" : "") +
+        "> <span>" +
+        label +
+        "</span></label>"
+      );
+    };
+    let corpo = "";
+    if (!lista.length) {
+      corpo = '<p class="ed-vazio">Nenhum produto encontrado.</p>';
+    } else if (vista === "az") {
+      corpo = '<div class="ed-picks__lista" role="list">' + lista.map((p) => pickProdutoHtml(p, selected)).join("") + "</div>";
+    } else {
+      corpo = grupos
+        .map(function group(g) {
+          const abre = !!(q || (selected && g.products.some((p) => p.slug === selected)));
+          return (
+            '<details class="ed-pick-grupo"' +
+            (abre ? " open" : "") +
+            "><summary>" +
+            esc(g.name) +
+            ' <span class="ed-pick-grupo__conta">(' +
+            g.products.length +
+            ")</span></summary>" +
+            '<div class="ed-picks__lista" role="list">' +
+            g.products.map((p) => pickProdutoHtml(p, selected)).join("") +
+            "</div></details>"
+          );
+        })
+        .join("");
+    }
+    return (
+      '<fieldset class="ed-grupo ed-pick-vista"><legend>Como ver a lista</legend><div class="ed-pilulas">' +
+      vistaBtn("grupos", "Por categoria") +
+      vistaBtn("az", "Todos (A–Z)") +
+      "</div></fieldset>" +
+      '<p class="ed-dica ed-pick-contagem">' +
+      esc(conta) +
+      ". Produtos ocultos podem ser escolhidos, mas o banner só aparece no site quando o produto estiver visível.</p>" +
+      '<div class="ed-picks ed-picks--catalogo" role="region" aria-label="Produtos do catálogo">' +
+      corpo +
+      "</div>"
+    );
   }
 
   function setOverride(b, key, value) {
@@ -1315,17 +1426,6 @@
     const chip = (campo) => (hasOv(campo) ? ' <span class="ed-chip">editado neste banner</span>' : ' <span class="ed-dica-inline">do produto</span>');
     let corpoProduto = "";
     if (prodTipo) {
-      const lista = produtosParaBanner()
-        .slice(0, 40)
-        .map((p) => {
-          const preco = hasFixedPrice(p) ? Jana.formatBRL(p.price) : "Sob consulta";
-          return (
-            '<button type="button" class="ed-pick' + (p.slug === b.productSlug ? " is-selected" : "") + '" data-ed-action="banner-escolher-produto" data-slug="' +
-            esc(p.slug) + '">' + imgTag(p.images[0], "", "ed-pick__foto") + "<span><strong>" + esc(p.name) + "</strong><span class=\"ed-dica-inline\">" +
-            esc(preco) + "</span></span></button>"
-          );
-        })
-        .join("");
       const mostrarBusca = !b.productSlug || b.trocandoProduto;
       corpoProduto =
         '<p class="ed-dica">Escolha o produto. O banner usa a foto, o nome, a descrição, o preço e o link da página dele. Você pode mudar qualquer um só neste banner e voltar ao dado do produto quando quiser.</p>' +
@@ -1337,7 +1437,7 @@
           : "") +
         (mostrarBusca
           ? '<label class="ed-field">Buscar produto <input type="search" name="buscaProduto" value="' + esc(b.buscaProduto || "") + '" placeholder="Nome do produto" autocomplete="off"' + inv("productSlug") + "></label>" +
-            '<div class="ed-picks" role="listbox" aria-label="Produtos">' + (lista || '<p class="ed-vazio">Nenhum produto encontrado.</p>') + "</div>"
+            listaProdutosBannerHtml(b)
           : "") +
         (product
           ? '<div class="ed-banner-previews">' +
@@ -1431,6 +1531,7 @@
     const tipoBanner = qs('input[name="bannerTipo"]:checked', form);
     if (tipoBanner) set("tipo", tipoBanner.value);
     if (form.buscaProduto) b.buscaProduto = form.buscaProduto.value;
+    if (form.vistaProdutos) b.vistaProdutos = form.vistaProdutos.value || "grupos";
     if (b.tipo === "produto") {
       const product = products().find((x) => x.slug === b.productSlug) || null;
       const defaults = Jana.productBannerDefaults ? Jana.productBannerDefaults(product) : {};
@@ -2436,12 +2537,22 @@
     if (t.closest('[data-ed="form-banner"]') && t.name === "buscaProduto" && event.type === "input") {
       ED.banner.buscaProduto = t.value;
       const start = t.selectionStart;
+      const picks = qs('[data-ed="form-banner"] .ed-picks');
+      const scroll = picks ? picks.scrollTop : 0;
       renderBannerDialog();
       const el = qs('[data-ed="form-banner"] [name="buscaProduto"]');
       if (el) {
         el.focus();
         try { el.setSelectionRange(start, start); } catch (err) {}
       }
+      const picks2 = qs('[data-ed="form-banner"] .ed-picks');
+      if (picks2) picks2.scrollTop = scroll;
+    }
+    if (t.closest('[data-ed="form-banner"]') && t.name === "vistaProdutos" && event.type === "change") {
+      ED.banner.vistaProdutos = t.value || "grupos";
+      renderBannerDialog();
+      const el = qs('[data-ed="form-banner"] input[name="vistaProdutos"][value="' + ED.banner.vistaProdutos + '"]');
+      if (el) el.focus();
     }
   }
 

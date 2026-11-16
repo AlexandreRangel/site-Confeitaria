@@ -852,6 +852,61 @@ if (typeof Jana.siteText !== "function") {
   }
 }
 
+{
+  const allProducts = JSON.parse(readFileSync(join(root, "data/products.json"), "utf8"));
+  const allAreas = JSON.parse(readFileSync(join(root, "data/areas.json"), "utf8"));
+  const allCats = JSON.parse(readFileSync(join(root, "data/categories.json"), "utf8"));
+  const names = {};
+  allCats.forEach(function (c) {
+    names[c.id] = c.name;
+  });
+  const flat = Jana.catalogProductsForPicker(allProducts, "");
+  if (flat.length !== allProducts.length) {
+    errors.push("product picker count must equal catalog: got " + flat.length + " of " + allProducts.length);
+  }
+  const groups = Jana.productPickerGroups(allProducts, allAreas, { categoryNames: names });
+  const unique = new Set();
+  groups.forEach(function (g) {
+    g.products.forEach(function (p) {
+      unique.add(p.slug);
+    });
+  });
+  if (unique.size !== allProducts.length) {
+    errors.push("grouped picker must include every product: got " + unique.size + " of " + allProducts.length);
+  }
+  const sem = groups.find(function (g) {
+    return g.id === "sem-categoria";
+  });
+  const sobre = groups.find(function (g) {
+    return g.name === "Sobremesas" || g.id === "cat:sobremesas";
+  });
+  if (!sem || !sem.products.length) errors.push("products with no category must go in Sem categoria");
+  if (!sobre || sobre.products.length !== 3) errors.push("Sobremesas leftover group should have the 3 cheesecakes");
+  const sample = {
+    slug: "alfa",
+    name: "Árvore de Natal",
+    price: 10,
+    categoryIds: ["bolos", "cestas-presentes"],
+    images: [],
+  };
+  const hidden = { slug: "oculto-x", name: "Doce oculto", active: false, images: ["x.webp"] };
+  const consulta = { slug: "consulta-x", name: "Bolo Pâtissier", categoryIds: [] };
+  const mixed = Jana.catalogProductsForPicker([hidden, consulta, sample, { name: "sem slug" }], "");
+  if (mixed.length !== 3 || mixed[0].slug !== "alfa") errors.push("picker must include hidden and unpriced products, skip no-slug, sort pt-BR");
+  const q = Jana.catalogProductsForPicker([sample, consulta], "patissier");
+  if (q.length !== 1 || q[0].slug !== "consulta-x") errors.push("picker search must ignore accents");
+  const multi = Jana.productPickerGroups([sample, hidden, consulta], allAreas, {});
+  const inBolos = (multi.find((g) => g.id === "area:bolos") || {}).products || [];
+  const inCestas = (multi.find((g) => g.id === "area:cestas") || {}).products || [];
+  const inSem = (multi.find((g) => g.id === "sem-categoria") || {}).products || [];
+  if (inBolos.map((p) => p.slug).join() !== "alfa" || inCestas.map((p) => p.slug).join() !== "alfa") {
+    errors.push("a product in several categories must appear in each group");
+  }
+  if (!inSem.some((p) => p.slug === "consulta-x") || !inSem.some((p) => p.slug === "oculto-x")) {
+    errors.push("hidden and uncategorized products must appear in Sem categoria");
+  }
+}
+
 if (errors.length) {
   console.error(errors.join("\n"));
   process.exit(1);

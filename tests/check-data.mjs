@@ -560,6 +560,15 @@ const bannerCss = readFileSync(join(root, "css/banner-produto.css"), "utf8");
 if (!editorJs.includes("bannerTipo") || !editorJs.includes("Usar o do produto") || !editorJs.includes('tipo: "produto"')) {
   errors.push("editor must default new banners to product mode with per-field revert");
 }
+if (editorJs.includes("slice(0, 40)") || /active !== false && p.slug && p.images/.test(editorJs)) {
+  errors.push("product banner picker must not cap or hide catalog products");
+}
+if (!editorJs.includes("Todos (A–Z)") || !editorJs.includes("ed-pick-grupo") || !editorJs.includes("listaProdutosBannerHtml") || !editorJs.includes('ed-chip">oculto')) {
+  errors.push("product banner picker must group by category, offer A–Z view and mark hidden products");
+}
+if (!utilsJs.includes("catalogProductsForPicker") || !utilsJs.includes("productPickerGroups")) {
+  errors.push("product picker helpers and group styles must exist");
+}
 if (!bannerCss.includes("hero__slide--produto") || !bannerCss.includes("1300px") || !layoutCss.includes("banner-produto.css")) {
   errors.push("product banner CSS must use the 1300px center band and be loaded on the site");
 }

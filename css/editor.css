@@ -1130,3 +1130,91 @@ body.ed-ocupado .ed-form [type="submit"] {
 .ed-pick strong {
   font-weight: 600;
 }
+
+.ed-pick-vista {
+  margin: 0 0 0.65rem;
+}
+
+.ed-picks--catalogo {
+  max-height: min(24rem, 60vh);
+}
+
+.ed-pick-grupo {
+  border: 1px solid var(--line, #e4c4ce);
+  border-radius: 16px;
+  background: #fdf6ec;
+  padding: 0.1rem;
+}
+
+.ed-pick-grupo + .ed-pick-grupo {
+  margin-top: 0.4rem;
+}
+
+.ed-pick-grupo > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0.35rem 0.7rem;
+  border-radius: 14px;
+  cursor: pointer;
+  font-weight: 600;
+  list-style: none;
+  color: #4c553a;
+}
+
+.ed-pick-grupo > summary::-webkit-details-marker,
+.ed-pick-grupo > summary::marker {
+  display: none;
+  content: "";
+}
+
+.ed-pick-grupo > summary::after {
+  content: "";
+  width: 0.45rem;
+  height: 0.45rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+  flex: 0 0 auto;
+  margin-left: 0.35rem;
+  transition: transform 0.15s ease;
+}
+
+.ed-pick-grupo[open] > summary::after {
+  transform: rotate(225deg);
+  margin-top: 0.25rem;
+}
+
+.ed-pick-grupo > summary:hover,
+.ed-pick-grupo > summary:focus-visible {
+  outline: none;
+  background: #fff;
+}
+
+.ed-pick-grupo > summary:focus-visible {
+  box-shadow: 0 0 0 2px rgba(154, 88, 112, 0.35);
+}
+
+.ed-pick-grupo__conta {
+  font-weight: 500;
+  color: var(--muted, #6b6458);
+  margin-left: auto;
+}
+
+.ed-picks__lista {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.15rem 0.3rem 0.45rem;
+}
+
+.ed-pick-contagem {
+  margin: 0 0 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .ed-picks--catalogo {
+    max-height: min(22rem, 55vh);
+  }
+}

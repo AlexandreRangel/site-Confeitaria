@@ -222,6 +222,90 @@
     return product.categoryId ? [product.categoryId] : [];
   };
 
+  Jana.foldText = function foldText(text) {
+    return String(text || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+  };
+
+  Jana.sortProductsByName = function sortProductsByName(products) {
+    return (products || []).slice().sort(function byName(x, y) {
+      return String((x && x.name) || "").localeCompare(String((y && y.name) || ""), "pt-BR");
+    });
+  };
+
+  /* Todos os produtos do catálogo (com ou sem preço, ocultos inclusive). */
+  Jana.catalogProductsForPicker = function catalogProductsForPicker(products, query) {
+    const q = Jana.foldText(query);
+    return Jana.sortProductsByName(
+      (products || []).filter(function keep(p) {
+        if (!p || !p.slug) return false;
+        if (!q) return true;
+        return Jana.foldText(String(p.name || "") + " " + String(p.slug || "")).indexOf(q) !== -1;
+      })
+    );
+  };
+
+  Jana.productBelongsToArea = function productBelongsToArea(product, area) {
+    const cats = Jana.productCategoryIds(product);
+    return ((area && area.sourceCategoryIds) || []).some(function hasId(id) {
+      return cats.indexOf(id) !== -1;
+    });
+  };
+
+  /* Grupos por categoria (área do site). Um produto pode aparecer em mais de um grupo.
+     Produtos sem área entram no grupo da categoria residual ou em «Sem categoria». */
+  Jana.productPickerGroups = function productPickerGroups(products, areas, options) {
+    const opts = options || {};
+    const list = Jana.catalogProductsForPicker(products, opts.query);
+    const names = opts.categoryNames || {};
+    const groups = [];
+    const inArea = new Set();
+    (areas || []).forEach(function eachArea(area) {
+      if (!area || !area.id) return;
+      const items = list.filter(function inThis(p) {
+        return Jana.productBelongsToArea(p, area);
+      });
+      if (!items.length) return;
+      groups.push({ id: "area:" + area.id, name: area.name || area.id, products: items });
+      items.forEach(function mark(p) {
+        inArea.add(p.slug);
+      });
+    });
+    const leftover = Object.create(null);
+    list.forEach(function rest(p) {
+      if (inArea.has(p.slug)) return;
+      const cats = Jana.productCategoryIds(p);
+      if (!cats.length) {
+        if (!leftover[""]) leftover[""] = { id: "sem-categoria", name: "Sem categoria", products: [] };
+        leftover[""].products.push(p);
+        return;
+      }
+      cats.forEach(function eachCat(cid) {
+        const key = String(cid || "");
+        const label = names[key] || p.category || key || "Sem categoria";
+        if (!leftover[key]) leftover[key] = { id: "cat:" + key, name: label, products: [] };
+        leftover[key].products.push(p);
+      });
+    });
+    Object.keys(leftover)
+      .map(function key(k) {
+        return leftover[k];
+      })
+      .sort(function byGroup(a, b) {
+        if (a.id === "sem-categoria") return 1;
+        if (b.id === "sem-categoria") return -1;
+        return String(a.name).localeCompare(String(b.name), "pt-BR");
+      })
+      .forEach(function push(g) {
+        g.products = Jana.sortProductsByName(g.products);
+        groups.push(g);
+      });
+    return groups;
+  };
+
+
   Jana.productsForArea = function productsForArea(products, area) {
     const ids = (area && area.sourceCategoryIds) || [];
     return (products || []).filter(function inArea(product) {
