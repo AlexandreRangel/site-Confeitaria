@@ -247,7 +247,7 @@ products.forEach((product) => {
   }
 });
 
-if (carousel.length < 3) errors.push("Carousel needs at least 3 slides");
+if (!Array.isArray(carousel) || !carousel.length) errors.push("Carousel must have at least one slide (valor atual do carousel.json)");
 
 if (home.includes("hydra-background") || home.includes("hero__brand-title")) {
   errors.push("Home must not use Hydra page background or a typed hero brand title");
@@ -555,6 +555,9 @@ if (unmatchedHome.length) {
 if (!utilsJs.includes("productBannerHtml") || !utilsJs.includes("resolveProductBanner") || !appJs.includes("productBannerHtml")) {
   errors.push("product banners must resolve from the catalog and render as HTML");
 }
+if (!utilsJs.includes("normalizeFoto") || !utilsJs.includes("fotoPanFromDrag") || !utilsJs.includes("feComponentTransfer") || !appJs.includes("imageBannerHtml")) {
+  errors.push("banner photo framing helpers must exist on the public site");
+}
 const editorJs = readFileSync(join(root, "js/editor.js"), "utf8");
 const bannerCss = readFileSync(join(root, "css/banner-produto.css"), "utf8");
 if (!editorJs.includes("bannerTipo") || !editorJs.includes("Usar o do produto") || !editorJs.includes('tipo: "produto"')) {
@@ -574,6 +577,16 @@ if (!bannerCss.includes("hero__slide--produto") || !bannerCss.includes("1300px")
 }
 
 const workerJs = readFileSync(join(root, "central/jana-pedidos/src/index.js"), "utf8");
+const editorCss = readFileSync(join(root, "css/editor.css"), "utf8");
+if (!editorJs.includes("Restaurar enquadramento") || !editorJs.includes("Restaurar ajustes") || !editorJs.includes("Vibrância") || !editorCss.includes("ed-foto__setas")) {
+  errors.push("banner photo editor must offer framing, zoom and color adjustments");
+}
+if (!workerJs.includes("normalizeCarouselFoto") || !workerJs.includes("vibrancia") || !workerJs.includes("gamma") || !workerJs.includes("max: 4")) {
+  errors.push("Worker validateCarousel must accept and clamp foto fields");
+}
+if (!bannerCss.includes("--foto-zoom") || !bannerCss.includes("hero__foto--ajustada")) {
+  errors.push("public banner CSS must apply non-destructive photo framing");
+}
 if (!editorJs.includes("Aviso ao escolher Pix") || !editorJs.includes("Instrução na caixa do QR Pix") || !editorJs.includes("Aviso ao escolher cartão")) {
   errors.push("editor must expose pixDisclaimer, pixNote and paidDisclaimer with clear labels");
 }

@@ -66,6 +66,10 @@ const produtoSemSlug = JSON.parse(JSON.stringify(loaded.arquivos["data/carousel.
 produtoSemSlug.push({ id: "banner-produto-teste", tipo: "produto", order: 99, title: "X" });
 r = await call("POST", "/admin/conteudo/publicar", { arquivos: { "data/carousel.json": produtoSemSlug }, bases: { "data/carousel.json": sha("data/carousel.json") } }, auth);
 ok("banner de produto sem slug → 400", r.status === 400 && /produto/.test(r.data.error || ""), r.data && r.data.error);
+const fotoRuim = JSON.parse(JSON.stringify(loaded.arquivos["data/carousel.json"].data));
+fotoRuim[0] = Object.assign({}, fotoRuim[0], { foto: "zoom" });
+r = await call("POST", "/admin/conteudo/publicar", { arquivos: { "data/carousel.json": fotoRuim }, bases: { "data/carousel.json": sha("data/carousel.json") } }, auth);
+ok("foto do banner em formato inválido → 400", r.status === 400 && /enquadramento da foto/.test(r.data.error || ""), r.data && r.data.error);
 const areasRuins = JSON.parse(JSON.stringify(loaded.arquivos["data/areas.json"].data));
 areasRuins.find((a) => a.id === "natal").ativacao = { modo: "datas", inicio: "2026-12-30", fim: "2026-12-01" };
 r = await call("POST", "/admin/conteudo/publicar", { arquivos: { "data/areas.json": areasRuins }, bases: { "data/areas.json": sha("data/areas.json") } }, auth);

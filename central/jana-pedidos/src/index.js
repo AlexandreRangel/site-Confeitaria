@@ -1400,8 +1400,45 @@ function validateCarousel(list) {
       }
       linkOk(o.url, label + " (link)");
     }
+    if (s.foto != null) s.foto = normalizeCarouselFoto(s.foto, label);
     if (s.order != null && !Number.isFinite(s.order)) bad(label + ": ordem inválida");
   });
+}
+
+/* Enquadramento e ajustes da foto do banner. Aceita, limita e grava só as chaves conhecidas. */
+const FOTO_CAMPOS = {
+  x: { min: 0, max: 100, def: 50, step: 0.1 },
+  y: { min: 0, max: 100, def: 50, step: 0.1 },
+  zoom: { min: 1, max: 4, def: 1, step: 0.05 },
+  brilho: { min: 0.25, max: 2, def: 1, step: 0.01 },
+  contraste: { min: 0.25, max: 2, def: 1, step: 0.01 },
+  saturacao: { min: 0, max: 2, def: 1, step: 0.01 },
+  vibrancia: { min: 0, max: 2, def: 1, step: 0.01 },
+  gamma: { min: 0.3, max: 2.5, def: 1, step: 0.01 },
+};
+
+function clampFotoValue(key, value) {
+  const spec = FOTO_CAMPOS[key];
+  const n = typeof value === "number" ? value : parseFloat(value);
+  if (!spec || !Number.isFinite(n)) return spec ? spec.def : null;
+  const clamped = Math.min(spec.max, Math.max(spec.min, n));
+  const dec = spec.step < 0.1 ? 2 : 1;
+  return Number((Math.round(clamped / spec.step) * spec.step).toFixed(dec));
+}
+
+function normalizeCarouselFoto(foto, label) {
+  if (!isObj(foto)) bad(label + ": enquadramento da foto inválido");
+  const out = {};
+  let changed = false;
+  Object.keys(FOTO_CAMPOS).forEach((k) => {
+    if (foto[k] == null || foto[k] === "") return;
+    const v = clampFotoValue(k, foto[k]);
+    const def = FOTO_CAMPOS[k].def;
+    if (Math.abs(v - def) < 0.0005) return;
+    out[k] = v;
+    changed = true;
+  });
+  return changed ? out : undefined;
 }
 
 function validateAreas(list) {

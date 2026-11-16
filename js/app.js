@@ -358,6 +358,9 @@
         if (slide.tipo === "produto" && Jana.productBannerHtml) {
           return Jana.productBannerHtml(slide, { eager: index === 0 });
         }
+        if (Jana.imageBannerHtml) {
+          return Jana.imageBannerHtml(slide, { eager: index === 0 });
+        }
         const eager = index === 0;
         let img =
           '<img src="' +
@@ -368,7 +371,6 @@
           (eager ? ' fetchpriority="high"' : ' loading="lazy"') +
           ' decoding="async">';
         if (slide.imageMobile) {
-          // celular (< 720 px) usa a versão de celular; computador e tablet, a de computador
           img =
             '<picture><source media="(max-width: 719px)" srcset="' +
             Jana.escapeHtml(Jana.assetUrl(slide.imageMobile)) +

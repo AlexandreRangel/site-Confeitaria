@@ -763,7 +763,57 @@ if (typeof Jana.siteText !== "function") {
   if (/<a /.test(preview) || !preview.includes("hero__produto")) errors.push("editor product banner preview must skip the wrapping link");
   const consulta = Jana.resolveProductBanner({ tipo: "produto", productSlug: "consulta" }, prods[3]);
   if (consulta.priceLabel !== "Sob consulta") errors.push("product without fixed price must say Sob consulta");
+  if (html.includes("hero__foto--ajustada") || html.includes("--foto-zoom")) {
+    errors.push("legacy product banner without foto must render unchanged");
+  }
+  const edited = Jana.resolveProductBanner({ id: "p2", tipo: "produto", productSlug: "bolo-x", foto: { zoom: 2, x: 20, brilho: 1.2, gamma: 1.3 } }, prods[0]);
+  const editedHtml = Jana.productBannerHtml(edited);
+  if (!editedHtml.includes("hero__foto--ajustada") || !editedHtml.includes("--foto-zoom:2") || !editedHtml.includes("brightness(1.2)") || !editedHtml.includes("jana-foto-p2")) {
+    errors.push("product banner must apply foto framing and CSS filters");
+  }
+  if (!editedHtml.includes("feFuncR") || !/exponent="1.3"/.test(editedHtml) || !editedHtml.includes("color-interpolation-filters=\"sRGB\"")) {
+    errors.push("non-default gamma must emit an sRGB SVG filter");
+  }
 }
+
+{
+  if (typeof Jana.normalizeFoto !== "function") {
+    errors.push("Jana.normalizeFoto must exist");
+  } else {
+    const def = Jana.normalizeFoto(undefined);
+    if (def.x !== 50 || def.y !== 50 || def.zoom !== 1 || def.brilho !== 1 || def.gamma !== 1) {
+      errors.push("normalizeFoto defaults must be centered 1x with neutral adjustments");
+    }
+    const clamped = Jana.normalizeFoto({ x: -10, y: 200, zoom: 9, brilho: 0, saturacao: "1.5", foo: 1 });
+    if (clamped.x !== 0 || clamped.y !== 100 || clamped.zoom !== 4 || clamped.brilho !== 0.25 || clamped.saturacao !== 1.5 || clamped.foo) {
+      errors.push("normalizeFoto must clamp ranges and ignore unknown keys, got " + JSON.stringify(clamped));
+    }
+    if (Jana.fotoForSave({}) || Jana.fotoForSave({ zoom: 1, x: 50 }) || !Jana.fotoIsDefault(null)) {
+      errors.push("default foto must not be saved");
+    }
+    const saved = Jana.fotoForSave({ zoom: 8, brilho: 1.2, x: 50 });
+    if (!saved || saved.zoom !== 4 || saved.brilho !== 1.2 || saved.x != null) {
+      errors.push("fotoForSave must keep only non-default clamped fields, got " + JSON.stringify(saved));
+    }
+    const pan = Jana.fotoPanFromDrag({ zoom: 2 }, 10, 0, 100, 100, 100, 100);
+    if (!(pan.x < 50) || pan.y !== 50) errors.push("drag right must decrease object-position x and keep y when the photo is square");
+    const noPan = Jana.fotoPanFromDrag({ zoom: 1 }, 40, 0, 200, 100, 200, 100);
+    if (noPan.x !== 50) errors.push("zoom 1 on a matching frame must not pan into empty area");
+    const img = Jana.imageBannerHtml({ id: "hero-1", image: "assets/carousel/a.webp", title: "A", href: "/x", foto: { contraste: 1.1, vibrancia: 1.4 } });
+    if (!img.includes('class="hero__slide"') || !img.includes("contrast(1.1)") || !img.includes("luminanceToAlpha") || !img.includes("jana-foto-hero-1")) {
+      errors.push("image banner must apply CSS contrast and SVG vibrance without breaking the slide");
+    }
+    const plain = Jana.imageBannerHtml({ id: "hero-2", image: "assets/carousel/a.webp", title: "A" });
+    if (plain.includes("hero__foto--ajustada") || plain.includes("<filter")) {
+      errors.push("image banner without foto must stay as a plain slide");
+    }
+    const fromProduct = Jana.imageBannerHtml({ image: "assets/products/x/1.webp", productSlug: "bolo-x", title: "Bolo X" });
+    if (!/href="[^"]*produto\/\?slug=bolo-x"/.test(fromProduct)) {
+      errors.push("area product photo slides must still link to the product");
+    }
+  }
+}
+
 
 
 {

@@ -209,3 +209,34 @@ body[data-page="area"] .hero__slide.hero__slide--produto .hero__produto-foto img
   padding: 0.2rem 0.7rem;
   font-size: 0.72rem;
 }
+
+/* Enquadramento e ajustes de foto do banner (não destrutivo). */
+.hero__foto-svg {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.hero__produto-foto,
+.ed-banner-preview .hero__produto-foto {
+  overflow: hidden;
+}
+
+.hero__foto--ajustada,
+.hero__slide img.hero__foto--ajustada,
+.hero.hero--banners .hero__slide img.hero__foto--ajustada,
+.hero__slide.hero__slide--produto .hero__produto-foto img.hero__foto--ajustada,
+body[data-page="home"] .hero__slide.hero__slide--produto .hero__produto-foto img.hero__foto--ajustada,
+body[data-page="area"] .hero__slide.hero__slide--produto .hero__produto-foto img.hero__foto--ajustada,
+.hero--compact .hero__slide.hero__slide--produto .hero__produto-foto img.hero__foto--ajustada,
+.hero.hero--banners .hero__slide.hero__slide--produto .hero__produto-foto img.hero__foto--ajustada,
+.ed-banner-preview .hero__produto-foto img.hero__foto--ajustada,
+.ed-preview img.hero__foto--ajustada,
+.ed-banner__fotos img.hero__foto--ajustada {
+  object-fit: cover;
+  object-position: var(--foto-x, 50%) var(--foto-y, 50%);
+  transform: scale(var(--foto-zoom, 1));
+  transform-origin: var(--foto-x, 50%) var(--foto-y, 50%);
+}

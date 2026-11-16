@@ -1165,11 +1165,11 @@
           const titulo = isProd ? (resolved && resolved.title) || s.productSlug || "(sem produto)" : s.title || "(sem descrição)";
           const fotos = isProd
             ? '<div class="ed-banner__fotos ed-banner__fotos--produto"><div class="ed-banner-preview ed-banner-preview--pc" style="aspect-ratio:' + tam.pc[0] + "/" + tam.pc[1] + '">' +
-              (resolved && resolved.image && Jana.productBannerHtml ? Jana.productBannerHtml(resolved, { preview: true, eager: true, assetUrl: imgSrc }) : '<span class="ed-semfoto">escolha um produto</span>') +
+              (resolved && resolved.image && Jana.productBannerHtml ? Jana.productBannerHtml(Object.assign({}, resolved, { foto: s.foto }), { preview: true, eager: true, filterId: "lista-" + s.id, assetUrl: imgSrc }) : '<span class="ed-semfoto">escolha um produto</span>') +
               "</div></div>"
             : '<div class="ed-banner__fotos">' +
-              '<figure class="ed-banner__pc">' + imgTag(s.image, "", "") + "<figcaption>Computador</figcaption></figure>" +
-              '<figure class="ed-banner__cel">' + (s.imageMobile ? imgTag(s.imageMobile, "", "") : '<span class="ed-semfoto">usa a do computador</span>') + "<figcaption>Celular</figcaption></figure>" +
+              '<figure class="ed-banner__pc">' + listaImagemBanner(s, s.image, "pc") + "<figcaption>Computador</figcaption></figure>" +
+              '<figure class="ed-banner__cel">' + (s.imageMobile || s.image ? listaImagemBanner(s, s.imageMobile || s.image, "cel") : '<span class="ed-semfoto">usa a do computador</span>') + "<figcaption>Celular</figcaption></figure>" +
               "</div>";
           return (
             '<li class="ed-banner">' +
@@ -1238,6 +1238,7 @@
       buscaProduto: "",
       vistaProdutos: "grupos",
       trocandoProduto: false,
+      foto: Jana.normalizeFoto ? Jana.normalizeFoto(s && s.foto) : { x: 50, y: 50, zoom: 1, brilho: 1, contraste: 1, saturacao: 1, vibrancia: 1, gamma: 1 },
       formato: s ? s.formato || (tipo === "produto" ? "banner" : "") : "banner",
       avisoPc: "",
       avisoCel: "",
@@ -1405,6 +1406,162 @@
     if (el) el.focus();
   }
 
+  function listaImagemBanner(s, src, sufixo) {
+    const tag = imgTag(src, "", "");
+    if (!Jana.decorateBannerFoto || !s || !s.foto) return tag;
+    const dec = Jana.decorateBannerFoto(tag, s.foto, Jana.fotoFilterId("lista-" + s.id + "-" + sufixo));
+    return dec.svg + dec.html;
+  }
+
+  function fotoEditorHtml(b, temFoto) {
+    if (!Jana.FOTO_CAMPOS) return "";
+    const f = Jana.normalizeFoto(b && b.foto);
+    const camposAjuste = [
+      ["brilho", "Brilho"],
+      ["contraste", "Contraste"],
+      ["saturacao", "Saturação"],
+      ["vibrancia", "Vibrância"],
+      ["gamma", "Gamma"],
+    ];
+    const slider = function slider(key, label) {
+      const spec = Jana.FOTO_CAMPOS[key];
+      const val = f[key];
+      return (
+        '<div class="ed-foto__slider"><label for="ed-foto-' +
+        key +
+        '">' +
+        label +
+        '</label><input id="ed-foto-' +
+        key +
+        '" type="range" name="foto-' +
+        key +
+        '" min="' +
+        spec.min +
+        '" max="' +
+        spec.max +
+        '" step="' +
+        spec.step +
+        '" value="' +
+        val +
+        '" data-foto-campo="' +
+        key +
+        '"><input type="number" name="foto-' +
+        key +
+        '-num" inputmode="decimal" min="' +
+        spec.min +
+        '" max="' +
+        spec.max +
+        '" step="' +
+        spec.step +
+        '" value="' +
+        val +
+        '" data-foto-campo="' +
+        key +
+        '" aria-label="' +
+        label +
+        ' (número)"><button type="button" class="btn btn--outline btn--small ed-foto__reset" data-ed-action="banner-foto-reset" data-campo="' +
+        key +
+        '" aria-label="Restaurar ' +
+        label +
+        '">Restaurar</button></div>'
+      );
+    };
+    const z = Jana.FOTO_CAMPOS.zoom;
+    return (
+      '<fieldset class="ed-grupo ed-foto" data-ed="foto-editor"' +
+      (temFoto ? "" : " hidden") +
+      "><legend>Enquadramento e ajustes da foto</legend>" +
+      '<p class="ed-dica">Vale só para este banner: a foto original do catálogo não muda. Arraste a foto nos previews (computador e celular) — o recorte muda conforme a tela. Também dá para usar as setas, o zoom e o teclado.</p>' +
+      '<div data-ed="foto-svg" hidden></div>' +
+      '<div class="ed-foto__bloco"><p class="ed-foto__rotulo" id="ed-foto-enq">Enquadramento</p>' +
+      '<div class="ed-foto__setas" role="group" aria-labelledby="ed-foto-enq">' +
+      '<button type="button" data-ed-action="banner-foto-nudge" data-dir="up" data-eixo="y" data-delta="2" aria-label="Mover a foto para cima">↑</button>' +
+      '<button type="button" data-ed-action="banner-foto-nudge" data-dir="left" data-eixo="x" data-delta="2" aria-label="Mover a foto para a esquerda">←</button>' +
+      '<button type="button" data-ed-action="banner-foto-nudge" data-dir="right" data-eixo="x" data-delta="-2" aria-label="Mover a foto para a direita">→</button>' +
+      '<button type="button" data-ed-action="banner-foto-nudge" data-dir="down" data-eixo="y" data-delta="-2" aria-label="Mover a foto para baixo">↓</button>' +
+      "</div>" +
+      '<div class="ed-foto__zoom"><label for="ed-foto-zoom">Zoom</label>' +
+      '<button type="button" class="btn btn--outline" data-ed-action="banner-foto-zoom" data-delta="-0.1" aria-label="Diminuir zoom">−</button>' +
+      '<input id="ed-foto-zoom" type="range" name="foto-zoom" min="' +
+      z.min +
+      '" max="' +
+      z.max +
+      '" step="' +
+      z.step +
+      '" value="' +
+      f.zoom +
+      '" data-foto-campo="zoom">' +
+      '<button type="button" class="btn btn--outline" data-ed-action="banner-foto-zoom" data-delta="0.1" aria-label="Aumentar zoom">+</button>' +
+      '<input type="number" name="foto-zoom-num" inputmode="decimal" min="' +
+      z.min +
+      '" max="' +
+      z.max +
+      '" step="' +
+      z.step +
+      '" value="' +
+      f.zoom +
+      '" data-foto-campo="zoom" aria-label="Zoom (número)">' +
+      "</div>" +
+      '<button type="button" class="btn btn--outline btn--small" data-ed-action="banner-foto-restaurar-enquadramento">Restaurar enquadramento</button></div>' +
+      '<div class="ed-foto__bloco"><p class="ed-foto__rotulo">Ajustes</p>' +
+      camposAjuste.map(function row(item) { return slider(item[0], item[1]); }).join("") +
+      '<button type="button" class="btn btn--outline btn--small" data-ed-action="banner-foto-restaurar-ajustes">Restaurar ajustes</button></div></fieldset>'
+    );
+  }
+
+  function aplicarFotoNosPreviews() {
+    if (!ED.banner || !Jana.applyFotoStyle) return;
+    const foto = Jana.normalizeFoto(ED.banner.foto);
+    const id = "jana-foto-ed";
+    const host = qs('[data-ed="foto-svg"]');
+    if (host) host.innerHTML = Jana.fotoNeedsSvgFilter(foto) ? Jana.fotoSvgMarkup(id, foto) : "";
+    qsa("[data-ed-foto]").forEach(function each(img) {
+      Jana.applyFotoStyle(img, foto, id);
+    });
+    qsa("[data-foto-campo]").forEach(function sync(input) {
+      const key = input.getAttribute("data-foto-campo");
+      if (!key || foto[key] == null) return;
+      if (String(input.value) !== String(foto[key])) input.value = foto[key];
+    });
+  }
+
+  function setFotoCampo(key, value) {
+    if (!ED.banner || !Jana.clampFotoValue) return;
+    const next = Jana.normalizeFoto(ED.banner.foto);
+    const v = Jana.clampFotoValue(key, value);
+    if (next[key] === v) {
+      aplicarFotoNosPreviews();
+      return;
+    }
+    next[key] = v;
+    ED.banner.foto = next;
+    ED.banner.mudou = true;
+    aplicarFotoNosPreviews();
+  }
+
+  function restaurarFoto(modo) {
+    if (!ED.banner || !Jana.fotoDefaults) return;
+    const cur = Jana.normalizeFoto(ED.banner.foto);
+    const def = Jana.fotoDefaults();
+    const next = Object.assign({}, cur);
+    if (modo === "enquadramento") {
+      next.x = def.x;
+      next.y = def.y;
+      next.zoom = def.zoom;
+    } else if (modo === "ajustes") {
+      next.brilho = def.brilho;
+      next.contraste = def.contraste;
+      next.saturacao = def.saturacao;
+      next.vibrancia = def.vibrancia;
+      next.gamma = def.gamma;
+    } else if (Jana.FOTO_CAMPOS[modo]) {
+      next[modo] = def[modo];
+    }
+    ED.banner.foto = next;
+    ED.banner.mudou = true;
+    aplicarFotoNosPreviews();
+  }
+
   function renderBannerDialog(erros) {
     const b = ED.banner;
     const dialog = qs('[data-ed="dialog-banner"]');
@@ -1442,11 +1599,12 @@
         (product
           ? '<div class="ed-banner-previews">' +
             '<figure><div class="ed-banner-preview ed-banner-preview--pc" style="aspect-ratio:' + tam.pc[0] + "/" + tam.pc[1] + '">' +
-            (resolved && resolved.image && Jana.productBannerHtml ? Jana.productBannerHtml(resolved, { preview: true, eager: true, assetUrl: imgSrc }) : '<span class="ed-semfoto">sem foto</span>') +
+            (resolved && resolved.image && Jana.productBannerHtml ? Jana.productBannerHtml(Object.assign({}, resolved, { foto: b.foto, id: "ed-pc" }), { preview: true, eager: true, editor: true, skipSvg: true, filterId: "jana-foto-ed", assetUrl: imgSrc }) : '<span class="ed-semfoto">sem foto</span>') +
             "</div><figcaption>Computador</figcaption></figure>" +
             '<figure><div class="ed-banner-preview ed-banner-preview--cel" style="aspect-ratio:' + tam.cel[0] + "/" + tam.cel[1] + '">' +
-            (resolved && resolved.image && Jana.productBannerHtml ? Jana.productBannerHtml(resolved, { preview: true, eager: true, assetUrl: imgSrc }) : '<span class="ed-semfoto">sem foto</span>') +
+            (resolved && resolved.image && Jana.productBannerHtml ? Jana.productBannerHtml(Object.assign({}, resolved, { foto: b.foto, id: "ed-cel" }), { preview: true, eager: true, editor: true, skipSvg: true, filterId: "jana-foto-ed", assetUrl: imgSrc }) : '<span class="ed-semfoto">sem foto</span>') +
             "</div><figcaption>Celular</figcaption></figure></div>" +
+            fotoEditorHtml(b, !!(resolved && resolved.image)) +
             '<label class="ed-field">Nome' + chip("title") + '<input type="text" name="title" maxlength="200" value="' + esc(resolved.title) + '"' + inv("title") + ">" + fe("title") + reverter("title") + "</label>" +
             '<label class="ed-field">Descrição' + chip("description") + '<textarea name="description" rows="3" maxlength="800">' + esc(resolved.description) + "</textarea>" + reverter("description") + "</label>" +
             '<label class="ed-field">Preço' + chip("price") + '<input type="text" name="price" inputmode="decimal" placeholder="' + (hasFixedPrice(product) ? "" : "Sob consulta") + '" value="' +
@@ -1476,14 +1634,17 @@
     const corpoImagem =
       '<p class="ed-dica">' + tam.pc[0] + " × " + tam.pc[1] + " px no computador; " + tam.cel[0] + " × " + tam.cel[1] + " px no celular. Sem a imagem de celular, o celular mostra a do computador.</p>" +
       '<fieldset class="ed-grupo"><legend>Imagem para computador <span class="ed-obrigatorio">(obrigatória)</span></legend>' +
-      '<div class="ed-preview ed-preview--pc" style="aspect-ratio:' + tam.pc[0] + "/" + tam.pc[1] + '">' + (b.image ? imgTag(b.image, "", "") : '<span class="ed-semfoto">sem imagem</span>') + "</div>" +
+      '<div class="ed-preview ed-preview--pc ed-preview--frame" data-ed-foto-frame="pc" tabindex="0" role="group" aria-label="Enquadramento no computador" style="aspect-ratio:' + tam.pc[0] + "/" + tam.pc[1] + '">' + (b.image ? imgTag(b.image, "", "") : '<span class="ed-semfoto">sem imagem</span>') + "</div>" +
       (b.avisoPc ? '<p class="ed-alerta">' + esc(b.avisoPc) + "</p>" : "") + fe("image") +
       '<label class="btn btn--outline ed-arquivo">' + (b.image ? "Trocar imagem" : "Escolher imagem") + '<input type="file" accept="image/*" data-ed-file="banner-pc"' + inv("image") + "></label></fieldset>" +
       '<fieldset class="ed-grupo"><legend>Imagem para celular <span class="ed-opcional">(opcional)</span></legend>' +
-      '<div class="ed-preview ed-preview--cel" style="aspect-ratio:' + tam.cel[0] + "/" + tam.cel[1] + '">' + (b.imageMobile ? imgTag(b.imageMobile, "", "") : '<span class="ed-semfoto">sem imagem</span>') + "</div>" +
+      '<div class="ed-preview ed-preview--cel ed-preview--frame" data-ed-foto-frame="cel" tabindex="0" role="group" aria-label="Enquadramento no celular" style="aspect-ratio:' + tam.cel[0] + "/" + tam.cel[1] + '">' + ((b.imageMobile || b.image) ? imgTag(b.imageMobile || b.image, "", "") : '<span class="ed-semfoto">sem imagem</span>') + "</div>" +
       (b.avisoCel ? '<p class="ed-alerta">' + esc(b.avisoCel) + "</p>" : "") +
       '<div class="ed-linha"><label class="btn btn--outline ed-arquivo">' + (b.imageMobile ? "Trocar imagem" : "Escolher imagem") + '<input type="file" accept="image/*" data-ed-file="banner-cel"></label>' +
-      (b.imageMobile ? '<button type="button" class="btn btn--outline" data-ed-action="banner-sem-celular">Tirar imagem do celular</button>' : "") + "</div></fieldset>" +
+      (b.imageMobile ? '<button type="button" class="btn btn--outline" data-ed-action="banner-sem-celular">Tirar imagem do celular</button>' : "") +
+      (b.image && !b.imageMobile ? '<p class="ed-dica">Sem imagem de celular, o celular usa a do computador no recorte acima.</p>' : "") +
+      "</div></fieldset>" +
+      fotoEditorHtml(b, !!b.image) +
       '<label class="ed-field">Descrição da imagem <span class="ed-obrigatorio">(obrigatória)</span>' +
       '<span class="ed-dica-inline">O que o banner mostra ou diz. É lida por quem usa leitor de tela.</span>' +
       '<input type="text" name="title" maxlength="200" value="' + esc(b.title) + '"' + inv("title") + ">" + fe("title") + "</label>" +
@@ -1516,6 +1677,10 @@
       '<button type="button" class="btn btn--outline" data-ed-action="fechar-banner">Cancelar</button>' +
       '<button type="submit" class="btn btn--solid">Pronto</button>' +
       "</footer></form>";
+    qsa('[data-ed="form-banner"] .ed-preview--frame img, [data-ed="form-banner"] [data-ed-foto]').forEach(function mark(img) {
+      if (!img.hasAttribute("data-ed-foto")) img.setAttribute("data-ed-foto", "");
+    });
+    aplicarFotoNosPreviews();
   }
 
   function lerBannerForm() {
@@ -1700,6 +1865,9 @@
       }
       if (b.formato) out.formato = b.formato;
     }
+    const fotoSalva = Jana.fotoForSave ? Jana.fotoForSave(b.foto) : null;
+    if (fotoSalva) out.foto = fotoSalva;
+    else delete out.foto;
     if (b.original) {
       const i = d.carousel.indexOf(b.original);
       d.carousel[i] = out;
@@ -2390,6 +2558,26 @@
       case "banner-reverter":
         reverterCampoBanner(el.getAttribute("data-campo"));
         break;
+      case "banner-foto-nudge":
+        event.preventDefault();
+        setFotoCampo(el.getAttribute("data-eixo"), Jana.normalizeFoto(ED.banner && ED.banner.foto)[el.getAttribute("data-eixo")] + Number(el.getAttribute("data-delta")));
+        break;
+      case "banner-foto-zoom":
+        event.preventDefault();
+        setFotoCampo("zoom", Jana.normalizeFoto(ED.banner && ED.banner.foto).zoom + Number(el.getAttribute("data-delta")));
+        break;
+      case "banner-foto-restaurar-enquadramento":
+        event.preventDefault();
+        restaurarFoto("enquadramento");
+        break;
+      case "banner-foto-restaurar-ajustes":
+        event.preventDefault();
+        restaurarFoto("ajustes");
+        break;
+      case "banner-foto-reset":
+        event.preventDefault();
+        restaurarFoto(el.getAttribute("data-campo"));
+        break;
       case "salvar-aba":
         salvarAba();
         break;
@@ -2554,6 +2742,9 @@
       const el = qs('[data-ed="form-banner"] input[name="vistaProdutos"][value="' + ED.banner.vistaProdutos + '"]');
       if (el) el.focus();
     }
+    if (t.closest('[data-ed="foto-editor"]') && t.getAttribute("data-foto-campo") && (event.type === "input" || event.type === "change")) {
+      setFotoCampo(t.getAttribute("data-foto-campo"), t.value);
+    }
   }
 
   function onChange(event) {
@@ -2608,6 +2799,69 @@
       });
   }
 
+  let fotoDrag = null;
+
+  function onFotoPointerDown(event) {
+    const frame = event.target.closest("[data-ed-foto-frame]");
+    if (!frame || !ED.banner || event.button) return;
+    const img = frame.querySelector("img");
+    if (!img) return;
+    const box = frame.getBoundingClientRect();
+    fotoDrag = {
+      pointerId: event.pointerId,
+      frame: frame,
+      img: img,
+      startX: event.clientX,
+      startY: event.clientY,
+      foto: Jana.normalizeFoto(ED.banner.foto),
+      width: box.width,
+      height: box.height,
+    };
+    try { frame.setPointerCapture(event.pointerId); } catch (err) {}
+    frame.classList.add("is-dragging");
+    event.preventDefault();
+  }
+
+  function onFotoPointerMove(event) {
+    if (!fotoDrag || event.pointerId !== fotoDrag.pointerId || !ED.banner) return;
+    const next = Jana.fotoPanFromDrag(
+      fotoDrag.foto,
+      event.clientX - fotoDrag.startX,
+      event.clientY - fotoDrag.startY,
+      fotoDrag.width,
+      fotoDrag.height,
+      fotoDrag.img.naturalWidth,
+      fotoDrag.img.naturalHeight
+    );
+    ED.banner.foto = next;
+    ED.banner.mudou = true;
+    aplicarFotoNosPreviews();
+    event.preventDefault();
+  }
+
+  function onFotoPointerUp(event) {
+    if (!fotoDrag || event.pointerId !== fotoDrag.pointerId) return;
+    fotoDrag.frame.classList.remove("is-dragging");
+    try { fotoDrag.frame.releasePointerCapture(event.pointerId); } catch (err) {}
+    fotoDrag = null;
+  }
+
+  function onFotoKeyDown(event) {
+    const frame = event.target.closest("[data-ed-foto-frame]");
+    if (!frame || !ED.banner) return;
+    const f = Jana.normalizeFoto(ED.banner.foto);
+    const step = event.shiftKey ? 5 : 2;
+    if (event.key === "ArrowUp") setFotoCampo("y", f.y + step);
+    else if (event.key === "ArrowDown") setFotoCampo("y", f.y - step);
+    else if (event.key === "ArrowLeft") setFotoCampo("x", f.x + step);
+    else if (event.key === "ArrowRight") setFotoCampo("x", f.x - step);
+    else if (event.key === "+" || event.key === "=") setFotoCampo("zoom", f.zoom + 0.1);
+    else if (event.key === "-" || event.key === "_") setFotoCampo("zoom", f.zoom - 0.1);
+    else if (event.key === "0") restaurarFoto("enquadramento");
+    else return;
+    event.preventDefault();
+  }
+
   async function init() {
     if (!Jana || !Jana.Central) return;
     try {
@@ -2619,6 +2873,11 @@
     document.addEventListener("input", onInput);
     document.addEventListener("change", onChange);
     document.addEventListener("submit", onSubmit);
+    document.addEventListener("pointerdown", onFotoPointerDown);
+    document.addEventListener("pointermove", onFotoPointerMove);
+    document.addEventListener("pointerup", onFotoPointerUp);
+    document.addEventListener("pointercancel", onFotoPointerUp);
+    document.addEventListener("keydown", onFotoKeyDown);
     bindDialogs();
     global.addEventListener("beforeunload", function warn(event) {
       if (anyDirty()) {
@@ -2651,7 +2910,7 @@
   }
 
   // exposto para os testes automatizados
-  global.JanaEditor = { state: ED, applyAreas: applyAreas, parsePreco: parsePreco, slugify: slugify, buildProduto: buildProduto, processImage: processImage };
+  global.JanaEditor = { state: ED, applyAreas: applyAreas, parsePreco: parsePreco, slugify: slugify, buildProduto: buildProduto, processImage: processImage, setFotoCampo: setFotoCampo };
 
   document.addEventListener("DOMContentLoaded", init);
 })(window);

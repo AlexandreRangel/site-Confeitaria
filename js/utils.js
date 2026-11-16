@@ -607,6 +607,7 @@
     return {
       tipo: "produto",
       banner: true,
+      id: (slide && slide.id) || "",
       productSlug: (product && product.slug) || (slide && slide.productSlug) || "",
       title: title,
       description: description,
@@ -617,6 +618,7 @@
       external: external,
       alt: title || base.alt,
       matched: !!product,
+      foto: Jana.fotoForSave ? Jana.fotoForSave(slide && slide.foto) : null,
     };
   };
 
@@ -627,21 +629,33 @@
     }
     const eager = !!opt.eager;
     const toUrl = opt.assetUrl || Jana.assetUrl;
-    const img =
+    const fotoId = opt.filterId || Jana.fotoFilterId((data.id || "produto") + (opt.preview ? "-prev" : ""));
+    const decorated = Jana.decorateBannerFoto(
       '<img src="' +
-      Jana.escapeHtml(toUrl(data.image)) +
-      '" alt="' +
-      Jana.escapeHtml(data.alt || data.title || "") +
-      '" width="900" height="900"' +
-      (eager ? ' fetchpriority="high"' : ' loading="lazy"') +
-      ' decoding="async">';
+        Jana.escapeHtml(toUrl(data.image)) +
+        '" alt="' +
+        Jana.escapeHtml(data.alt || data.title || "") +
+        '" width="900" height="900"' +
+        (eager ? ' fetchpriority="high"' : ' loading="lazy"') +
+        (opt.editor ? " data-ed-foto" : "") +
+        ' decoding="async">',
+      data.foto,
+      fotoId
+    );
+    const img = decorated.html;
     const desc = data.description
       ? '<p class="hero__produto-desc">' + Jana.escapeHtml(data.description) + "</p>"
       : "";
+    const frameAttrs = opt.editor
+      ? ' data-ed-foto-frame="produto" tabindex="0" role="group" aria-label="Enquadramento da foto do produto"'
+      : "";
     const inner =
+      (opt.skipSvg ? "" : decorated.svg) +
       '<div class="hero__produto">' +
       '<div class="hero__produto-inner">' +
-      '<div class="hero__produto-foto">' +
+      "<div class=\"hero__produto-foto\"" +
+      frameAttrs +
+      ">" +
       img +
       "</div>" +
       '<div class="hero__produto-copy">' +
@@ -669,6 +683,56 @@
       );
     }
     return '<article class="hero__slide hero__slide--produto">' + inner + "</article>";
+  };
+
+  Jana.imageBannerHtml = function imageBannerHtml(slide, options) {
+    const opt = options || {};
+    const item = slide || {};
+    if (!item.image) return "";
+    const eager = !!opt.eager;
+    const toUrl = opt.assetUrl || Jana.assetUrl;
+    const fotoId = Jana.fotoFilterId(opt.filterId || item.id || "imagem");
+    const decorated = Jana.decorateBannerFoto(
+      '<img src="' +
+        Jana.escapeHtml(toUrl(item.image)) +
+        '" alt="' +
+        Jana.escapeHtml(item.title || "") +
+        '" width="1600" height="900"' +
+        (eager ? ' fetchpriority="high"' : ' loading="lazy"') +
+        (opt.editor ? " data-ed-foto" : "") +
+        ' decoding="async">',
+      item.foto,
+      fotoId
+    );
+    let img = decorated.html;
+    const mobileSrc = item.imageMobile ? toUrl(item.imageMobile) : "";
+    if (mobileSrc && !opt.forceImage) {
+      img =
+        '<picture><source media="(max-width: 719px)" srcset="' +
+        Jana.escapeHtml(mobileSrc) +
+        '">' +
+        img +
+        "</picture>";
+    }
+    const inner = decorated.svg + img;
+    if (opt.preview) return inner;
+    const href = item.href != null && item.href !== ""
+      ? item.href
+      : item.productSlug
+        ? Jana.productUrl(item.productSlug)
+        : "";
+    if (href) {
+      return (
+        '<a class="hero__slide" href="' +
+        Jana.escapeHtml(href) +
+        '"' +
+        (item.external ? ' target="_blank" rel="noopener noreferrer"' : "") +
+        ">" +
+        inner +
+        "</a>"
+      );
+    }
+    return '<article class="hero__slide">' + inner + "</article>";
   };
 
   /* Link de um banner do carrossel. linkTipo: produto | categoria | url | nenhum.
@@ -727,6 +791,7 @@
         const tipo = slide.linkTipo || (slide.productSlug ? "produto" : "nenhum");
         const link = Jana.slideLink(slide, product);
         return {
+          id: slide.id || "",
           image: slide.image,
           imageMobile: slide.imageMobile || "",
           productSlug: tipo === "produto" ? (product && product.slug) || slide.productSlug || "" : "",
@@ -735,6 +800,7 @@
           title: (tipo === "produto" && !slide.linkTipo && product && product.name) || slide.title || (product && product.name) || "",
           banner: slide.formato === "banner",
           matched: !!product,
+          foto: Jana.fotoForSave ? Jana.fotoForSave(slide.foto) : null,
         };
       });
   };
@@ -868,6 +934,217 @@
         return asJpeg(quality, ww, hh).then(shrink);
       });
     });
+  };
+
+
+  Jana.FOTO_CAMPOS = {
+    x: { min: 0, max: 100, def: 50, step: 0.1 },
+    y: { min: 0, max: 100, def: 50, step: 0.1 },
+    zoom: { min: 1, max: 4, def: 1, step: 0.05 },
+    brilho: { min: 0.25, max: 2, def: 1, step: 0.01 },
+    contraste: { min: 0.25, max: 2, def: 1, step: 0.01 },
+    saturacao: { min: 0, max: 2, def: 1, step: 0.01 },
+    vibrancia: { min: 0, max: 2, def: 1, step: 0.01 },
+    gamma: { min: 0.3, max: 2.5, def: 1, step: 0.01 },
+  };
+
+  Jana.fotoDefaults = function fotoDefaults() {
+    const out = {};
+    Object.keys(Jana.FOTO_CAMPOS).forEach(function each(k) {
+      out[k] = Jana.FOTO_CAMPOS[k].def;
+    });
+    return out;
+  };
+
+  Jana.clampFotoValue = function clampFotoValue(key, value) {
+    const spec = Jana.FOTO_CAMPOS[key];
+    if (!spec) return null;
+    const n = typeof value === "number" ? value : parseFloat(value);
+    if (!Number.isFinite(n)) return spec.def;
+    const clamped = Math.min(spec.max, Math.max(spec.min, n));
+    const dec = spec.step < 0.1 ? 2 : 1;
+    return Number((Math.round(clamped / spec.step) * spec.step).toFixed(dec));
+  };
+
+  Jana.normalizeFoto = function normalizeFoto(foto) {
+    const out = Jana.fotoDefaults();
+    if (!foto || typeof foto !== "object") return out;
+    Object.keys(Jana.FOTO_CAMPOS).forEach(function each(k) {
+      if (Object.prototype.hasOwnProperty.call(foto, k) && foto[k] != null && foto[k] !== "") {
+        out[k] = Jana.clampFotoValue(k, foto[k]);
+      }
+    });
+    return out;
+  };
+
+  Jana.fotoIsDefault = function fotoIsDefault(foto) {
+    if (!foto || typeof foto !== "object") return true;
+    const n = Jana.normalizeFoto(foto);
+    const d = Jana.fotoDefaults();
+    return Object.keys(d).every(function eq(k) {
+      return Math.abs(n[k] - d[k]) < 0.0005;
+    });
+  };
+
+  Jana.fotoForSave = function fotoForSave(foto) {
+    const n = Jana.normalizeFoto(foto);
+    const d = Jana.fotoDefaults();
+    const out = {};
+    Object.keys(d).forEach(function keep(k) {
+      if (Math.abs(n[k] - d[k]) >= 0.0005) out[k] = n[k];
+    });
+    return Object.keys(out).length ? out : null;
+  };
+
+  Jana.fotoFilterId = function fotoFilterId(raw) {
+    const id = String(raw || "banner").replace(/[^A-Za-z0-9_-]/g, "");
+    return "jana-foto-" + (id || "banner");
+  };
+
+  Jana.fotoNeedsSvgFilter = function fotoNeedsSvgFilter(foto) {
+    const f = Jana.normalizeFoto(foto);
+    return Math.abs(f.gamma - 1) >= 0.0005 || Math.abs(f.vibrancia - 1) >= 0.0005;
+  };
+
+  Jana.fotoSvgFilterSupported = function fotoSvgFilterSupported() {
+    if (Jana._fotoSvgOk != null) return Jana._fotoSvgOk;
+    if (typeof document === "undefined") {
+      Jana._fotoSvgOk = true;
+      return true;
+    }
+    try {
+      const el = document.createElement("div");
+      el.style.filter = "url(#jana-foto-support)";
+      Jana._fotoSvgOk = /url\(/i.test(el.style.filter || "");
+    } catch (err) {
+      Jana._fotoSvgOk = false;
+    }
+    return Jana._fotoSvgOk;
+  };
+
+  Jana.fotoFilterUrl = function fotoFilterUrl(id) {
+    if (typeof location !== "undefined" && location.href) {
+      return 'url("' + String(location.href).split("#")[0].replace(/"/g, "") + "#" + id + '")';
+    }
+    return "url(#" + id + ")";
+  };
+
+  Jana.fotoCssFilter = function fotoCssFilter(foto, id) {
+    const f = Jana.normalizeFoto(foto);
+    const parts = [];
+    if (Math.abs(f.brilho - 1) >= 0.0005) parts.push("brightness(" + f.brilho + ")");
+    if (Math.abs(f.contraste - 1) >= 0.0005) parts.push("contrast(" + f.contraste + ")");
+    if (Math.abs(f.saturacao - 1) >= 0.0005) parts.push("saturate(" + f.saturacao + ")");
+    if (id && Jana.fotoNeedsSvgFilter(f) && Jana.fotoSvgFilterSupported()) {
+      parts.push(Jana.fotoFilterUrl(id));
+    }
+    return parts.length ? parts.join(" ") : "none";
+  };
+
+  Jana.fotoSvgInner = function fotoSvgInner(id, foto) {
+    const f = Jana.normalizeFoto(foto);
+    if (!Jana.fotoNeedsSvgFilter(f)) return "";
+    const g = f.gamma;
+    const v = f.vibrancia;
+    let body =
+      '<feComponentTransfer in="SourceGraphic" result="afterGamma">' +
+      '<feFuncR type="gamma" amplitude="1" exponent="' + g + '" offset="0"/>' +
+      '<feFuncG type="gamma" amplitude="1" exponent="' + g + '" offset="0"/>' +
+      '<feFuncB type="gamma" amplitude="1" exponent="' + g + '" offset="0"/>' +
+      "</feComponentTransfer>";
+    if (Math.abs(v - 1) >= 0.0005) {
+      body +=
+        '<feColorMatrix in="afterGamma" type="saturate" values="' + v + '" result="boosted"/>' +
+        '<feColorMatrix in="afterGamma" type="saturate" values="0" result="gray"/>' +
+        '<feComposite in="afterGamma" in2="gray" operator="arithmetic" k1="0" k2="1" k3="-1" k4="0" result="chroma"/>' +
+        '<feColorMatrix in="chroma" type="luminanceToAlpha" result="satA"/>' +
+        '<feComponentTransfer in="satA" result="lowSat"><feFuncA type="table" tableValues="1 0"/></feComponentTransfer>' +
+        '<feComposite in="boosted" in2="lowSat" operator="in" result="boostedMasked"/>' +
+        '<feComposite in="boostedMasked" in2="afterGamma" operator="over"/>';
+    }
+    return (
+      '<filter id="' +
+      id +
+      '" color-interpolation-filters="sRGB" x="-20%" y="-20%" width="140%" height="140%">' +
+      body +
+      "</filter>"
+    );
+  };
+
+  Jana.fotoSvgMarkup = function fotoSvgMarkup(id, foto) {
+    const inner = Jana.fotoSvgInner(id, foto);
+    if (!inner) return "";
+    return (
+      '<svg class="hero__foto-svg" width="0" height="0" aria-hidden="true" focusable="false">' +
+      inner +
+      "</svg>"
+    );
+  };
+
+  Jana.fotoImgStyle = function fotoImgStyle(foto, id) {
+    const f = Jana.normalizeFoto(foto);
+    if (Jana.fotoIsDefault(f)) return "";
+    return (
+      "--foto-x:" +
+      f.x +
+      "%;--foto-y:" +
+      f.y +
+      "%;--foto-zoom:" +
+      f.zoom +
+      ";filter:" +
+      Jana.fotoCssFilter(f, id)
+    );
+  };
+
+  Jana.applyFotoStyle = function applyFotoStyle(el, foto, id) {
+    if (!el) return;
+    const f = Jana.normalizeFoto(foto);
+    const def = Jana.fotoIsDefault(f);
+    el.classList.toggle("hero__foto--ajustada", !def);
+    if (def) {
+      el.style.removeProperty("--foto-x");
+      el.style.removeProperty("--foto-y");
+      el.style.removeProperty("--foto-zoom");
+      el.style.removeProperty("filter");
+      el.removeAttribute("style");
+      return;
+    }
+    el.style.setProperty("--foto-x", f.x + "%");
+    el.style.setProperty("--foto-y", f.y + "%");
+    el.style.setProperty("--foto-zoom", String(f.zoom));
+    el.style.filter = Jana.fotoCssFilter(f, id);
+  };
+
+  /* Converte um arrasto em pixels para x/y (0–100), sem deixar área vazia (zoom mínimo 1). */
+  Jana.fotoPanFromDrag = function fotoPanFromDrag(foto, dx, dy, frameW, frameH, natW, natH) {
+    const f = Jana.normalizeFoto(foto);
+    const W = Number(frameW) || 0;
+    const H = Number(frameH) || 0;
+    if (W <= 0 || H <= 0) return f;
+    const iw = Number(natW) > 0 ? Number(natW) : W;
+    const ih = Number(natH) > 0 ? Number(natH) : H;
+    const z = f.zoom;
+    const cover = Math.max(W / iw, H / ih);
+    const dispW = iw * cover * z;
+    const dispH = ih * cover * z;
+    const extraW = Math.max(0, dispW - W);
+    const extraH = Math.max(0, dispH - H);
+    const next = Object.assign({}, f);
+    if (extraW > 0.5) next.x = Jana.clampFotoValue("x", f.x - (dx / extraW) * 100);
+    if (extraH > 0.5) next.y = Jana.clampFotoValue("y", f.y - (dy / extraH) * 100);
+    return next;
+  };
+
+  Jana.decorateBannerFoto = function decorateBannerFoto(imgHtml, foto, id) {
+    const f = Jana.normalizeFoto(foto);
+    if (Jana.fotoIsDefault(f)) return { html: imgHtml, svg: "" };
+    const style = Jana.fotoImgStyle(f, id);
+    let html = imgHtml;
+    if (/\sclass="/.test(html)) html = html.replace(/\sclass="/, ' class="hero__foto--ajustada ');
+    else html = html.replace(/<img\s/, '<img class="hero__foto--ajustada" ');
+    if (/\sstyle="/.test(html)) html = html.replace(/\sstyle="/, ' style="' + style + ";");
+    else html = html.replace(/<img\s/, '<img style="' + style + '" ');
+    return { html: html, svg: Jana.fotoSvgMarkup(id, f) };
   };
 
   global.Jana = Jana;
