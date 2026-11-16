@@ -1,5 +1,24 @@
 [
   {
+    "id": "p-mini-amanteigado",
+    "slug": "mini-amanteigado",
+    "name": "Mini amanteigado",
+    "description": "",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas",
+      "natal"
+    ],
+    "category": "Personalizado para Empresas",
+    "price": 4,
+    "images": [
+      "assets/products/mini-amanteigado/foto-mwjfi2tuvqsli.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
     "id": "p-lata-de-alfajor-para-presente",
     "slug": "lata-de-alfajor-para-presente",
     "name": "Lata de alfajor para presente",
