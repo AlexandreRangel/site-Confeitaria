@@ -891,10 +891,12 @@
       '" width="600" height="600" loading="' +
       (clone ? "lazy" : "eager") +
       '" decoding="async">';
-    const inner = item.productSlug
+    const externo = !item.productSlug && /^https:\/\/[^\s"'<>]+$/i.test(String(item.url || ""));
+    const inner = item.productSlug || externo
       ? '<a href="' +
-        Jana.escapeHtml(Jana.productUrl(item.productSlug)) +
+        Jana.escapeHtml(externo ? item.url : Jana.productUrl(item.productSlug)) +
         '"' +
+        (externo ? ' target="_blank" rel="noopener noreferrer"' : "") +
         (clone ? ' tabindex="-1"' : "") +
         ">" +
         img +

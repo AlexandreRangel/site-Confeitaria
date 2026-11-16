@@ -2216,6 +2216,15 @@
     }
     if (tab === "sobre") {
       const sobre = ED.drafts.sobre.sobre;
+      for (const [n, w] of (sobre.workGallery || []).entries()) {
+        if (typeof w.url !== "string") continue;
+        let u = w.url.trim();
+        if (u && !/^https?:\/\//i.test(u)) u = "https://" + u;
+        u = u.replace(/^http:\/\//i, "https://");
+        w.url = u;
+        if (!u) return "Galeria de trabalhos, foto " + (n + 1) + ": escreva o endereço do link externo ou escolha «Nenhum link».";
+        if (!/^https:\/\/[^\s"'<>]+\.[^\s"'<>]+$/i.test(u) || u.length > 500) return "Galeria de trabalhos, foto " + (n + 1) + ": o link externo não parece um endereço válido.";
+      }
       for (const x of sobre.press || []) {
         if (x.url && !/^https:\/\/\S+\.\S+$/.test(x.url)) return "Imprensa: o link precisa começar com https://";
       }
@@ -2265,13 +2274,19 @@
               ? '<label class="ed-field ed-field--small">Descrição da foto<input type="text" maxlength="200" data-tx-lista="' + kind + '" data-i="' + i + '" data-campo="alt" value="' + esc(it.alt || "") + '"></label>'
               : "") +
             (opts.produto
-              ? '<label class="ed-field ed-field--small">Ao tocar, abrir o produto<select data-tx-lista="' + kind + '" data-i="' + i + '" data-campo="productSlug"><option value="">Nenhum</option>' +
+              ? '<label class="ed-field ed-field--small">Ao tocar, abrir<select data-tx-lista="' + kind + '" data-i="' + i + '" data-campo="productSlug"><option value="">Nenhum link</option>' +
+                '<option value="__externo"' + (typeof it.url === "string" && !it.productSlug ? " selected" : "") + ">Link externo (outro site)</option>" +
+                '<optgroup label="Produtos da loja">' +
                 products()
                   .slice()
                   .sort((x, y) => x.name.localeCompare(y.name, "pt-BR"))
                   .map((p) => '<option value="' + esc(p.slug) + '"' + (p.slug === it.productSlug ? " selected" : "") + ">" + esc(p.name) + "</option>")
                   .join("") +
-                "</select></label>"
+                "</optgroup></select></label>" +
+                (typeof it.url === "string" && !it.productSlug
+                  ? '<label class="ed-field ed-field--small">Endereço do link<input type="url" inputmode="url" maxlength="500" placeholder="https://..." data-tx-lista="' + kind + '" data-i="' + i + '" data-campo="url" value="' + esc(it.url || "") + '"></label>' +
+                    '<p class="ed-dica">Abre em outra aba. Ex.: uma matéria, um vídeo ou o Instagram.</p>'
+                  : "")
               : "") +
             '<div class="ed-foto__acoes">' +
             '<button type="button" class="btn btn--small btn--outline" data-ed-action="tx-mover" data-lista="' + kind + '" data-i="' + i + '" data-dir="-1"' + (i === 0 ? " disabled" : "") + ' aria-label="Mover para antes">◀</button>' +
@@ -2667,9 +2682,26 @@
       const item = list[Number(target.getAttribute("data-i"))];
       const campoNome = target.getAttribute("data-campo");
       if (campoNome === "productSlug") {
-        if (target.value) item.productSlug = target.value;
-        else delete item.productSlug;
-      } else item[campoNome] = target.value;
+        const antes = typeof item.url === "string" ? "__externo" : item.productSlug || "";
+        if (target.value === "__externo") {
+          delete item.productSlug;
+          if (typeof item.url !== "string") item.url = "";
+        } else if (target.value) {
+          item.productSlug = target.value;
+          delete item.url;
+        } else {
+          delete item.productSlug;
+          delete item.url;
+        }
+        const depois = typeof item.url === "string" ? "__externo" : item.productSlug || "";
+        if ((antes === "__externo") !== (depois === "__externo")) {
+          const base = '[data-tx-lista="' + target.getAttribute("data-tx-lista") + '"][data-i="' + target.getAttribute("data-i") + '"]';
+          renderSobreTab();
+          const foco = qs(base + '[data-campo="url"]') || qs(base + '[data-campo="productSlug"]');
+          if (foco) foco.focus();
+        }
+      } else if (campoNome === "url") item.url = target.value.trim();
+      else item[campoNome] = target.value;
     }
     updateSavebar();
   }

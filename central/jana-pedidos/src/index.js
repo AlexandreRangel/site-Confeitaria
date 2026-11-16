@@ -1582,6 +1582,7 @@ function validateSobre(s) {
     assetOk(w.src, "Sobre nós (galeria)");
     optText(w.alt, 200, "Sobre nós (descrição da foto)");
     if (w.productSlug && !ID_RE.test(String(w.productSlug))) bad("Sobre nós: produto inválido");
+    if (w.url != null && w.url !== "" && (typeof w.url !== "string" || w.url.length > 500 || !/^https:\/\/[^\s"'<>]+\.[^\s"'<>]+$/i.test(w.url))) bad("Sobre nós: o link externo da galeria precisa começar com https://");
   });
   if (!Array.isArray(s.press || []) || (s.press || []).length > 40) bad("Sobre nós: imprensa inválida");
   (s.press || []).forEach((x) => {
