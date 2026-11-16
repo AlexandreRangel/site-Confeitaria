@@ -31,6 +31,8 @@
     "ink": "#4c553a"
   },
   "copyright": "© 2026 Jana Abreu Confeitaria LTDA",
+  "footerAddress": "Guará II QE 15 Cj I, 24 - Guará, Brasília - DF, 71050-091",
+  "footerMapQuery": "Jana Abreu Confeitaria Guará II QE 15 Cj I 24 Brasília",
   "entrega": {
     "taxa": 40,
     "porRegiao": {},

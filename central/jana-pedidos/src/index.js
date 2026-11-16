@@ -1511,7 +1511,7 @@ function validateSite(s) {
   if (!/^https:\/\/(www\.)?instagram\.com\/[A-Za-z0-9._]{1,60}\/?$/.test(String(s.contato.instagram.url || ""))) bad("Instagram: link inválido");
   if (!isObj(s.address)) bad("endereço inválido");
   ["street", "neighborhood", "city", "state", "note"].forEach((k) => optText(s.address[k], 160, "Endereço"));
-  ["copyright", "hours"].forEach((k) => optText(s[k], 200, "Texto do rodapé"));
+  ["copyright", "hours", "footerAddress", "footerMapQuery"].forEach((k) => optText(s[k], 200, "Texto do rodapé"));
   ["paymentsNote", "pixDisclaimer", "pixNote", "paidDisclaimer", "requestDisclaimer", "privacyNote", "heroVisitTitle", "heroVisitSubtitle"].forEach((k) => optText(s[k], 800, "Texto"));
   if (!isObj(s.entrega)) bad("entrega inválida");
   if (s.entrega.taxa !== null && (typeof s.entrega.taxa !== "number" || !Number.isFinite(s.entrega.taxa) || s.entrega.taxa < 0 || s.entrega.taxa > 2000)) {

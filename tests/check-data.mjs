@@ -378,6 +378,12 @@ if (!layoutCss.includes("opacity: 0.05")) {
 if (!home.includes("© 2026 Jana Abreu")) {
   errors.push("Home footer must show «© 2026 Jana Abreu»");
 }
+if (!home.includes('data-bind="footer-map"') || !home.includes("Ver no Google Maps") || !home.includes('data-bind="footer-map-embed"')) {
+  errors.push("Home footer must include the address/map block");
+}
+if (!home.includes('loading="lazy"') || !home.includes('referrerpolicy="no-referrer-when-downgrade"')) {
+  errors.push("footer map iframe must be lazy-loaded and set referrerpolicy");
+}
 if (!home.includes("Brasília DF") && !home.includes("city-state")) {
   errors.push("Footer must show Brasília DF");
 }
@@ -587,11 +593,30 @@ if (!workerJs.includes("normalizeCarouselFoto") || !workerJs.includes("vibrancia
 if (!bannerCss.includes("--foto-zoom") || !bannerCss.includes("hero__foto--ajustada")) {
   errors.push("public banner CSS must apply non-destructive photo framing");
 }
+if (!bannerCss.includes("hero__produto-foto--ajustada")) {
+  errors.push("photo overflow must apply only on adjusted product frames");
+}
+const unconditionalFotoOverflow = /\.hero__produto-foto,\s*\.ed-banner-preview \.hero__produto-foto \{\s*overflow:\s*hidden/.test(bannerCss.replace(/\n/g, " "));
+if (unconditionalFotoOverflow) {
+  errors.push("unadjusted product photo frames must not force overflow:hidden");
+}
+if (!layoutCss.includes("rodape__mapa") || !layoutCss.includes("rodape__mapa-frame")) {
+  errors.push("footer map styles must exist");
+}
 if (!editorJs.includes("Aviso ao escolher Pix") || !editorJs.includes("Instrução na caixa do QR Pix") || !editorJs.includes("Aviso ao escolher cartão")) {
   errors.push("editor must expose pixDisclaimer, pixNote and paidDisclaimer with clear labels");
 }
 if (!workerJs.includes("pixDisclaimer") || !workerJs.includes("pixNote") || !workerJs.includes("paidDisclaimer")) {
   errors.push("Worker validateSite must accept pixDisclaimer, pixNote and paidDisclaimer");
+}
+if (!editorJs.includes("Endereço no rodapé") || !editorJs.includes("Busca do mapa") || !editorJs.includes("site.footerAddress") || !editorJs.includes("site.footerMapQuery")) {
+  errors.push("editor Textos > Rodapé must expose footerAddress and footerMapQuery");
+}
+if (!workerJs.includes("footerAddress") || !workerJs.includes("footerMapQuery")) {
+  errors.push("Worker validateSite must accept footerAddress and footerMapQuery");
+}
+if (!utilsJs.includes("Jana.footerMap") || !appJs.includes("footer-map-embed")) {
+  errors.push("footer map must be filled from site.json and hidden when the address is empty");
 }
 if (!editorJs.includes("Aceita imagem para personalização") || !editorJs.includes("aceitaImagemPersonalizacao")) {
   errors.push("product editor must have the personalization image checkbox");
@@ -736,3 +761,8 @@ console.log("produtos sem preço fixo (" + unpriced.length + "):");
 unpriced.forEach((product) => {
   console.log("  " + product.slug + " — " + String(product.name || "").trim());
 });
+
+const cspHits = [home, readFileSync(join(root, "css/layout.css"), "utf8")];
+if (existsSync(join(root, "_headers"))) {
+  errors.push("unexpected _headers file may set CSP; review before blocking Google Maps iframe");
+}

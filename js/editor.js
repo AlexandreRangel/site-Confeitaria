@@ -2278,6 +2278,8 @@
       campo("Estado", "site.address.state", s.address.state, { max: 2, placeholder: "DF" }) +
       "</div>" +
       campo("Rodapé (direitos)", "site.copyright", s.copyright, { max: 120, placeholder: "© 2026 Jana Abreu" }) +
+      campo("Endereço no rodapé", "site.footerAddress", s.footerAddress, { max: 200, opcional: true, dica: "Aparece no rodapé, com o mapa. Se ficar vazio, o bloco do endereço e do mapa não aparece." }) +
+      campo("Busca do mapa", "site.footerMapQuery", s.footerMapQuery, { max: 200, opcional: true, dica: "Texto enviado ao Google Maps (sem chave de API). Se ficar vazio, usamos o nome da loja e o endereço." }) +
       "</section>" +
       '<section class="ed-secao" aria-labelledby="tx-enc"><h3 id="tx-enc">Encomendas e entrega</h3>' +
       '<div class="ed-linha">' +

@@ -210,18 +210,32 @@ body[data-page="area"] .hero__slide.hero__slide--produto .hero__produto-foto img
   font-size: 0.72rem;
 }
 
-/* Enquadramento e ajustes de foto do banner (não destrutivo). */
+/* Enquadramento e ajustes de foto do banner (não destrutivo).
+   overflow:hidden only when the photo is actually adjusted, so unadjusted
+   product banners keep the pre-159f55d layout (overflow:hidden on a
+   height:auto frame can collapse the square photo in some browsers and
+   leave only the dark padronagem tile behind the wash). */
 .hero__foto-svg {
   position: absolute;
+  left: 0;
+  top: 0;
   width: 0;
   height: 0;
   overflow: hidden;
   pointer-events: none;
 }
 
-.hero__produto-foto,
-.ed-banner-preview .hero__produto-foto {
+.hero__produto-foto--ajustada,
+.hero__produto-foto:has(> .hero__foto--ajustada),
+.ed-banner-preview .hero__produto-foto--ajustada,
+.ed-banner-preview .hero__produto-foto:has(> .hero__foto--ajustada) {
   overflow: hidden;
+  height: 100%;
+  width: auto;
+  max-width: 52%;
+  max-height: 100%;
+  aspect-ratio: 1;
+  background: transparent;
 }
 
 .hero__foto--ajustada,

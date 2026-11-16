@@ -768,8 +768,11 @@ if (typeof Jana.siteText !== "function") {
   }
   const edited = Jana.resolveProductBanner({ id: "p2", tipo: "produto", productSlug: "bolo-x", foto: { zoom: 2, x: 20, brilho: 1.2, gamma: 1.3 } }, prods[0]);
   const editedHtml = Jana.productBannerHtml(edited);
-  if (!editedHtml.includes("hero__foto--ajustada") || !editedHtml.includes("--foto-zoom:2") || !editedHtml.includes("brightness(1.2)") || !editedHtml.includes("jana-foto-p2")) {
+  if (!editedHtml.includes("hero__foto--ajustada") || !editedHtml.includes("hero__produto-foto--ajustada") || !editedHtml.includes("--foto-zoom:2") || !editedHtml.includes("brightness(1.2)") || !editedHtml.includes("jana-foto-p2")) {
     errors.push("product banner must apply foto framing and CSS filters");
+  }
+  if (html.includes("hero__produto-foto--ajustada")) {
+    errors.push("unadjusted product banner must not mark the photo frame as adjusted");
   }
   if (!editedHtml.includes("feFuncR") || !/exponent="1.3"/.test(editedHtml) || !editedHtml.includes("color-interpolation-filters=\"sRGB\"")) {
     errors.push("non-default gamma must emit an sRGB SVG filter");
@@ -810,6 +813,27 @@ if (typeof Jana.siteText !== "function") {
     const fromProduct = Jana.imageBannerHtml({ image: "assets/products/x/1.webp", productSlug: "bolo-x", title: "Bolo X" });
     if (!/href="[^"]*produto\/\?slug=bolo-x"/.test(fromProduct)) {
       errors.push("area product photo slides must still link to the product");
+    }
+    if (typeof Jana.footerMap !== "function") {
+      errors.push("Jana.footerMap must exist");
+    } else {
+      const hidden = Jana.footerMap({ brandName: "Jana", footerAddress: "  ", footerMapQuery: "x" });
+      if (hidden.visible) errors.push("empty footer address must hide the map block");
+      const shown = Jana.footerMap({
+        brandName: "Jana Abreu Confeitaria",
+        footerAddress: "Guará II QE 15 Cj I, 24 - Guará, Brasília - DF, 71050-091",
+        footerMapQuery: "Jana Abreu Confeitaria Guará II QE 15 Cj I 24 Brasília",
+      });
+      if (!shown.visible || !shown.link.includes("api=1") || !shown.embed.includes("output=embed") || !shown.embed.includes("maps.google.com/maps?q=")) {
+        errors.push("footer map must build a keyless search link and embed URL");
+      }
+      if (!shown.embed.includes("Guar") && !shown.embed.includes("Guara")) {
+        errors.push("footer map embed query must include the address");
+      }
+      const fallback = Jana.footerMap({ brandName: "Jana Abreu Confeitaria", footerAddress: "Guará II, 24" });
+      if (!fallback.visible || !fallback.query.includes("Jana Abreu Confeitaria") || !fallback.query.includes("Guará II, 24")) {
+        errors.push("empty map query must fall back to brand name plus address");
+      }
     }
   }
 }

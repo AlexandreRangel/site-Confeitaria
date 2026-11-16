@@ -219,6 +219,18 @@
       "city-state",
       [site.address && site.address.city, site.address && site.address.state].filter(Boolean).join(" ")
     );
+    (function applyFooterMap() {
+      const map = Jana.footerMap ? Jana.footerMap(site) : { visible: false };
+      Jana.qsa('[data-bind="footer-map"]').forEach(function show(el) {
+        el.hidden = !map.visible;
+      });
+      Jana.bindText("footer-address", map.address || "");
+      if (map.link) Jana.bindHref("footer-map-link", map.link);
+      Jana.qsa('[data-bind="footer-map-embed"]').forEach(function setSrc(iframe) {
+        if (map.visible && map.embed) iframe.setAttribute("src", map.embed);
+        else iframe.removeAttribute("src");
+      });
+    })();
     document.title = site.brandName;
     applyCategoryTitle();
     applyAreaTitle();

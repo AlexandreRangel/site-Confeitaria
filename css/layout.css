@@ -816,6 +816,58 @@ body[data-page="home"] .areas {
   font-weight: 600;
 }
 
+.rodape__mapa {
+  margin: 0.85rem auto 0;
+  max-width: 36rem;
+  width: 100%;
+  text-align: center;
+}
+
+.rodape__endereco {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  margin: 0 0 0.55rem;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--ink);
+}
+
+.rodape__mapa-link {
+  font-family: var(--sans);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--primary-deep);
+  text-decoration: none;
+}
+
+.rodape__mapa-link:hover,
+.rodape__mapa-link:focus-visible {
+  color: var(--ink);
+  text-decoration: underline;
+}
+
+.rodape__mapa-frame {
+  position: relative;
+  width: 100%;
+  max-width: 22rem;
+  margin: 0 auto;
+  height: 11.5rem;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--cream);
+}
+
+.rodape__mapa-frame iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
 .sobre {
   max-width: 52rem;
   margin: 0 auto;

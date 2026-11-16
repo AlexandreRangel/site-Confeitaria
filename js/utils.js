@@ -646,6 +646,7 @@
     const desc = data.description
       ? '<p class="hero__produto-desc">' + Jana.escapeHtml(data.description) + "</p>"
       : "";
+    const fotoAjustada = Jana.fotoIsDefault ? !Jana.fotoIsDefault(data.foto) : false;
     const frameAttrs = opt.editor
       ? ' data-ed-foto-frame="produto" tabindex="0" role="group" aria-label="Enquadramento da foto do produto"'
       : "";
@@ -653,7 +654,9 @@
       (opt.skipSvg ? "" : decorated.svg) +
       '<div class="hero__produto">' +
       '<div class="hero__produto-inner">' +
-      "<div class=\"hero__produto-foto\"" +
+      '<div class="hero__produto-foto' +
+      (fotoAjustada ? ' hero__produto-foto--ajustada' : '') +
+      '"' +
       frameAttrs +
       ">" +
       img +
@@ -1065,7 +1068,7 @@
     return (
       '<filter id="' +
       id +
-      '" color-interpolation-filters="sRGB" x="-20%" y="-20%" width="140%" height="140%">' +
+      '" color-interpolation-filters="sRGB" x="0%" y="0%" width="100%" height="100%">' +
       body +
       "</filter>"
     );
@@ -1135,7 +1138,26 @@
     return next;
   };
 
+  Jana.footerMap = function footerMap(site) {
+    const data = site || {};
+    const address = String(data.footerAddress || "").trim();
+    const query =
+      String(data.footerMapQuery || "").trim() ||
+      [data.brandName, address].filter(Boolean).join(" ").trim();
+    if (!address) {
+      return { visible: false, address: "", query: "", link: "", embed: "" };
+    }
+    return {
+      visible: true,
+      address: address,
+      query: query,
+      link: "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(query),
+      embed: "https://maps.google.com/maps?q=" + encodeURIComponent(query) + "&output=embed",
+    };
+  };
+
   Jana.decorateBannerFoto = function decorateBannerFoto(imgHtml, foto, id) {
+
     const f = Jana.normalizeFoto(foto);
     if (Jana.fotoIsDefault(f)) return { html: imgHtml, svg: "" };
     const style = Jana.fotoImgStyle(f, id);
