@@ -69,7 +69,15 @@
 
     <section id="areas" class="areas" aria-labelledby="areas-titulo">
       <h2 id="areas-titulo" class="sr-only">Áreas</h2>
-      <div class="areas__list" data-bind="areas"></div>
+      <div class="areas__carousel">
+        <button type="button" class="areas__arrow areas__arrow--prev" data-action="areas-prev" aria-label="Ver categorias anteriores" hidden>
+          <span aria-hidden="true">‹</span>
+        </button>
+        <div class="areas__list" data-bind="areas"></div>
+        <button type="button" class="areas__arrow areas__arrow--next" data-action="areas-next" aria-label="Ver mais categorias" hidden>
+          <span aria-hidden="true">›</span>
+        </button>
+      </div>
     </section>
   </main>
 

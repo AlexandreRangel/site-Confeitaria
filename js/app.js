@@ -499,7 +499,116 @@
         );
       })
       .join("");
+    layoutHomeAreas();
   }
+
+  function homeAreasList() {
+    return Jana.qs('body[data-page="home"] [data-bind="areas"]');
+  }
+
+  function homeAreasMinSize(list) {
+    const rem = parseFloat(window.getComputedStyle(document.documentElement).fontSize) || 16;
+    const raw = (window.getComputedStyle(list).getPropertyValue("--area-min") || "10rem").trim();
+    if (raw.slice(-3) === "rem") {
+      return (parseFloat(raw) || 10) * rem;
+    }
+    if (raw.slice(-2) === "px") {
+      return parseFloat(raw) || 10 * rem;
+    }
+    return 10 * rem;
+  }
+
+  function updateHomeAreaArrows() {
+    const list = homeAreasList();
+    const shell = list && list.closest(".areas__carousel");
+    if (!list || !shell) {
+      return;
+    }
+    const prev = shell.querySelector('[data-action="areas-prev"]');
+    const next = shell.querySelector('[data-action="areas-next"]');
+    const scrolling = shell.classList.contains("areas--scroll");
+    const max = list.scrollWidth - list.clientWidth;
+    const hasOverflow = scrolling && max > 4;
+    shell.classList.toggle("is-more-start", hasOverflow && list.scrollLeft > 4);
+    shell.classList.toggle("is-more-end", hasOverflow && list.scrollLeft < max - 4);
+    if (prev) {
+      prev.hidden = !hasOverflow;
+      prev.disabled = !hasOverflow || list.scrollLeft <= 4;
+    }
+    if (next) {
+      next.hidden = !hasOverflow;
+      next.disabled = !hasOverflow || list.scrollLeft >= max - 4;
+    }
+  }
+
+  function scrollHomeAreas(direction) {
+    const list = homeAreasList();
+    if (!list) {
+      return;
+    }
+    const card = list.querySelector(".area-button");
+    const styles = window.getComputedStyle(list);
+    const gap = parseFloat(styles.columnGap || styles.gap) || 12;
+    const width = card ? card.getBoundingClientRect().width : list.clientWidth / 3;
+    list.scrollBy({ left: direction * (width + gap), behavior: "smooth" });
+  }
+
+  function layoutHomeAreas() {
+    const list = homeAreasList();
+    if (!list) {
+      return;
+    }
+    const shell = list.closest(".areas__carousel") || list.parentElement;
+    const n = list.querySelectorAll(".area-button").length;
+    list.style.setProperty("--area-count", String(n));
+    const rowMode = window.matchMedia("(min-width: 900px)").matches;
+    let scroll = false;
+    if (rowMode && n && shell) {
+      const styles = window.getComputedStyle(list);
+      const gap = parseFloat(styles.columnGap || styles.gap) || 12;
+      const needed = n * homeAreasMinSize(list) + Math.max(0, n - 1) * gap;
+      scroll = needed > list.clientWidth + 1;
+    }
+    const key = n + ":" + Math.round(list.clientWidth) + ":" + (rowMode ? "r" : "g") + ":" + (scroll ? "s" : "f");
+    if (list.dataset.areasLayout === key) {
+      updateHomeAreaArrows();
+      return;
+    }
+    list.dataset.areasLayout = key;
+    if (shell) {
+      shell.classList.toggle("areas--scroll", scroll);
+    }
+    if (!scroll) {
+      list.scrollLeft = 0;
+    }
+    bindHomeAreasCarousel(list);
+    updateHomeAreaArrows();
+  }
+
+  function bindHomeAreasCarousel(list) {
+    if (list.dataset.areasBound === "true") {
+      return;
+    }
+    list.dataset.areasBound = "true";
+    list.addEventListener(
+      "scroll",
+      function onHomeAreasScroll() {
+        updateHomeAreaArrows();
+      },
+      { passive: true }
+    );
+    window.addEventListener("resize", function onHomeAreasResize() {
+      layoutHomeAreas();
+    });
+    if (typeof ResizeObserver === "function") {
+      const ro = new ResizeObserver(function onHomeAreasResize() {
+        layoutHomeAreas();
+      });
+      ro.observe(list);
+    }
+  }
+
+  Jana.layoutHomeAreas = layoutHomeAreas;
 
   function renderCategoriesNav() {
     const menu = Jana.qs("#menu-categorias");
@@ -2284,6 +2393,10 @@
           event.preventDefault();
           scrollCategories(row, action === "categories-next" ? 1 : -1);
         }
+      }
+      if (action === "areas-prev" || action === "areas-next") {
+        event.preventDefault();
+        scrollHomeAreas(action === "areas-next" ? 1 : -1);
       }
       if (action === "carousel-goto") goToSlide(Number(target.getAttribute("data-index")));
       if (action === "open-product") openProduct(target.getAttribute("data-slug"));

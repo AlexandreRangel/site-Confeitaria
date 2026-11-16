@@ -1285,6 +1285,23 @@ async function runEngine(browserType, engine) {
       return Math.abs(box.y - desktopSquares[0].y) < 12;
     });
     record(engine, "desktop area squares in one row", rowOk, JSON.stringify(desktopSquares));
+    const desktopFit = await page.evaluate(function allVisible() {
+      const vw = document.documentElement.clientWidth;
+      const cards = Array.from(document.querySelectorAll('[data-bind="areas"] a'));
+      const boxes = cards.map(function boxOf(el) {
+        const r = el.getBoundingClientRect();
+        return { x: Math.round(r.x), y: Math.round(r.y), r: Math.round(r.right), w: Math.round(r.width) };
+      });
+      const fully = boxes.every(function inside(box) {
+        return box.x >= -1 && box.r <= vw + 1 && box.w > 80;
+      });
+      const arrowsHidden = Array.from(document.querySelectorAll(".areas__arrow")).every(function hidden(btn) {
+        return btn.hidden || btn.getAttribute("hidden") !== null;
+      });
+      return { fully: fully, arrowsHidden: arrowsHidden, vw: vw, boxes: boxes };
+    });
+    record(engine, "desktop area cards all fully visible", desktopFit.fully, JSON.stringify(desktopFit));
+    record(engine, "desktop area arrows hidden when all fit", desktopFit.arrowsHidden, JSON.stringify(desktopFit));
     await page.locator('[data-action="toggle-categories"]').click();
     record(engine, "desktop Categorias dropdown", await page.locator("#menu-categorias").isVisible());
     await page.keyboard.press("Escape");

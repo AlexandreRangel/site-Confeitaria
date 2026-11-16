@@ -231,6 +231,9 @@ if (appJs.includes("bolinha") || /class="bolinha/.test(home)) {
 if (!appJs.includes("area-button") || !appJs.includes("toggle-categories") || !appJs.includes("visibleAreas")) {
   errors.push("Home menu must render area buttons and a Categorias dropdown from JSON");
 }
+if (!appJs.includes("layoutHomeAreas") || !appJs.includes("areas--scroll") || !home.includes('data-action="areas-prev"') || !home.includes('data-action="areas-next"')) {
+  errors.push("home category boxes must shrink to fit on desktop and scroll with arrows when they overflow");
+}
 const utilsJs = readFileSync(join(root, "js/utils.js"), "utf8");
 if (!appJs.includes("data/areas.json") || !utilsJs.includes("isNatalEnabled") || !utilsJs.includes("visibleAreas")) {
   errors.push("app.js must load areas.json and honor natal.enabled");
@@ -365,6 +368,9 @@ if (!baseCss.includes("opacity: 0.08")) {
   errors.push("page damask must be 8% opacity (20% lighter than 0.10)");
 }
 const layoutCss = readFileSync(join(root, "css/layout.css"), "utf8");
+if (!layoutCss.includes("min-width: 900px") || !layoutCss.includes("areas--scroll") || !layoutCss.includes("--area-min")) {
+  errors.push("home areas CSS must fit all cards from 900px and fall back to a peeking scroll row");
+}
 if (!layoutCss.includes("font-size: 1.83rem")) {
   errors.push("Início, Categorias and Sobre nós must be 50% larger (1.83rem)");
 }
