@@ -1,5 +1,23 @@
 [
   {
+    "id": "p-alfajor-natalino-und",
+    "slug": "alfajor-natalino-und",
+    "name": "Alfajor Natalino Und",
+    "description": "",
+    "categoryId": "natal",
+    "categoryIds": [
+      "natal"
+    ],
+    "category": "Natal",
+    "price": 6.5,
+    "images": [
+      "assets/products/alfajor-natalino-und/foto-mwjgru653yayq.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
     "id": "p-mini-amanteigado",
     "slug": "mini-amanteigado",
     "name": "Mini amanteigado",
