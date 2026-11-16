@@ -1,5 +1,23 @@
 [
   {
+    "id": "p-amanteigado-flocos-de-neve",
+    "slug": "amanteigado-flocos-de-neve",
+    "name": "Amanteigado Flocos de Neve",
+    "description": "",
+    "categoryId": "natal",
+    "categoryIds": [
+      "natal"
+    ],
+    "category": "Natal",
+    "price": 79,
+    "images": [
+      "assets/products/amanteigado-flocos-de-neve/foto-mwjii4m60crri.webp"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
     "id": "p-caixa-2-alfajores-natal",
     "slug": "caixa-2-alfajores-natal",
     "name": "Caixa 2 alfajores Natal",
