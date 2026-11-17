@@ -1402,7 +1402,7 @@
     "id": "p-kit-biscoito-aquarela-bob-goods",
     "sourceId": "686679d9ccdd851bfa4de418",
     "slug": "kit-biscoito-aquarela-bob-goods",
-    "name": "Kit Biscoito aquarela bob goods ",
+    "name": "Kit Biscoito aquarela bob goods",
     "description": "Kit pintura aquarela em biscoito Tema bob goods Pincel incluso",
     "categoryId": "festa-personalizada",
     "categoryIds": [
@@ -1411,8 +1411,8 @@
     "category": "Festa Personalizada",
     "price": 22,
     "images": [
-      "assets/products/kit-biscoito-aquarela-bob-goods/01.webp",
-      "assets/products/kit-biscoito-aquarela-bob-goods/02.webp"
+      "assets/products/kit-biscoito-aquarela-bob-goods/02.webp",
+      "assets/products/kit-biscoito-aquarela-bob-goods/01.webp"
     ],
     "featured": false,
     "active": true,
