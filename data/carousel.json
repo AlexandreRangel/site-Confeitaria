@@ -205,5 +205,17 @@
     "linkTipo": "produto",
     "title": "Festinha na escola",
     "order": 5
+  },
+  {
+    "id": "banner-mwl5r4uw0nwks",
+    "pagina": "corporate",
+    "tipo": "imagem",
+    "title": "Personalizados NAtal",
+    "image": "assets/carousel/banner-pc-mwl5h5tnt6zd6.webp",
+    "imageMobile": "assets/carousel/banner-cel-mwl5qgwuewy8w.webp",
+    "linkTipo": "categoria",
+    "linkCategory": "natal",
+    "formato": "banner",
+    "order": 2
   }
 ]
