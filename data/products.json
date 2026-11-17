@@ -1278,8 +1278,8 @@
     "id": "p-kit-festa-pequeno-artista",
     "sourceId": "6a63bd2256a8618e5e0bc628",
     "slug": "kit-festa-pequeno-artista",
-    "name": "Kit festa Pequeno Artista ",
-    "description": "Pedido mínimo 5 unidades",
+    "name": "Kit festa Pequeno Artista",
+    "description": "Pedido mínimo 5 unidades. Tenha em sua festa um momento descontraído para soltar toda a criatividade criando deliciosas obras comestíveis",
     "categoryId": "festa-personalizada",
     "categoryIds": [
       "festa-personalizada"
@@ -1287,10 +1287,10 @@
     "category": "Festa Personalizada",
     "price": 32,
     "images": [
+      "assets/products/kit-festa-pequeno-artista/04.webp",
       "assets/products/kit-festa-pequeno-artista/01.webp",
       "assets/products/kit-festa-pequeno-artista/02.webp",
-      "assets/products/kit-festa-pequeno-artista/03.webp",
-      "assets/products/kit-festa-pequeno-artista/04.webp"
+      "assets/products/kit-festa-pequeno-artista/03.webp"
     ],
     "featured": false,
     "active": true,
