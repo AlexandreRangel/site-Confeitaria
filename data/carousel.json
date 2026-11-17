@@ -112,5 +112,50 @@
       "y": 38.3
     },
     "order": 3
+  },
+  {
+    "id": "banner-mwl49oae2vl0q",
+    "pagina": "corporate",
+    "tipo": "produto",
+    "productSlug": "alfajor-personalizado-logo",
+    "linkTipo": "produto",
+    "title": "Alfajor personalizado logo",
+    "order": 1
+  },
+  {
+    "id": "banner-mwl4a0scywfjt",
+    "pagina": "bolos",
+    "tipo": "produto",
+    "productSlug": "bolo-buttercream-p",
+    "linkTipo": "produto",
+    "title": "Bolo buttercream P",
+    "order": 1
+  },
+  {
+    "id": "banner-mwl4af9kle3pn",
+    "pagina": "bolos",
+    "tipo": "produto",
+    "productSlug": "bolo-p-50-brigs-personalizados",
+    "linkTipo": "produto",
+    "title": "Bolo p + 50 brigs personalizados",
+    "order": 2
+  },
+  {
+    "id": "banner-mwl4au6ig2a10",
+    "pagina": "bolos",
+    "tipo": "produto",
+    "productSlug": "combo-encanto",
+    "linkTipo": "produto",
+    "title": "Combo encanto",
+    "order": 3
+  },
+  {
+    "id": "banner-mwl4bb30q7osp",
+    "pagina": "bolos",
+    "tipo": "produto",
+    "productSlug": "bolo-buttercream-m",
+    "linkTipo": "produto",
+    "title": "Bolo buttercream M",
+    "order": 4
   }
 ]
