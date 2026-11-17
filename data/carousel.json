@@ -196,5 +196,14 @@
       "description": "Kit para festa na escola contendo fatia de bolo personalizado + 3 brigadeiros. Perfeito para comemorar com os colegas de forma prática"
     },
     "order": 2
+  },
+  {
+    "id": "banner-mwl5g6t78s7z0",
+    "pagina": "bolos",
+    "tipo": "produto",
+    "productSlug": "festinha-na-escola",
+    "linkTipo": "produto",
+    "title": "Festinha na escola",
+    "order": 5
   }
 ]
