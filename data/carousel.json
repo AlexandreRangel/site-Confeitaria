@@ -59,7 +59,7 @@
     "productSlug": "alfajor-natalino-und",
     "linkTipo": "produto",
     "title": "Alfajor Natalino Und",
-    "order": 1
+    "order": 2
   },
   {
     "id": "banner-mwl2zmenvuxqc",
@@ -72,7 +72,7 @@
     "foto": {
       "y": 88.5
     },
-    "order": 2
+    "order": 4
   },
   {
     "id": "banner-mwl30wxupa3qn",
@@ -84,6 +84,33 @@
     "linkTipo": "produto",
     "productSlug": "alfajor-natalino-und",
     "formato": "banner",
+    "order": 5
+  },
+  {
+    "id": "banner-mwl3nwjkctnu4",
+    "pagina": "natal",
+    "tipo": "imagem",
+    "title": "Personalizados corporativos",
+    "image": "assets/carousel/banner-pc-mwl3hdkr4vxm1.webp",
+    "imageMobile": "assets/carousel/banner-cel-mwl3l7ft6vdo0.webp",
+    "linkTipo": "url",
+    "url": "https://wa.me/message/YXTQT5S4GEWZN1",
+    "formato": "banner",
+    "order": 1
+  },
+  {
+    "id": "banner-mwl45t25giq2i",
+    "pagina": "natal",
+    "tipo": "imagem",
+    "title": "corporativo",
+    "image": "assets/carousel/banner-pc-mwl436kw08qvd.webp",
+    "imageMobile": "assets/carousel/banner-cel-mwl40304thj58.webp",
+    "linkTipo": "url",
+    "url": "https://wa.me/message/YXTQT5S4GEWZN1",
+    "formato": "banner",
+    "foto": {
+      "y": 38.3
+    },
     "order": 3
   }
 ]
