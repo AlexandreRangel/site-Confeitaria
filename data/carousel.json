@@ -175,5 +175,26 @@
     "linkTipo": "produto",
     "title": "Cesta Parabéns pra você",
     "order": 2
+  },
+  {
+    "id": "banner-mwl4w6hlgsto3",
+    "pagina": "doces-personalizados",
+    "tipo": "produto",
+    "productSlug": "desenvolvemos-projetos-personalizados",
+    "linkTipo": "produto",
+    "title": "Desenvolvemos projetos personalizados",
+    "order": 1
+  },
+  {
+    "id": "banner-mwl4x5er0yaf6",
+    "pagina": "doces-personalizados",
+    "tipo": "produto",
+    "productSlug": "festinha-na-escola",
+    "linkTipo": "produto",
+    "title": "Festinha na escola",
+    "overrides": {
+      "description": "Kit para festa na escola contendo fatia de bolo personalizado + 3 brigadeiros. Perfeito para comemorar com os colegas de forma prática"
+    },
+    "order": 2
   }
 ]
