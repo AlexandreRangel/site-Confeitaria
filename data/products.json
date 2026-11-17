@@ -1300,7 +1300,7 @@
     "id": "p-caixa-4-alfajores-logo",
     "sourceId": "6991c31d51eed94a0a099f68",
     "slug": "caixa-4-alfajores-logo",
-    "name": "Caixa 4 alfajores logo ",
+    "name": "Caixa 4 alfajores logo",
     "description": "",
     "categoryId": "personalizado-para-empresas",
     "categoryIds": [
@@ -1313,6 +1313,7 @@
     ],
     "featured": false,
     "active": true,
+    "aceitaImagemPersonalizacao": true,
     "tags": []
   },
   {
