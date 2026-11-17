@@ -51,5 +51,39 @@
       "description": "Traga suas referências e criamos um projeto único para seu evento"
     },
     "order": 5
+  },
+  {
+    "id": "banner-mwl2tscanhfcj",
+    "pagina": "natal",
+    "tipo": "produto",
+    "productSlug": "alfajor-natalino-und",
+    "linkTipo": "produto",
+    "title": "Alfajor Natalino Und",
+    "order": 1
+  },
+  {
+    "id": "banner-mwl2zmenvuxqc",
+    "pagina": "natal",
+    "tipo": "imagem",
+    "title": "Box Doce Deleite - alfajores artesanais",
+    "image": "assets/carousel/banner-pc-mwl2vz8wv0u7m.webp",
+    "linkTipo": "nenhum",
+    "formato": "banner",
+    "foto": {
+      "y": 88.5
+    },
+    "order": 2
+  },
+  {
+    "id": "banner-mwl30wxupa3qn",
+    "pagina": "natal",
+    "tipo": "imagem",
+    "title": "Personalize com sua marca",
+    "image": "assets/carousel/banner-pc-mwl302avhw2x1.webp",
+    "imageMobile": "assets/carousel/banner-cel-mwl3087retvx3.webp",
+    "linkTipo": "produto",
+    "productSlug": "alfajor-natalino-und",
+    "formato": "banner",
+    "order": 3
   }
 ]
