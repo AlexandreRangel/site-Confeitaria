@@ -39,5 +39,17 @@
     "order": 1,
     "imageMobile": "assets/carousel/banner-mwjltdguji9lj-cel-mwjly5836k9gc.webp",
     "linkCategory": "natal"
+  },
+  {
+    "id": "banner-mwl2qzrhdwl6z",
+    "tipo": "produto",
+    "productSlug": "desenvolvemos-projetos-personalizados",
+    "linkTipo": "produto",
+    "title": "Desenvolvemos projetos personalizados exclusivos",
+    "overrides": {
+      "title": "Desenvolvemos projetos personalizados exclusivos",
+      "description": "Traga suas referências e criamos um projeto único para seu evento"
+    },
+    "order": 5
   }
 ]
