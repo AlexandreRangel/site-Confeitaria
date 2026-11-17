@@ -1466,7 +1466,7 @@
     "id": "p-festinha-na-escola",
     "sourceId": "6a8c5c13f954d3b4a60fe6b1",
     "slug": "festinha-na-escola",
-    "name": "Festinha na escola ",
+    "name": "Festinha na escola",
     "description": "Kit para festa na escola contendo fatia de bolo personalizado + 3 brigadeiros",
     "categoryId": "combos-festa",
     "categoryIds": [
@@ -1475,10 +1475,12 @@
     "category": "Combos festa",
     "price": 19,
     "images": [
+      "assets/products/festinha-na-escola/foto-mwl5b8ngh83e7.webp",
       "assets/products/festinha-na-escola/01.webp"
     ],
     "featured": false,
     "active": true,
+    "aceitaImagemPersonalizacao": true,
     "tags": []
   },
   {
