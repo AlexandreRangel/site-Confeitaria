@@ -157,5 +157,23 @@
     "linkTipo": "produto",
     "title": "Bolo buttercream M",
     "order": 4
+  },
+  {
+    "id": "banner-mwl4e4nb3np6c",
+    "pagina": "cestas",
+    "tipo": "produto",
+    "productSlug": "cafe-paris",
+    "linkTipo": "produto",
+    "title": "Café Paris",
+    "order": 1
+  },
+  {
+    "id": "banner-mwl4ecf4x6vio",
+    "pagina": "cestas",
+    "tipo": "produto",
+    "productSlug": "cesta-parabens-pra-voce",
+    "linkTipo": "produto",
+    "title": "Cesta Parabéns pra você",
+    "order": 2
   }
 ]
