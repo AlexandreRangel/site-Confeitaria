@@ -296,7 +296,7 @@ try {
       true
     );
   });
-  const waLink = page.locator('[data-bind="whatsapp-link"]').first();
+  const waLink = page.locator('.rodape [data-bind="whatsapp-link"]').first();
   await waLink.waitFor({ state: "attached", timeout: 10000 });
   await waLink.click({ force: true });
   const waEvents = await dataEvents(page, "whatsapp_click");
@@ -305,6 +305,20 @@ try {
     /wa\.me|api\.whatsapp\.com/i.test(waEvents[0].link_url || "") &&
     typeof waEvents[0].click_location === "string";
   record("whatsapp_click on wa.me link", waOk, "count=" + waEvents.length);
+  const waFab = page.locator(".whatsapp-fab");
+  record("floating WhatsApp button is present", (await waFab.count()) === 1);
+  const beforeFab = waEvents.length;
+  await waFab.click({ force: true });
+  const waFabEvents = await dataEvents(page, "whatsapp_click");
+  const lastFab = waFabEvents[waFabEvents.length - 1] || {};
+  record(
+    "whatsapp_click on floating button without navigating",
+    waFabEvents.length === beforeFab + 1 &&
+      /wa\.me\/5561981246112/i.test(lastFab.link_url || "") &&
+      typeof lastFab.click_location === "string" &&
+      page.url().includes("/cestas/"),
+    "count=" + waFabEvents.length + " url=" + (lastFab.link_url || "") + " page=" + page.url()
+  );
 
   await page.locator('[data-action="open-cart"]').first().click();
   await page.waitForSelector("#encomendas:not([hidden])", { timeout: 10000 });

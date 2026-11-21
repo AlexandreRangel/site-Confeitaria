@@ -399,6 +399,33 @@ if (!home.includes('loading="lazy"') || !home.includes('referrerpolicy="no-refer
 if (!home.includes("Brasília DF") && !home.includes("city-state")) {
   errors.push("Footer must show Brasília DF");
 }
+if (!home.includes('class="selos"') || !home.includes('id="selo-tip-pix"') || !home.includes('id="selo-tip-infinitepay"') || !home.includes('id="selo-tip-https"') || !home.includes('id="selo-tip-pedido"')) {
+  errors.push("Home footer must include the four payment/security seals");
+}
+if (!home.includes("Pagamento instantâneo pelo QR Code ou código copia e cola, direto para a conta da Jana Abreu.") || !home.includes("Cartão de crédito e Pix pelo checkout seguro da InfinitePay. Os dados do cartão são digitados no site da InfinitePay e não passam pelo nosso site.") || !home.includes("Conexão criptografada com certificado SSL/TLS.") || !home.includes("Cada pedido recebe um código e é confirmado pela confeitaria.")) {
+  errors.push("Payment seal tooltips must use the confirmed copy");
+}
+if (!home.includes("whatsapp-fab") || !home.includes('aria-label="Converse com a gente pelo WhatsApp"') || !home.includes("https://wa.me/5561981246112")) {
+  errors.push("Home must include the floating WhatsApp button");
+}
+const forbiddenSeals = ["PagSeguro", "Reclame Aqui", "Safe Browsing", "site blindado", "selo google"];
+if (forbiddenSeals.some(function has(word) { return home.includes(word); })) {
+  errors.push("Footer must not include unconfirmed third-party certification seals");
+}
+const painelPage = existsSync(join(root, "painel/index.html")) ? readFileSync(join(root, "painel/index.html"), "utf8") : "";
+if (painelPage.includes("whatsapp-fab") || painelPage.includes('class="selos"')) {
+  errors.push("Painel must not include storefront payment seals or the WhatsApp floating button");
+}
+const publicWithSeals = ["404.html", "area/index.html", "bolos/index.html", "cestas/index.html", "corporate/index.html", "doces-personalizados/index.html", "encomendas/index.html", "natal/index.html", "pagamento/index.html", "pascoa/index.html", "produto/index.html", "sobre-nos/index.html"];
+publicWithSeals.forEach(function checkPage(rel) {
+  const page = readFileSync(join(root, rel), "utf8");
+  if (!page.includes('class="selos"') || !page.includes("whatsapp-fab") || !page.includes("js/selos.js")) {
+    errors.push(rel + " must include payment seals, the WhatsApp button and selos.js");
+  }
+});
+if (!layoutCss.includes(".whatsapp-fab") || !layoutCss.includes("env(safe-area-inset-bottom") || !layoutCss.includes("prefers-reduced-motion") || !layoutCss.includes("body.is-locked .whatsapp-fab")) {
+  errors.push("WhatsApp floating button must use safe-area, hide when the cart is locked, and respect reduced motion");
+}
 if (home.includes("Ver opções") || home.includes("hero-caption") || home.includes("hero__below")) {
   errors.push("Home carousel must be photos only, without caption or Ver opções");
 }
