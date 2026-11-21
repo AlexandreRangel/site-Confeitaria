@@ -37,6 +37,8 @@ Edite os JSON em `data/` e troque as imagens em `assets/`. Recarregue a página 
 | `data/pix.json` | Pix QR estático — desligado; a InfinitePay já oferece Pix |
 | `data/pausa.json` | Pausa de encomendas (manual, períodos, fim de semana ou planilha CSV) |
 
+O `sitemap.xml` da raiz lista a home, o Sobre nós, as áreas visíveis e todos os produtos ativos (`/produto/?slug=...`). Ele é gerado por `node scripts/gerar-sitemap.mjs`. O `.nojekyll` já garante que o GitHub Pages sirva `robots.txt`, `sitemap.xml` e `llms.txt` como arquivos estáticos (sem processar Jekyll). O painel ainda não regenera o sitemap ao salvar um produto; depois de criar ou editar itens, rode o script e publique o XML.
+
 Produtos com `"active": false` somem das páginas de categoria. Itens de exemplo usam a tag `"exemplo"` e o selo **Exemplo**.
 
 Cada área oficial tem uma pasta com `index.html` (`/corporate/`, `/bolos/`, `/cestas/`, `/doces-personalizados/`). URLs antigas redirecionam. Natal liga/desliga em `data/site.json` → `natal.enabled`.

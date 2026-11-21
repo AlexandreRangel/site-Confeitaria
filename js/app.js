@@ -1079,8 +1079,20 @@
     Jana.bindText("product-price", Jana.formatBRL(product.price));
     Jana.bindText("product-category", area ? area.name : "");
     Jana.bindHref("product-category-link", area ? Jana.areaUrl(area.slug) : Jana.homeUrl());
-    if (state.site && state.site.brandName) {
-      document.title = product.name + " · " + state.site.brandName;
+    const brand = (state.site && state.site.brandName) || "Jana Abreu Confeitaria";
+    document.title = product.name + " · " + brand;
+    if (Jana.setSeoTags) {
+      const desc = String(product.description || "").trim() || (product.name + " · " + brand);
+      const image = product.images && product.images[0] ? Jana.publicUrl(product.images[0]) : Jana.DEFAULT_OG_IMAGE;
+      Jana.setSeoTags({
+        title: product.name + " · " + brand,
+        description: desc,
+        url: Jana.publicUrl("produto/?slug=" + encodeURIComponent(product.slug)),
+        image: image,
+      });
+    }
+    if (Jana.upsertJsonLd && Jana.productJsonLd) {
+      Jana.upsertJsonLd("jsonld-product", Jana.productJsonLd(product, brand));
     }
     applyProductMinQty(product);
     renderFlavorPicker(product);

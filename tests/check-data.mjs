@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { buildSitemap } from "../scripts/gerar-sitemap.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const site = JSON.parse(readFileSync(join(root, "data/site.json"), "utf8"));
@@ -800,6 +801,123 @@ htmlFiles.forEach((full) => {
 });
 if (home.includes("Content-Security-Policy") && !home.includes("googletagmanager.com")) {
   /* covered per-page above */
+}
+
+
+const robotsExpected = `User-agent: *
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+Sitemap: https://janaabreuconfeitaria.com.br/sitemap.xml
+`;
+const robotsPath = join(root, "robots.txt");
+if (!existsSync(robotsPath) || readFileSync(robotsPath, "utf8") !== robotsExpected) {
+  errors.push("robots.txt must match the exact public allow-list and sitemap URL");
+}
+const llmsPath = join(root, "llms.txt");
+if (!existsSync(llmsPath) || !readFileSync(llmsPath, "utf8").includes("# Jana Abreu Confeitaria")) {
+  errors.push("llms.txt is missing or does not start with the Jana Abreu Confeitaria brief");
+} else {
+  const llms = readFileSync(llmsPath, "utf8");
+  if (!llms.includes("Guará II QE 15 Cj I, 24") || !llms.includes("https://janaabreuconfeitaria.com.br/bolos/")) {
+    errors.push("llms.txt must include the official address and category URLs");
+  }
+}
+const sitemapPath = join(root, "sitemap.xml");
+if (!existsSync(sitemapPath)) {
+  errors.push("sitemap.xml is missing; run node scripts/gerar-sitemap.mjs");
+} else {
+  const sitemap = readFileSync(sitemapPath, "utf8");
+  if (!sitemap.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")) {
+    errors.push("sitemap.xml must be XML UTF-8");
+  }
+  const expectedSitemap = buildSitemap(areas, site, products);
+  if (sitemap !== expectedSitemap) {
+    errors.push("sitemap.xml is out of date; run node scripts/gerar-sitemap.mjs");
+  }
+  const locs = Array.from(sitemap.matchAll(/<loc>(.*?)<\/loc>/g)).map((m) => m[1]);
+  ["https://janaabreuconfeitaria.com.br/", "https://janaabreuconfeitaria.com.br/natal/", "https://janaabreuconfeitaria.com.br/corporate/", "https://janaabreuconfeitaria.com.br/bolos/", "https://janaabreuconfeitaria.com.br/cestas/", "https://janaabreuconfeitaria.com.br/doces-personalizados/", "https://janaabreuconfeitaria.com.br/sobre-nos/"].forEach((url) => {
+    if (!locs.includes(url)) errors.push("sitemap.xml missing " + url);
+  });
+  products.filter((p) => p && p.active !== false && p.slug).forEach((p) => {
+    const url = "https://janaabreuconfeitaria.com.br/produto/?slug=" + encodeURIComponent(p.slug);
+    if (!locs.includes(url)) errors.push("sitemap.xml missing product " + p.slug);
+  });
+  ["painel", "pagamento", "encomendas", "cestas-presentes", "404"].forEach((bad) => {
+    if (locs.some((url) => url.includes("/" + bad))) errors.push("sitemap.xml should not list " + bad);
+  });
+}
+
+function jsonLdBlocks(html) {
+  return Array.from(html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)).map((m) => {
+    try {
+      return JSON.parse(m[1]);
+    } catch (err) {
+      errors.push("invalid JSON-LD: " + err.message);
+      return null;
+    }
+  }).filter(Boolean);
+}
+const homeLd = jsonLdBlocks(home);
+if (!homeLd.some((row) => row["@type"] === "Bakery" && row.image && row.name === "Jana Abreu Confeitaria")) {
+  errors.push("home must include a parseable Bakery JSON-LD with an absolute image");
+}
+const faqLd = homeLd.find((row) => row["@type"] === "FAQPage");
+if (!faqLd || !Array.isArray(faqLd.mainEntity) || faqLd.mainEntity.length !== 4) {
+  errors.push("home must include a parseable FAQPage JSON-LD with 4 questions");
+}
+const sobreLd = jsonLdBlocks(readFileSync(join(root, "sobre-nos/index.html"), "utf8"));
+if (!sobreLd.some((row) => row["@type"] === "Bakery" && row.image)) {
+  errors.push("sobre-nos must include a parseable Bakery JSON-LD with an absolute image");
+}
+if (!home.includes('class="home-lead"') || !home.includes("Confeitaria artesanal em Brasília (Guará II) especializada em bolos decorados")) {
+  errors.push("home must show the official subtitle under the hero");
+}
+if (!home.includes("<h1") || !/class="sr-only"/.test(home.split("<h1")[1].slice(0, 80))) {
+  errors.push("home should keep the visually hidden H1 and place the visible lead after the hero");
+}
+if ((home.match(/<details>/g) || []).length !== 4 || !home.includes("<summary>") || !home.includes('id="perguntas-frequentes"')) {
+  errors.push("home must include the 4 FAQ items as details/summary before the footer");
+}
+
+const seoPages = [
+  "index.html",
+  "404.html",
+  "produto/index.html",
+  "sobre-nos/index.html",
+  "encomendas/index.html",
+  "pagamento/index.html",
+  "area/index.html",
+  "bolos/index.html",
+  "cestas/index.html",
+  "corporate/index.html",
+  "doces-personalizados/index.html",
+  "natal/index.html",
+  "pascoa/index.html",
+];
+seoPages.forEach((rel) => {
+  const html = readFileSync(join(root, rel), "utf8");
+  ["rel=\"canonical\"", "og:type", "og:site_name", "og:title", "og:description", "og:url", "og:image", "twitter:card"].forEach((token) => {
+    if (!html.includes(token)) errors.push(rel + " missing " + token);
+  });
+  if (!html.includes("https://janaabreuconfeitaria.com.br/assets/products/tabua-signature/01.webp")) {
+    errors.push(rel + " og:image must use the Tábua Signature photo");
+  }
+  if (html.includes('og:type" content="website"') === false && !html.includes('og:type" content="website"')) {
+    /* handled above */
+  }
+});
+const painelHtml = readFileSync(join(root, "painel/index.html"), "utf8");
+if (painelHtml.includes("og:title") || painelHtml.includes("application/ld+json")) {
+  errors.push("painel must not receive storefront SEO tags");
 }
 
 if (errors.length) {

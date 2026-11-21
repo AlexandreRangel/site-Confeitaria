@@ -105,6 +105,115 @@
     return Jana.areaUrl(slug);
   };
 
+  Jana.PUBLIC_SITE = "https://janaabreuconfeitaria.com.br";
+  Jana.DEFAULT_OG_IMAGE = Jana.PUBLIC_SITE + "/assets/products/tabua-signature/01.webp";
+  Jana.DEFAULT_LOGO_IMAGE = Jana.PUBLIC_SITE + "/assets/brand/logo-jana-abreu.png";
+
+  Jana.publicUrl = function publicUrl(path) {
+    const value = String(path || "").trim();
+    if (/^https?:\/\//i.test(value)) {
+      return value;
+    }
+    if (!value || value === "/") {
+      return Jana.PUBLIC_SITE + "/";
+    }
+    return Jana.PUBLIC_SITE + "/" + value.replace(/^\//, "");
+  };
+
+  Jana.setMetaContent = function setMetaContent(selector, attr, value) {
+    if (!document || !document.head) {
+      return null;
+    }
+    let node = document.head.querySelector(selector);
+    if (!node) {
+      if (selector.indexOf("link") === 0 || attr === "href" && /rel=['\"]canonical['\"]/.test(selector)) {
+        node = document.createElement("link");
+        node.setAttribute("rel", "canonical");
+      } else {
+        node = document.createElement("meta");
+        const prop = selector.match(/\[(property|name)=['\"]([^'\"]+)['\"]\]/);
+        if (prop) {
+          node.setAttribute(prop[1], prop[2]);
+        }
+      }
+      document.head.appendChild(node);
+    }
+    node.setAttribute(attr, value);
+    return node;
+  };
+
+  Jana.setSeoTags = function setSeoTags(opts) {
+    const options = opts || {};
+    const title = options.title != null ? String(options.title) : "";
+    const description = options.description != null ? String(options.description) : "";
+    const url = options.url || "";
+    const image = options.image || Jana.DEFAULT_OG_IMAGE;
+    if (title) {
+      document.title = title;
+      Jana.setMetaContent('meta[property="og:title"]', "content", title);
+    }
+    if (description) {
+      Jana.setMetaContent('meta[name="description"]', "content", description);
+      Jana.setMetaContent('meta[property="og:description"]', "content", description);
+    }
+    if (url) {
+      Jana.setMetaContent('link[rel="canonical"]', "href", url);
+      Jana.setMetaContent('meta[property="og:url"]', "content", url);
+    }
+    if (image) {
+      Jana.setMetaContent('meta[property="og:image"]', "content", image);
+    }
+  };
+
+  Jana.upsertJsonLd = function upsertJsonLd(id, data) {
+    if (!document || !document.head || !data) {
+      return null;
+    }
+    let el = document.getElementById(id);
+    if (!el) {
+      el = document.createElement("script");
+      el.type = "application/ld+json";
+      el.id = id;
+      document.head.appendChild(el);
+    }
+    el.textContent = JSON.stringify(data);
+    return el;
+  };
+
+  Jana.productJsonLd = function productJsonLd(product, brandName) {
+    if (!product) {
+      return null;
+    }
+    const brand = brandName || "Jana Abreu Confeitaria";
+    const slug = String(product.slug || "");
+    const url = slug ? Jana.publicUrl("produto/?slug=" + encodeURIComponent(slug)) : Jana.publicUrl("produto/");
+    const imagePath = product.images && product.images[0] ? product.images[0] : "";
+    const data = {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name: String(product.name || ""),
+      description: String(product.description || "").trim(),
+      brand: { "@type": "Brand", name: brand },
+      url: url,
+      offers: {
+        "@type": "Offer",
+        priceCurrency: "BRL",
+        availability: "https://schema.org/InStock",
+        url: url,
+      },
+    };
+    if (imagePath) {
+      data.image = Jana.publicUrl(imagePath);
+    }
+    const priced = Jana.productHasFixedPrice
+      ? Jana.productHasFixedPrice(product)
+      : typeof product.price === "number" && Number.isFinite(product.price) && product.price > 0;
+    if (priced) {
+      data.offers.price = Number(product.price);
+    }
+    return data;
+  };
+
   /* Pastas e rotas que uma categoria nova não pode usar como endereço. */
   Jana.RESERVED_AREA_SLUGS = [
     "painel", "produto", "produtos", "encomendas", "pagamento", "sobre-nos", "sobre",

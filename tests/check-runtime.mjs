@@ -1087,6 +1087,34 @@ function eventsNamed(name) {
   }
 })();
 
+
+(function testSeoHelpers() {
+  if (Jana.publicUrl("/") !== "https://janaabreuconfeitaria.com.br/" || Jana.publicUrl("produto/?slug=tabua-signature") !== "https://janaabreuconfeitaria.com.br/produto/?slug=tabua-signature") {
+    errors.push("publicUrl must build official absolute URLs");
+  }
+  const priced = Jana.productJsonLd({
+    slug: "tabua-signature",
+    name: "Tábua Signature",
+    description: "Tábua com queijos e doces.",
+    price: 467,
+    images: ["assets/products/tabua-signature/01.webp"],
+  }, "Jana Abreu Confeitaria");
+  if (!priced || priced["@type"] !== "Product" || priced.brand["@type"] !== "Brand" || priced.brand.name !== "Jana Abreu Confeitaria") {
+    errors.push("product JSON-LD must use Brand and Product types");
+  }
+  if (priced.offers.price !== 467 || priced.offers.priceCurrency !== "BRL" || priced.offers.availability !== "https://schema.org/InStock") {
+    errors.push("product JSON-LD must include a BRL InStock offer with price when the product has a fixed price");
+  }
+  if (priced.image !== "https://janaabreuconfeitaria.com.br/assets/products/tabua-signature/01.webp" || !priced.url.includes("slug=tabua-signature")) {
+    errors.push("product JSON-LD must use absolute image and product URLs");
+  }
+  JSON.parse(JSON.stringify(priced));
+  const open = Jana.productJsonLd({ slug: "consulta", name: "Bolo", description: "", images: [] }, "Jana Abreu Confeitaria");
+  if (open.offers.price != null) {
+    errors.push("product JSON-LD must omit price when the item has no fixed price");
+  }
+})();
+
 if (errors.length) {
   console.error(errors.join("\n"));
   process.exit(1);

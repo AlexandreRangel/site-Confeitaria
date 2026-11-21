@@ -1523,3 +1523,89 @@ body[data-page="area"] .hero.hero--banners .hero__slide img {
   color: var(--brown);
   line-height: 1.5;
 }
+
+.home-lead {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 1.15rem var(--page-gutter) 0.15rem;
+  text-align: center;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(1.05rem, 2.5vw, 1.4rem);
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.faq {
+  max-width: 42rem;
+  margin: 0.4rem auto 2.2rem;
+  padding: 0 var(--page-gutter) 0.4rem;
+}
+
+.faq h2 {
+  margin-bottom: 1.15rem;
+}
+
+.faq details {
+  margin: 0 0 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel-strong);
+}
+
+.faq details[open] {
+  border-color: rgba(184, 110, 136, 0.4);
+}
+
+.faq summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  width: 100%;
+  min-height: 44px;
+  padding: 0.85rem 1.1rem;
+  list-style: none;
+  cursor: pointer;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(1.05rem, 2.2vw, 1.25rem);
+  line-height: 1.35;
+  color: var(--brown);
+}
+
+.faq summary::-webkit-details-marker,
+.faq summary::marker {
+  display: none;
+  content: "";
+}
+
+.faq summary::after {
+  content: "+";
+  flex: 0 0 auto;
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: 1.35rem;
+  line-height: 1;
+  color: var(--primary-deep);
+}
+
+.faq details[open] summary::after {
+  content: "–";
+}
+
+.faq summary:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+  border-radius: var(--radius);
+}
+
+.faq details p {
+  margin: 0;
+  padding: 0 1.1rem 1rem;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 1rem;
+  line-height: 1.6;
+}
