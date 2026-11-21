@@ -58,6 +58,13 @@ async function proxy(route, o) {
   }
 }
 
+async function confirmarFotoEditor(page) {
+  const dlg = page.locator('[data-ed="foto-editor-modal"]');
+  await dlg.waitFor({ state: "visible", timeout: 15000 });
+  await dlg.locator('[data-fe-action="aplicar"]').click();
+  await dlg.waitFor({ state: "hidden", timeout: 20000 });
+}
+
 async function pngFile(page, w, h, color, name) {
   const dataUrl = await page.evaluate(
     ([w, h, color]) => {
@@ -169,6 +176,7 @@ async function run(browser, viewport) {
   await page.waitForSelector('[data-ed="dialog-produto"][open]');
   await page.fill('[data-ed="form-produto"] input[name="nome"]', nome);
   await page.setInputFiles('[data-ed-file="produto"]', await pngFile(page, 1600, 1200, "#b86e88", "foto.png"));
+  await confirmarFotoEditor(page);
   await page.waitForSelector('[data-ed="dialog-produto"] .ed-foto img');
   await page.fill('[data-foto-alt="0"]', "Bolo rosa de teste");
   await page.fill('[data-ed="form-produto"] input[name="preco"]', "123,45");
@@ -249,8 +257,10 @@ async function run(browser, viewport) {
   await page.click('[data-ed-action="novo-banner"]');
   await page.waitForSelector('[data-ed="dialog-banner"][open]');
   await page.setInputFiles('[data-ed-file="banner-pc"]', await pngFile(page, 2400, 700, "#4c553a", "pc.png"));
+  await confirmarFotoEditor(page);
   await page.waitForSelector('[data-ed="dialog-banner"] .ed-preview--pc img');
   await page.setInputFiles('[data-ed-file="banner-cel"]', await pngFile(page, 1200, 800, "#b86e88", "cel.png"));
+  await confirmarFotoEditor(page);
   await page.waitForSelector('[data-ed="dialog-banner"] .ed-preview--cel img');
   const titulo = "Banner de teste " + tag;
   await page.fill('[data-ed="form-banner"] input[name="title"]', titulo);

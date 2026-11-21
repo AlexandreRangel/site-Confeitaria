@@ -328,6 +328,67 @@
     return path;
   }
 
+  function presetDaFoto(kind, extra) {
+    const pagina = extra && extra.pagina != null ? extra.pagina : (ED.banner && ED.banner.pagina);
+    const tam = tamanhos(pagina || ED.carrosselPagina || "home");
+    if (kind === "produto" || kind === "produto-trocar") {
+      return { maxW: IMG.produto.maxW, maxH: IMG.produto.maxH, alvo: IMG.produto.alvo, ratio: [1, 1], title: "Editar foto do produto" };
+    }
+    if (kind === "banner-pc" || kind === "pc") {
+      return { maxW: IMG.bannerPc.maxW, maxH: IMG.bannerPc.maxH, alvo: IMG.bannerPc.alvo, ratio: tam.pc, alsoW900: true, w900Alvo: 220 * 1024, title: "Editar banner no computador" };
+    }
+    if (kind === "banner-cel" || kind === "cel") {
+      return { maxW: IMG.bannerCel.maxW, maxH: IMG.bannerCel.maxH, alvo: IMG.bannerCel.alvo, ratio: tam.cel, alsoW900: true, w900Alvo: 220 * 1024, title: "Editar banner no celular" };
+    }
+    if (kind === "area" || kind === "area-nova" || kind === "area-foto-produto") {
+      return { maxW: IMG.area.maxW, maxH: IMG.area.maxH, alvo: IMG.area.alvo, ratio: [1, 1], title: "Editar foto da categoria" };
+    }
+    if (kind === "retrato") {
+      return { maxW: IMG.sobre.maxW, maxH: IMG.sobre.maxH, alvo: IMG.sobre.alvo, ratio: [7, 9], title: "Editar foto da Jana" };
+    }
+    if (kind === "tx-imprensa" || kind === "imprensa") {
+      return { maxW: IMG.imprensa.maxW, maxH: IMG.imprensa.maxH, alvo: IMG.imprensa.alvo, ratio: IMG.imprensa.ratio || [3, 4], title: "Editar miniatura da imprensa" };
+    }
+    if (kind === "tx-instagram") {
+      return { maxW: IMG.area.maxW, maxH: IMG.area.maxH, alvo: IMG.area.alvo, ratio: [1, 1], title: "Editar foto do Instagram" };
+    }
+    if (kind === "tx-trabalhos") {
+      return { maxW: IMG.sobre.maxW, maxH: IMG.sobre.maxH, alvo: IMG.sobre.alvo, ratio: [1, 1], title: "Editar foto da galeria" };
+    }
+    if (kind === "tx-intro") {
+      return { maxW: IMG.sobre.maxW, maxH: IMG.sobre.maxH, alvo: IMG.sobre.alvo, ratio: [1, 1], title: "Editar foto" };
+    }
+    return { maxW: 1400, maxH: 1400, alvo: 360 * 1024, ratio: [1, 1], title: "Editar foto" };
+  }
+
+  async function processarComEditor(source, kind, extra) {
+    const preset = Object.assign({}, presetDaFoto(kind, extra), extra || {});
+    if (Jana.FotoEditor && typeof Jana.FotoEditor.open === "function") {
+      return Jana.FotoEditor.open(Object.assign({}, preset, { source: source }));
+    }
+    return processImage(source, preset);
+  }
+
+  async function sourceFromPath(path) {
+    if (!path) throw new Error("Não há foto para editar.");
+    const pending = ED.pending.get(path);
+    if (pending && pending.blob) return pending.blob;
+    const src = imgSrc(path);
+    const res = await fetch(src);
+    if (!res.ok) throw new Error("Não consegui abrir a foto atual.");
+    return res.blob();
+  }
+
+  function registrarW900(path, res, dest, key) {
+    delete dest[key];
+    if (res && res.w900 && res.w900.blob) {
+      const ext = res.w900.ext || res.ext || "webp";
+      const widePath = path.replace(/\.(webp|jpg)$/i, "-w900." + ext);
+      ED.pending.set(widePath, { blob: res.w900.blob, url: URL.createObjectURL(res.w900.blob), w: res.w900.width, h: res.w900.height });
+      dest[key] = widePath;
+    }
+  }
+
   function proporcaoAviso(result, alvo) {
     if (!alvo) return "";
     const r = result.origW / result.origH;
@@ -1065,6 +1126,8 @@
           '<label class="ed-field ed-field--small">Descrição da foto <span class="ed-opcional">(para quem usa leitor de tela)</span>' +
           '<input type="text" maxlength="200" data-foto-alt="' + i + '" value="' + esc(f.alt) + '" placeholder="' + esc(d.nome || "Ex.: bolo de dois andares com flores") + '"></label>' +
           '<div class="ed-foto__acoes">' +
+          '<button type="button" class="btn btn--small btn--outline" data-ed-action="foto-editar" data-i="' + i + '">Editar foto</button>' +
+          '<label class="btn btn--small btn--outline ed-arquivo">Trocar foto<input type="file" accept="image/*" data-ed-file="produto-trocar" data-i="' + i + '"></label>' +
           '<button type="button" class="btn btn--small btn--outline" data-ed-action="foto-mover" data-i="' + i + '" data-dir="-1"' + (i === 0 ? " disabled" : "") + ' aria-label="Mover foto ' + (i + 1) + ' para antes">◀</button>' +
           '<button type="button" class="btn btn--small btn--outline" data-ed-action="foto-mover" data-i="' + i + '" data-dir="1"' + (i === d.fotos.length - 1 ? " disabled" : "") + ' aria-label="Mover foto ' + (i + 1) + ' para depois">▶</button>' +
           '<button type="button" class="btn btn--small btn--danger" data-ed-action="foto-remover" data-i="' + i + '" aria-label="Remover foto ' + (i + 1) + '">Remover</button>' +
@@ -1092,7 +1155,7 @@
       (d.fotos.length ? '<ul class="ed-fotos">' + fotos + "</ul>" : '<p class="ed-dica">Nenhuma foto ainda.</p>') +
       fieldErr("fotos") +
       '<label class="btn btn--outline ed-arquivo">+ Adicionar fotos<input type="file" accept="image/*" multiple data-ed-file="produto"' + inv("fotos") + "></label>" +
-      '<p class="ed-dica">A primeira foto é a capa. As fotos são reduzidas e comprimidas aqui mesmo antes de enviar.</p></fieldset>' +
+      '<p class="ed-dica">A primeira foto é a capa. Cada foto abre no editor para enquadrar, ajustar e gerar o WebP (formato quadrado, como no site).</p></fieldset>' +
       '<label class="ed-field">Nome <span class="ed-obrigatorio">(obrigatório)</span><input type="text" name="nome" maxlength="160" required value="' + esc(d.nome) + '"' + inv("nome") + ">" + fieldErr("nome") + "</label>" +
       '<div class="ed-linha">' +
       '<label class="ed-field">Preço (R$)<input type="text" name="preco" inputmode="decimal" autocomplete="off" placeholder="0,00" value="' + esc(d.preco) + '"' + (d.sobConsulta ? " disabled" : "") + inv("preco") + ">" + fieldErr("preco") + "</label>" +
@@ -1153,13 +1216,62 @@
         break;
       }
       try {
-        const res = await processImage(file, IMG.produto);
+        const res = await processarComEditor(file, "produto");
+        if (!res) continue;
         d.fotos.push({ path: addPending(pasta, "foto", res), alt: "" });
       } catch (err) {
         avisos.push(file.name + ": " + err.message);
       }
     }
     setStatus(avisos.length ? "erro" : "", avisos.join(" "));
+    renderProdutoDialog();
+  }
+
+  function pastaFotosProduto() {
+    const d = ED.produto;
+    return "assets/products/" + (d.original ? d.original.slug : slugify(d.nome || "novo-produto"));
+  }
+
+  async function editarFotoProduto(i) {
+    lerProdutoForm();
+    const d = ED.produto;
+    const item = d.fotos[i];
+    if (!item) return;
+    setStatus("salvando", "Abrindo a foto…");
+    try {
+      const source = await sourceFromPath(item.path);
+      const res = await processarComEditor(source, "produto");
+      if (!res) {
+        setStatus("", "");
+        return;
+      }
+      item.path = addPending(pastaFotosProduto(), "foto", res);
+      setStatus("", "");
+    } catch (err) {
+      setStatus("erro", err.message);
+    }
+    renderProdutoDialog();
+  }
+
+  async function trocarFotoProduto(input) {
+    lerProdutoForm();
+    const d = ED.produto;
+    const i = Number(input.getAttribute("data-i"));
+    const file = input.files && input.files[0];
+    input.value = "";
+    if (!file || !d.fotos[i]) return;
+    setStatus("salvando", "Preparando a foto…");
+    try {
+      const res = await processarComEditor(file, "produto-trocar");
+      if (!res) {
+        setStatus("", "");
+        return;
+      }
+      d.fotos[i].path = addPending(pastaFotosProduto(), "foto", res);
+      setStatus("", "");
+    } catch (err) {
+      setStatus("erro", err.message);
+    }
     renderProdutoDialog();
   }
 
@@ -1786,11 +1898,15 @@
       '<fieldset class="ed-grupo"><legend>Imagem para computador <span class="ed-obrigatorio">(obrigatória)</span></legend>' +
       '<div class="ed-preview ed-preview--pc ed-preview--frame" data-ed-foto-frame="pc" tabindex="0" role="group" aria-label="Enquadramento no computador" style="aspect-ratio:' + tam.pc[0] + "/" + tam.pc[1] + '">' + (b.image ? imgTag(b.image, "", "") : '<span class="ed-semfoto">sem imagem</span>') + "</div>" +
       (b.avisoPc ? '<p class="ed-alerta">' + esc(b.avisoPc) + "</p>" : "") + fe("image") +
-      '<label class="btn btn--outline ed-arquivo">' + (b.image ? "Trocar imagem" : "Escolher imagem") + '<input type="file" accept="image/*" data-ed-file="banner-pc"' + inv("image") + "></label></fieldset>" +
+      '<div class="ed-linha">' +
+      (b.image ? '<button type="button" class="btn btn--outline" data-ed-action="banner-editar-pc">Editar foto</button>' : "") +
+      '<label class="btn btn--outline ed-arquivo">' + (b.image ? "Trocar foto" : "Escolher foto") + '<input type="file" accept="image/*" data-ed-file="banner-pc"' + inv("image") + "></label></div></fieldset>" +
       '<fieldset class="ed-grupo"><legend>Imagem para celular <span class="ed-opcional">(opcional)</span></legend>' +
       '<div class="ed-preview ed-preview--cel ed-preview--frame" data-ed-foto-frame="cel" tabindex="0" role="group" aria-label="Enquadramento no celular" style="aspect-ratio:' + tam.cel[0] + "/" + tam.cel[1] + '">' + ((b.imageMobile || b.image) ? imgTag(b.imageMobile || b.image, "", "") : '<span class="ed-semfoto">sem imagem</span>') + "</div>" +
       (b.avisoCel ? '<p class="ed-alerta">' + esc(b.avisoCel) + "</p>" : "") +
-      '<div class="ed-linha"><label class="btn btn--outline ed-arquivo">' + (b.imageMobile ? "Trocar imagem" : "Escolher imagem") + '<input type="file" accept="image/*" data-ed-file="banner-cel"></label>' +
+      '<div class="ed-linha">' +
+      (b.imageMobile || b.image ? '<button type="button" class="btn btn--outline" data-ed-action="banner-editar-cel">Editar foto</button>' : "") +
+      '<label class="btn btn--outline ed-arquivo">' + (b.imageMobile ? "Trocar foto" : "Escolher foto") + '<input type="file" accept="image/*" data-ed-file="banner-cel"></label>' +
       (b.imageMobile ? '<button type="button" class="btn btn--outline" data-ed-action="banner-sem-celular">Tirar imagem do celular</button>' : "") +
       (b.image && !b.imageMobile ? '<p class="ed-dica">Sem imagem de celular, o celular usa a do computador no recorte acima.</p>' : "") +
       "</div></fieldset>" +
@@ -1902,44 +2018,69 @@
     const tam = tamanhos(b.pagina);
     setStatus("salvando", "Preparando a imagem…");
     try {
-      const kind = qual === "produto" ? IMG.produto : qual === "pc" ? IMG.bannerPc : IMG.bannerCel;
-      const res = await processImage(file, kind);
       const base = (b.original ? b.original.id : "banner").replace(/^slide-/, "").slice(0, 60);
       const suffix = qual === "produto" ? "-foto" : qual === "pc" ? "-pc" : "-cel";
+      let res;
+      if (qual === "produto") {
+        res = await processImage(file, IMG.produto);
+      } else {
+        res = await processarComEditor(file, qual);
+        if (!res) {
+          setStatus("", "");
+          renderBannerDialog();
+          return;
+        }
+      }
       const path = addPending("assets/carousel", base + suffix, res);
       if (qual === "produto") {
         setOverride(b, "image", path);
       } else if (qual === "pc") {
         b.image = path;
         b.formato = "banner";
-        b.avisoPc = proporcaoAviso(res, tam.pc);
+        b.avisoPc = "";
         b.mudou = true;
-        delete b.imageW900;
-        if (res.width > 900) {
-          try {
-            const narrow = await processImage(file, { maxW: 900, maxH: 20000, alvo: 220 * 1024 });
-            const widePath = path.replace(/\.(webp|jpg)$/i, "-w900.$1");
-            ED.pending.set(widePath, { blob: narrow.blob, url: URL.createObjectURL(narrow.blob), w: narrow.width, h: narrow.height });
-            b.imageW900 = widePath;
-          } catch (errWide) {
-            delete b.imageW900;
-          }
-        }
+        registrarW900(path, res, b, "imageW900");
       } else {
         b.imageMobile = path;
-        b.avisoCel = proporcaoAviso(res, tam.cel);
+        b.avisoCel = "";
         b.mudou = true;
-        delete b.imageMobileW900;
-        if (res.width > 900) {
-          try {
-            const narrow = await processImage(file, { maxW: 900, maxH: 20000, alvo: 220 * 1024 });
-            const widePath = path.replace(/\.(webp|jpg)$/i, "-w900.$1");
-            ED.pending.set(widePath, { blob: narrow.blob, url: URL.createObjectURL(narrow.blob), w: narrow.width, h: narrow.height });
-            b.imageMobileW900 = widePath;
-          } catch (errWide) {
-            delete b.imageMobileW900;
-          }
-        }
+        registrarW900(path, res, b, "imageMobileW900");
+      }
+      setStatus("", "");
+    } catch (err) {
+      setStatus("erro", err.message);
+    }
+    renderBannerDialog();
+  }
+
+  async function editarFotoBanner(qual) {
+    lerBannerForm();
+    const b = ED.banner;
+    if (!b) return;
+    const path = qual === "pc" ? b.image : (b.imageMobile || b.image);
+    if (!path) return;
+    setStatus("salvando", "Abrindo a foto…");
+    try {
+      const source = await sourceFromPath(path);
+      const res = await processarComEditor(source, qual);
+      if (!res) {
+        setStatus("", "");
+        return;
+      }
+      const base = (b.original ? b.original.id : "banner").replace(/^slide-/, "").slice(0, 60);
+      const suffix = qual === "pc" ? "-pc" : "-cel";
+      const next = addPending("assets/carousel", base + suffix, res);
+      if (qual === "pc") {
+        b.image = next;
+        b.formato = "banner";
+        b.avisoPc = "";
+        b.mudou = true;
+        registrarW900(next, res, b, "imageW900");
+      } else {
+        b.imageMobile = next;
+        b.avisoCel = "";
+        b.mudou = true;
+        registrarW900(next, res, b, "imageMobileW900");
       }
       setStatus("", "");
     } catch (err) {
@@ -2416,6 +2557,8 @@
                   : "")
               : "") +
             '<div class="ed-foto__acoes">' +
+            '<button type="button" class="btn btn--small btn--outline" data-ed-action="tx-foto-editar" data-lista="' + kind + '" data-i="' + i + '">Editar foto</button>' +
+            '<label class="btn btn--small btn--outline ed-arquivo">Trocar foto<input type="file" accept="image/*" data-ed-file="tx-' + kind + '-trocar" data-i="' + i + '"></label>' +
             '<button type="button" class="btn btn--small btn--outline" data-ed-action="tx-mover" data-lista="' + kind + '" data-i="' + i + '" data-dir="-1"' + (i === 0 ? " disabled" : "") + ' aria-label="Mover para antes">◀</button>' +
             '<button type="button" class="btn btn--small btn--outline" data-ed-action="tx-mover" data-lista="' + kind + '" data-i="' + i + '" data-dir="1"' + (i === items.length - 1 ? " disabled" : "") + ' aria-label="Mover para depois">▶</button>' +
             '<button type="button" class="btn btn--small btn--danger" data-ed-action="tx-remover" data-lista="' + kind + '" data-i="' + i + '">Remover</button></div></li>'
@@ -2607,7 +2750,8 @@
           '<div class="ed-area__foto">' +
           imgTag(a.image, a.name || "", "") +
           '<div class="ed-foto__acoes">' +
-          '<label class="btn btn--small btn--outline ed-arquivo">Enviar foto<input type="file" accept="image/*" data-ed-file="area" data-id="' + esc(a.id) + '"></label>' +
+          (a.image ? '<button type="button" class="btn btn--small btn--outline" data-ed-action="area-foto-editar" data-id="' + esc(a.id) + '">Editar foto</button>' : "") +
+          '<label class="btn btn--small btn--outline ed-arquivo">' + (a.image ? "Trocar foto" : "Enviar foto") + '<input type="file" accept="image/*" data-ed-file="area" data-id="' + esc(a.id) + '"></label>' +
           (a.image ? '<button type="button" class="btn btn--small btn--outline" data-ed-action="area-foto-remover" data-id="' + esc(a.id) + '">Remover foto</button>' : "") +
           "</div>" +
           '<details class="ed-area__pick">' +
@@ -2662,7 +2806,9 @@
       (nova.name ? '<p class="ed-dica">Endereço: <code>/' + esc(slugPrev) + "/</code></p>" : '<p class="ed-dica">O endereço da página é criado automaticamente a partir do nome, em português (sem acento).</p>') +
       '<label class="ed-field">Descrição <span class="ed-opcional">(opcional)</span><textarea rows="2" maxlength="800" data-cat-nova="description">' + esc(nova.description || "") + "</textarea></label>" +
       '<div class="ed-area__foto">' + imgTag(nova.image, "", "") +
-      '<label class="btn btn--small btn--outline ed-arquivo">Escolher foto<input type="file" accept="image/*" data-ed-file="area-nova"></label></div>' +
+      '<div class="ed-foto__acoes">' +
+      (nova.image ? '<button type="button" class="btn btn--small btn--outline" data-ed-action="area-nova-editar">Editar foto</button>' : "") +
+      '<label class="btn btn--small btn--outline ed-arquivo">' + (nova.image ? "Trocar foto" : "Escolher foto") + '<input type="file" accept="image/*" data-ed-file="area-nova"></label></div></div>' +
       '<button type="button" class="btn btn--solid" data-ed-action="area-criar">Adicionar categoria</button></section>';
   }
 
@@ -2761,7 +2907,8 @@
           '<li class="ed-card"><div class="ed-imprensa-foto">' +
           (x.image ? imgTag(x.image, x.alt || "", "ed-imprensa-foto__img") : '<span class="ed-semfoto">sem miniatura</span>') +
           '<div class="ed-linha">' +
-          '<label class="btn btn--outline btn--small ed-arquivo">' + (x.image ? "Trocar miniatura" : "Enviar miniatura") +
+          (x.image ? '<button type="button" class="btn btn--outline btn--small" data-ed-action="imprensa-foto-editar" data-i="' + i + '">Editar foto</button>' : "") +
+          '<label class="btn btn--outline btn--small ed-arquivo">' + (x.image ? "Trocar foto" : "Enviar miniatura") +
           '<input type="file" accept="image/*" data-ed-file="tx-imprensa" data-i="' + i + '"></label>' +
           (x.image ? '<button type="button" class="btn btn--small btn--danger" data-ed-action="imprensa-foto-remover" data-i="' + i + '">Remover miniatura</button>' : "") +
           "</div><p class=\"ed-dica\">Formato 3x4 (retrato)</p></div>" +
@@ -2779,7 +2926,9 @@
       campo("Abertura", "sobre.lead", sobre.lead, { area: true, max: 2000, opcional: true }) +
       '<fieldset class="ed-grupo"><legend>Foto da Jana <span class="ed-opcional">(opcional)</span></legend>' +
       (sobre.portrait.src ? '<div class="ed-retrato">' + imgTag(sobre.portrait.src, "", "") + "</div>" : "") +
-      '<div class="ed-linha"><label class="btn btn--outline btn--small ed-arquivo">' + (sobre.portrait.src ? "Trocar foto" : "Escolher foto") + '<input type="file" accept="image/*" data-ed-file="retrato"></label>' +
+      '<div class="ed-linha">' +
+      (sobre.portrait.src ? '<button type="button" class="btn btn--outline btn--small" data-ed-action="retrato-editar">Editar foto</button>' : "") +
+      '<label class="btn btn--outline btn--small ed-arquivo">' + (sobre.portrait.src ? "Trocar foto" : "Escolher foto") + '<input type="file" accept="image/*" data-ed-file="retrato"></label>' +
       (sobre.portrait.src ? '<button type="button" class="btn btn--small btn--danger" data-ed-action="retrato-remover">Remover foto</button>' : "") + "</div>" +
       campo("Descrição da foto", "sobre.portrait.alt", sobre.portrait.alt, { max: 200 }) + "</fieldset>" +
       campo("História", "sobre.story", (sobre.story || []).join("\n\n"), { area: true, rows: 7, tipo: "paragrafos", opcional: true, dica: "Deixe uma linha em branco entre os parágrafos." }) +
@@ -2790,7 +2939,7 @@
       listaFotos("intro", sobre.introPhotos || [], { alt: true, multiplo: true }) +
       "</section>" +
       '<fieldset class="ed-grupo"><legend>Galeria de trabalhos</legend><p class="ed-dica">Aparecem em carrossel na página Sobre nós, numa fileira só. A ordem da lista é a ordem das fotos.</p>' + listaFotos("trabalhos", sobre.workGallery || [], { alt: true, produto: true, multiplo: true }) + "</fieldset>" +
-      '<fieldset class="ed-grupo"><legend>Na imprensa</legend><p class="ed-dica">Cada matéria pode ter uma miniatura no formato 3x4 (retrato), que aparece no card de Sobre nós. Na troca, a foto é recortada nessa proporção. Se ficar sem foto, o card sai só com o texto.</p><ul class="ed-imprensa">' + imprensa + "</ul>" +
+      '<fieldset class="ed-grupo"><legend>Na imprensa</legend><p class="ed-dica">Cada matéria pode ter uma miniatura no formato 3x4 (retrato), que aparece no card de Sobre nós. Na troca ou em «Editar foto», a imagem abre no editor nessa proporção. Se ficar sem foto, o card sai só com o texto.</p><ul class="ed-imprensa">' + imprensa + "</ul>" +
       '<button type="button" class="btn btn--outline btn--small" data-ed-action="tx-novo" data-lista="imprensa">+ Adicionar matéria</button></fieldset>' +
       '<fieldset class="ed-grupo"><legend>Fotos da faixa do Instagram</legend><p class="ed-dica">Aparecem em destaque em Sobre nós e levam para o perfil.</p>' +
       listaFotos("instagram", (sobre.instagramGallery || []).map(function wrap(src) { return { src: src }; }), { multiplo: true }) + "</fieldset>";
@@ -3065,9 +3214,33 @@
     updateSavebar();
   }
 
+  function pathDaLista(kind, item) {
+    if (kind === "instagram") return item;
+    return item && (item.src || item.image || "");
+  }
+
+  function aplicarFotoLista(kind, i, path, trocar) {
+    const list = txLista(kind);
+    if (kind === "instagram") {
+      if (trocar && list[i] !== undefined) list[i] = path;
+      else list.push(path);
+      return;
+    }
+    if (kind === "imprensa") {
+      if (list[i]) list[i].image = path;
+      return;
+    }
+    if (trocar && list[i]) list[i].src = path;
+    else list.push({ src: path, alt: "" });
+  }
+
   async function textosArquivo(input) {
-    const kind = input.getAttribute("data-ed-file");
+    let kind = input.getAttribute("data-ed-file");
+    const trocar = /trocar$/.test(kind || "");
+    if (trocar) kind = kind.replace(/-trocar$/, "");
     const files = Array.from(input.files || []);
+    const idx = Number(input.getAttribute("data-i"));
+    const areaId = input.getAttribute("data-id");
     input.value = "";
     if (!files.length) return;
     setStatus("salvando", "Preparando a imagem…");
@@ -3075,37 +3248,82 @@
     for (const file of files) {
       try {
         if (kind === "area") {
-          const id = input.getAttribute("data-id");
-          const res = await processImage(file, IMG.area);
-          const a = categoriasList().find((x) => x.id === id);
-          if (a) a.image = addPending("assets/areas", id, res);
+          const res = await processarComEditor(file, "area");
+          if (!res) continue;
+          const a = categoriasList().find((x) => x.id === areaId);
+          if (a) a.image = addPending("assets/areas", areaId, res);
         } else if (kind === "area-nova") {
-          const res = await processImage(file, IMG.area);
+          const res = await processarComEditor(file, "area-nova");
+          if (!res) continue;
           ED.novaCategoria = ED.novaCategoria || { name: "", description: "", image: "" };
           ED.novaCategoria.image = addPending("assets/areas", "nova", res);
         } else if (kind === "retrato") {
-          const res = await processImage(file, IMG.sobre);
+          const res = await processarComEditor(file, "retrato");
+          if (!res) continue;
           ED.drafts.sobre.sobre.portrait.src = addPending("assets/sobre", "jana", res);
-        } else if (kind === "tx-trabalhos") {
-          const res = await processImage(file, IMG.sobre);
-          txLista("trabalhos").push({ src: addPending("assets/sobre", "trabalho", res), alt: "" });
-        } else if (kind === "tx-intro") {
-          const res = await processImage(file, IMG.sobre);
-          txLista("intro").push({ src: addPending("assets/sobre", "intro", res), alt: "" });
-        } else if (kind === "tx-instagram") {
-          const res = await processImage(file, IMG.area);
-          txLista("instagram").push(addPending("assets/sobre", "instagram", res));
-        } else if (kind === "tx-imprensa") {
-          const i = Number(input.getAttribute("data-i"));
-          const res = await processImage(file, IMG.imprensa);
-          const list = txLista("imprensa");
-          if (list[i]) list[i].image = addPending("assets/sobre", "imprensa", res);
+        } else if (kind === "tx-trabalhos" || kind === "tx-intro" || kind === "tx-instagram" || kind === "tx-imprensa") {
+          const lista = kind.replace(/^tx-/, "");
+          const res = await processarComEditor(file, kind);
+          if (!res) continue;
+          const pastaBase = lista === "imprensa" ? "imprensa" : lista === "instagram" ? "instagram" : lista === "intro" ? "intro" : "trabalho";
+          const path = addPending("assets/sobre", pastaBase, res);
+          aplicarFotoLista(lista, idx, path, trocar);
         }
       } catch (err) {
         erros.push(err.message);
       }
     }
     setStatus(erros.length ? "erro" : "", erros.join(" "));
+    renderCurrentEditor();
+    updateSavebar();
+  }
+
+  async function editarFotoExistente(kind, opts) {
+    const o = opts || {};
+    setStatus("salvando", "Abrindo a foto…");
+    try {
+      let path = "";
+      let dir = "assets/sobre";
+      let base = "foto";
+      if (kind === "area") {
+        const a = categoriasList().find((x) => x.id === o.id);
+        path = a && a.image;
+        dir = "assets/areas";
+        base = o.id || "area";
+      } else if (kind === "area-nova") {
+        path = ED.novaCategoria && ED.novaCategoria.image;
+        dir = "assets/areas";
+        base = "nova";
+      } else if (kind === "retrato") {
+        path = ED.drafts.sobre.sobre.portrait.src;
+        base = "jana";
+      } else if (kind === "tx-trabalhos" || kind === "tx-intro" || kind === "tx-instagram" || kind === "tx-imprensa") {
+        const lista = kind.replace(/^tx-/, "");
+        const item = txLista(lista)[o.i];
+        path = pathDaLista(lista, item);
+        base = lista === "imprensa" ? "imprensa" : lista === "instagram" ? "instagram" : lista === "intro" ? "intro" : "trabalho";
+      }
+      const source = await sourceFromPath(path);
+      const res = await processarComEditor(source, kind === "area-nova" ? "area" : kind);
+      if (!res) {
+        setStatus("", "");
+        return;
+      }
+      const next = addPending(dir, base, res);
+      if (kind === "area") {
+        const a = categoriasList().find((x) => x.id === o.id);
+        if (a) a.image = next;
+      } else if (kind === "area-nova") {
+        ED.novaCategoria.image = next;
+      } else if (kind === "retrato") {
+        ED.drafts.sobre.sobre.portrait.src = next;
+      } else {
+        aplicarFotoLista(kind.replace(/^tx-/, ""), o.i, next, true);
+      }
+      setStatus("", "");
+    } catch (err) {
+      setStatus("erro", err.message);
+    }
     renderCurrentEditor();
     updateSavebar();
   }
@@ -3220,6 +3438,9 @@
         moverItem(ED.produto.fotos, Number(el.getAttribute("data-i")), Number(el.getAttribute("data-dir")));
         renderProdutoDialog();
         break;
+      case "foto-editar":
+        editarFotoProduto(Number(el.getAttribute("data-i")));
+        break;
       case "foto-remover": {
         lerProdutoForm();
         const i = Number(el.getAttribute("data-i"));
@@ -3267,6 +3488,14 @@
         break;
       case "banner-reverter":
         reverterCampoBanner(el.getAttribute("data-campo"));
+        break;
+      case "banner-editar-pc":
+        event.preventDefault();
+        editarFotoBanner("pc");
+        break;
+      case "banner-editar-cel":
+        event.preventDefault();
+        editarFotoBanner("cel");
         break;
       case "banner-foto-nudge":
         event.preventDefault();
@@ -3402,13 +3631,31 @@
         break;
       case "area-foto-produto": {
         const a = categoriasList().find((x) => x.id === id);
-        if (a) {
-          a.image = el.getAttribute("data-src");
+        const src = el.getAttribute("data-src");
+        if (!a || !src) break;
+        setStatus("salvando", "Abrindo a foto…");
+        try {
+          const source = await sourceFromPath(src);
+          const res = await processarComEditor(source, "area-foto-produto");
+          if (!res) {
+            setStatus("", "");
+            break;
+          }
+          a.image = addPending("assets/areas", a.id, res);
+          setStatus("", "");
           renderCategorias();
           updateSavebar();
+        } catch (err) {
+          setStatus("erro", err.message);
         }
         break;
       }
+      case "area-foto-editar":
+        await editarFotoExistente("area", { id: id });
+        break;
+      case "area-nova-editar":
+        await editarFotoExistente("area-nova");
+        break;
       case "area-foto-remover": {
         const a = categoriasList().find((x) => x.id === id);
         if (!a) break;
@@ -3475,6 +3722,15 @@
         if (foco.length) foco[foco.length - 1].focus();
         break;
       }
+      case "tx-foto-editar":
+        await editarFotoExistente("tx-" + el.getAttribute("data-lista"), { i: Number(el.getAttribute("data-i")) });
+        break;
+      case "imprensa-foto-editar":
+        await editarFotoExistente("tx-imprensa", { i: Number(el.getAttribute("data-i")) });
+        break;
+      case "retrato-editar":
+        await editarFotoExistente("retrato");
+        break;
       case "imprensa-foto-remover": {
         const i = Number(el.getAttribute("data-i"));
         const item = txLista("imprensa")[i];
@@ -3614,6 +3870,7 @@
     if (t.matches('input[type="file"][data-ed-file]')) {
       const kind = t.getAttribute("data-ed-file");
       if (kind === "produto") adicionarFotosProduto(t);
+      else if (kind === "produto-trocar") trocarFotoProduto(t);
       else if (kind === "banner-pc") bannerArquivo(t, "pc");
       else if (kind === "banner-cel") bannerArquivo(t, "cel");
       else if (kind === "banner-produto-foto") bannerArquivo(t, "produto");
@@ -3831,6 +4088,14 @@
     fotoDrag = null;
   }
 
+  function onFotoWheel(event) {
+    const frame = event.target.closest("[data-ed-foto-frame]");
+    if (!frame || !ED.banner) return;
+    event.preventDefault();
+    const f = Jana.normalizeFoto(ED.banner.foto);
+    setFotoCampo("zoom", f.zoom + (event.deltaY > 0 ? -0.1 : 0.1));
+  }
+
   function onFotoKeyDown(event) {
     const frame = event.target.closest("[data-ed-foto-frame]");
     if (!frame || !ED.banner) return;
@@ -3863,6 +4128,7 @@
     document.addEventListener("pointerup", onFotoPointerUp);
     document.addEventListener("pointercancel", onFotoPointerUp);
     document.addEventListener("keydown", onFotoKeyDown);
+    document.addEventListener("wheel", onFotoWheel, { passive: false });
     bindDialogs();
     global.addEventListener("beforeunload", function warn(event) {
       if (anyDirty()) {
@@ -3895,7 +4161,7 @@
   }
 
   // exposto para os testes automatizados
-  global.JanaEditor = { state: ED, applyAreas: applyAreas, parsePreco: parsePreco, slugify: slugify, buildProduto: buildProduto, processImage: processImage, setFotoCampo: setFotoCampo };
+  global.JanaEditor = { state: ED, applyAreas: applyAreas, parsePreco: parsePreco, slugify: slugify, buildProduto: buildProduto, processImage: processImage, processarComEditor: processarComEditor, setFotoCampo: setFotoCampo };
 
   document.addEventListener("DOMContentLoaded", init);
 })(window);

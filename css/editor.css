@@ -1561,3 +1561,181 @@ body.ed-ocupado .ed-form [type="submit"] {
     flex-wrap: wrap;
   }
 }
+
+/* ---------- Editor de foto reutilizável (modal) ---------- */
+
+.ed-feditor {
+  display: flex;
+  flex-direction: column;
+  width: min(52rem, calc(100vw - 1.2rem));
+  max-height: calc(100dvh - 1.2rem);
+  padding: 0;
+  border: 1px solid var(--line, #e4c4ce);
+  border-radius: 18px;
+  background: var(--cream, #fdf6ec);
+  color: inherit;
+  box-shadow: 0 18px 48px rgba(76, 85, 58, 0.18);
+  overflow: hidden;
+}
+.ed-feditor::backdrop {
+  background: rgba(76, 85, 58, 0.38);
+}
+.ed-feditor__form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  max-height: 100%;
+  overflow: hidden;
+}
+.ed-feditor__topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--line, #e4c4ce);
+  flex-shrink: 0;
+}
+.ed-feditor__topo h2 {
+  margin: 0;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+.ed-feditor__corpo {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(16rem, 0.9fr);
+  grid-template-rows: minmax(0, 1fr);
+  align-items: stretch;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  overflow: hidden;
+  min-height: 0;
+  flex: 1;
+}
+.ed-feditor__palco {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.2)),
+    var(--cream, #fdf6ec);
+  border: 1px solid var(--line, #e4c4ce);
+  border-radius: 14px;
+  padding: 0.7rem;
+}
+.ed-feditor__frame {
+  --fe-max-h: min(52dvh, 26rem);
+  position: relative;
+  width: min(100%, 26rem, calc(var(--fe-max-h) * var(--fe-rw, 1) / var(--fe-rh, 1)));
+  height: auto;
+  aspect-ratio: var(--fe-rw, 1) / var(--fe-rh, 1);
+  max-height: var(--fe-max-h);
+  overflow: hidden;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid var(--line, #e4c4ce);
+  touch-action: none;
+  cursor: grab;
+  flex-shrink: 0;
+}
+.ed-feditor__frame.is-dragging { cursor: grabbing; }
+.ed-feditor__frame:focus-visible {
+  outline: 2px solid var(--rose, #b86e88);
+  outline-offset: 3px;
+}
+.ed-feditor__frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--foto-x, 50%) var(--foto-y, 50%);
+  transform: scale(var(--foto-zoom, 1));
+  transform-origin: var(--foto-x, 50%) var(--foto-y, 50%);
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.ed-feditor__controles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+}
+.ed-feditor .ed-foto__zoom,
+.ed-feditor .ed-foto__slider {
+  grid-template-columns: auto 44px 1fr 44px 4.2rem;
+  margin: 0;
+}
+.ed-feditor .ed-foto__slider {
+  grid-template-columns: 5.6rem 1fr 4.2rem auto;
+}
+.ed-feditor .ed-foto__zoom label,
+.ed-feditor .ed-foto__slider label {
+  grid-column: auto;
+}
+.ed-feditor .ed-foto__zoom button:first-of-type {
+  grid-column: auto;
+}
+.ed-feditor__acoes {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line, #e4c4ce);
+  flex-shrink: 0;
+  background: var(--cream, #fdf6ec);
+}
+.ed-feditor__acoes .btn,
+.ed-feditor .ed-foto__setas button,
+.ed-feditor .ed-foto__zoom button,
+.ed-feditor .ed-fechar {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+@media (max-width: 719px) {
+  .ed-feditor {
+    width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0;
+    border-radius: 0;
+    border: 0;
+  }
+  .ed-feditor__form {
+    height: 100%;
+    max-height: 100%;
+  }
+  .ed-feditor__corpo {
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    padding: 0.65rem 0.75rem 0.8rem;
+  }
+  .ed-feditor__palco {
+    flex: 0 0 auto;
+    overflow: hidden;
+  }
+  .ed-feditor__controles {
+    flex: 0 0 auto;
+    overflow: visible;
+  }
+  .ed-feditor__frame {
+    --fe-max-h: min(36dvh, 16rem);
+    width: min(100%, calc(var(--fe-max-h) * var(--fe-rw, 1) / var(--fe-rh, 1)));
+  }
+  .ed-feditor .ed-foto__zoom {
+    grid-template-columns: auto 44px 1fr 44px 4.2rem;
+  }
+  .ed-feditor .ed-foto__slider {
+    grid-template-columns: auto 1fr 4.2rem auto;
+  }
+}

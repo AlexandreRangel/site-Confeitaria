@@ -389,7 +389,12 @@ try {
   record("production Worker was only reached via the mock", hits.worker.some(function hasPost(row) {
     return row.indexOf("POST") === 0 && /\/pedidos$/.test(row.split(" ")[1] || "");
   }), hits.worker.join(" | ") || "no worker calls");
-  await page.goto(base + "/", { waitUntil: "domcontentloaded" });
+  try {
+    await page.goto(base + "/", { waitUntil: "domcontentloaded", timeout: 15000 });
+  } catch (navErr) {
+    await page.waitForTimeout(300);
+    await page.goto(base + "/", { waitUntil: "domcontentloaded", timeout: 15000 });
+  }
   await page.locator(".topo__busca-abrir").click();
   await page.waitForSelector("#busca-campo");
   await page.locator("#busca-campo").fill("tabua");

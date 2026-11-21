@@ -835,6 +835,26 @@ if (typeof Jana.siteText !== "function") {
     if (!(pan.x < 50) || pan.y !== 50) errors.push("drag right must decrease object-position x and keep y when the photo is square");
     const noPan = Jana.fotoPanFromDrag({ zoom: 1 }, 40, 0, 200, 100, 200, 100);
     if (noPan.x !== 50) errors.push("zoom 1 on a matching frame must not pan into empty area");
+    if (typeof Jana.coverCropRect !== "function" || typeof Jana.fotoCropRect !== "function") {
+      errors.push("coverCropRect and fotoCropRect must exist");
+    } else {
+      const cover = Jana.coverCropRect(1600, 1200, 1, 1);
+      if (cover.sx !== 200 || cover.sy !== 0 || cover.sw !== 1200 || cover.sh !== 1200) {
+        errors.push("coverCropRect must center-crop 16:12 to 1:1, got " + JSON.stringify(cover));
+      }
+      const defCrop = Jana.fotoCropRect(1600, 1200, 1, 1, {});
+      if (Math.abs(defCrop.sx - cover.sx) > 0.51 || Math.abs(defCrop.sw - cover.sw) > 0.51) {
+        errors.push("default fotoCropRect must match coverCropRect, got " + JSON.stringify(defCrop));
+      }
+      const zoomed = Jana.fotoCropRect(1600, 1200, 1, 1, { zoom: 2, x: 50, y: 50 });
+      if (Math.abs(zoomed.sw - 600) > 0.51 || Math.abs(zoomed.sh - 600) > 0.51 || Math.abs(zoomed.sx - 500) > 1) {
+        errors.push("fotoCropRect zoom 2 must shrink the window around the center, got " + JSON.stringify(zoomed));
+      }
+      const press = Jana.fotoCropRect(900, 900, 3, 4, {});
+      if (Math.abs(press.sw / press.sh - 3 / 4) > 0.02) {
+        errors.push("imprensa 3:4 crop must keep the portrait ratio, got " + JSON.stringify(press));
+      }
+    }
     const img = Jana.imageBannerHtml({ id: "hero-1", image: "assets/carousel/a.webp", title: "A", href: "/x", foto: { contraste: 1.1, vibrancia: 1.4 } });
     if (!img.includes('class="hero__slide"') || !img.includes("contrast(1.1)") || !img.includes("luminanceToAlpha") || !img.includes("jana-foto-hero-1")) {
       errors.push("image banner must apply CSS contrast and SVG vibrance without breaking the slide");

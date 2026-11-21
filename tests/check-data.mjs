@@ -665,6 +665,26 @@ const editorCss = readFileSync(join(root, "css/editor.css"), "utf8");
 if (!editorJs.includes("Restaurar enquadramento") || !editorJs.includes("Restaurar ajustes") || !editorJs.includes("Vibrância") || !editorCss.includes("ed-foto__setas")) {
   errors.push("banner photo editor must offer framing, zoom and color adjustments");
 }
+{
+  const fotoEd = readFileSync(join(root, "js/foto-editor.js"), "utf8");
+  const painelHtml = readFileSync(join(root, "painel/index.html"), "utf8");
+  if (!utilsJs.includes("fotoCropRect") || !utilsJs.includes("coverCropRect")) {
+    errors.push("shared fotoCropRect helpers must live in utils.js");
+  }
+  if (!fotoEd.includes("Jana.FotoEditor") || !fotoEd.includes("Usar foto") || !fotoEd.includes("Restaurar tudo") || !fotoEd.includes("pinça") || !fotoEd.includes("image/webp")) {
+    errors.push("reusable FotoEditor must export WebP, offer restore, and support pinch");
+  }
+  if (!painelHtml.includes("js/foto-editor.js") || !editorJs.includes("processarComEditor") || !editorJs.includes("Editar foto") || !editorJs.includes("Trocar foto")) {
+    errors.push("painel must load FotoEditor and offer Editar foto / Trocar foto");
+  }
+  if (!editorCss.includes(".ed-feditor") || !editorCss.includes("min-height: 44px")) {
+    errors.push("foto editor modal must follow the current identity with 44px targets");
+  }
+  const libs = /cropper|pintura|filerobot|toast-ui|fabric\.js|pica\(|uppy/i;
+  if (libs.test(fotoEd) || fotoEd.includes("cdn.") ) {
+    errors.push("foto editor must not use an external library");
+  }
+}
 if (!workerJs.includes("normalizeCarouselFoto") || !workerJs.includes("vibrancia") || !workerJs.includes("gamma") || !workerJs.includes("max: 4")) {
   errors.push("Worker validateCarousel must accept and clamp foto fields");
 }

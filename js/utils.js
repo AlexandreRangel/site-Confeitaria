@@ -1673,6 +1673,40 @@
     return next;
   };
 
+  Jana.coverCropRect = function coverCropRect(w0, h0, ratioW, ratioH) {
+    const width = Number(w0) || 0;
+    const height = Number(h0) || 0;
+    const rw = Number(ratioW) || 1;
+    const rh = Number(ratioH) || 1;
+    if (width < 1 || height < 1 || rw <= 0 || rh <= 0) {
+      return { sx: 0, sy: 0, sw: Math.max(1, width), sh: Math.max(1, height) };
+    }
+    const target = rw / rh;
+    const current = width / height;
+    if (current > target) {
+      const sw = Math.max(1, Math.round(height * target));
+      return { sx: Math.round((width - sw) / 2), sy: 0, sw: sw, sh: height };
+    }
+    const sh = Math.max(1, Math.round(width / target));
+    return { sx: 0, sy: Math.round((height - sh) / 2), sw: width, sh: sh };
+  };
+
+  /* Recorte visível (object-fit: cover + object-position + zoom) na proporção pedida. */
+  Jana.fotoCropRect = function fotoCropRect(iw, ih, ratioW, ratioH, foto) {
+    const f = Jana.normalizeFoto(foto);
+    const width = Number(iw) || 0;
+    const height = Number(ih) || 0;
+    const base = Jana.coverCropRect(width, height, ratioW, ratioH);
+    const z = Math.max(1, Number(f.zoom) || 1);
+    const sw = Math.max(1, base.sw / z);
+    const sh = Math.max(1, base.sh / z);
+    const maxX = Math.max(0, width - sw);
+    const maxY = Math.max(0, height - sh);
+    const sx = Math.min(maxX, Math.max(0, maxX * (f.x / 100)));
+    const sy = Math.min(maxY, Math.max(0, maxY * (f.y / 100)));
+    return { sx: sx, sy: sy, sw: sw, sh: sh };
+  };
+
   Jana.footerMap = function footerMap(site) {
     const data = site || {};
     const address = String(data.footerAddress || "").trim();
