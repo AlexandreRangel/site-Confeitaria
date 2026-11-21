@@ -905,8 +905,25 @@ body[data-page="home"] .areas__list:empty {
 
 .rodape__credits {
   position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.3rem 1rem;
   margin-top: 0.35rem;
   color: var(--muted);
+}
+
+.rodape__faq {
+  font-size: 0.92rem;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.rodape__faq:hover,
+.rodape__faq:focus-visible {
+  color: var(--brown);
+  text-decoration: underline;
 }
 
 .rodape__place {
@@ -1720,8 +1737,44 @@ body[data-page="area"] .hero.hero--banners .hero__slide img {
   padding: 0 var(--page-gutter) 0.4rem;
 }
 
+.faq h1,
 .faq h2 {
   margin-bottom: 1.15rem;
+}
+
+.faq--page {
+  margin-top: 1.4rem;
+  margin-bottom: 2.8rem;
+}
+
+.faq-home-link {
+  max-width: 42rem;
+  margin: 0.2rem auto 2.2rem;
+  padding: 0 var(--page-gutter) 0.6rem;
+  text-align: center;
+}
+
+.faq-home-link a {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(1.08rem, 2.4vw, 1.35rem);
+  color: var(--brown);
+  text-decoration: none;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0.08rem;
+}
+
+.faq-home-link a:hover,
+.faq-home-link a:focus-visible {
+  color: var(--primary-deep);
+  border-bottom-color: var(--primary);
+}
+
+.faq-home-link a:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 4px;
+  border-radius: 2px;
 }
 
 .faq details {

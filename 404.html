@@ -34,7 +34,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/base.css?v=20261121b">
-  <link rel="stylesheet" href="css/layout.css?v=20261121e">
+  <link rel="stylesheet" href="css/layout.css?v=20261121f">
   <link rel="stylesheet" href="css/components.css?v=20261121e">
 </head>
 <body>
@@ -80,7 +80,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span id="selo-tip-pedido" class="selo__tip" role="tooltip">Cada pedido recebe um código e é confirmado pela confeitaria.</span>
       </li>
     </ul>
-    <p class="rodape__credits"><span>© 2026 Jana Abreu</span></p>
+    <p class="rodape__credits"><span>© 2026 Jana Abreu</span>
+      <a class="rodape__faq" href="perguntas-frequentes/">Perguntas frequentes</a>
+    </p>
   </footer>
   <a class="whatsapp-fab" data-bind="whatsapp-link" href="https://wa.me/5561981246112" target="_blank" rel="noopener noreferrer" aria-label="Converse com a gente pelo WhatsApp">
     <span class="whatsapp-fab__balloon" aria-hidden="true">Converse com a gente pelo WhatsApp</span>
@@ -98,7 +100,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       if (parts.length !== 1) return;
       var slug = String(parts[0] || "").replace(/\.html$/i, "");
       if (!/^[a-z0-9][a-z0-9-]{0,119}$/.test(slug)) return;
-      var reserved = ["painel","produto","produtos","encomendas","pagamento","sobre-nos","sobre","assets","css","js","data","tests","central","docs","screenshots","scripts","area","areas","catalogo","index","404","admin","login","api","corporate","bolos","cestas","doces-personalizados","natal","pascoa","corporativo","personalizado-para-empresas","cestas-presentes","combos-festa","doces-festa","festa-personalizada","sobremesas"];
+      var reserved = ["painel","produto","produtos","encomendas","pagamento","sobre-nos","sobre","assets","css","js","data","tests","central","docs","screenshots","scripts","area","areas","catalogo","index","404","admin","login","api","corporate","bolos","cestas","doces-personalizados","natal","pascoa","corporativo","personalizado-para-empresas","cestas-presentes","combos-festa","doces-festa","festa-personalizada","sobremesas","perguntas-frequentes"];
       /* Pastas estáticas já existentes não passam por aqui. */
       if (reserved.indexOf(slug) !== -1) return;
       var baseEl = document.querySelector("base");

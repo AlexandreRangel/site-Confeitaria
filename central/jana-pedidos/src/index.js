@@ -1314,6 +1314,7 @@ const CONTENT_READ = [
   "data/pausa.json",
   "data/sobre.json",
   "data/sabores-bolos.json",
+  "data/faq.json",
 ];
 const CONTENT_WRITE = CONTENT_READ.filter((p) => p !== "data/categories.json");
 const IMAGE_PATH_RE = /^assets\/(products\/[a-z0-9][a-z0-9-]{0,99}|carousel|areas|sobre)\/[a-z0-9][a-z0-9-]{0,119}\.(webp|jpg)$/;
@@ -1581,6 +1582,7 @@ const RESERVED_AREA_SLUGS = new Set([
   "scripts", "area", "areas", "catalogo", "index", "404", "admin", "login", "api",
   "corporativo", "personalizado-para-empresas", "cestas-presentes", "combos-festa",
   "doces-festa", "festa-personalizada", "sobremesas", "favicon", "robots", "sitemap",
+  "perguntas-frequentes",
 ]);
 
 function isReservedAreaSlug(slug) {
@@ -1738,6 +1740,20 @@ function validateSabores(s) {
   });
 }
 
+
+function validateFaq(list) {
+  if (!Array.isArray(list) || list.length > 30) bad("lista de perguntas frequentes inválida (máximo 30)");
+  const ids = new Set();
+  list.forEach((item, i) => {
+    if (!isObj(item)) bad("pergunta " + (i + 1) + " inválida");
+    const label = "Pergunta " + (i + 1);
+    if (!ID_RE.test(String(item.id || "")) || ids.has(item.id)) bad(label + ": código inválido");
+    ids.add(item.id);
+    reqText(item.question, 200, label + " (pergunta)");
+    reqText(item.answer, 1200, label + " (resposta)");
+  });
+}
+
 const VALIDATORS = {
   "data/products.json": validateProducts,
   "data/carousel.json": validateCarousel,
@@ -1746,6 +1762,7 @@ const VALIDATORS = {
   "data/site.json": validateSite,
   "data/sobre.json": validateSobre,
   "data/sabores-bolos.json": validateSabores,
+  "data/faq.json": validateFaq,
 };
 
 function imageKind(bytes) {
@@ -1764,7 +1781,7 @@ function htmlEscape(value) {
     .replace(/"/g, "&quot;");
 }
 
-const AREA_PAGE_TEMPLATE = "<!DOCTYPE html>\n<html lang=\"pt-BR\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\">\n  <meta name=\"theme-color\" content=\"#fdf6ec\">\n  <meta name=\"description\" content=\"__NAME__ da Jana Abreu Confeitaria em Brasília.\">\n  <title>__NAME__ · Jana Abreu Confeitaria</title>\n  <link rel=\"icon\" href=\"../assets/favicon.svg\" type=\"image/svg+xml\">\n  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n  <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n  <link href=\"https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap\" rel=\"stylesheet\">\n  <link rel=\"stylesheet\" href=\"../css/base.css\">\n  <link rel=\"stylesheet\" href=\"../css/layout.css\">\n  <link rel=\"stylesheet\" href=\"../css/components.css\">\n</head>\n<body data-page=\"area\" data-area=\"__SLUG__\" data-root=\"../\">\n  <a class=\"skip-link\" href=\"#area\">Ir para __NAME__</a>\n  <header id=\"topo\" class=\"topo\">\n    <div class=\"topo__inner\">\n      <button class=\"topo__menu\" type=\"button\" aria-expanded=\"false\" aria-controls=\"menu-principal\" data-action=\"toggle-menu\">\n        <span class=\"sr-only\">Abrir menu</span>\n        <span class=\"topo__menu-bar\" aria-hidden=\"true\"></span>\n      </button>\n      <a class=\"topo__brand\" href=\"../\">\n        <img class=\"topo__brand-logo\" data-bind=\"logo\" src=\"../assets/brand/logo-jana-abreu.png\" alt=\"Jana Abreu Confeitaria\" width=\"220\" height=\"84\">\n        <span class=\"topo__brand-tag\" data-bind=\"slogan\">A vida é mais doce quando compartilhada</span>\n      </a>\n      <nav id=\"menu-principal\" class=\"topo__nav\" aria-label=\"Principal\">\n        <a href=\"../\">Início</a>\n        <div class=\"topo__categories\">\n          <button type=\"button\" class=\"topo__categories-btn\" aria-expanded=\"false\" aria-haspopup=\"true\" aria-controls=\"menu-categorias\" data-action=\"toggle-categories\">Categorias</button>\n          <div id=\"menu-categorias\" class=\"categorias-menu\" hidden>\n            <a href=\"../corporate/\">Corporativo</a>\n            <a href=\"../bolos/\">Bolos</a>\n            <a href=\"../cestas/\">Cestas</a>\n            <a href=\"../doces-personalizados/\">Doces personalizados</a>\n          </div>\n        </div>\n        <a href=\"../sobre-nos/\">Sobre nós</a>\n      </nav>\n      <div class=\"topo__actions\">\n        <a class=\"icon-link\" data-bind=\"instagram-link\" href=\"https://www.instagram.com/janaabreuconfeitaria/\" target=\"_blank\" rel=\"noopener noreferrer\" aria-label=\"Instagram @janaabreuconfeitaria\">\n          <img src=\"../assets/icons/instagram.svg\" alt=\"\" width=\"22\" height=\"22\">\n          <span class=\"icon-link__label\" data-bind=\"instagram-handle\">@janaabreuconfeitaria</span>\n        </a>\n        <button class=\"cart-button\" type=\"button\" data-action=\"open-cart\" aria-controls=\"encomendas\" aria-expanded=\"false\">\n          <img src=\"../assets/icons/cart.svg\" alt=\"\" width=\"22\" height=\"22\">\n          <span class=\"sr-only\">Abrir encomendas</span>\n          <span class=\"cart-button__count\" data-bind=\"cart-count\" aria-live=\"polite\">0</span>\n        </button>\n      </div>\n    </div>\n  </header>\n  <main>\n    <section id=\"area\" class=\"area-page\">\n      <h1 id=\"area-titulo\" data-bind=\"area-title\">__NAME__</h1>\n            <section id=\"hero-carrossel\" class=\"hero hero--compact\" aria-roledescription=\"carrossel\" aria-label=\"Fotos da área\">\n        <div class=\"hero__media\">\n          <div class=\"hero__track\" data-bind=\"carousel\"></div>\n          <div class=\"hero__controls\">\n            <button type=\"button\" class=\"hero__arrow\" data-action=\"carousel-prev\" aria-label=\"Slide anterior\">‹</button>\n            <div class=\"hero__dots\" data-bind=\"carousel-dots\"></div>\n            <button type=\"button\" class=\"hero__arrow\" data-action=\"carousel-next\" aria-label=\"Próximo slide\">›</button>\n          </div>\n        </div>\n      </section>\n      <div class=\"product-grid\" data-bind=\"products\"></div>\n    </section>\n  </main>\n    <footer id=\"rodape\" class=\"rodape\">\n    <p class=\"rodape__line\">\n      <span data-bind=\"city-state\">Brasília DF</span>\n      <a class=\"rodape__social\" data-bind=\"instagram-link\" href=\"https://www.instagram.com/janaabreuconfeitaria/\" target=\"_blank\" rel=\"noopener noreferrer\">\n        <svg class=\"rodape__icon\" viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" aria-hidden=\"true\" focusable=\"false\"><path fill=\"currentColor\" d=\"M7 3h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4zm10 1.8H7A2.2 2.2 0 0 0 4.8 7v10A2.2 2.2 0 0 0 7 19.2h10A2.2 2.2 0 0 0 19.2 17V7A2.2 2.2 0 0 0 17 4.8zM12 8.2A3.8 3.8 0 1 1 8.2 12 3.8 3.8 0 0 1 12 8.2zm0 1.6A2.2 2.2 0 1 0 14.2 12 2.2 2.2 0 0 0 12 9.8zm4.55-3.15a.9.9 0 1 1-.9.9.9.9 0 0 1 .9-.9z\"/></svg>\n        <span data-bind=\"instagram-handle\">@janaabreuconfeitaria</span>\n      </a>\n      <a class=\"rodape__social\" data-bind=\"whatsapp-link\" href=\"https://wa.me/5561981246112\" target=\"_blank\" rel=\"noopener noreferrer\">\n        <svg class=\"rodape__icon\" viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" aria-hidden=\"true\" focusable=\"false\"><path fill=\"currentColor\" d=\"M12.04 3A8.96 8.96 0 0 0 3.1 12.1a8.9 8.9 0 0 0 1.22 4.5L3 21.1l4.64-1.22A9 9 0 1 0 12.04 3zm0 1.64A7.32 7.32 0 0 1 19.36 12a7.32 7.32 0 0 1-12.6 5.05l-.26-.2-2.74.72.73-2.67-.17-.27A7.3 7.3 0 0 1 12.04 4.64zm-2.5 3.5c-.2 0-.52.08-.79.4s-.95.93-.95 2.26.97 2.63 1.1 2.81 1.9 3.05 4.7 4.16c2.32.92 2.8.74 3.3.69s1.62-.66 1.85-1.3.23-1.18.16-1.3-.27-.2-.56-.35-1.62-.8-1.87-.89-.43-.13-.62.14-.71.89-.87 1.07-.32.2-.6.07a6.05 6.05 0 0 1-1.78-1.1 6.68 6.68 0 0 1-1.23-1.53c-.13-.22 0-.34.1-.45s.22-.27.33-.4.14-.22.22-.37.04-.28-.02-.4-.6-1.48-.85-2.03c-.22-.52-.45-.45-.62-.46z\"/></svg>\n        <span data-bind=\"whatsapp-label\">(61) 98124-6112</span>\n      </a>\n    </p>\n    <div class=\"rodape__mapa\" data-bind=\"footer-map\" hidden>\n      <div class=\"rodape__endereco\">\n        <span data-bind=\"footer-address\"></span>\n        <a class=\"rodape__mapa-link\" data-bind=\"footer-map-link\" href=\"https://www.google.com/maps/search/?api=1&query=Jana+Abreu+Confeitaria+Guar%C3%A1+II+QE+15+Cj+I+24+Bras%C3%ADlia\" target=\"_blank\" rel=\"noopener noreferrer\">Ver no Google Maps</a>\n      </div>\n      <div class=\"rodape__mapa-frame\">\n        <iframe data-bind=\"footer-map-embed\" title=\"Mapa da Jana Abreu Confeitaria no Google Maps\" loading=\"lazy\" referrerpolicy=\"no-referrer-when-downgrade\"></iframe>\n      </div>\n    </div>\n    <p class=\"rodape__credits\">\n      <span data-bind=\"copyright\">© 2026 Jana Abreu</span>\n      <a class=\"rodape-loja-link\" href=\"../painel/\">Área da loja</a>\n    </p>\n  </footer>\n\n  <aside id=\"encomendas\" class=\"drawer\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"encomendas-titulo\" hidden>\n    <div class=\"drawer__panel\">\n      <header class=\"drawer__head\">\n        <h2 id=\"encomendas-titulo\">Encomendas</h2>\n        <button type=\"button\" class=\"modal__close\" data-action=\"close-cart\" aria-label=\"Fechar encomendas\">×</button>\n      </header>\n      <div class=\"drawer__items\" data-bind=\"cart-items\"></div>\n      <p class=\"drawer__total\"><span data-bind=\"cart-total-label\">Total</span>: <strong data-bind=\"cart-total\">R$ 0,00</strong></p>\n      <form id=\"checkout-form\" class=\"checkout\">\n        <label>Nome <input name=\"nome\" type=\"text\" required autocomplete=\"name\"></label>\n        <label>Telefone <input name=\"telefone\" type=\"tel\" required autocomplete=\"tel\" placeholder=\"(61) 90000-0000\"></label>\n        <label>E-mail <input name=\"email\" type=\"email\" autocomplete=\"email\" placeholder=\"opcional\"></label>\n                <fieldset class=\"checkout__modalidade\">\n          <legend id=\"modalidade-legend\">Como prefere receber?</legend>\n          <div class=\"checkout__radios\" role=\"radiogroup\" aria-required=\"true\" aria-labelledby=\"modalidade-legend\">\n            <label class=\"checkout__radio\">\n              <input type=\"radio\" name=\"modalidade\" value=\"retirada\" required>\n              <span>Retirada</span>\n            </label>\n            <label class=\"checkout__radio\">\n              <input type=\"radio\" name=\"modalidade\" value=\"entrega\" required>\n              <span>Entrega</span>\n            </label>\n          </div>\n        </fieldset>\n        <label data-bind=\"checkout-address\" hidden>\n          <span>Endereço de entrega</span>\n          <input name=\"endereco\" type=\"text\" autocomplete=\"street-address\" placeholder=\"Bairro, cidade\">\n        </label>\n        <label data-bind=\"checkout-region\" hidden>\n          <span>Região de entrega</span>\n          <select name=\"regiao\">\n            <option value=\"\">Escolha a região</option>\n          </select>\n        </label>\n        <label>\n          <span data-bind=\"checkout-date-caption\">Data desejada</span>\n          <input name=\"data\" type=\"date\" lang=\"pt-BR\" autocomplete=\"off\">\n          <span class=\"checkout__hint\">Calendário do aparelho · no Brasil aparece dia/mês/ano.</span>\n        </label>\n        <p class=\"checkout__fee\" data-bind=\"checkout-fee\" hidden></p>\n        <label>Observações <textarea name=\"observacoes\" rows=\"3\" placeholder=\"Sabores, tema, retirada ou entrega…\"></textarea></label>\n        <p class=\"checkout__privacy\" data-bind=\"privacy-note\">Usamos nome, telefone e o que você escrever só para a Jana responder esta solicitação. Não publicamos sua lista de pedidos.</p>\n        <p class=\"checkout__note\" data-bind=\"payments\"></p>\n        <p class=\"checkout__note checkout__unpriced\" data-bind=\"checkout-unpriced\" hidden>Este pedido inclui itens sob consulta, sem preço fixo. Não é possível pagar online. Envie a solicitação pelo WhatsApp.</p>\n        <p class=\"checkout__status\" data-bind=\"checkout-status\" role=\"status\" aria-live=\"polite\"></p>\n        <div class=\"checkout__pix\" data-bind=\"pix-block\" hidden>\n          <h3>Pagar com Pix</h3>\n          <p class=\"checkout__pix-note\" data-bind=\"pix-note\">Pague o valor indicado. Depois toque em Já paguei e envie o comprovante pelo WhatsApp.</p>\n          <div class=\"checkout__pix-qr\">\n            <img data-bind=\"pix-qr\" alt=\"QR Code Pix\" width=\"220\" height=\"220\">\n          </div>\n          <p class=\"checkout__pix-value\" data-bind=\"pix-value\"></p>\n          <label class=\"checkout__pix-code-label\" for=\"pix-payload\">Código Pix (copia e cola)</label>\n          <textarea id=\"pix-payload\" class=\"checkout__pix-code\" data-bind=\"pix-payload\" readonly rows=\"3\"></textarea>\n          <button type=\"button\" class=\"btn btn--outline\" data-action=\"copy-pix\">Copiar código Pix</button>\n          <p class=\"checkout__pix-status\" data-bind=\"pix-copy-status\" role=\"status\" aria-live=\"polite\"></p>\n        </div>\n        <div class=\"checkout__submit\">\n          <fieldset class=\"checkout__pay-method\" data-bind=\"pay-method\" hidden>\n            <legend id=\"pagamento-legend\">Como prefere pagar?</legend>\n            <div class=\"checkout__pay-options\" role=\"radiogroup\" aria-required=\"true\" aria-labelledby=\"pagamento-legend\">\n              <label class=\"checkout__radio\" data-bind=\"pay-option-pix\">\n                <input type=\"radio\" name=\"pagamento\" value=\"pix\">\n                <span>Pagar com Pix</span>\n              </label>\n              <label class=\"checkout__radio\" data-bind=\"pay-option-infinitepay\">\n                <input type=\"radio\" name=\"pagamento\" value=\"infinitepay\">\n                <span>Pagar com cartão</span>\n              </label>\n            </div>\n          </fieldset>\n          <p class=\"checkout__disclaimer\" data-bind=\"request-disclaimer\">Esta é uma solicitação de encomenda. A confirmação depende da disponibilidade e da confirmação da Jana pelo WhatsApp.</p>\n          <button type=\"submit\" class=\"btn btn--solid btn--whatsapp\" data-bind=\"checkout-submit\">Enviar solicitação no WhatsApp</button>\n        </div>\n      </form>\n    </div>\n  </aside>\n  <div class=\"backdrop\" data-action=\"close-cart\" hidden></div>\n\n  <script defer src=\"../js/background-hydra.js\"></script>\n  <script defer src=\"../js/utils.js\"></script>\n  <script defer src=\"../js/pix.js\"></script>\n  <script defer src=\"../js/pagamento.js\"></script>\n  <script defer src=\"../js/pausa.js\"></script>\n  <script defer src=\"../js/vendor/qrcode-generator.js\"></script>\n  <script defer src=\"../js/cart.js\"></script>\n  <script defer src=\"../js/store.js\"></script>\n  <script defer src=\"../js/central.js\"></script>\n  <script defer src=\"../js/app.js\"></script>\n</body>\n</html>\n";
+const AREA_PAGE_TEMPLATE = "<!DOCTYPE html>\n<html lang=\"pt-BR\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\">\n  <meta name=\"theme-color\" content=\"#fdf6ec\">\n  <meta name=\"description\" content=\"__NAME__ da Jana Abreu Confeitaria em Brasília.\">\n  <title>__NAME__ · Jana Abreu Confeitaria</title>\n  <link rel=\"icon\" href=\"../assets/favicon.svg\" type=\"image/svg+xml\">\n  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n  <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n  <link href=\"https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap\" rel=\"stylesheet\">\n  <link rel=\"stylesheet\" href=\"../css/base.css\">\n  <link rel=\"stylesheet\" href=\"../css/layout.css\">\n  <link rel=\"stylesheet\" href=\"../css/components.css\">\n</head>\n<body data-page=\"area\" data-area=\"__SLUG__\" data-root=\"../\">\n  <a class=\"skip-link\" href=\"#area\">Ir para __NAME__</a>\n  <header id=\"topo\" class=\"topo\">\n    <div class=\"topo__inner\">\n      <button class=\"topo__menu\" type=\"button\" aria-expanded=\"false\" aria-controls=\"menu-principal\" data-action=\"toggle-menu\">\n        <span class=\"sr-only\">Abrir menu</span>\n        <span class=\"topo__menu-bar\" aria-hidden=\"true\"></span>\n      </button>\n      <a class=\"topo__brand\" href=\"../\">\n        <img class=\"topo__brand-logo\" data-bind=\"logo\" src=\"../assets/brand/logo-jana-abreu.png\" alt=\"Jana Abreu Confeitaria\" width=\"220\" height=\"84\">\n        <span class=\"topo__brand-tag\" data-bind=\"slogan\">A vida é mais doce quando compartilhada</span>\n      </a>\n      <nav id=\"menu-principal\" class=\"topo__nav\" aria-label=\"Principal\">\n        <a href=\"../\">Início</a>\n        <div class=\"topo__categories\">\n          <button type=\"button\" class=\"topo__categories-btn\" aria-expanded=\"false\" aria-haspopup=\"true\" aria-controls=\"menu-categorias\" data-action=\"toggle-categories\">Categorias</button>\n          <div id=\"menu-categorias\" class=\"categorias-menu\" hidden>\n            <a href=\"../corporate/\">Corporativo</a>\n            <a href=\"../bolos/\">Bolos</a>\n            <a href=\"../cestas/\">Cestas</a>\n            <a href=\"../doces-personalizados/\">Doces personalizados</a>\n          </div>\n        </div>\n        <a href=\"../sobre-nos/\">Sobre nós</a>\n      </nav>\n      <div class=\"topo__actions\">\n        <a class=\"icon-link\" data-bind=\"instagram-link\" href=\"https://www.instagram.com/janaabreuconfeitaria/\" target=\"_blank\" rel=\"noopener noreferrer\" aria-label=\"Instagram @janaabreuconfeitaria\">\n          <img src=\"../assets/icons/instagram.svg\" alt=\"\" width=\"22\" height=\"22\">\n          <span class=\"icon-link__label\" data-bind=\"instagram-handle\">@janaabreuconfeitaria</span>\n        </a>\n        <button class=\"cart-button\" type=\"button\" data-action=\"open-cart\" aria-controls=\"encomendas\" aria-expanded=\"false\">\n          <img src=\"../assets/icons/cart.svg\" alt=\"\" width=\"22\" height=\"22\">\n          <span class=\"sr-only\">Abrir encomendas</span>\n          <span class=\"cart-button__count\" data-bind=\"cart-count\" aria-live=\"polite\">0</span>\n        </button>\n      </div>\n    </div>\n  </header>\n  <main>\n    <section id=\"area\" class=\"area-page\">\n      <h1 id=\"area-titulo\" data-bind=\"area-title\">__NAME__</h1>\n            <section id=\"hero-carrossel\" class=\"hero hero--compact\" aria-roledescription=\"carrossel\" aria-label=\"Fotos da área\">\n        <div class=\"hero__media\">\n          <div class=\"hero__track\" data-bind=\"carousel\"></div>\n          <div class=\"hero__controls\">\n            <button type=\"button\" class=\"hero__arrow\" data-action=\"carousel-prev\" aria-label=\"Slide anterior\">‹</button>\n            <div class=\"hero__dots\" data-bind=\"carousel-dots\"></div>\n            <button type=\"button\" class=\"hero__arrow\" data-action=\"carousel-next\" aria-label=\"Próximo slide\">›</button>\n          </div>\n        </div>\n      </section>\n      <div class=\"product-grid\" data-bind=\"products\"></div>\n    </section>\n  </main>\n    <footer id=\"rodape\" class=\"rodape\">\n    <p class=\"rodape__line\">\n      <span data-bind=\"city-state\">Brasília DF</span>\n      <a class=\"rodape__social\" data-bind=\"instagram-link\" href=\"https://www.instagram.com/janaabreuconfeitaria/\" target=\"_blank\" rel=\"noopener noreferrer\">\n        <svg class=\"rodape__icon\" viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" aria-hidden=\"true\" focusable=\"false\"><path fill=\"currentColor\" d=\"M7 3h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4zm10 1.8H7A2.2 2.2 0 0 0 4.8 7v10A2.2 2.2 0 0 0 7 19.2h10A2.2 2.2 0 0 0 19.2 17V7A2.2 2.2 0 0 0 17 4.8zM12 8.2A3.8 3.8 0 1 1 8.2 12 3.8 3.8 0 0 1 12 8.2zm0 1.6A2.2 2.2 0 1 0 14.2 12 2.2 2.2 0 0 0 12 9.8zm4.55-3.15a.9.9 0 1 1-.9.9.9.9 0 0 1 .9-.9z\"/></svg>\n        <span data-bind=\"instagram-handle\">@janaabreuconfeitaria</span>\n      </a>\n      <a class=\"rodape__social\" data-bind=\"whatsapp-link\" href=\"https://wa.me/5561981246112\" target=\"_blank\" rel=\"noopener noreferrer\">\n        <svg class=\"rodape__icon\" viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" aria-hidden=\"true\" focusable=\"false\"><path fill=\"currentColor\" d=\"M12.04 3A8.96 8.96 0 0 0 3.1 12.1a8.9 8.9 0 0 0 1.22 4.5L3 21.1l4.64-1.22A9 9 0 1 0 12.04 3zm0 1.64A7.32 7.32 0 0 1 19.36 12a7.32 7.32 0 0 1-12.6 5.05l-.26-.2-2.74.72.73-2.67-.17-.27A7.3 7.3 0 0 1 12.04 4.64zm-2.5 3.5c-.2 0-.52.08-.79.4s-.95.93-.95 2.26.97 2.63 1.1 2.81 1.9 3.05 4.7 4.16c2.32.92 2.8.74 3.3.69s1.62-.66 1.85-1.3.23-1.18.16-1.3-.27-.2-.56-.35-1.62-.8-1.87-.89-.43-.13-.62.14-.71.89-.87 1.07-.32.2-.6.07a6.05 6.05 0 0 1-1.78-1.1 6.68 6.68 0 0 1-1.23-1.53c-.13-.22 0-.34.1-.45s.22-.27.33-.4.14-.22.22-.37.04-.28-.02-.4-.6-1.48-.85-2.03c-.22-.52-.45-.45-.62-.46z\"/></svg>\n        <span data-bind=\"whatsapp-label\">(61) 98124-6112</span>\n      </a>\n    </p>\n    <div class=\"rodape__mapa\" data-bind=\"footer-map\" hidden>\n      <div class=\"rodape__endereco\">\n        <span data-bind=\"footer-address\"></span>\n        <a class=\"rodape__mapa-link\" data-bind=\"footer-map-link\" href=\"https://www.google.com/maps/search/?api=1&query=Jana+Abreu+Confeitaria+Guar%C3%A1+II+QE+15+Cj+I+24+Bras%C3%ADlia\" target=\"_blank\" rel=\"noopener noreferrer\">Ver no Google Maps</a>\n      </div>\n      <div class=\"rodape__mapa-frame\">\n        <iframe data-bind=\"footer-map-embed\" title=\"Mapa da Jana Abreu Confeitaria no Google Maps\" loading=\"lazy\" referrerpolicy=\"no-referrer-when-downgrade\"></iframe>\n      </div>\n    </div>\n    <p class=\"rodape__credits\">\n      <span data-bind=\"copyright\">© 2026 Jana Abreu</span>\n      <a class=\"rodape__faq\" href=\"../perguntas-frequentes/\">Perguntas frequentes</a>\n      <a class=\"rodape-loja-link\" href=\"../painel/\">Área da loja</a>\n    </p>\n  </footer>\n\n  <aside id=\"encomendas\" class=\"drawer\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"encomendas-titulo\" hidden>\n    <div class=\"drawer__panel\">\n      <header class=\"drawer__head\">\n        <h2 id=\"encomendas-titulo\">Encomendas</h2>\n        <button type=\"button\" class=\"modal__close\" data-action=\"close-cart\" aria-label=\"Fechar encomendas\">×</button>\n      </header>\n      <div class=\"drawer__items\" data-bind=\"cart-items\"></div>\n      <p class=\"drawer__total\"><span data-bind=\"cart-total-label\">Total</span>: <strong data-bind=\"cart-total\">R$ 0,00</strong></p>\n      <form id=\"checkout-form\" class=\"checkout\">\n        <label>Nome <input name=\"nome\" type=\"text\" required autocomplete=\"name\"></label>\n        <label>Telefone <input name=\"telefone\" type=\"tel\" required autocomplete=\"tel\" placeholder=\"(61) 90000-0000\"></label>\n        <label>E-mail <input name=\"email\" type=\"email\" autocomplete=\"email\" placeholder=\"opcional\"></label>\n                <fieldset class=\"checkout__modalidade\">\n          <legend id=\"modalidade-legend\">Como prefere receber?</legend>\n          <div class=\"checkout__radios\" role=\"radiogroup\" aria-required=\"true\" aria-labelledby=\"modalidade-legend\">\n            <label class=\"checkout__radio\">\n              <input type=\"radio\" name=\"modalidade\" value=\"retirada\" required>\n              <span>Retirada</span>\n            </label>\n            <label class=\"checkout__radio\">\n              <input type=\"radio\" name=\"modalidade\" value=\"entrega\" required>\n              <span>Entrega</span>\n            </label>\n          </div>\n        </fieldset>\n        <label data-bind=\"checkout-address\" hidden>\n          <span>Endereço de entrega</span>\n          <input name=\"endereco\" type=\"text\" autocomplete=\"street-address\" placeholder=\"Bairro, cidade\">\n        </label>\n        <label data-bind=\"checkout-region\" hidden>\n          <span>Região de entrega</span>\n          <select name=\"regiao\">\n            <option value=\"\">Escolha a região</option>\n          </select>\n        </label>\n        <label>\n          <span data-bind=\"checkout-date-caption\">Data desejada</span>\n          <input name=\"data\" type=\"date\" lang=\"pt-BR\" autocomplete=\"off\">\n          <span class=\"checkout__hint\">Calendário do aparelho · no Brasil aparece dia/mês/ano.</span>\n        </label>\n        <p class=\"checkout__fee\" data-bind=\"checkout-fee\" hidden></p>\n        <label>Observações <textarea name=\"observacoes\" rows=\"3\" placeholder=\"Sabores, tema, retirada ou entrega…\"></textarea></label>\n        <p class=\"checkout__privacy\" data-bind=\"privacy-note\">Usamos nome, telefone e o que você escrever só para a Jana responder esta solicitação. Não publicamos sua lista de pedidos.</p>\n        <p class=\"checkout__note\" data-bind=\"payments\"></p>\n        <p class=\"checkout__note checkout__unpriced\" data-bind=\"checkout-unpriced\" hidden>Este pedido inclui itens sob consulta, sem preço fixo. Não é possível pagar online. Envie a solicitação pelo WhatsApp.</p>\n        <p class=\"checkout__status\" data-bind=\"checkout-status\" role=\"status\" aria-live=\"polite\"></p>\n        <div class=\"checkout__pix\" data-bind=\"pix-block\" hidden>\n          <h3>Pagar com Pix</h3>\n          <p class=\"checkout__pix-note\" data-bind=\"pix-note\">Pague o valor indicado. Depois toque em Já paguei e envie o comprovante pelo WhatsApp.</p>\n          <div class=\"checkout__pix-qr\">\n            <img data-bind=\"pix-qr\" alt=\"QR Code Pix\" width=\"220\" height=\"220\">\n          </div>\n          <p class=\"checkout__pix-value\" data-bind=\"pix-value\"></p>\n          <label class=\"checkout__pix-code-label\" for=\"pix-payload\">Código Pix (copia e cola)</label>\n          <textarea id=\"pix-payload\" class=\"checkout__pix-code\" data-bind=\"pix-payload\" readonly rows=\"3\"></textarea>\n          <button type=\"button\" class=\"btn btn--outline\" data-action=\"copy-pix\">Copiar código Pix</button>\n          <p class=\"checkout__pix-status\" data-bind=\"pix-copy-status\" role=\"status\" aria-live=\"polite\"></p>\n        </div>\n        <div class=\"checkout__submit\">\n          <fieldset class=\"checkout__pay-method\" data-bind=\"pay-method\" hidden>\n            <legend id=\"pagamento-legend\">Como prefere pagar?</legend>\n            <div class=\"checkout__pay-options\" role=\"radiogroup\" aria-required=\"true\" aria-labelledby=\"pagamento-legend\">\n              <label class=\"checkout__radio\" data-bind=\"pay-option-pix\">\n                <input type=\"radio\" name=\"pagamento\" value=\"pix\">\n                <span>Pagar com Pix</span>\n              </label>\n              <label class=\"checkout__radio\" data-bind=\"pay-option-infinitepay\">\n                <input type=\"radio\" name=\"pagamento\" value=\"infinitepay\">\n                <span>Pagar com cartão</span>\n              </label>\n            </div>\n          </fieldset>\n          <p class=\"checkout__disclaimer\" data-bind=\"request-disclaimer\">Esta é uma solicitação de encomenda. A confirmação depende da disponibilidade e da confirmação da Jana pelo WhatsApp.</p>\n          <button type=\"submit\" class=\"btn btn--solid btn--whatsapp\" data-bind=\"checkout-submit\">Enviar solicitação no WhatsApp</button>\n        </div>\n      </form>\n    </div>\n  </aside>\n  <div class=\"backdrop\" data-action=\"close-cart\" hidden></div>\n\n  <script defer src=\"../js/background-hydra.js\"></script>\n  <script defer src=\"../js/utils.js\"></script>\n  <script defer src=\"../js/pix.js\"></script>\n  <script defer src=\"../js/pagamento.js\"></script>\n  <script defer src=\"../js/pausa.js\"></script>\n  <script defer src=\"../js/vendor/qrcode-generator.js\"></script>\n  <script defer src=\"../js/cart.js\"></script>\n  <script defer src=\"../js/store.js\"></script>\n  <script defer src=\"../js/central.js\"></script>\n  <script defer src=\"../js/app.js\"></script>\n</body>\n</html>\n";
 
 function areaPageHtml(slug, name) {
   const safeSlug = String(slug || "");
@@ -1780,6 +1797,7 @@ const DEFAULT_OG_IMAGE = PUBLIC_ORIGIN + "/assets/products/tabua-signature/01.we
 function isEditorGeneratedPath(path) {
   const p = String(path || "");
   if (p === "sitemap.xml") return true;
+  if (p === "perguntas-frequentes/index.html") return true;
   if (PRODUCT_PAGE_RE.test(p)) return true;
   if (AREA_PAGE_FILE_RE.test(p)) {
     const slug = p.slice(0, p.indexOf("/"));
@@ -1904,7 +1922,7 @@ function sitemapAreaActive(area, site, now) {
 }
 
 function buildPublishedSitemap(areas, site, products, now) {
-  const urls = [PUBLIC_ORIGIN + "/", PUBLIC_ORIGIN + "/sobre-nos/"];
+  const urls = [PUBLIC_ORIGIN + "/", PUBLIC_ORIGIN + "/sobre-nos/", PUBLIC_ORIGIN + "/perguntas-frequentes/"];
   (areas || []).filter((area) => sitemapAreaActive(area, site, now)).forEach((area) => {
     const slug = area.slug || area.id;
     if (slug) urls.push(PUBLIC_ORIGIN + "/" + slug + "/");
@@ -1987,6 +2005,87 @@ async function publishedProductExtras(env, head, arquivos) {
     mode: "100644",
     type: "blob",
     content: buildPublishedSitemap(areas || [], site || {}, products, new Date()),
+  });
+  return extras;
+}
+
+
+function normalizePublishedFaq(data) {
+  const list = Array.isArray(data) ? data : data && Array.isArray(data.items) ? data.items : [];
+  const out = [];
+  const seen = new Set();
+  list.forEach((item, i) => {
+    if (!item) return;
+    const question = String(item.question || "").trim();
+    const answer = String(item.answer || "").trim();
+    if (!question || !answer) return;
+    let id = String(item.id || "").trim();
+    if (!ID_RE.test(id) || seen.has(id)) {
+      let n = i + 1;
+      id = "faq-" + n;
+      while (seen.has(id)) {
+        n += 1;
+        id = "faq-" + n;
+      }
+    }
+    seen.add(id);
+    out.push({ id: id, question: question, answer: answer });
+  });
+  return out;
+}
+
+function fillFaqPageTemplate(template, items) {
+  const list = normalizePublishedFaq(items);
+  const details = list
+    .map((item) => "      <details>\n        <summary>" + htmlEscape(item.question) + "</summary>\n        <p>" + htmlEscape(item.answer) + "</p>\n      </details>")
+    .join("\n");
+  const ld = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: list.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: { "@type": "Answer", text: item.answer },
+    })),
+  };
+  let html = String(template || "");
+  if (html.includes('data-bind="faq-list"')) {
+    html = html.replace(/(<div data-bind="faq-list">)([\s\S]*?)(<\/div>)/, "$1\n" + details + "\n      $3");
+  }
+  const ldBlock = '<script type="application/ld+json" id="jsonld-faq">\n  ' + JSON.stringify(ld, null, 2).replace(/\n/g, "\n  ") + "\n  </script>";
+  if (html.includes('id="jsonld-faq"')) {
+    html = html.replace(/<script type="application\/ld\+json" id="jsonld-faq">[\s\S]*?<\/script>/, ldBlock);
+  } else {
+    html = html.replace("</head>", "  " + ldBlock + "\n</head>");
+  }
+  return html;
+}
+
+async function publishedFaqExtras(env, head, arquivos) {
+  if (!arquivos["data/faq.json"]) return [];
+  const extras = [];
+  try {
+    const template = await readRepoPathText(env, "perguntas-frequentes/index.html");
+    extras.push({
+      path: "perguntas-frequentes/index.html",
+      mode: "100644",
+      type: "blob",
+      content: fillFaqPageTemplate(template, arquivos["data/faq.json"]),
+    });
+  } catch (err) {
+    bad("não encontrei a página de perguntas frequentes no site para atualizar o HTML");
+  }
+  let products = arquivos["data/products.json"];
+  let areas = arquivos["data/areas.json"];
+  let site = arquivos["data/site.json"];
+  if (!products && head.shas["data/products.json"]) products = JSON.parse(await readBlobText(env, head.shas["data/products.json"]));
+  if (!areas && head.shas["data/areas.json"]) areas = JSON.parse(await readBlobText(env, head.shas["data/areas.json"]));
+  if (!site && head.shas["data/site.json"]) site = JSON.parse(await readBlobText(env, head.shas["data/site.json"]));
+  extras.push({
+    path: "sitemap.xml",
+    mode: "100644",
+    type: "blob",
+    content: buildPublishedSitemap(areas || [], site || {}, products || [], new Date()),
   });
   return extras;
 }
@@ -2089,6 +2188,8 @@ async function adminContentPublish(env, request) {
     }
     const productExtras = await publishedProductExtras(env, head, arquivos);
     extraPages.push.apply(extraPages, productExtras);
+    const faqExtras = await publishedFaqExtras(env, head, arquivos);
+    extraPages.push.apply(extraPages, faqExtras);
     const tree = paths
       .map((p) => ({ path: p, mode: "100644", type: "blob", content: texts[p] }))
       .concat(imageShas.map((i) => ({ path: i.path, mode: "100644", type: "blob", sha: i.sha })))

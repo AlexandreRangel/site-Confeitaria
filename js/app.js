@@ -62,6 +62,25 @@
     return document.body.getAttribute("data-page") === "about";
   }
 
+  function isFaqPage() {
+    return document.body.getAttribute("data-page") === "faq";
+  }
+
+  function renderFaq() {
+    if (!isFaqPage()) {
+      return;
+    }
+    const items = Jana.normalizeFaq ? Jana.normalizeFaq(state.faq) : state.faq || [];
+    const list = Jana.qs('[data-bind="faq-list"]');
+    if (list && Jana.faqDetailsHtml) {
+      const html = Jana.faqDetailsHtml(items);
+      list.innerHTML = html || '<p class="empty">Em breve, novas perguntas frequentes. Se quiser, fale com a gente pelo WhatsApp.</p>';
+    }
+    if (Jana.upsertJsonLd && Jana.faqJsonLd) {
+      Jana.upsertJsonLd("jsonld-faq", Jana.faqJsonLd(items));
+    }
+  }
+
   function isEncomendasPage() {
     return document.body.getAttribute("data-page") === "encomendas";
   }
@@ -125,6 +144,9 @@
         Jana.loadJSON("data/pausa.json").catch(function noPausa() {
           return { ativo: false, inicio: "", fim: "", mensagem: "", periodos: [], fimDeSemana: false, planilhaCsv: "" };
         }),
+        Jana.loadJSON("data/faq.json").catch(function noFaq() {
+          return [];
+        }),
       ]);
       state.site = loaded[0];
       state.categories = loaded[1].slice().sort(byOrder);
@@ -141,6 +163,8 @@
       state.pagamento = loaded[8] || { infinitepay: { enabled: false, handle: "" } };
       state.pausa = Jana.loadPausaConfig ? await Jana.loadPausaConfig(loaded[9] || {}) : loaded[9] || {};
       state.pausaEval = Jana.evaluatePausa ? Jana.evaluatePausa(state.pausa) : { active: false, message: "" };
+      state.faq = loaded[10] || [];
+      renderFaq();
       if (isAreaPage() || isCategoryPage()) {
         state.filter = pageAreaId() || "todas";
       }
@@ -264,6 +288,9 @@
     applyProductPage();
     if (isAboutPage() && site.brandName) {
       document.title = "Sobre nós · " + site.brandName;
+    }
+    if (isFaqPage() && site.brandName) {
+      document.title = "Perguntas frequentes · " + site.brandName;
     }
     if (site.logo) {
       Jana.qsa('[data-bind="logo"]').forEach(function setLogo(img) {

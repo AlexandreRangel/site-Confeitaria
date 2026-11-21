@@ -168,6 +168,7 @@ const storefrontPages = [
   "index.html",
   "produto/index.html",
   "sobre-nos/index.html",
+  "perguntas-frequentes/index.html",
   "encomendas/index.html",
   ...expectedAreas.map((id) => id + "/index.html"),
   "area/index.html",
@@ -417,7 +418,7 @@ const painelPage = existsSync(join(root, "painel/index.html")) ? readFileSync(jo
 if (painelPage.includes("whatsapp-fab") || painelPage.includes('class="selos"')) {
   errors.push("Painel must not include storefront payment seals or the WhatsApp floating button");
 }
-const publicWithSeals = ["404.html", "area/index.html", "bolos/index.html", "cestas/index.html", "corporate/index.html", "doces-personalizados/index.html", "encomendas/index.html", "natal/index.html", "pagamento/index.html", "pascoa/index.html", "produto/index.html", "sobre-nos/index.html"];
+const publicWithSeals = ["404.html", "area/index.html", "bolos/index.html", "cestas/index.html", "corporate/index.html", "doces-personalizados/index.html", "encomendas/index.html", "natal/index.html", "pagamento/index.html", "pascoa/index.html", "produto/index.html", "sobre-nos/index.html", "perguntas-frequentes/index.html"];
 publicWithSeals.forEach(function checkPage(rel) {
   const page = readFileSync(join(root, rel), "utf8");
   if (!page.includes('class="selos"') || !page.includes("whatsapp-fab") || !page.includes("js/selos.js")) {
@@ -889,7 +890,7 @@ if (!existsSync(sitemapPath)) {
     errors.push("sitemap.xml is out of date; run node scripts/gerar-sitemap.mjs");
   }
   const locs = Array.from(sitemap.matchAll(/<loc>(.*?)<\/loc>/g)).map((m) => m[1]);
-  ["https://janaabreuconfeitaria.com.br/", "https://janaabreuconfeitaria.com.br/natal/", "https://janaabreuconfeitaria.com.br/corporate/", "https://janaabreuconfeitaria.com.br/bolos/", "https://janaabreuconfeitaria.com.br/cestas/", "https://janaabreuconfeitaria.com.br/doces-personalizados/", "https://janaabreuconfeitaria.com.br/sobre-nos/"].forEach((url) => {
+  ["https://janaabreuconfeitaria.com.br/", "https://janaabreuconfeitaria.com.br/natal/", "https://janaabreuconfeitaria.com.br/corporate/", "https://janaabreuconfeitaria.com.br/bolos/", "https://janaabreuconfeitaria.com.br/cestas/", "https://janaabreuconfeitaria.com.br/doces-personalizados/", "https://janaabreuconfeitaria.com.br/sobre-nos/", "https://janaabreuconfeitaria.com.br/perguntas-frequentes/"].forEach((url) => {
     if (!locs.includes(url)) errors.push("sitemap.xml missing " + url);
   });
   products.filter((p) => p && p.active !== false && p.slug).forEach((p) => {
@@ -936,7 +937,7 @@ if (!layoutCss.includes(".areas__list:empty")) {
 }
 
 function jsonLdBlocks(html) {
-  return Array.from(html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)).map((m) => {
+  return Array.from(html.matchAll(/<script type="application\/ld\+json"(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)).map((m) => {
     try {
       return JSON.parse(m[1]);
     } catch (err) {
@@ -949,9 +950,11 @@ const homeLd = jsonLdBlocks(home);
 if (!homeLd.some((row) => row["@type"] === "Bakery" && row.image && row.name === "Jana Abreu Confeitaria")) {
   errors.push("home must include a parseable Bakery JSON-LD with an absolute image");
 }
-const faqLd = homeLd.find((row) => row["@type"] === "FAQPage");
-if (!faqLd || !Array.isArray(faqLd.mainEntity) || faqLd.mainEntity.length !== 4) {
-  errors.push("home must include a parseable FAQPage JSON-LD with 4 questions");
+if (home.includes("FAQPage") || home.includes('id="perguntas-frequentes"') || (home.match(/<details>/g) || []).length) {
+  errors.push("home must not include the FAQ section or FAQPage JSON-LD");
+}
+if (!home.includes('class="faq-home-link"') || !home.includes('href="perguntas-frequentes/">Perguntas frequentes</a>')) {
+  errors.push("home must include a discreet link to /perguntas-frequentes/ before the footer");
 }
 const sobreLd = jsonLdBlocks(readFileSync(join(root, "sobre-nos/index.html"), "utf8"));
 if (!sobreLd.some((row) => row["@type"] === "Bakery" && row.image)) {
@@ -963,8 +966,27 @@ if (!home.includes('class="home-lead"') || !home.includes("Confeitaria artesanal
 if (!home.includes("<h1") || !/class="sr-only"/.test(home.split("<h1")[1].slice(0, 80))) {
   errors.push("home should keep the visually hidden H1 and place the visible lead after the hero");
 }
-if ((home.match(/<details>/g) || []).length !== 4 || !home.includes("<summary>") || !home.includes('id="perguntas-frequentes"')) {
-  errors.push("home must include the 4 FAQ items as details/summary before the footer");
+const faqPage = readFileSync(join(root, "perguntas-frequentes/index.html"), "utf8");
+const faqLd = jsonLdBlocks(faqPage).find((row) => row["@type"] === "FAQPage");
+const faqData = JSON.parse(readFileSync(join(root, "data/faq.json"), "utf8"));
+if (!faqLd || !Array.isArray(faqLd.mainEntity) || faqLd.mainEntity.length !== faqData.length) {
+  errors.push("perguntas-frequentes must include a parseable FAQPage JSON-LD in sync with data/faq.json");
+} else {
+  faqData.forEach(function checkQ(item, i) {
+    const entity = faqLd.mainEntity[i];
+    if (!entity || entity.name !== item.question || (entity.acceptedAnswer && entity.acceptedAnswer.text) !== item.answer) {
+      errors.push("FAQPage JSON-LD item " + (i + 1) + " must match data/faq.json");
+    }
+  });
+}
+if (!faqPage.includes("<h1") || !faqPage.includes("Perguntas frequentes") || !faqPage.includes('data-page="faq"') || !faqPage.includes('data-bind="faq-list"')) {
+  errors.push("perguntas-frequentes needs h1 «Perguntas frequentes», data-page=faq and the FAQ list hook");
+}
+if ((faqPage.match(/<details>/g) || []).length !== faqData.length || !faqPage.includes("<summary>")) {
+  errors.push("perguntas-frequentes must ship the questions as details/summary in the initial HTML");
+}
+if (faqPage.includes("FAQPage") && !faqPage.includes('id="jsonld-faq"')) {
+  errors.push("perguntas-frequentes FAQPage JSON-LD must use id=jsonld-faq");
 }
 
 const seoPages = [
@@ -972,6 +994,7 @@ const seoPages = [
   "404.html",
   "produto/index.html",
   "sobre-nos/index.html",
+  "perguntas-frequentes/index.html",
   "encomendas/index.html",
   "pagamento/index.html",
   "area/index.html",
@@ -982,6 +1005,13 @@ const seoPages = [
   "natal/index.html",
   "pascoa/index.html",
 ];
+["index.html", "404.html", "produto/index.html", "sobre-nos/index.html", "perguntas-frequentes/index.html", "encomendas/index.html", "pagamento/index.html", "area/index.html", "bolos/index.html", "cestas/index.html", "corporate/index.html", "doces-personalizados/index.html", "natal/index.html", "pascoa/index.html"].forEach((rel) => {
+  const html = readFileSync(join(root, rel), "utf8");
+  if (!html.includes('class="rodape__faq"') || !html.includes(">Perguntas frequentes</a>")) {
+    errors.push(rel + " footer must include a visible Perguntas frequentes link");
+  }
+});
+
 seoPages.forEach((rel) => {
   const html = readFileSync(join(root, rel), "utf8");
   ["rel=\"canonical\"", "og:type", "og:site_name", "og:title", "og:description", "og:url", "og:image", "twitter:card"].forEach((token) => {

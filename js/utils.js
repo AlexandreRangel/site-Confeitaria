@@ -236,6 +236,71 @@
     return data;
   };
 
+
+  Jana.FAQ_QUESTION_MAX = 200;
+  Jana.FAQ_ANSWER_MAX = 1200;
+  Jana.FAQ_MAX_ITEMS = 30;
+
+  Jana.normalizeFaq = function normalizeFaq(data) {
+    const list = Array.isArray(data) ? data : (data && Array.isArray(data.items) ? data.items : []);
+    const out = [];
+    const seen = Object.create(null);
+    list.forEach(function each(item, index) {
+      if (!item) return;
+      const question = String(item.question || item.pergunta || item.name || "").trim();
+      const answer = String(item.answer || item.resposta || item.text || "").trim();
+      let id = String(item.id || "").trim();
+      if (!/^[a-z0-9][a-z0-9-]{0,119}$/.test(id) || seen[id]) {
+        id = "faq-" + (index + 1);
+        let n = index + 1;
+        while (seen[id]) {
+          n += 1;
+          id = "faq-" + n;
+        }
+      }
+      seen[id] = true;
+      out.push({ id: id, question: question, answer: answer });
+    });
+    return out;
+  };
+
+  Jana.faqJsonLd = function faqJsonLd(items) {
+    const list = Jana.normalizeFaq(items).filter(function keep(item) {
+      return item.question && item.answer;
+    });
+    return {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: list.map(function question(item) {
+        return {
+          "@type": "Question",
+          name: item.question,
+          acceptedAnswer: { "@type": "Answer", text: item.answer },
+        };
+      }),
+    };
+  };
+
+  Jana.faqDetailsHtml = function faqDetailsHtml(items) {
+    return Jana.normalizeFaq(items)
+      .filter(function keep(item) {
+        return item.question && item.answer;
+      })
+      .map(function details(item) {
+        return (
+          "<details>" +
+          "<summary>" +
+          Jana.escapeHtml(item.question) +
+          "</summary>" +
+          "<p>" +
+          Jana.escapeHtml(item.answer) +
+          "</p>" +
+          "</details>"
+        );
+      })
+      .join("");
+  };
+
   /* Pastas e rotas que uma categoria nova não pode usar como endereço. */
   Jana.RESERVED_AREA_SLUGS = [
     "painel", "produto", "produtos", "encomendas", "pagamento", "sobre-nos", "sobre",
@@ -243,6 +308,7 @@
     "scripts", "area", "areas", "catalogo", "index", "404", "admin", "login", "api",
     "corporativo", "personalizado-para-empresas", "cestas-presentes", "combos-festa",
     "doces-festa", "festa-personalizada", "sobremesas", "favicon", "robots", "sitemap",
+    "perguntas-frequentes",
   ];
 
   Jana.isReservedAreaSlug = function isReservedAreaSlug(slug) {

@@ -1507,3 +1507,56 @@ body.ed-ocupado .ed-form [type="submit"] {
   border-radius: 10px;
   border: 1px solid var(--line, #e4c4ce);
 }
+
+
+/* Perguntas frequentes */
+.ed-faq-lista {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+.ed-faq-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.6rem 0.75rem;
+  align-items: start;
+  padding: 0.85rem 0.9rem;
+  border: 1px solid var(--line, #e4c4ce);
+  border-radius: 12px;
+  background: #fff;
+}
+.ed-faq-item.is-dragging {
+  opacity: 0.7;
+  background: #f7f1f3;
+}
+.ed-faq-item.is-dragging * {
+  user-select: none;
+}
+.ed-faq-item.is-dragging .ed-drag,
+.ed-faq-item .ed-drag:active {
+  cursor: grabbing;
+}
+.ed-faq-item__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-width: 0;
+}
+.ed-faq-item__acoes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+@media (max-width: 720px) {
+  .ed-faq-item {
+    grid-template-columns: auto 1fr;
+  }
+  .ed-faq-item__acoes {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}

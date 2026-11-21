@@ -52,6 +52,7 @@ const publicPages = [
   "/pascoa/",
   "/personalizado-para-empresas/",
   "/produto/",
+  "/perguntas-frequentes/",
   "/sobre-nos/",
   "/sobremesas/",
 ];

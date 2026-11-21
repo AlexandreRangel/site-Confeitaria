@@ -20,9 +20,10 @@
     pausa: "data/pausa.json",
     sobre: "data/sobre.json",
     sabores: "data/sabores-bolos.json",
+    faq: "data/faq.json",
   };
-  const EDITOR_TABS = ["produtos", "carrossel", "datas", "categorias", "sobre", "textos", "historico"];
-  const STAGED_TABS = ["carrossel", "datas", "categorias", "sobre", "textos"];
+  const EDITOR_TABS = ["produtos", "carrossel", "datas", "categorias", "sobre", "faq", "textos", "historico"];
+  const STAGED_TABS = ["carrossel", "datas", "categorias", "sobre", "faq", "textos"];
   const RAW_BASE = "https://raw.githubusercontent.com/AlexandreRangel/site-Confeitaria/preview/";
   const BANNER_SIZES = {
     home: { pc: [2400, 700], cel: [1200, 800] },
@@ -403,7 +404,15 @@
           ED.logado = false;
           renderLogin();
         } else {
-          setStatus("erro", "Não foi possível salvar: " + ((r.data && r.data.error) || "o servidor não respondeu") + ".");
+          const err = (r.data && r.data.error) || "o servidor não respondeu";
+          if (paths.indexOf(F.faq) !== -1 && /arquivo não permitido/i.test(String(err))) {
+            setStatus(
+              "erro",
+              "As perguntas frequentes ainda não podem ser publicadas porque o servidor do site precisa ser atualizado. As outras abas continuam salvando normalmente. Avise o Alexandre para publicar o Worker novo."
+            );
+          } else {
+            setStatus("erro", "Não foi possível salvar: " + err + ".");
+          }
         }
         return { ok: false, result: r };
       }
@@ -517,6 +526,14 @@
           setStatus("erro", "Não consegui falar com o servidor (" + ((r.data && r.data.error) || "sem resposta") + "). Mostrando a versão publicada, só para consulta.");
         }
       }
+      if (files[F.faq] == null) {
+        try {
+          files[F.faq] = await Jana.loadJSON("../" + F.faq);
+        } catch (err) {
+          files[F.faq] = [];
+        }
+      }
+      if (Jana.normalizeFaq) files[F.faq] = Jana.normalizeFaq(files[F.faq]);
       ED.saved = files;
       ED.carregado = true;
       resetDrafts();
@@ -624,6 +641,26 @@
         return changed({ [F.areas]: list });
       },
       resumo: () => "categorias",
+    },
+    faq: {
+      from: function from() {
+        const raw = ED.saved[F.faq];
+        return { items: clone(Jana.normalizeFaq ? Jana.normalizeFaq(raw) : raw || []) };
+      },
+      files: function files(d) {
+        const list = (d.items || []).map(function clean(item) {
+          return {
+            id: item.id,
+            question: String(item.question || "").trim(),
+            answer: String(item.answer || "").trim(),
+          };
+        });
+        return changed({ [F.faq]: list });
+      },
+      resumo: function resumo(d) {
+        const n = (d.items || []).length;
+        return "perguntas frequentes (" + n + (n === 1 ? " pergunta" : " perguntas") + ")";
+      },
     },
     sobre: {
       from: function from() {
@@ -748,7 +785,7 @@
     ED.carregado = false;
     setAviso("");
     const msg = '<p class="ed-vazio">Entre com a senha da loja (no alto desta página) para editar o site.</p>';
-    ["carrossel", "datas", "categorias", "sobre", "textos", "historico"].forEach((t) => {
+    ["carrossel", "datas", "categorias", "sobre", "faq", "textos", "historico"].forEach((t) => {
       const el = qs('[data-ed="' + t + '"]');
       if (el) el.innerHTML = msg;
     });
@@ -760,7 +797,7 @@
   }
 
   function renderLoading() {
-    ["carrossel", "datas", "categorias", "sobre", "textos"].forEach((t) => {
+    ["carrossel", "datas", "categorias", "sobre", "faq", "textos"].forEach((t) => {
       const el = qs('[data-ed="' + t + '"]');
       if (el) el.innerHTML = '<p class="ed-vazio">Carregando…</p>';
     });
@@ -775,6 +812,7 @@
     renderDatas();
     renderCategorias();
     renderSobreTab();
+    renderFaqTab();
     renderTextos();
     if (ED.tab === "historico") loadHistorico();
     updateSavebar();
@@ -786,6 +824,7 @@
     if (tab === "datas") renderDatas();
     if (tab === "categorias") renderCategorias();
     if (tab === "sobre") renderSobreTab();
+    if (tab === "faq") renderFaqTab();
     if (tab === "textos") renderTextos();
     if (tab === "historico") loadHistorico();
     updateSavebar();
@@ -2273,6 +2312,27 @@
         if (x.url && !/^https:\/\/\S+\.\S+$/.test(x.url)) return "Imprensa: o link precisa começar com https://";
       }
     }
+    if (tab === "faq") {
+      const list = (ED.drafts.faq && ED.drafts.faq.items) || [];
+      const qMax = Jana.FAQ_QUESTION_MAX || 200;
+      const aMax = Jana.FAQ_ANSWER_MAX || 1200;
+      const maxItems = Jana.FAQ_MAX_ITEMS || 30;
+      if (!list.length) return "Deixe pelo menos uma pergunta frequente.";
+      if (list.length > maxItems) return "São perguntas demais (máximo " + maxItems + ").";
+      const ids = {};
+      for (let i = 0; i < list.length; i++) {
+        const item = list[i];
+        const n = i + 1;
+        const q = String(item.question || "").trim();
+        const a = String(item.answer || "").trim();
+        if (!q) return "A pergunta " + n + " está vazia. Escreva a pergunta ou remova o item.";
+        if (q.length > qMax) return "A pergunta " + n + " passou de " + qMax + " caracteres.";
+        if (!a) return "A resposta " + n + " está vazia. Escreva a resposta ou remova o item.";
+        if (a.length > aMax) return "A resposta " + n + " passou de " + aMax + " caracteres.";
+        if (!item.id || !/^[a-z0-9][a-z0-9-]{0,119}$/.test(item.id) || ids[item.id]) return "A pergunta " + n + " está com um código inválido. Recarregue a aba e tente de novo.";
+        ids[item.id] = true;
+      }
+    }
     if (tab === "textos") {
       const t = ED.drafts.textos;
       const s = t.site;
@@ -2758,6 +2818,122 @@
     updateSavebar();
   }
 
+  function faqItems() {
+    return (ED.drafts.faq && ED.drafts.faq.items) || [];
+  }
+
+  function newFaqId(list) {
+    const seen = Object.create(null);
+    (list || []).forEach(function mark(item) {
+      if (item && item.id) seen[item.id] = true;
+    });
+    let n = 1;
+    let id = "faq-" + n;
+    while (seen[id]) {
+      n += 1;
+      id = "faq-" + n;
+    }
+    return id;
+  }
+
+  function renderFaqTab() {
+    const root = qs('[data-ed="faq"]');
+    if (!root || !ED.carregado) return;
+    const list = faqItems();
+    const qMax = Jana.FAQ_QUESTION_MAX || 200;
+    const aMax = Jana.FAQ_ANSWER_MAX || 1200;
+    const maxItems = Jana.FAQ_MAX_ITEMS || 30;
+    const rows = list
+      .map(function row(item, i) {
+        return (
+          '<li class="ed-faq-item" data-id="' +
+          esc(item.id) +
+          '">' +
+          '<button type="button" class="ed-drag" data-ed-drag="faq" data-id="' +
+          esc(item.id) +
+          '" aria-label="Arrastar para reordenar">⋮⋮</button>' +
+          '<div class="ed-faq-item__fields">' +
+          '<label class="ed-field">Pergunta <span class="ed-obrigatorio">(obrigatório)</span>' +
+          '<input type="text" maxlength="' +
+          qMax +
+          '" data-faq-campo="question" data-id="' +
+          esc(item.id) +
+          '" value="' +
+          esc(item.question || "") +
+          '"></label>' +
+          '<label class="ed-field">Resposta <span class="ed-obrigatorio">(obrigatório)</span>' +
+          '<textarea rows="4" maxlength="' +
+          aMax +
+          '" data-faq-campo="answer" data-id="' +
+          esc(item.id) +
+          '">' +
+          esc(item.answer || "") +
+          "</textarea></label></div>" +
+          '<div class="ed-faq-item__acoes">' +
+          '<button type="button" class="btn btn--small btn--outline" data-ed-action="faq-mover" data-id="' +
+          esc(item.id) +
+          '" data-dir="-1"' +
+          (i === 0 ? " disabled" : "") +
+          ' aria-label="Subir pergunta">↑</button>' +
+          '<button type="button" class="btn btn--small btn--outline" data-ed-action="faq-mover" data-id="' +
+          esc(item.id) +
+          '" data-dir="1"' +
+          (i === list.length - 1 ? " disabled" : "") +
+          ' aria-label="Descer pergunta">↓</button>' +
+          '<button type="button" class="btn btn--small btn--danger" data-ed-action="faq-remover" data-id="' +
+          esc(item.id) +
+          '">Remover</button></div></li>'
+        );
+      })
+      .join("");
+    root.innerHTML =
+      '<section class="ed-bloco">' +
+      '<p class="ed-dica">Estas perguntas aparecem na página «Perguntas frequentes» do site e no Google. A pergunta e a resposta são obrigatórias. Você pode reordenar com as setas ou arrastando. Máximo de ' +
+      maxItems +
+      " perguntas.</p>" +
+      (rows ? '<ol class="ed-faq-lista" data-ed-faq-order>' + rows + "</ol>" : '<p class="ed-vazio">Nenhuma pergunta ainda. Adicione a primeira.</p>') +
+      '<button type="button" class="btn btn--solid" data-ed-action="faq-novo"' +
+      (list.length >= maxItems ? " disabled" : "") +
+      ">Adicionar pergunta</button></section>";
+  }
+
+  function renderFaqPreserving(focusId, focusCampo, selStart) {
+    const root = qs('[data-ed="faq"]');
+    const scroll = root ? root.scrollTop : 0;
+    renderFaqTab();
+    if (root) root.scrollTop = scroll;
+    if (!focusId || !focusCampo) return;
+    const el = qs('[data-ed="faq"] [data-faq-campo="' + focusCampo + '"][data-id="' + CSS.escape(focusId) + '"]');
+    if (!el) return;
+    el.focus();
+    try {
+      if (typeof selStart === "number") el.setSelectionRange(selStart, selStart);
+    } catch (err) {}
+  }
+
+  function onFaqInput(target) {
+    const id = target.getAttribute("data-id");
+    const campo = target.getAttribute("data-faq-campo");
+    const item = faqItems().find(function find(x) {
+      return x.id === id;
+    });
+    if (!item || (campo !== "question" && campo !== "answer")) return;
+    item[campo] = target.value;
+    updateSavebar();
+  }
+
+  function moverFaq(id, dir) {
+    const list = faqItems();
+    const i = list.findIndex(function find(x) {
+      return x.id === id;
+    });
+    if (!moverItem(list, i, Number(dir))) return false;
+    ED.drafts.faq.items = list;
+    renderFaqPreserving(id, "question");
+    updateSavebar();
+    return true;
+  }
+
   function renderTextos() {
     const root = qs('[data-ed="textos"]');
     if (!root || !ED.carregado) return;
@@ -3143,6 +3319,41 @@
         if (btn) btn.click();
         break;
       }
+      case "faq-novo": {
+        const list = faqItems();
+        const maxItems = Jana.FAQ_MAX_ITEMS || 30;
+        if (list.length >= maxItems) break;
+        list.push({ id: newFaqId(list), question: "", answer: "" });
+        ED.drafts.faq.items = list;
+        renderFaqTab();
+        updateSavebar();
+        {
+          const last = qsa('[data-ed="faq"] [data-faq-campo="question"]').pop();
+          if (last) last.focus();
+        }
+        break;
+      }
+      case "faq-remover": {
+        const list = faqItems();
+        const i = list.findIndex(function find(x) { return x.id === id; });
+        if (i === -1) break;
+        const ok = await confirmar({
+          titulo: "Remover esta pergunta?",
+          texto: "Ela sai da página de perguntas frequentes quando você salvar.",
+          botao: "Remover pergunta",
+          perigo: true,
+        });
+        if (ok) {
+          list.splice(i, 1);
+          ED.drafts.faq.items = list;
+          renderFaqTab();
+          updateSavebar();
+        }
+        break;
+      }
+      case "faq-mover":
+        moverFaq(id, el.getAttribute("data-dir"));
+        break;
       case "area-mover": {
         const list = categoriasList().slice().sort(byOrder);
         const i = list.findIndex((a) => a.id === id);
@@ -3306,6 +3517,11 @@
       onSobreInput(t);
       return;
     }
+    if (t.closest('[data-ed="faq"]')) {
+      if (event.type === "change") return;
+      onFaqInput(t);
+      return;
+    }
     if (t.closest('[data-ed="form-produto"]') && event.type === "change" && t.name === "sobConsulta") {
       const preco = qs('[data-ed="form-produto"] [name="preco"]');
       if (preco) preco.disabled = t.checked;
@@ -3410,6 +3626,71 @@
       });
   }
 
+  let faqDrag = null;
+
+  function onFaqPointerDown(event) {
+    const handle = event.target.closest('[data-ed-drag="faq"]');
+    if (!handle || (event.pointerType === "mouse" && event.button !== 0)) return false;
+    const row = handle.closest(".ed-faq-item");
+    const list = handle.closest("[data-ed-faq-order]");
+    if (!row || !list) return false;
+    faqDrag = {
+      pointerId: event.pointerId,
+      handle: handle,
+      row: row,
+      list: list,
+      startY: event.clientY,
+      moved: false,
+    };
+    try { handle.setPointerCapture(event.pointerId); } catch (err) {}
+    event.preventDefault();
+    return true;
+  }
+
+  function onFaqPointerMove(event) {
+    if (!faqDrag || event.pointerId !== faqDrag.pointerId) return false;
+    const drag = faqDrag;
+    if (!drag.moved && Math.abs(event.clientY - drag.startY) < 5) return true;
+    drag.moved = true;
+    drag.row.classList.add("is-dragging");
+    const y = event.clientY;
+    const rows = Array.prototype.slice.call(drag.list.querySelectorAll(".ed-faq-item"));
+    let placed = false;
+    for (let i = 0; i < rows.length; i++) {
+      const item = rows[i];
+      if (item === drag.row) continue;
+      const box = item.getBoundingClientRect();
+      if (y < box.top + box.height / 2) {
+        drag.list.insertBefore(drag.row, item);
+        placed = true;
+        break;
+      }
+    }
+    if (!placed) drag.list.appendChild(drag.row);
+    event.preventDefault();
+    return true;
+  }
+
+  function onFaqPointerUp(event) {
+    if (!faqDrag || event.pointerId !== faqDrag.pointerId) return false;
+    const drag = faqDrag;
+    faqDrag = null;
+    drag.row.classList.remove("is-dragging");
+    try { drag.handle.releasePointerCapture(event.pointerId); } catch (err) {}
+    if (!drag.moved) return true;
+    const order = Array.prototype.map.call(drag.list.querySelectorAll(".ed-faq-item[data-id]"), function idOf(row) {
+      return row.getAttribute("data-id");
+    }).filter(Boolean);
+    const byId = Object.create(null);
+    faqItems().forEach(function mark(item) { byId[item.id] = item; });
+    const next = order.map(function pick(id) { return byId[id]; }).filter(Boolean);
+    if (next.length === faqItems().length) ED.drafts.faq.items = next;
+    renderFaqTab();
+    updateSavebar();
+    event.preventDefault();
+    return true;
+  }
+
   let areaProdDrag = null;
 
   function onAreaProdPointerDown(event) {
@@ -3480,7 +3761,7 @@
   let fotoDrag = null;
 
   function onFotoPointerDown(event) {
-    if (onAreaProdPointerDown(event)) return;
+    if (onFaqPointerDown(event) || onAreaProdPointerDown(event)) return;
     const frame = event.target.closest("[data-ed-foto-frame]");
     if (!frame || !ED.banner || event.button) return;
     const img = frame.querySelector("img");
@@ -3502,7 +3783,7 @@
   }
 
   function onFotoPointerMove(event) {
-    if (onAreaProdPointerMove(event)) return;
+    if (onFaqPointerMove(event) || onAreaProdPointerMove(event)) return;
     if (!fotoDrag || event.pointerId !== fotoDrag.pointerId || !ED.banner) return;
     const next = Jana.fotoPanFromDrag(
       fotoDrag.foto,
@@ -3520,7 +3801,7 @@
   }
 
   function onFotoPointerUp(event) {
-    if (onAreaProdPointerUp(event)) return;
+    if (onFaqPointerUp(event) || onAreaProdPointerUp(event)) return;
     if (!fotoDrag || event.pointerId !== fotoDrag.pointerId) return;
     fotoDrag.frame.classList.remove("is-dragging");
     try { fotoDrag.frame.releasePointerCapture(event.pointerId); } catch (err) {}
