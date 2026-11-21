@@ -183,8 +183,8 @@
               <dt>Status do pagamento</dt>
               <dd data-bind="detail-payment-status"></dd>
             </div>
-            <div>
-              <dt>Pedido (NSU)</dt>
+            <div data-bind="detail-order-nsu-row" hidden>
+              <dt>Código interno InfinitePay</dt>
               <dd data-bind="detail-order-nsu"></dd>
             </div>
             <div>
@@ -311,11 +311,11 @@
   <dialog class="ed-dialog" data-ed="dialog-banner" aria-labelledby="ed-banner-titulo"></dialog>
   <dialog class="ed-dialog ed-dialog--confirmar" data-ed="dialog-confirmar" aria-labelledby="ed-confirmar-titulo"></dialog>
 
-  <script defer src="../js/utils.js?v=20261116d"></script>
+  <script defer src="../js/utils.js?v=20261121num"></script>
   <script defer src="../js/pausa.js?v=20261121dom"></script>
-  <script defer src="../js/store.js?v=20261116d"></script>
+  <script defer src="../js/store.js?v=20261121num"></script>
   <script defer src="../js/central.js?v=20261116d"></script>
-  <script defer src="../js/painel.js?v=20261116d"></script>
+  <script defer src="../js/painel.js?v=20261121num"></script>
   <script defer src="../js/editor.js?v=20261121e"></script>
 </body>
 </html>

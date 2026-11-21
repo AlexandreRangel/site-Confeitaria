@@ -121,6 +121,16 @@
       retry.setAttribute("href", Jana.assetUrl("encomendas/"));
     }
 
+    function orderNumber() {
+      const fromPending = pending && pending.orderNsu === params.order_nsu ? pending.orderNumber : "";
+      return centralNumber || Jana.orderNumber(centralOrder) || Jana.orderNumber(fromPending);
+    }
+
+    function pedidoRef() {
+      const n = orderNumber();
+      return n ? "o pedido nº " + n : "um pedido";
+    }
+
     if (!params.order_nsu || !params.slug || !params.transaction_nsu) {
       setState(
         "Não foi possível identificar o pagamento",
@@ -141,6 +151,7 @@
     // 2) Se o Worker estiver fora do ar ou não conhecer o pedido, consulta o payment_check direto.
     let check = null;
     let centralOrder = null;
+    let centralNumber = "";
     if (Jana.Central && Jana.Central.isEnabled(site)) {
       const token = pending && pending.orderNsu === params.order_nsu ? pending.centralToken || "" : "";
       const status = await Jana.Central.orderStatus(site, params.order_nsu, params, token);
@@ -153,6 +164,7 @@
           source: "worker",
         };
         centralOrder = status.data.order || null;
+        centralNumber = Jana.orderNumber(status.data.number);
       }
     }
     if (!check) {
@@ -175,13 +187,16 @@
           "https://wa.me/" +
             number +
             "?text=" +
-            encodeURIComponent("Olá! Paguei o pedido " + params.order_nsu + " e o site não confirmou. Pode conferir?")
+            encodeURIComponent("Olá! Paguei " + pedidoRef() + " pelo site e não apareceu a confirmação. Pode conferir?")
         );
         return;
       }
     }
 
     const order = findOrder(params.order_nsu, pending, centralOrder);
+    // Um número só (1001…), vindo do Worker; nunca o número da cópia local nem o NSU da InfinitePay.
+    order.number = orderNumber();
+    order.orderNumber = order.number;
     const paid = !!(check && check.success !== false && check.paid === true);
     if (!paid) {
       setState(
@@ -198,7 +213,7 @@
         "https://wa.me/" +
           number +
           "?text=" +
-          encodeURIComponent("Olá! Tentei pagar o pedido " + params.order_nsu + " e não foi confirmado.")
+          encodeURIComponent("Olá! Tentei pagar " + pedidoRef() + " pelo site e não foi confirmado.")
       );
       return;
     }
@@ -232,9 +247,7 @@
     const details = Jana.qs("[data-bind='pagamento-detalhes']");
     if (details) {
       details.textContent =
-        "Pedido " +
-        params.order_nsu +
-        " · " +
+        (order.number ? Jana.orderLabel(order.number) + " · " : "") +
         Jana.formatBRL(paidReais) +
         " · " +
         Jana.captureMethodLabel(check.capture_method || params.capture_method);

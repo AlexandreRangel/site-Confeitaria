@@ -8,6 +8,28 @@
     });
   };
 
+  /* Número do pedido: um só, curto e sequencial (1001, 1002…), vindo do Worker.
+     O NSU (JA-AAAAMMDD-XXXXXX) é interno (InfinitePay) e nunca aparece como número do pedido. */
+  Jana.orderNumber = function orderNumber(value) {
+    const raw = value && typeof value === "object" ? value.number || value.orderNumber : value;
+    const text = String(raw == null ? "" : raw).trim();
+    return /^\d{1,9}$/.test(text) ? text : "";
+  };
+
+  /* «Pedido nº 1001»; sem número, devolve o fallback (padrão «Pedido sem número»). */
+  Jana.orderLabel = function orderLabel(value, fallback) {
+    const n = Jana.orderNumber(value);
+    return n ? "Pedido nº " + n : fallback == null ? "Pedido sem número" : fallback;
+  };
+
+  /* Linha do número do pedido nas mensagens de WhatsApp montadas pelo site.
+     Sem número (Worker fora do ar), não inventa número: avisa que o pedido ainda está sem número. */
+  Jana.orderWhatsAppLine = function orderWhatsAppLine(order) {
+    const n = Jana.orderNumber(order);
+    if (n) return "*Pedido nº " + n + "*";
+    return order && order.orderSemNumero ? "*Pedido ainda sem número* (o site não conseguiu registrar)" : "";
+  };
+
   Jana.escapeHtml = function escapeHtml(value) {
     return String(value)
       .replace(/&/g, "&amp;")

@@ -122,7 +122,9 @@
   }
 
   function buildOrderFromCheckout(payload) {
-    const number = nextOrderNumber();
+    // A cópia local não inventa número: só guarda o número real do pedido (Worker), se já houver.
+    const localSeq = nextOrderNumber();
+    const number = Jana.orderNumber ? Jana.orderNumber(payload.orderNumber) : String(payload.orderNumber || "");
     const items = (payload.items || []).map(function mapItem(item) {
       return {
         id: item.id,
@@ -141,7 +143,7 @@
       ? Number(payload.taxa != null ? payload.taxa : payload.frete) || 0
       : 0;
     return {
-      id: "PED-" + number,
+      id: "PED-" + localSeq,
       number: number,
       clientName: payload.nome || "",
       clientPhone: digitsOnly(payload.telefone),

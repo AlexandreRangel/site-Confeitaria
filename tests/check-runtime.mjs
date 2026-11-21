@@ -662,6 +662,36 @@ if (!/Pagamento via Pix — aguardando conferência/.test(pending) || /PAGO/.tes
   errors.push("pending Pix WhatsApp must wait for receipt and must not say PAGO");
 }
 
+// Número do pedido: um só, curto (1001…), nunca o NSU interno da InfinitePay.
+{
+  if (Jana.orderLabel({ number: "1001" }) !== "Pedido nº 1001" || Jana.orderLabel({ orderNumber: 1002 }) !== "Pedido nº 1002") {
+    errors.push("orderLabel must format «Pedido nº 1001»");
+  }
+  if (Jana.orderNumber("JA-20261121-D2XA8S") !== "" || Jana.orderNumber({ number: "", orderNsu: "JA-20261121-D2XA8S" }) !== "") {
+    errors.push("orderNumber must never turn an NSU into an order number");
+  }
+  const base = { nome: "Ada", items: [{ name: "Bolo", quantity: 1, price: 10 }], total: 10, orderNsu: "JA-20261121-D2XA8S" };
+  const site = { nome: "Jana", contato: { whatsapp: "5561999999999" } };
+  const totals = { subtotal: 10, taxa: 0, total: 10 };
+  const comNumero = Jana.buildPixPendingWhatsAppMessage(Object.assign({ orderNumber: "1001" }, base), site, totals);
+  if (!/\*Pedido nº 1001\*/.test(comNumero) || /JA-2026/.test(comNumero)) {
+    errors.push("Pix WhatsApp must show «Pedido nº 1001» and never the NSU");
+  }
+  const semNumero = Jana.buildPixPendingWhatsAppMessage(Object.assign({ orderSemNumero: true }, base), site, totals);
+  if (!/Pedido ainda sem número/.test(semNumero) || /Pedido nº/.test(semNumero) || /JA-2026/.test(semNumero)) {
+    errors.push("Pix WhatsApp without Worker must say the order has no number yet (no fake number, no NSU)");
+  }
+  const paid = Jana.buildPaidWhatsAppMessage(
+    { clientName: "Ada", items: [], total: 10, number: "1003", orderNsu: "JA-20261121-D2XA8S" },
+    site,
+    { paid_amount: 1000 },
+    { order_nsu: "JA-20261121-D2XA8S" }
+  );
+  if (!/\*Pedido nº 1003\*/.test(paid) || /JA-2026/.test(paid)) {
+    errors.push("paid WhatsApp must show «Pedido nº 1003» and never the NSU");
+  }
+}
+
 if (typeof Jana.siteText !== "function") {
   errors.push("Jana.siteText must exist");
 } else {

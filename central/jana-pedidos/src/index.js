@@ -301,6 +301,100 @@ function generateNsu() {
 
 const NSU_RE = /^JA-\d{8}-[A-Z0-9]{4,10}$/;
 
+/* ---------------- número do pedido (curto e sequencial) ----------------
+   O número que a cliente e a Jana veem é orders.order_number: 1001, 1002, … 2000, 10000…
+   Ele sai de um contador no D1 (order_counter), incrementado na MESMA transação (batch) do
+   INSERT, então dois pedidos simultâneos nunca recebem o mesmo número (e há índice UNIQUE).
+   Números de pedidos excluídos não são reaproveitados.
+   O NSU (JA-AAAAMMDD-XXXXXX) continua existindo só para a InfinitePay (order_nsu), para o
+   webhook e para as URLs de status; não é mostrado como número do pedido.
+   A migração é idempotente e roda sozinha na primeira requisição de cada instância
+   (ver migrations/0003_order_number.sql para rodar à mão, se preferir). */
+const ORDER_NUMBER_BASE = 1000; // o primeiro pedido recebe 1001
+const NEXT_NUMBER_SQL = "(SELECT value FROM order_counter WHERE name = 'orders')";
+let orderNumbering = null; // Promise<boolean> por instância
+
+function bumpCounterStmt(env, guardSeq) {
+  if (guardSeq == null) {
+    return env.DB.prepare("UPDATE order_counter SET value = value + 1 WHERE name = 'orders'");
+  }
+  return env.DB.prepare(
+    "UPDATE order_counter SET value = value + 1 WHERE name = 'orders' AND EXISTS (SELECT 1 FROM orders WHERE seq = ? AND order_number IS NULL)"
+  ).bind(guardSeq);
+}
+
+/* Pedidos sem número (antigos, ou gravados por um Worker antigo num rollback) recebem número
+   em ordem de criação, em transações curtas. */
+async function backfillOrderNumbers(env) {
+  const { results } = await env.DB.prepare(
+    "SELECT seq FROM orders WHERE order_number IS NULL ORDER BY created_at, seq"
+  ).all();
+  const rows = results || [];
+  for (let i = 0; i < rows.length; i += 40) {
+    const stmts = [];
+    for (const r of rows.slice(i, i + 40)) {
+      stmts.push(bumpCounterStmt(env, r.seq));
+      stmts.push(
+        env.DB.prepare("UPDATE orders SET order_number = " + NEXT_NUMBER_SQL + " WHERE seq = ? AND order_number IS NULL").bind(r.seq)
+      );
+    }
+    await env.DB.batch(stmts);
+  }
+}
+
+async function migrateOrderNumbers(env) {
+  const info = await env.DB.prepare("PRAGMA table_info(orders)").all();
+  const cols = (info.results || []).map((c) => c.name);
+  if (!cols.includes("order_number")) {
+    try {
+      await env.DB.prepare("ALTER TABLE orders ADD COLUMN order_number INTEGER").run();
+    } catch (err) {
+      // outra instância pode ter criado a coluna ao mesmo tempo
+      if (!/duplicate column/i.test(String((err && err.message) || err))) throw err;
+    }
+  }
+  await env.DB.batch([
+    env.DB.prepare("CREATE UNIQUE INDEX IF NOT EXISTS orders_order_number ON orders(order_number)"),
+    env.DB.prepare("CREATE TABLE IF NOT EXISTS order_counter (name TEXT PRIMARY KEY, value INTEGER NOT NULL)"),
+    env.DB.prepare(
+      "INSERT OR IGNORE INTO order_counter (name, value) SELECT 'orders', MAX(?, COALESCE(MAX(order_number), 0)) FROM orders"
+    ).bind(ORDER_NUMBER_BASE),
+  ]);
+  // Pedidos antigos (sem número) recebem número em ordem de criação.
+  await backfillOrderNumbers(env);
+  return true;
+}
+
+/* Nunca lança: se a migração falhar, o Worker segue criando pedidos (sem número) como antes. */
+async function ensureOrderNumbers(env) {
+  if (!orderNumbering) {
+    orderNumbering = migrateOrderNumbers(env).catch((err) => {
+      console.error("numeração de pedidos indisponível", err && err.message ? err.message : String(err));
+      orderNumbering = null; // tenta de novo na próxima requisição
+      return false;
+    });
+  }
+  return orderNumbering;
+}
+
+/* Executa o INSERT do pedido já com o próximo número, numa transação só. */
+async function insertOrderNumbered(env, numbered, sqlCols, sqlValues, binds) {
+  if (!numbered) {
+    await env.DB.prepare("INSERT INTO orders (" + sqlCols + ") VALUES (" + sqlValues + ")").bind(...binds).run();
+    return;
+  }
+  await env.DB.batch([
+    bumpCounterStmt(env),
+    env.DB.prepare(
+      "INSERT INTO orders (" + sqlCols + ", order_number) VALUES (" + sqlValues + ", " + NEXT_NUMBER_SQL + ")"
+    ).bind(...binds),
+  ]);
+}
+
+function orderNumberOf(row) {
+  return row && row.order_number != null && row.order_number !== "" ? String(row.order_number) : "";
+}
+
 /* ---------------- catálogo (preços oficiais do site) ---------------- */
 
 let catalogCache = null;
@@ -556,7 +650,7 @@ function rowToOrder(row) {
   const taxa = fromCents(row.taxa_cents);
   return {
     id: row.nsu,
-    number: String(1100 + Number(row.seq)),
+    number: orderNumberOf(row),
     orderNsu: row.nsu,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -714,7 +808,12 @@ async function createOrder(env, request) {
   if (idem) {
     const prev = await env.DB.prepare("SELECT * FROM orders WHERE idem_key = ?").bind(idem).first();
     if (prev) {
-      return json(env, request, { ok: true, duplicate: true, nsu: prev.nsu, checkoutUrl: prev.checkout_url || "" }, 200);
+      return json(
+        env,
+        request,
+        { ok: true, duplicate: true, nsu: prev.nsu, number: orderNumberOf(prev), checkoutUrl: prev.checkout_url || "" },
+        200
+      );
     }
   }
 
@@ -740,13 +839,15 @@ async function createOrder(env, request) {
   const status = method === "whatsapp" ? "solicitado" : "aguardando pagamento";
   const paymentStatus =
     method === "pix" ? (body.declared === true ? "declarado" : "pendente") : method === "whatsapp" ? "a_combinar" : "pendente";
-  await env.DB.prepare(
-    `INSERT INTO orders (nsu, token_hash, idem_key, created_at, updated_at, method, status, payment_status, client_id,
+  const numbered = await ensureOrderNumbers(env);
+  await insertOrderNumbered(
+    env,
+    numbered,
+    `nsu, token_hash, idem_key, created_at, updated_at, method, status, payment_status, client_id,
       client_name, client_phone, client_email, modalidade, regiao, address, desired_date, notes, items_json,
-      subtotal_cents, taxa_cents, taxa_pendente, total_cents, client_total_cents, price_verified, price_note, history_json)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-  )
-    .bind(
+      subtotal_cents, taxa_cents, taxa_pendente, total_cents, client_total_cents, price_verified, price_note, history_json`,
+    "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?",
+    [
       nsu,
       tokenHash,
       idem || null,
@@ -772,9 +873,10 @@ async function createOrder(env, request) {
       clientTotal,
       pricing.verified ? 1 : 0,
       priceNotes.join("; ").slice(0, 900),
-      JSON.stringify([{ at: t, event: "criado", method, paymentStatus }])
-    )
-    .run();
+      JSON.stringify([{ at: t, event: "criado", method, paymentStatus }]),
+    ]
+  );
+  const number = numbered ? orderNumberOf(await getOrderRow(env, nsu)) : "";
 
   let checkoutUrl = "";
   let linkError = "";
@@ -801,7 +903,7 @@ async function createOrder(env, request) {
       ok: true,
       nsu,
       token,
-      number: undefined,
+      number,
       status,
       paymentStatus,
       totals: {
@@ -832,11 +934,12 @@ async function declarePix(env, request, nsu) {
       .bind(nowIso(), pushHistory(row, { event: "cliente declarou Pix pago" }), nsu)
       .run();
   }
-  return json(env, request, { ok: true, nsu, paymentStatus: "declarado" });
+  return json(env, request, { ok: true, nsu, number: orderNumberOf(row), paymentStatus: "declarado" });
 }
 
 async function orderStatus(env, request, nsu, url) {
   if (!NSU_RE.test(nsu)) throw new HttpError(404, "pedido não encontrado");
+  await ensureOrderNumbers(env);
   let row = await getOrderRow(env, nsu);
   if (!row) throw new HttpError(404, "pedido não encontrado");
   const txn = str(url.searchParams.get("transaction_nsu"), 80);
@@ -858,6 +961,7 @@ async function orderStatus(env, request, nsu, url) {
   const out = {
     ok: true,
     nsu,
+    number: orderNumberOf(row),
     paid: row.payment_status === "pago",
     paymentStatus: row.payment_status,
     status: row.status,
@@ -993,6 +1097,13 @@ async function requireAdmin(env, request) {
 }
 
 async function adminListOrders(env, request, url) {
+  if ((await ensureOrderNumbers(env)) === true) {
+    try {
+      await backfillOrderNumbers(env);
+    } catch (err) {
+      console.error("numeração: backfill falhou", err && err.message ? err.message : String(err));
+    }
+  }
   const limit = Math.min(1000, Math.max(1, Number(url.searchParams.get("limit")) || 500));
   const { results } = await env.DB.prepare("SELECT * FROM orders ORDER BY created_at DESC LIMIT ?").bind(limit).all();
   const orders = results.map(rowToOrder);
@@ -1120,6 +1231,7 @@ async function adminImport(env, request) {
   const list = Array.isArray(body.orders) ? body.orders.slice(0, 500) : [];
   let imported = 0;
   let skipped = 0;
+  const numbered = await ensureOrderNumbers(env);
   for (const o of list) {
     const legacyId = str(o && (o.orderNsu || o.id), 60);
     if (!legacyId) {
@@ -1145,13 +1257,14 @@ async function adminImport(env, request) {
     const pay = PAYMENT_STATUSES.includes(o.paymentStatus) ? o.paymentStatus : method === "whatsapp" ? "a_combinar" : "pendente";
     const created = str(o.createdAt, 40) || nowIso();
     const clientId = await upsertClient(env, str(o.clientName, 120), o.clientPhone, o.clientEmail);
-    await env.DB.prepare(
-      `INSERT INTO orders (nsu, token_hash, created_at, updated_at, method, status, payment_status, client_id, client_name,
+    await insertOrderNumbered(
+      env,
+      numbered,
+      `nsu, token_hash, created_at, updated_at, method, status, payment_status, client_id, client_name,
         client_phone, client_email, modalidade, address, desired_date, notes, items_json, subtotal_cents, taxa_cents,
-        total_cents, price_note, history_json)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    )
-      .bind(
+        total_cents, price_note, history_json`,
+      "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?",
+      [
         nsu,
         await sha256(randomToken(18)),
         created,
@@ -1172,9 +1285,9 @@ async function adminImport(env, request) {
         taxa,
         subtotal + taxa,
         "importado de aparelho",
-        JSON.stringify([{ at: nowIso(), event: "importado do aparelho", legacyId }])
-      )
-      .run();
+        JSON.stringify([{ at: nowIso(), event: "importado do aparelho", legacyId }]),
+      ]
+    );
     imported++;
   }
   return json(env, request, { ok: true, imported, skipped });
@@ -2384,4 +2497,4 @@ export default {
   },
 };
 
-export const _test = { ipCustomer, resolveTaxa, fixedPrice, cleanItems, generateNsu, NSU_RE, validRedirect, VALIDATORS, gitBlobSha, imageKind, sniffImageMime, safeImageName, desiredDateUnavailability, firstAvailableDesiredDate, unavailableDateMessage };
+export const _test = { ORDER_NUMBER_BASE, orderNumberOf, ipCustomer, resolveTaxa, fixedPrice, cleanItems, generateNsu, NSU_RE, validRedirect, VALIDATORS, gitBlobSha, imageKind, sniffImageMime, safeImageName, desiredDateUnavailability, firstAvailableDesiredDate, unavailableDateMessage };

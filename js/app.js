@@ -2080,10 +2080,11 @@
     }
   }
 
-  function trackPurchase(nsu, totals, items) {
+  /* transaction_id = número do pedido (1001…); só cai no NSU interno se o Worker não mandou número. */
+  function trackPurchase(transactionId, totals, items) {
     if (Jana.Analytics && typeof Jana.Analytics.purchase === "function") {
       const value = totals && totals.total != null ? totals.total : Jana.Cart.total();
-      Jana.Analytics.purchase(nsu, value, items || analyticsItems());
+      Jana.Analytics.purchase(transactionId, value, items || analyticsItems());
     }
   }
 
@@ -2186,10 +2187,16 @@
     const dateLabel = isEntrega ? "Data de entrega" : "Data de retirada";
     const lines = [
       "Olá! Gostaria de fazer uma encomenda na " + state.site.brandName + ".",
+    ];
+    const orderLine = Jana.orderWhatsAppLine(payload);
+    if (orderLine) {
+      lines.push(orderLine);
+    }
+    lines.push(
       "",
       "*Cliente:* " + payload.nome,
-      "*Telefone:* " + payload.telefone,
-    ];
+      "*Telefone:* " + payload.telefone
+    );
     if (payload.email) {
       lines.push("*E-mail:* " + payload.email);
     }
@@ -2391,12 +2398,15 @@
       );
       if (central && central.ok && central.data && central.data.nsu) {
         order.orderNsu = central.data.nsu;
+        order.orderNumber = Jana.orderNumber(central.data.number);
         trackFormEncomenda(totals);
-        trackPurchase(central.data.nsu, totals, analyticsItems(payload.items));
+        trackPurchase(order.orderNumber || central.data.nsu, totals, analyticsItems(payload.items));
         if (central.data.token) {
           const up = await uploadPersonalizacao(central.data.nsu, central.data.token);
           order.personalizacao = up;
         }
+      } else {
+        order.orderSemNumero = true;
       }
     }
     const message = Jana.buildPixPendingWhatsAppMessage
@@ -2437,8 +2447,11 @@
       );
     }
     const centralNsu = central && central.ok && central.data && central.data.nsu;
+    // O NSU é só para a InfinitePay (order_nsu). Se o Worker falhou, o navegador gera um NSU interno
+    // para o link de pagamento, mas NÃO inventa número de pedido: o pedido fica sem número.
     const nsu = centralNsu || Jana.generateOrderNsu();
     payload.orderNsu = nsu;
+    payload.orderNumber = centralNsu ? Jana.orderNumber(central.data.number) : "";
     if (centralNsu) {
       trackFormEncomenda(totals);
     }
@@ -2455,6 +2468,7 @@
       Jana.savePendingPay({
         orderId: localOrder && localOrder.id,
         orderNsu: nsu,
+        orderNumber: payload.orderNumber || "",
         centralToken: centralNsu ? central.data.token : "",
         payload: payload,
         totals: totals,
@@ -2563,17 +2577,18 @@
       centralResult.attempted = true;
       if (centralResult.ok && centralResult.data && centralResult.data.nsu) {
         payload.orderNsu = centralResult.data.nsu;
+        payload.orderNumber = Jana.orderNumber(centralResult.data.number);
         trackFormEncomenda(totals);
         if (centralResult.data.token) {
           await uploadPersonalizacao(centralResult.data.nsu, centralResult.data.token);
         }
+      } else {
+        payload.orderSemNumero = true;
       }
     }
     const parts = [
       state.site.requestDisclaimer || Jana.REQUEST_DISCLAIMER,
-      localOrder
-        ? "Cópia local #" + localOrder.number + " neste navegador (legado, não é confirmação)."
-        : "Não deu para salvar neste navegador.",
+      payload.orderNumber ? Jana.orderLabel(payload.orderNumber) + "." : "",
       describeCentral(centralResult),
       "Abrir o WhatsApp também não confirma a encomenda.",
     ].filter(Boolean);

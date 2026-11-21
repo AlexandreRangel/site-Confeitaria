@@ -202,7 +202,12 @@ try {
       const o = orders.find((x) => x.clientName === "E2E Pix " + vp);
       record(vp, "Pix registrado no Worker como declarado", !!o && o.paymentMethod === "pix" && o.paymentStatus === "declarado", o && o.paymentStatus);
       const wa = decodeURIComponent(hits.wa[0] || "");
-      record(vp, "WhatsApp Pix (interceptado) traz o número do pedido", !!o && wa.indexOf(o.orderNsu) !== -1, wa.slice(0, 60));
+      record(
+        vp,
+        "WhatsApp Pix (interceptado) traz o mesmo número do painel, sem o NSU",
+        !!o && /^\d{4,}$/.test(String(o.number)) && wa.indexOf("Pedido nº " + o.number) !== -1 && wa.indexOf(o.orderNsu) === -1,
+        wa.slice(0, 90)
+      );
       await context.close();
     }
     // 4) Painel: login, lista compartilhada, editar, excluir

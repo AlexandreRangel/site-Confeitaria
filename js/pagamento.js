@@ -410,14 +410,15 @@
     const paidReais =
       paidCents > 0 ? paidCents / 100 : order && order.paidAmount != null ? order.paidAmount : order && order.total;
     const receipt = (params && params.receipt_url) || (order && order.receiptUrl) || "";
-    const nsu = (params && params.order_nsu) || (order && order.orderNsu) || "";
     const isEntrega = order && order.modalidade === "entrega";
-    const lines = [
-      "Olá! Gostaria de fazer uma encomenda na " + brand + ".",
+    const lines = ["Olá! Gostaria de fazer uma encomenda na " + brand + "."];
+    const orderLine = Jana.orderWhatsAppLine ? Jana.orderWhatsAppLine(order) : "";
+    if (orderLine) lines.push(orderLine);
+    lines.push(
       "",
       "*Cliente:* " + ((order && order.clientName) || ""),
-      "*Telefone:* " + ((order && order.clientPhone) || ""),
-    ];
+      "*Telefone:* " + ((order && order.clientPhone) || "")
+    );
     if (order && order.clientEmail) {
       lines.push("*E-mail:* " + order.clientEmail);
     }
@@ -449,9 +450,6 @@
     }
     lines.push("*Total:* " + Jana.formatBRL((order && order.total) || paidReais || 0));
     lines.push("", "*PAGO via InfinitePay (" + method + ")*");
-    if (nsu) {
-      lines.push("*Pedido:* " + nsu);
-    }
     lines.push("*Valor pago:* " + Jana.formatBRL(paidReais || 0));
     if (receipt) {
       lines.push("*Comprovante:* " + receipt);
@@ -468,12 +466,14 @@
     const brand = (site && site.brandName) || "Jana Abreu Confeitaria";
     const isEntrega = order && order.modalidade === "entrega";
     const total = totals && totals.total != null ? totals.total : (order && order.total) || 0;
-    const lines = [
-      "Olá! Gostaria de fazer uma encomenda na " + brand + ".",
+    const lines = ["Olá! Gostaria de fazer uma encomenda na " + brand + "."];
+    const orderLine = Jana.orderWhatsAppLine ? Jana.orderWhatsAppLine(order) : "";
+    if (orderLine) lines.push(orderLine);
+    lines.push(
       "",
       "*Cliente:* " + ((order && (order.clientName || order.nome)) || ""),
-      "*Telefone:* " + ((order && (order.clientPhone || order.telefone)) || ""),
-    ];
+      "*Telefone:* " + ((order && (order.clientPhone || order.telefone)) || "")
+    );
     if (order && (order.clientEmail || order.email)) {
       lines.push("*E-mail:* " + (order.clientEmail || order.email));
     }
@@ -509,9 +509,6 @@
     }
     lines.push("*Total:* " + Jana.formatBRL(total));
     lines.push("", "*Pagamento via Pix — aguardando conferência*");
-    if (order && order.orderNsu) {
-      lines.push("*Pedido:* " + order.orderNsu);
-    }
     lines.push("Vou enviar o comprovante por aqui.");
     const perso = Jana.personalizacaoWhatsAppLinha
       ? Jana.personalizacaoWhatsAppLinha(order && order.personalizacao)

@@ -127,6 +127,18 @@ const a = await call("POST", "/pedidos", Object.assign({ method: "whatsapp" }, b
 const b = await call("POST", "/pedidos", Object.assign({ method: "whatsapp" }, base), { "Idempotency-Key": idemKey });
 ok("Idempotency-Key não duplica", a.data.nsu === b.data.nsu && b.data.duplicate === true);
 
+// número do pedido: curto, sequencial, único (também sob pedidos simultâneos)
+ok("pedido recebe número curto", /^\d{4,}$/.test(String(a.data.number)) && Number(a.data.number) > 1000, String(a.data.number));
+ok("Idempotency-Key devolve o mesmo número", b.data.number === a.data.number);
+const burst = await Promise.all(
+  Array.from({ length: 20 }, (_, i) => call("POST", "/pedidos", Object.assign({ method: "whatsapp" }, base, { nome: "Concorrente " + i })))
+);
+const nums = burst.map((x) => Number(x.data && x.data.number)).sort((x, y) => x - y);
+ok("20 pedidos simultâneos criados", burst.every((x) => x.status === 201), burst.map((x) => x.status).join(","));
+ok("números simultâneos são únicos e seguidos", new Set(nums).size === 20 && nums[19] - nums[0] === 19 && nums[0] > Number(a.data.number), nums.join(","));
+r = await call("GET", "/pedidos/" + pix.nsu + "/status");
+ok("status traz o número", /^\d{4,}$/.test(String(r.data.number)) && r.data.number === pix.number, r.data.number + " / " + pix.number);
+
 // admin
 r = await call("GET", "/admin/pedidos");
 ok("admin sem login → 401", r.status === 401);
@@ -139,6 +151,7 @@ ok("login correto", r.status === 200 && !!r.data.token);
 const auth = { Authorization: "Bearer " + r.data.token };
 r = await call("GET", "/admin/pedidos", null, auth);
 ok("lista pedidos", r.status === 200 && r.data.orders.some((o) => o.id === ip.nsu));
+ok("lista mostra o mesmo número da criação", r.data.orders.some((o) => o.id === pix.nsu && o.number === pix.number));
 r = await call("PATCH", "/admin/pedidos/" + pix.nsu, { status: "confirmado", paymentStatus: "pago", notes: "conferido", desiredDate: todaySP }, auth);
 ok("edita pedido", r.status === 200 && r.data.order.status === "confirmado" && r.data.order.paymentStatus === "pago");
 ok("painel pode gravar data de hoje", r.status === 200 && r.data.order.desiredDate === todaySP, r.data && r.data.order && r.data.order.desiredDate);
@@ -151,6 +164,7 @@ r = await call("PATCH", "/admin/clientes/" + cli.id, { nome: "Teste Editado" }, 
 ok("edita cliente", r.status === 200 && r.data.client.nome === "Teste Editado");
 // limpeza dos dados de teste
 const all = (await call("GET", "/admin/pedidos", null, auth)).data.orders.filter((o) => o.notes === "TESTE — ignorar" || o.notes === "conferido" || o.clientName === "E2E Rejeita");
+const maxAntes = Math.max(...(await call("GET", "/admin/pedidos", null, auth)).data.orders.map((o) => Number(o.number) || 0));
 let deleted = 0;
 for (const o of all) { const d = await call("DELETE", "/admin/pedidos/" + o.id, null, auth); if (d.status === 200) deleted++; }
 ok("exclui pedidos de teste", deleted === all.length, deleted + " excluídos");
@@ -158,6 +172,12 @@ r = await call("DELETE", "/admin/clientes/" + cli.id, null, auth);
 ok("exclui cliente de teste", r.status === 200);
 r = await call("GET", "/pedidos/" + ip.nsu + "/status");
 ok("pedido excluído some", r.status === 404);
+r = await call("POST", "/pedidos", Object.assign({ method: "whatsapp" }, base));
+ok("número não é reaproveitado depois de excluir", Number(r.data.number) === maxAntes + 1, r.data.number + " vs " + maxAntes);
+{
+  const t = (await call("POST", "/admin/login", { password: ADMIN })).data.token;
+  await call("DELETE", "/admin/pedidos/" + r.data.nsu, null, { Authorization: "Bearer " + t });
+}
 
 console.log(fails ? fails + " FALHA(S)" : "TODOS OK");
 process.exit(fails ? 1 : 0);

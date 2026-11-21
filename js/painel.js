@@ -52,7 +52,7 @@
         if (result.reason === "denied") showLoggedOut();
         return null;
       }
-      setCentralMessage("Pedido #" + (result.data.order.number || result.data.order.id) + " salvo na lista compartilhada.", "ok");
+      setCentralMessage(Jana.orderLabel(result.data.order, "Pedido") + " salvo na lista compartilhada.", "ok");
       return result.data.order;
     }
     return Jana.Store.updateOrder(Object.assign({}, order, patch));
@@ -151,6 +151,16 @@
     return extra.length ? base + " · " + extra.join(" · ") : base;
   }
 
+  /* Um número só (1001…) em todo o painel; o NSU da InfinitePay nunca aparece como número. */
+  function orderShort(order) {
+    const n = Jana.orderNumber(order);
+    return n ? "nº " + n : "sem número";
+  }
+
+  function orderFileTag(order) {
+    return Jana.orderNumber(order) || "sem-numero";
+  }
+
   function findOrder(id) {
     return state.orders.find(function match(order) {
       return order.id === id;
@@ -173,8 +183,8 @@
           '" tabindex="0" data-action="open-order" data-id="' +
           Jana.escapeHtml(order.id) +
           '">' +
-          "<td><strong>#" +
-          Jana.escapeHtml(order.number || order.id) +
+          "<td><strong>" +
+          Jana.escapeHtml(orderShort(order)) +
           "</strong></td>" +
           "<td>" +
           Jana.escapeHtml(order.clientName || "—") +
@@ -188,13 +198,13 @@
           '<td class="painel-row-actions">' +
           '<button type="button" class="btn btn--small btn--outline" data-action="edit-order" data-id="' +
           Jana.escapeHtml(order.id) +
-          '" aria-label="Editar pedido #' +
-          Jana.escapeHtml(order.number || order.id) +
+          '" aria-label="Editar pedido ' +
+          Jana.escapeHtml(orderShort(order)) +
           '">Editar</button>' +
           '<button type="button" class="btn btn--small btn--danger" data-action="delete-order" data-id="' +
           Jana.escapeHtml(order.id) +
-          '" aria-label="Excluir pedido #' +
-          Jana.escapeHtml(order.number || order.id) +
+          '" aria-label="Excluir pedido ' +
+          Jana.escapeHtml(orderShort(order)) +
           '">Excluir</button>' +
           "</td>" +
           "</tr>"
@@ -372,7 +382,7 @@
     state.editingId = null;
     setEditMode(false);
     populateEditForm(order);
-    Jana.bindText("detail-title", "Pedido #" + (order.number || order.id));
+    Jana.bindText("detail-title", Jana.orderLabel(order));
     Jana.bindText("detail-status-label", STATUS_LABELS[order.status] || order.status);
     Jana.bindText("detail-client", order.clientName || "—");
     Jana.bindText("detail-phone", formatPhone(order.clientPhone));
@@ -385,7 +395,12 @@
     if (verify) {
       verify.hidden = !(isCentral() && order.paymentMethod === "infinitepay" && order.paymentStatus !== "pago" && order.transactionNsu);
     }
+    // Código interno da InfinitePay (order_nsu): só para conferir pagamento com cartão; não é o número do pedido.
     Jana.bindText("detail-order-nsu", order.orderNsu || "—");
+    const nsuRow = Jana.qs('[data-bind="detail-order-nsu-row"]');
+    if (nsuRow) {
+      nsuRow.hidden = !(order.paymentMethod === "infinitepay" && order.orderNsu);
+    }
     Jana.bindText("detail-payment-method", Jana.paymentMethodCsv ? Jana.paymentMethodCsv(order) : order.paymentMethod || "—");
     const receipt = Jana.qs("[data-bind='detail-receipt']");
     if (receipt) {
@@ -443,12 +458,13 @@
         ? "55" + phone
         : phone
       : state.siteWhatsApp;
+    const numero = Jana.orderNumber(order);
     const message =
-      "Olá " +
-      (order.clientName || "") +
-      "! Sobre o pedido #" +
-      (order.number || order.id) +
-      " da Jana Abreu Confeitaria.";
+      "Olá" +
+      (order.clientName ? " " + order.clientName : "") +
+      "! Sobre o seu pedido" +
+      (numero ? " nº " + numero : "") +
+      " na Jana Abreu Confeitaria.";
     Jana.bindHref(
       "detail-whatsapp",
       "https://wa.me/" + wa + "?text=" + encodeURIComponent(message)
@@ -501,7 +517,7 @@
 
   function orderToCsvRow(order) {
     return [
-      order.number || order.id || "",
+      Jana.orderNumber(order),
       order.status || "",
       order.createdAt || "",
       order.desiredDate || "",
@@ -543,7 +559,7 @@
       "total",
       "origem",
       "status_pagamento",
-      "order_nsu",
+      "codigo_interno_infinitepay",
       "metodo",
       "comprovante",
     ];
@@ -574,12 +590,12 @@
       "total",
       "origem",
       "status_pagamento",
-      "order_nsu",
+      "codigo_interno_infinitepay",
       "metodo",
       "comprovante",
     ];
     Jana.Store.downloadCSV(
-      "pedido-" + (order.number || order.id) + ".csv",
+      "pedido-" + orderFileTag(order) + ".csv",
       [header, orderToCsvRow(order)]
     );
   }
@@ -671,9 +687,9 @@
   async function deleteOrder(orderId) {
     const order = findOrder(orderId);
     if (!order) return;
-    const label = order.number || order.id;
+    const label = orderShort(order);
     const where = isCentral() ? " da lista compartilhada (todos os aparelhos)" : " deste navegador";
-    if (!window.confirm("Excluir o pedido #" + label + where + "?\nEssa ação não poderá ser desfeita.")) {
+    if (!window.confirm("Excluir o pedido " + label + where + "?\nEssa ação não poderá ser desfeita.")) {
       return;
     }
     if (isCentral()) {
@@ -683,7 +699,7 @@
         if (result.reason === "denied") showLoggedOut();
         return;
       }
-      setCentralMessage("Pedido #" + label + " excluído da lista compartilhada.", "ok");
+      setCentralMessage("Pedido " + label + " excluído da lista compartilhada.", "ok");
     } else {
       Jana.Store.deleteOrder(orderId);
     }
@@ -775,7 +791,7 @@
         const order = findOrder(state.selectedId);
         if (order) {
           Jana.Store.downloadJSON(
-            "pedido-" + (order.number || order.id) + ".json",
+            "pedido-" + orderFileTag(order) + ".json",
             order
           );
         }

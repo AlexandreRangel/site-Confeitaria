@@ -35,9 +35,17 @@ CREATE TABLE IF NOT EXISTS orders (
   paid_at TEXT,
   paid_via TEXT NOT NULL DEFAULT '',
   checkout_url TEXT NOT NULL DEFAULT '',
-  history_json TEXT NOT NULL DEFAULT '[]'
+  history_json TEXT NOT NULL DEFAULT '[]',
+  order_number INTEGER
 );
 CREATE INDEX IF NOT EXISTS orders_created ON orders(created_at);
+-- Número curto e sequencial do pedido (1001, 1002, …), o único mostrado à cliente e à Jana.
+CREATE UNIQUE INDEX IF NOT EXISTS orders_order_number ON orders(order_number);
+CREATE TABLE IF NOT EXISTS order_counter (
+  name TEXT PRIMARY KEY,
+  value INTEGER NOT NULL
+);
+INSERT OR IGNORE INTO order_counter (name, value) VALUES ('orders', 1000);
 CREATE TABLE IF NOT EXISTS clients (
   id TEXT PRIMARY KEY,
   nome TEXT NOT NULL DEFAULT '',

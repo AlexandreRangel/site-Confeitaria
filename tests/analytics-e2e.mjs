@@ -16,7 +16,8 @@ const { chromium } = playwright;
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const errors = [];
 const GTM_ID = "GTM-57MRXPNN";
-const MOCK_NSU = "TEST-PEDIDO-ANALYTICS-1";
+const MOCK_NSU = "JA-20261121-TESTE1";
+const MOCK_NUMBER = "1001";
 const MIME = {
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
@@ -179,7 +180,7 @@ async function attachGuards(page, hits) {
       return route.fulfill({
         status: 200,
         contentType: "application/json",
-        body: JSON.stringify({ nsu: MOCK_NSU, token: "" }),
+        body: JSON.stringify({ ok: true, nsu: MOCK_NSU, number: MOCK_NUMBER, token: "" }),
       });
     }
     if (req.method() === "GET" && /\/personalizacao$/.test(new URL(url).pathname)) {
@@ -370,11 +371,19 @@ try {
     purchases.length === beforePurchase + 1 &&
       purchase &&
       purchase.ecommerce &&
-      purchase.ecommerce.transaction_id === MOCK_NSU &&
+      purchase.ecommerce.transaction_id === MOCK_NUMBER &&
       purchase.ecommerce.payment_type === "pix",
     purchase ? String(purchase.ecommerce && purchase.ecommerce.transaction_id) : "missing"
   );
 
+  {
+    const wa = decodeURIComponent((hits.wa || []).join(" "));
+    record(
+      "Pix WhatsApp shows «Pedido nº» with the Worker number, never the internal NSU",
+      wa.indexOf("Pedido nº " + MOCK_NUMBER) !== -1 && wa.indexOf(MOCK_NSU) === -1,
+      wa.slice(0, 120) || "no wa"
+    );
+  }
   record("production Worker was only reached via the mock", hits.worker.some(function hasPost(row) {
     return row.indexOf("POST") === 0 && /\/pedidos$/.test(row.split(" ")[1] || "");
   }), hits.worker.join(" | ") || "no worker calls");
