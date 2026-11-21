@@ -990,7 +990,7 @@
     const portrait = sobre.portrait || {};
     const story = (sobre.story || []).filter(Boolean);
     const press = (sobre.press || []).filter(function keep(entry) {
-      return entry && (entry.title || entry.outlet || entry.src || entry.url);
+      return entry && (entry.title || entry.outlet || entry.image || entry.src || entry.url);
     });
     const gallery = (sobre.workGallery || []).filter(function keep(entry) {
       return entry && entry.src;
@@ -1025,32 +1025,37 @@
     setOptionalHtml(Jana.qs('[data-bind="sobre-work"]'), workGalleryHtml(gallery));
     setOptionalHtml(
       Jana.qs('[data-bind="sobre-press"]'),
-      press.length
-        ? press
-            .map(function item(entry) {
-              const label = Jana.escapeHtml(entry.title || entry.outlet || "Na imprensa");
-              if (entry.url) {
-                return (
-                  '<a href="' +
-                  Jana.escapeHtml(entry.url) +
-                  '" target="_blank" rel="noopener noreferrer">' +
-                  label +
-                  "</a>"
-                );
-              }
-              return "<p>" + label + "</p>";
-            })
-            .join("")
-        : ""
+      press.length ? press.map(pressCardHtml).join("") : ""
     );
-    const areasEl = Jana.qs('[data-bind="sobre-areas"]');
-    if (areasEl) {
-      areasEl.textContent = Jana.visibleAreas(state.areas, state.site)
-        .map(function nameOf(area) {
-          return area.name;
-        })
-        .join(" · ");
+  }
+
+  function pressCardHtml(entry) {
+    const title = Jana.escapeHtml(entry.title || entry.outlet || "Na imprensa");
+    const outlet = entry.outlet ? '<p class="sobre__press-outlet">' + Jana.escapeHtml(entry.outlet) + "</p>" : "";
+    const image = entry.image || entry.src || "";
+    const fallbackAlt = entry.title
+      ? "Miniatura da matéria " + String(entry.title)
+      : "Miniatura da matéria na imprensa";
+    const img = image
+      ? '<img class="sobre__press-thumb" src="' +
+        Jana.escapeHtml(Jana.assetUrl(image)) +
+        '" alt="' +
+        Jana.escapeHtml(entry.alt || fallbackAlt) +
+        '" width="800" height="450" loading="lazy" decoding="async">'
+      : "";
+    const cta = entry.url ? '<span class="sobre__press-cta">Ler entrevista</span>' : "";
+    const body = '<div class="sobre__press-body">' + outlet + '<p class="sobre__press-title">' + title + "</p>" + cta + "</div>";
+    if (entry.url) {
+      return (
+        '<a class="sobre__press-card" href="' +
+        Jana.escapeHtml(entry.url) +
+        '" target="_blank" rel="noopener noreferrer">' +
+        img +
+        body +
+        "</a>"
+      );
     }
+    return '<article class="sobre__press-card sobre__press-card--static">' + img + body + "</article>";
   }
 
   function findProduct(slug) {

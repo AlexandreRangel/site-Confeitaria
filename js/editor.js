@@ -2647,10 +2647,18 @@
     const imprensa = (sobre.press || [])
       .map(
         (x, i) =>
-          '<li class="ed-card"><div class="ed-linha">' +
+          '<li class="ed-card"><div class="ed-imprensa-foto">' +
+          (x.image ? imgTag(x.image, x.alt || "", "ed-imprensa-foto__img") : '<span class="ed-semfoto">sem miniatura</span>') +
+          '<div class="ed-linha">' +
+          '<label class="btn btn--outline btn--small ed-arquivo">' + (x.image ? "Trocar miniatura" : "Enviar miniatura") +
+          '<input type="file" accept="image/*" data-ed-file="tx-imprensa" data-i="' + i + '"></label>' +
+          (x.image ? '<button type="button" class="btn btn--small btn--danger" data-ed-action="imprensa-foto-remover" data-i="' + i + '">Remover miniatura</button>' : "") +
+          "</div></div>" +
+          '<div class="ed-linha">' +
           '<label class="ed-field">Título<input type="text" maxlength="200" data-tx-lista="imprensa" data-i="' + i + '" data-campo="title" value="' + esc(x.title || "") + '"></label>' +
           '<label class="ed-field">Veículo<input type="text" maxlength="120" data-tx-lista="imprensa" data-i="' + i + '" data-campo="outlet" value="' + esc(x.outlet || "") + '"></label></div>' +
           '<label class="ed-field">Link <span class="ed-opcional">(opcional)</span><input type="url" inputmode="url" placeholder="https://…" data-tx-lista="imprensa" data-i="' + i + '" data-campo="url" value="' + esc(x.url || "") + '"></label>' +
+          '<label class="ed-field">Descrição da miniatura <span class="ed-opcional">(opcional)</span><input type="text" maxlength="200" data-tx-lista="imprensa" data-i="' + i + '" data-campo="alt" value="' + esc(x.alt || "") + '"></label>' +
           '<button type="button" class="btn btn--small btn--danger" data-ed-action="tx-remover" data-lista="imprensa" data-i="' + i + '">Remover</button></li>'
       )
       .join("");
@@ -2671,7 +2679,7 @@
       listaFotos("intro", sobre.introPhotos || [], { alt: true, multiplo: true }) +
       "</section>" +
       '<fieldset class="ed-grupo"><legend>Galeria de trabalhos</legend><p class="ed-dica">Aparecem em carrossel na página Sobre nós, numa fileira só. A ordem da lista é a ordem das fotos.</p>' + listaFotos("trabalhos", sobre.workGallery || [], { alt: true, produto: true, multiplo: true }) + "</fieldset>" +
-      '<fieldset class="ed-grupo"><legend>Na imprensa</legend><ul class="ed-imprensa">' + imprensa + "</ul>" +
+      '<fieldset class="ed-grupo"><legend>Na imprensa</legend><p class="ed-dica">Cada matéria pode ter uma miniatura (aparece no card de Sobre nós). Se ficar sem foto, o card sai só com o texto.</p><ul class="ed-imprensa">' + imprensa + "</ul>" +
       '<button type="button" class="btn btn--outline btn--small" data-ed-action="tx-novo" data-lista="imprensa">+ Adicionar matéria</button></fieldset>' +
       '<fieldset class="ed-grupo"><legend>Fotos da faixa do Instagram</legend><p class="ed-dica">Aparecem em destaque em Sobre nós e levam para o perfil.</p>' +
       listaFotos("instagram", (sobre.instagramGallery || []).map(function wrap(src) { return { src: src }; }), { multiplo: true }) + "</fieldset>";
@@ -2860,6 +2868,11 @@
         } else if (kind === "tx-instagram") {
           const res = await processImage(file, IMG.area);
           txLista("instagram").push(addPending("assets/sobre", "instagram", res));
+        } else if (kind === "tx-imprensa") {
+          const i = Number(input.getAttribute("data-i"));
+          const res = await processImage(file, IMG.sobre);
+          const list = txLista("imprensa");
+          if (list[i]) list[i].image = addPending("assets/sobre", "imprensa", res);
         }
       } catch (err) {
         erros.push(err.message);
@@ -3193,11 +3206,23 @@
       }
       case "tx-novo": {
         const kind = el.getAttribute("data-lista");
-        txLista(kind).push(kind === "recheios" ? { nome: "", descricao: "" } : { title: "", outlet: "", url: "" });
+        txLista(kind).push(kind === "recheios" ? { nome: "", descricao: "" } : { title: "", outlet: "", url: "", image: "", alt: "" });
         renderCurrentEditor();
         updateSavebar();
-        const inputs = qsa('[data-tx-lista="' + kind + '"]');
-        if (inputs.length) inputs[inputs.length - (kind === "recheios" ? 2 : 3)].focus();
+        const foco = qsa('[data-tx-lista="' + kind + '"][data-campo="' + (kind === "recheios" ? "nome" : "title") + '"]');
+        if (foco.length) foco[foco.length - 1].focus();
+        break;
+      }
+      case "imprensa-foto-remover": {
+        const i = Number(el.getAttribute("data-i"));
+        const item = txLista("imprensa")[i];
+        if (!item) break;
+        const ok = await confirmar({ titulo: "Remover a miniatura?", texto: "A matéria continua no site; só a foto sai quando você tocar em Salvar e publicar.", botao: "Remover miniatura", perigo: true });
+        if (ok) {
+          item.image = "";
+          renderSobreTab();
+          updateSavebar();
+        }
         break;
       }
       case "retrato-remover": {

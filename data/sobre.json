@@ -35,9 +35,11 @@
   ],
   "press": [
     {
-      "title": "Empreededores do DF",
+      "title": "Empreendedores do DF",
       "outlet": "Globo",
-      "url": "https://globoplay.globo.com/v/14977589/"
+      "url": "https://globoplay.globo.com/v/14977589/",
+      "image": "assets/sobre/imprensa-empreendedores-df.webp",
+      "alt": "Vista aérea usada como imagem de divulgação da edição do DF2 na Globoplay, com a entrevista Empreendedores do DF."
     }
   ],
   "notes": "Campos vazios (headline, lead, portrait.src, story, press) ficam ocultos na página. Preencha só o que for fato confirmado — não inventar biografia, datas ou veículos.",

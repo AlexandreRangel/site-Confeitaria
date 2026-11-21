@@ -390,6 +390,9 @@ if (!home.includes("© 2026 Jana Abreu")) {
 if (!home.includes('data-bind="footer-map"') || !home.includes("Ver no Google Maps") || !home.includes('data-bind="footer-map-embed"')) {
   errors.push("Home footer must include the address/map block");
 }
+if (home.search('data-bind="footer-map-embed"') > home.search("Ver no Google Maps")) {
+  errors.push("Ver no Google Maps must sit just below the footer map");
+}
 if (!home.includes('loading="lazy"') || !home.includes('referrerpolicy="no-referrer-when-downgrade"')) {
   errors.push("footer map iframe must be lazy-loaded and set referrerpolicy");
 }
@@ -412,8 +415,14 @@ if (!existsSync(join(root, "sobre-nos/index.html"))) {
   if (!sobrePage.includes('data-bind="instagram-grid"')) {
     errors.push("Instagram preview must appear only on Sobre nós");
   }
-  if (!sobrePage.includes("instagram--highlight") || !sobrePage.includes("instagram__handle") || !sobrePage.includes("Siga no Instagram")) {
-    errors.push("Sobre nós Instagram must be a highlighted section with a clickable handle and Siga no Instagram");
+  if (sobrePage.includes("sobre__place") || sobrePage.includes("sobre__areas") || sobrePage.includes('data-bind="sobre-areas"')) {
+    errors.push("Sobre nós must not show the Brasília DF line or the category list");
+  }
+  if (!sobrePage.includes("instagram--highlight") || !sobrePage.includes("instagram__title") || !sobrePage.includes("instagram__handle") || !sobrePage.includes("instagram__box") || sobrePage.includes("Siga no Instagram") || sobrePage.includes("instagram__cta")) {
+    errors.push("Sobre nós Instagram must have a clickable Instagram title, the handle, a soft outline, and no Siga no Instagram button");
+  }
+  if (!sobrePage.includes("sobre__imprensa")) {
+    errors.push("Sobre nós must mark the Na imprensa section");
   }
   if (!sobrePage.includes('class="sobre__trabalhos"')) {
     errors.push("Sobre nós must mark the Trabalhos section for the visual break");
@@ -421,6 +430,14 @@ if (!existsSync(join(root, "sobre-nos/index.html"))) {
 }
 if (!existsSync(join(root, "data/sobre.json"))) {
   errors.push("Missing data/sobre.json");
+} else {
+  const sobreData = JSON.parse(readFileSync(join(root, "data/sobre.json"), "utf8"));
+  const firstPress = (sobreData.press || [])[0];
+  if (!firstPress || firstPress.title !== "Empreendedores do DF" || !firstPress.image || !firstPress.image.endsWith(".webp")) {
+    errors.push("Na imprensa must keep the Empreendedores do DF item with a WebP thumbnail");
+  } else if (!existsSync(join(root, firstPress.image))) {
+    errors.push("Missing press thumbnail " + firstPress.image);
+  }
 }
 if (!baseCss.includes("--radius: 17.68px")) {
   errors.push("card/carousel radius must be 17.68px (15% less rounded than 20.8px)");

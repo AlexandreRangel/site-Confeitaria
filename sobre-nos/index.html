@@ -72,7 +72,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/base.css?v=20261121b">
-  <link rel="stylesheet" href="../css/layout.css?v=20261121b">
+  <link rel="stylesheet" href="../css/layout.css?v=20261121c">
   <link rel="stylesheet" href="../css/components.css?v=20261121b">
 </head>
 <body data-page="about" data-root="../">
@@ -121,8 +121,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <article id="sobre" class="sobre">
       <h1>Sobre nós</h1>
       <p class="sobre__slogan" data-bind="slogan">A vida é mais doce quando compartilhada</p>
-      <p class="sobre__place" data-bind="city-state">Brasília DF</p>
-      <p class="sobre__areas" data-bind="sobre-areas"></p>
       <figure class="sobre__portrait" data-bind="sobre-portrait" data-optional hidden></figure>
       <div class="sobre__lead" data-bind="sobre-lead" data-optional hidden></div>
       <div class="sobre__story" data-bind="sobre-story" data-optional hidden></div>
@@ -133,20 +131,25 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <h2>Trabalhos</h2>
         <div class="sobre__work" data-bind="sobre-work"></div>
       </section>
-      <section data-optional hidden>
+      <section class="sobre__imprensa" data-optional hidden>
         <h2>Na imprensa</h2>
         <div class="sobre__press" data-bind="sobre-press"></div>
       </section>
     </article>
-    <section id="instagram" class="instagram instagram--highlight" aria-labelledby="instagram-handle-label">
+    <section id="instagram" class="instagram instagram--highlight" aria-labelledby="instagram-titulo">
       <div class="instagram__inner">
-        <header class="instagram__head">
-          <a id="instagram-handle-label" class="instagram__handle" data-bind="instagram-link" href="https://www.instagram.com/janaabreuconfeitaria/" target="_blank" rel="noopener noreferrer">
-            <span data-bind="instagram-handle">@janaabreuconfeitaria</span>
-          </a>
-          <a class="btn btn--solid instagram__cta" data-bind="instagram-link" href="https://www.instagram.com/janaabreuconfeitaria/" target="_blank" rel="noopener noreferrer">Siga no Instagram</a>
-        </header>
-        <div class="instagram__grid" data-bind="instagram-grid"></div>
+        <div class="instagram__box">
+          <header class="instagram__head">
+            <a id="instagram-titulo" class="instagram__title" data-bind="instagram-link" href="https://www.instagram.com/janaabreuconfeitaria/" target="_blank" rel="noopener noreferrer">
+              <svg class="instagram__icon" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="17.2" cy="6.8" r="1" fill="currentColor"/></svg>
+              <span>Instagram</span>
+            </a>
+            <a class="instagram__handle" data-bind="instagram-link" href="https://www.instagram.com/janaabreuconfeitaria/" target="_blank" rel="noopener noreferrer">
+              <span data-bind="instagram-handle">@janaabreuconfeitaria</span>
+            </a>
+          </header>
+          <div class="instagram__grid" data-bind="instagram-grid"></div>
+        </div>
       </div>
     </section>
   </main>
@@ -165,11 +168,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="rodape__mapa" data-bind="footer-map" hidden>
       <div class="rodape__endereco">
         <span data-bind="footer-address"></span>
-        <a class="rodape__mapa-link" data-bind="footer-map-link" href="https://www.google.com/maps/search/?api=1&query=Jana+Abreu+Confeitaria+Guar%C3%A1+II+QE+15+Cj+I+24+Bras%C3%ADlia" target="_blank" rel="noopener noreferrer">Ver no Google Maps</a>
       </div>
       <div class="rodape__mapa-frame">
         <iframe data-bind="footer-map-embed" title="Mapa da Jana Abreu Confeitaria no Google Maps" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
       </div>
+      <a class="rodape__mapa-link" data-bind="footer-map-link" href="https://www.google.com/maps/search/?api=1&query=Jana+Abreu+Confeitaria+Guar%C3%A1+II+QE+15+Cj+I+24+Bras%C3%ADlia" target="_blank" rel="noopener noreferrer">Ver no Google Maps</a>
     </div>
     <p class="rodape__credits">
       <span data-bind="copyright">© 2026 Jana Abreu</span>
@@ -266,6 +269,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <script defer src="../js/cart.js?v=20261121a"></script>
   <script defer src="../js/store.js?v=20261116d"></script>
   <script defer src="../js/central.js?v=20261116d"></script>
-  <script defer src="../js/app.js?v=20261121b"></script>
+  <script defer src="../js/app.js?v=20261121c"></script>
 </body>
 </html>

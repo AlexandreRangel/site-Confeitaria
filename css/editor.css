@@ -1490,3 +1490,20 @@ body.ed-ocupado .ed-form [type="submit"] {
   margin: 0 0 0.5rem;
   font-size: 1rem;
 }
+
+.ed-imprensa-foto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin: 0 0 0.7rem;
+}
+
+.ed-imprensa-foto__img {
+  display: block;
+  width: min(220px, 100%);
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--line, #e4c4ce);
+}

@@ -322,15 +322,16 @@ async function checkSobreNos(page, engine, label) {
       text + " " + href
     );
   }
-  const cta = page.locator(".instagram__cta").first();
-  const ctaText = ((await cta.textContent().catch(function none() { return ""; })) || "").trim();
-  const ctaHref = (await cta.getAttribute("href").catch(function none() { return ""; })) || "";
+  const title = page.locator(".instagram__title").first();
+  const titleText = ((await title.textContent().catch(function none() { return ""; })) || "").replace(/\s+/g, " ").trim();
+  const titleHref = (await title.getAttribute("href").catch(function none() { return ""; })) || "";
   record(
     engine,
-    "Siga no Instagram button at " + label,
-    ctaText === "Siga no Instagram" && /instagram\.com\/janaabreuconfeitaria/.test(ctaHref),
-    ctaText + " " + ctaHref
+    "Instagram title is clickable at " + label,
+    titleText === "Instagram" && /instagram\.com\/janaabreuconfeitaria/.test(titleHref),
+    titleText + " " + titleHref
   );
+  record(engine, "Siga no Instagram button is gone at " + label, (await page.locator(".instagram__cta").count()) === 0);
   record(engine, "instagram lives on sobre-nos at " + label, (await page.locator('[data-bind="instagram-grid"] a').count()) >= 1);
   const ig = await page.evaluate(function measure() {
     const grid = document.querySelector(".instagram--highlight .instagram__grid");
