@@ -309,6 +309,7 @@
     "corporativo", "personalizado-para-empresas", "cestas-presentes", "combos-festa",
     "doces-festa", "festa-personalizada", "sobremesas", "favicon", "robots", "sitemap",
     "perguntas-frequentes",
+    "busca",
   ];
 
   Jana.isReservedAreaSlug = function isReservedAreaSlug(slug) {
@@ -679,6 +680,140 @@
 
   Jana.productUrl = function productUrl(slug) {
     return Jana.assetUrl("produto/?slug=" + encodeURIComponent(String(slug || "")));
+  };
+
+  /* Página estática do produto; a busca leva para cá. O canônico da ficha continua em produto/?slug=. */
+  Jana.productPageUrl = function productPageUrl(slug) {
+    const s = String(slug || "").replace(/^\/+|\/+$/g, "");
+    if (!s) return Jana.assetUrl("produto/");
+    return Jana.assetUrl("produto/" + s + "/");
+  };
+
+
+  Jana.foldSearch = function foldSearch(value) {
+    return String(value == null ? "" : value)
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, " ")
+      .trim();
+  };
+
+  Jana.searchTerms = function searchTerms(query) {
+    const folded = Jana.foldSearch(query);
+    if (!folded) return [];
+    const seen = Object.create(null);
+    const out = [];
+    folded.split(" ").forEach(function each(term) {
+      if (!term || seen[term]) return;
+      seen[term] = true;
+      out.push(term);
+    });
+    return out;
+  };
+
+  function searchEditDistance(a, b) {
+    if (a === b) return 0;
+    if (!a) return b.length;
+    if (!b) return a.length;
+    if (Math.abs(a.length - b.length) > 2) return 99;
+    const rows = [];
+    for (let i = 0; i <= a.length; i++) rows[i] = [i];
+    for (let j = 1; j <= b.length; j++) rows[0][j] = j;
+    for (let i = 1; i <= a.length; i++) {
+      for (let j = 1; j <= b.length; j++) {
+        const cost = a.charAt(i - 1) === b.charAt(j - 1) ? 0 : 1;
+        rows[i][j] = Math.min(rows[i - 1][j] + 1, rows[i][j - 1] + 1, rows[i - 1][j - 1] + cost);
+      }
+    }
+    return rows[a.length][b.length];
+  }
+
+  Jana.searchTermScore = function searchTermScore(term, text, allowTypo) {
+    const needle = String(term || "");
+    const hay = Jana.foldSearch(text);
+    if (!needle || !hay) return 0;
+    if (hay === needle) return 100;
+    if ((" " + hay + " ").indexOf(" " + needle + " ") !== -1) return 90;
+    if (needle.length < 4) return 0;
+    if (hay.indexOf(needle) === 0 || (" " + hay).indexOf(" " + needle) !== -1) return 78;
+    if (hay.indexOf(needle) !== -1) return 64;
+    if (allowTypo === false) return 0;
+    const words = hay.split(" ");
+    let best = 0;
+    for (let i = 0; i < words.length; i++) {
+      const word = words[i];
+      if (!word || Math.abs(word.length - needle.length) > 1) continue;
+      const d = searchEditDistance(needle, word);
+      if (d === 1) best = Math.max(best, 42);
+    }
+    return best;
+  };
+
+  Jana.searchCategoryText = function searchCategoryText(product, areas, site, now) {
+    const visible = Jana.visibleAreas(areas || [], site, now);
+    const ids = Jana.productCategoryIds ? Jana.productCategoryIds(product) : [];
+    const names = [];
+    const seen = Object.create(null);
+    function add(name) {
+      const text = String(name || "").trim();
+      if (!text || seen[text]) return;
+      seen[text] = true;
+      names.push(text);
+    }
+    if (product && product.category) add(product.category);
+    visible.forEach(function each(area) {
+      const sources = (area.sourceCategoryIds || []).concat(area.id, area.slug);
+      const hit = ids.some(function has(id) {
+        return sources.indexOf(id) !== -1;
+      });
+      if (hit) {
+        add(area.name);
+        add(area.slug);
+      }
+    });
+    return names.join(" ");
+  };
+
+  Jana.isSearchableProduct = function isSearchableProduct(product, areas, site, now) {
+    if (!product || product.active === false || !product.slug) return false;
+    const visible = Jana.visibleAreas(areas || [], site, now);
+    const ids = Jana.productCategoryIds ? Jana.productCategoryIds(product) : [];
+    if (!ids.length) return true;
+    return visible.some(function area(area) {
+      const sources = (area.sourceCategoryIds || []).concat(area.id, area.slug);
+      return ids.some(function has(id) {
+        return sources.indexOf(id) !== -1;
+      });
+    });
+  };
+
+  Jana.searchProducts = function searchProducts(query, products, areas, site, now) {
+    const terms = Jana.searchTerms(query);
+    if (!terms.length) return [];
+    const out = [];
+    (products || []).forEach(function each(product) {
+      if (!Jana.isSearchableProduct(product, areas, site, now)) return;
+      const name = product.name || "";
+      const category = Jana.searchCategoryText(product, areas, site, now);
+      const description = product.description || product.descricao || "";
+      let total = 0;
+      for (let i = 0; i < terms.length; i++) {
+        const term = terms[i];
+        const nameScore = Jana.searchTermScore(term, name, true);
+        const catScore = Jana.searchTermScore(term, category, true);
+        const descScore = Jana.searchTermScore(term, description, false);
+        const best = Math.max(nameScore * 4, catScore * 1.6, descScore);
+        if (!best) return;
+        total += best;
+      }
+      out.push({ product: product, score: total });
+    });
+    out.sort(function byScore(a, b) {
+      if (b.score !== a.score) return b.score - a.score;
+      return String(a.product.name || "").localeCompare(String(b.product.name || ""), "pt-BR");
+    });
+    return out;
   };
 
   Jana.isCakeProduct = function isCakeProduct(product) {
@@ -1570,4 +1705,4 @@
   };
 
   global.Jana = Jana;
-})(window);
+})(typeof window !== "undefined" ? window : globalThis);

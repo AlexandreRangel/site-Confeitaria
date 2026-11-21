@@ -300,6 +300,87 @@ async function withPage(browserType, engine, viewport, fn) {
 
 
 
+
+async function checkBusca(page, engine, label) {
+  await page.goto(BASE + "/", { waitUntil: "domcontentloaded" });
+  await page.waitForSelector(".topo__busca-abrir", { state: "attached", timeout: 10000 });
+  if (label === "390") {
+    const menu = page.locator('[data-action="toggle-menu"]');
+    if (await menu.isVisible()) {
+      await menu.click();
+      await page.waitForSelector("#menu-principal .topo__busca-abrir", { state: "visible", timeout: 8000 });
+    }
+  }
+  const opener = page.locator(".topo__busca-abrir").first();
+  record(engine, "search button visible at " + label, await opener.isVisible());
+  const btnBox = await opener.boundingBox();
+  record(
+    engine,
+    "search button is at least 44px at " + label,
+    !!(btnBox && btnBox.height >= 43.5 && btnBox.width >= 43.5),
+    JSON.stringify(btnBox)
+  );
+  const overflow = await page.evaluate(function measureNav() {
+    return Array.from(document.querySelectorAll("#menu-principal > a, .topo__categories-btn")).map(function item(el) {
+      const style = window.getComputedStyle(el);
+      return {
+        text: (el.textContent || "").replace(/\s+/g, " ").trim(),
+        wrap: el.scrollWidth > el.clientWidth + 1,
+        whiteSpace: style.whiteSpace,
+        fontSize: style.fontSize,
+      };
+    });
+  });
+  record(engine, "menu items do not wrap at " + label, overflow.every(function ok(item) { return !item.wrap; }), JSON.stringify(overflow));
+  await opener.click();
+  await page.waitForSelector(".busca-ui.is-open #busca-campo", { timeout: 8000 });
+  const closeBox = await page.locator(".busca-ui__fechar").boundingBox();
+  record(
+    engine,
+    "search close target is 44px at " + label,
+    !!(closeBox && closeBox.height >= 43.5 && closeBox.width >= 43.5),
+    JSON.stringify(closeBox)
+  );
+  await page.locator("#busca-campo").fill("tabua");
+  await page.waitForFunction(function hasOpts() {
+    return document.querySelectorAll("#busca-sugestoes [role='option']").length > 0;
+  }, null, { timeout: 8000 });
+  const names = await page.locator("#busca-sugestoes .busca-ui__nome").allTextContents();
+  record(engine, "search suggests Tábua Signature at " + label, names.some(function has(n) { return /tábua signature/i.test(n); }), names.join(" | "));
+  record(engine, "suggestions show a price at " + label, (await page.locator("#busca-sugestoes .busca-ui__preco").count()) > 0);
+  await page.locator("#busca-campo").press("ArrowDown");
+  await page.locator("#busca-campo").press("Enter");
+  await page.waitForURL(/\/produto\/tabua-signature\//, { timeout: 8000 });
+  record(engine, "choosing a suggestion opens /produto/<slug>/ at " + label, /\/produto\/tabua-signature\/?$/.test(new URL(page.url()).pathname), page.url());
+
+  await page.goto(BASE + "/", { waitUntil: "domcontentloaded" });
+  if (label === "390") {
+    const menu = page.locator('[data-action="toggle-menu"]');
+    if (await menu.isVisible()) await menu.click();
+  }
+  await page.locator(".topo__busca-abrir").first().click();
+  await page.waitForSelector(".busca-ui.is-open #busca-campo");
+  await page.locator("#busca-campo").fill("tabuaa");
+  await page.waitForTimeout(200);
+  await page.locator("#busca-campo").press("Enter");
+  await page.waitForURL(/\/busca\/\?q=tabuaa/, { timeout: 8000 });
+  await page.waitForFunction(function hasStatus() {
+    const el = document.querySelector("[data-bind='busca-status']");
+    return !!(el && el.textContent && /encontramos/i.test(el.textContent));
+  }, null, { timeout: 10000 });
+  const typoStatus = (await page.locator("[data-bind='busca-status']").textContent()) || "";
+  const typoCards = await page.locator("[data-bind='busca-lista'] .card").count();
+  record(engine, "typo plus Enter opens results at " + label, typoCards > 0 && /tábua|encontramos/i.test(typoStatus), typoStatus + " cards=" + typoCards);
+
+  await page.goto(BASE + "/busca/?q=xyzzyinexistente", { waitUntil: "domcontentloaded" });
+  await page.waitForFunction(function emptyMsg() {
+    const el = document.querySelector("[data-bind='busca-status']");
+    return !!(el && /não encontramos/i.test(el.textContent || ""));
+  }, null, { timeout: 10000 });
+  const empty = (await page.locator("[data-bind='busca-status']").textContent()) || "";
+  record(engine, "friendly empty search message at " + label, /não encontramos/i.test(empty) && /whatsapp/i.test(empty), empty);
+}
+
 async function checkSobreNos(page, engine, label) {
   await page.goto(BASE + "/sobre-nos/", { waitUntil: "domcontentloaded" });
   await page.waitForSelector('[data-bind="instagram-grid"] img, [data-bind="sobre-work"] img', { timeout: 15000 });
@@ -683,6 +764,7 @@ async function runEngine(browserType, engine) {
     record(engine, "home has no Instagram strip", (await page.locator('[data-bind="instagram-grid"]').count()) === 0);
     record(engine, "footer has two lines", (await page.locator("#rodape p").count()) === 2);
     record(engine, "nav has Sobre nós", (await page.locator('#menu-principal a[href="sobre-nos/"]').count()) === 1);
+    record(engine, "nav has Buscar", (await page.locator(".topo__busca-abrir").count()) === 1);
     record(engine, "nav has no Encomendas item", (await page.locator("#menu-principal > a", { hasText: "Encomendas" }).count()) === 0);
     record(engine, "cart icon visible on mobile", await page.locator(".cart-button").first().isVisible());
     const navLabels = (await page.locator("#menu-principal > a, #menu-principal > .topo__categories > .topo__categories-btn").allTextContents()).map(function trim(text) {
@@ -1301,6 +1383,7 @@ async function runEngine(browserType, engine) {
     }
 
     await checkSobreNos(page, engine, "390");
+    await checkBusca(page, engine, "390");
 
     await page.goto(BASE + "/", { waitUntil: "domcontentloaded" });
     await page.locator('[data-action="toggle-menu"]').click();
@@ -1465,6 +1548,7 @@ async function runEngine(browserType, engine) {
       JSON.stringify(heroUiDesk.cursors)
     );
     await checkSobreNos(page, engine, "1280");
+    await checkBusca(page, engine, "1280");
     await page.goto(BASE + "/doces-personalizados/", { waitUntil: "domcontentloaded" });
     await page.waitForSelector(".product-grid .card");
     const desktopCards = await page.locator(".product-grid .card").evaluateAll(function measure(nodes) {

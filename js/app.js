@@ -66,6 +66,10 @@
     return document.body.getAttribute("data-page") === "faq";
   }
 
+  function isSearchPage() {
+    return document.body.getAttribute("data-page") === "search";
+  }
+
   function renderFaq() {
     if (!isFaqPage()) {
       return;
@@ -165,6 +169,16 @@
       state.pausaEval = Jana.evaluatePausa ? Jana.evaluatePausa(state.pausa) : { active: false, message: "" };
       state.faq = loaded[10] || [];
       renderFaq();
+      if (Jana.setSearchCatalog) {
+        Jana.setSearchCatalog({ products: state.products, areas: state.areas, site: state.site });
+      }
+      Jana.renderSearchCards = function renderSearchCards(product) {
+        const html = productCard(product);
+        const pretty = Jana.productPageUrl ? Jana.productPageUrl(product.slug) : "";
+        const classic = Jana.productUrl(product.slug);
+        return pretty ? html.split(classic).join(pretty) : html;
+      };
+      if (Jana.renderSearchPage) Jana.renderSearchPage({ products: state.products, areas: state.areas, site: state.site });
       if (isAreaPage() || isCategoryPage()) {
         state.filter = pageAreaId() || "todas";
       }
@@ -291,6 +305,11 @@
     }
     if (isFaqPage() && site.brandName) {
       document.title = "Perguntas frequentes · " + site.brandName;
+    }
+    if (isSearchPage() && site.brandName) {
+      let q = "";
+      try { q = String(new URLSearchParams(location.search).get("q") || "").trim(); } catch (err) {}
+      document.title = (q ? q + " · " : "") + "Busca · " + site.brandName;
     }
     if (site.logo) {
       Jana.qsa('[data-bind="logo"]').forEach(function setLogo(img) {
@@ -2633,6 +2652,10 @@
   }
 
   function bindEvents() {
+    document.addEventListener("jana:busca-aberta", function onBusca() {
+      setMenuOpen(false);
+      setCategoriesOpen(false);
+    });
     document.addEventListener("click", function onClick(event) {
       const target = event.target.closest("[data-action]");
       if (!target) return;
@@ -2640,6 +2663,7 @@
       if (action === "toggle-menu") {
         const topo = document.querySelector("#topo");
         setMenuOpen(!topo.classList.contains("is-open"));
+        if (Jana.closeSearch) Jana.closeSearch();
       }
       if (action === "toggle-categories") {
         event.preventDefault();
@@ -2664,6 +2688,7 @@
         if (blockEncomenda(event)) {
           return;
         }
+        if (Jana.closeSearch) Jana.closeSearch();
         openCart();
       }
       if (action === "close-cart") closeCart();

@@ -34,7 +34,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/base.css?v=20261121b">
-  <link rel="stylesheet" href="css/layout.css?v=20261121f">
+  <link rel="stylesheet" href="css/layout.css?v=20261121g">
   <link rel="stylesheet" href="css/components.css?v=20261121e">
 </head>
 <body>
@@ -92,7 +92,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 
   <script defer src="js/selos.js?v=20261121d"></script>
-  <script defer src="js/analytics.js?v=20261121a"></script>
+  <script defer src="js/analytics.js?v=20261121g"></script>
+  <script defer src="js/busca.js?v=20261121g"></script>
   <script>
     (function maybeAreaPage() {
       var parts = (location.pathname || "").split("/").filter(Boolean);
@@ -100,7 +101,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       if (parts.length !== 1) return;
       var slug = String(parts[0] || "").replace(/\.html$/i, "");
       if (!/^[a-z0-9][a-z0-9-]{0,119}$/.test(slug)) return;
-      var reserved = ["painel","produto","produtos","encomendas","pagamento","sobre-nos","sobre","assets","css","js","data","tests","central","docs","screenshots","scripts","area","areas","catalogo","index","404","admin","login","api","corporate","bolos","cestas","doces-personalizados","natal","pascoa","corporativo","personalizado-para-empresas","cestas-presentes","combos-festa","doces-festa","festa-personalizada","sobremesas","perguntas-frequentes"];
+      var reserved = ["painel","produto","produtos","encomendas","pagamento","sobre-nos","sobre","assets","css","js","data","tests","central","docs","screenshots","scripts","area","areas","catalogo","index","404","admin","login","api","corporate","bolos","cestas","doces-personalizados","natal","pascoa","corporativo","personalizado-para-empresas","cestas-presentes","combos-festa","doces-festa","festa-personalizada","sobremesas","perguntas-frequentes","busca"];
       /* Pastas estáticas já existentes não passam por aqui. */
       if (reserved.indexOf(slug) !== -1) return;
       var baseEl = document.querySelector("base");

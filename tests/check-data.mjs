@@ -169,6 +169,7 @@ const storefrontPages = [
   "produto/index.html",
   "sobre-nos/index.html",
   "perguntas-frequentes/index.html",
+  "busca/index.html",
   "encomendas/index.html",
   ...expectedAreas.map((id) => id + "/index.html"),
   "area/index.html",
@@ -217,6 +218,9 @@ storefrontPages.forEach((rel) => {
   }
   if (!nav.includes("Início") || !nav.includes("Categorias") || !nav.includes("Sobre nós")) {
     errors.push(rel + " main menu must be Início, Categorias, Sobre nós");
+  }
+  if (!nav.includes("topo__busca") || !nav.includes("aria-label=\"Buscar\"") || !nav.includes("Buscar")) {
+    errors.push(rel + " main menu must include the Buscar button between Categorias and Sobre nós");
   }
   if (!html.includes("cart-button") || !html.includes("cart-count")) {
     errors.push(rel + " must keep the cart icon with a counter");
@@ -374,8 +378,11 @@ const layoutCss = readFileSync(join(root, "css/layout.css"), "utf8");
 if (!layoutCss.includes("min-width: 900px") || !layoutCss.includes("areas--scroll") || !layoutCss.includes("--area-min")) {
   errors.push("home areas CSS must fit all cards from 900px and fall back to a peeking scroll row");
 }
-if (!layoutCss.includes("font-size: 1.83rem")) {
-  errors.push("Início, Categorias and Sobre nós must be 50% larger (1.83rem)");
+if (!layoutCss.includes("font-size: 1.464rem") || layoutCss.includes("font-size: 1.83rem")) {
+  errors.push("main menu type must be 20% smaller than 1.83rem (1.464rem)");
+}
+if (!layoutCss.includes("font-size: 0.96rem")) {
+  errors.push("category dropdown type must also be 20% smaller (0.96rem)");
 }
 if (!layoutCss.includes("min-height: 416px")) {
   errors.push("desktop home carousel must be 20% shorter (416px)");
@@ -418,7 +425,7 @@ const painelPage = existsSync(join(root, "painel/index.html")) ? readFileSync(jo
 if (painelPage.includes("whatsapp-fab") || painelPage.includes('class="selos"')) {
   errors.push("Painel must not include storefront payment seals or the WhatsApp floating button");
 }
-const publicWithSeals = ["404.html", "area/index.html", "bolos/index.html", "cestas/index.html", "corporate/index.html", "doces-personalizados/index.html", "encomendas/index.html", "natal/index.html", "pagamento/index.html", "pascoa/index.html", "produto/index.html", "sobre-nos/index.html", "perguntas-frequentes/index.html"];
+const publicWithSeals = ["404.html", "area/index.html", "bolos/index.html", "cestas/index.html", "corporate/index.html", "doces-personalizados/index.html", "encomendas/index.html", "natal/index.html", "pagamento/index.html", "pascoa/index.html", "produto/index.html", "sobre-nos/index.html", "perguntas-frequentes/index.html", "busca/index.html"];
 publicWithSeals.forEach(function checkPage(rel) {
   const page = readFileSync(join(root, rel), "utf8");
   if (!page.includes('class="selos"') || !page.includes("whatsapp-fab") || !page.includes("js/selos.js")) {
@@ -989,12 +996,39 @@ if (faqPage.includes("FAQPage") && !faqPage.includes('id="jsonld-faq"')) {
   errors.push("perguntas-frequentes FAQPage JSON-LD must use id=jsonld-faq");
 }
 
+const buscaPage = existsSync(join(root, "busca/index.html")) ? readFileSync(join(root, "busca/index.html"), "utf8") : "";
+if (!buscaPage || !buscaPage.includes('data-page="search"') || !buscaPage.includes("<h1>Busca</h1>") || !buscaPage.includes('data-bind="busca-lista"')) {
+  errors.push("busca page must exist with h1 Busca and the results hook");
+}
+if (!existsSync(join(root, "js/busca.js"))) {
+  errors.push("missing js/busca.js");
+} else {
+  const buscaJs = readFileSync(join(root, "js/busca.js"), "utf8");
+  if (/cdn\.|unpkg|jsdelivr|fuse\.js|lunr|minisearch/i.test(buscaJs)) {
+    errors.push("search must not use an external library");
+  }
+  if (!buscaJs.includes('role="combobox"') || !buscaJs.includes("listbox") || !buscaJs.includes("ArrowDown")) {
+    errors.push("search UI must be an ARIA combobox with keyboard support");
+  }
+}
+if (!utilsJs.includes("foldSearch") || !utilsJs.includes("searchProducts") || !utilsJs.includes("productPageUrl")) {
+  errors.push("utils must include accent-insensitive search helpers and productPageUrl");
+}
+if (!utilsJs.includes('"busca"') || !workerJs.includes('"busca"')) {
+  errors.push("busca must be a reserved area slug");
+}
+const analyticsJs = readFileSync(join(root, "js/analytics.js"), "utf8");
+if (!analyticsJs.includes('event: "search"') || !analyticsJs.includes("search_term")) {
+  errors.push("GTM search event must send search_term without changing the other events");
+}
+
 const seoPages = [
   "index.html",
   "404.html",
   "produto/index.html",
   "sobre-nos/index.html",
   "perguntas-frequentes/index.html",
+  "busca/index.html",
   "encomendas/index.html",
   "pagamento/index.html",
   "area/index.html",
@@ -1005,7 +1039,7 @@ const seoPages = [
   "natal/index.html",
   "pascoa/index.html",
 ];
-["index.html", "404.html", "produto/index.html", "sobre-nos/index.html", "perguntas-frequentes/index.html", "encomendas/index.html", "pagamento/index.html", "area/index.html", "bolos/index.html", "cestas/index.html", "corporate/index.html", "doces-personalizados/index.html", "natal/index.html", "pascoa/index.html"].forEach((rel) => {
+["index.html", "404.html", "produto/index.html", "sobre-nos/index.html", "perguntas-frequentes/index.html", "busca/index.html", "encomendas/index.html", "pagamento/index.html", "area/index.html", "bolos/index.html", "cestas/index.html", "corporate/index.html", "doces-personalizados/index.html", "natal/index.html", "pascoa/index.html"].forEach((rel) => {
   const html = readFileSync(join(root, rel), "utf8");
   if (!html.includes('class="rodape__faq"') || !html.includes(">Perguntas frequentes</a>")) {
     errors.push(rel + " footer must include a visible Perguntas frequentes link");

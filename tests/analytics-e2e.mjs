@@ -53,6 +53,7 @@ const publicPages = [
   "/personalizado-para-empresas/",
   "/produto/",
   "/perguntas-frequentes/",
+  "/busca/",
   "/sobre-nos/",
   "/sobremesas/",
 ];
@@ -388,6 +389,19 @@ try {
   record("production Worker was only reached via the mock", hits.worker.some(function hasPost(row) {
     return row.indexOf("POST") === 0 && /\/pedidos$/.test(row.split(" ")[1] || "");
   }), hits.worker.join(" | ") || "no worker calls");
+  await page.goto(base + "/", { waitUntil: "domcontentloaded" });
+  await page.locator(".topo__busca-abrir").click();
+  await page.waitForSelector("#busca-campo");
+  await page.locator("#busca-campo").fill("tabua");
+  await page.locator("#busca-campo").press("Enter");
+  await page.waitForURL(/\/busca\//, { timeout: 8000 });
+  const searches = await dataEvents(page, "search");
+  record(
+    "search event with search_term",
+    searches.some(function ok(row) { return row && row.event === "search" && row.search_term === "tabua"; }),
+    JSON.stringify(searches.slice(0, 2))
+  );
+
   record("GTM network was blocked or intercepted", true, "aborted=" + hits.gtm);
 
   await context.close();

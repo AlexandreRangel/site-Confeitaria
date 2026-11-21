@@ -90,7 +90,7 @@ main {
   color: rgba(76, 85, 58, 0.9);
   font-family: var(--serif);
   font-weight: 600;
-  font-size: 1.83rem;
+  font-size: 1.464rem;
   font-style: normal;
   line-height: 1.2;
   letter-spacing: 0.01em;
@@ -133,7 +133,7 @@ main {
 .topo__categories-btn {
   font-family: var(--serif);
   font-weight: 600;
-  font-size: 1.83rem;
+  font-size: 1.464rem;
   font-style: normal;
   line-height: 1.2;
   letter-spacing: 0.01em;
@@ -174,7 +174,7 @@ main {
   min-height: 44px;
   padding: 0.35rem 0.85rem;
   border-radius: 12px;
-  font-size: 1.2rem;
+  font-size: 0.96rem;
 }
 
 .categorias-menu a:hover,
@@ -1998,4 +1998,404 @@ body:has(.pausa-modal:not([hidden])) .whatsapp-fab {
   .whatsapp-fab__balloon {
     transition: none;
   }
+}
+
+/* Busca no menu principal */
+.topo__busca {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.topo__busca-abrir {
+  color: rgba(76, 85, 58, 0.9);
+  border: 1px solid rgba(184, 110, 136, 0.45);
+  border-radius: 999px;
+  background: var(--panel-strong);
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.topo__busca-abrir:hover,
+.topo__busca-abrir:focus-visible {
+  color: var(--primary-deep);
+  border-color: var(--primary-deep);
+}
+
+.topo__busca-abrir:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.topo__busca-icon {
+  display: block;
+  width: 22px;
+  height: 22px;
+}
+
+.busca-ui {
+  display: none;
+}
+
+.busca-ui.is-open {
+  display: block;
+}
+
+body.is-busca-aberta {
+  overflow: hidden;
+}
+
+.busca-ui__backdrop {
+  display: none;
+}
+
+.busca-ui__panel {
+  display: flex;
+  flex-direction: column;
+  background: var(--panel-strong);
+}
+
+.busca-ui__bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 0.8rem;
+}
+
+.busca-ui__fechar {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--brown);
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.busca-ui__fechar:hover,
+.busca-ui__fechar:focus-visible {
+  color: var(--primary-deep);
+  background: rgba(245, 213, 224, 0.55);
+}
+
+.busca-ui__fechar:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.busca-ui__form {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.busca-ui__form input[type="search"] {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 1rem;
+  padding: 0 1rem;
+  box-sizing: border-box;
+}
+
+.busca-ui__form input[type="search"]:focus {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+  border-color: var(--primary-deep);
+}
+
+.busca-ui__submit {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--primary, #b86e88);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.busca-ui__submit:hover,
+.busca-ui__submit:focus-visible {
+  background: var(--primary-deep, #9a5870);
+}
+
+.busca-ui__submit:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.busca-ui__lista {
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem 0.55rem 0.7rem;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.busca-ui__lista[hidden] {
+  display: none;
+}
+
+.busca-ui__opcao {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 44px;
+  padding: 0.45rem 0.6rem;
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.busca-ui__opcao:hover,
+.busca-ui__opcao.is-active,
+.busca-ui__opcao[aria-selected="true"] {
+  background: rgba(245, 213, 224, 0.55);
+  color: var(--brown);
+}
+
+.busca-ui__opcao:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.busca-ui__thumb {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: var(--cream, #fdf6ec);
+}
+
+.busca-ui__thumb--vazia {
+  display: block;
+  border: 1px solid var(--line);
+}
+
+.busca-ui__info {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.busca-ui__nome {
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--brown);
+}
+
+.busca-ui__preco {
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.busca-ui__vazio {
+  margin: 0.4rem 0.85rem 0.9rem;
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+/* Mobile: faixa larga / tela cheia, lista rola acima do teclado */
+@media (max-width: 719px) {
+  .busca-ui.is-open {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    display: flex;
+    flex-direction: column;
+    background: var(--panel-strong);
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    height: 100%;
+    height: 100dvh;
+    max-height: var(--busca-vvh, 100dvh);
+  }
+
+  .busca-ui__backdrop {
+    display: none;
+  }
+
+  .busca-ui__panel {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .busca-ui__panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: url("../assets/brand/padronagem.webp") repeat;
+    background-size: 470px auto;
+    opacity: 0.05;
+  }
+
+  .busca-ui__bar,
+  .busca-ui__lista,
+  .busca-ui__vazio {
+    position: relative;
+    z-index: 1;
+  }
+
+  .busca-ui__lista {
+    flex: 1;
+    min-height: 0;
+  }
+}
+
+@media (min-width: 720px) {
+  .busca-ui.is-open {
+    position: absolute;
+    z-index: 60;
+    display: block;
+  }
+
+  .topo__busca .busca-ui.is-open {
+    left: 50%;
+    top: calc(100% + 0.35rem);
+    transform: translateX(-50%);
+    width: min(28.5rem, calc(100vw - 2rem));
+  }
+
+  .busca-ui__backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background: transparent;
+  }
+
+  .busca-ui__panel {
+    position: relative;
+    z-index: 1;
+    border-radius: 18px;
+    border: 1px solid rgba(184, 110, 136, 0.22);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    max-height: min(70vh, 32rem);
+  }
+
+  .busca-ui__panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: url("../assets/brand/padronagem.webp") repeat;
+    background-size: 470px auto;
+    opacity: 0.05;
+  }
+
+  .busca-ui__bar,
+  .busca-ui__lista,
+  .busca-ui__vazio {
+    position: relative;
+    z-index: 1;
+  }
+
+  .busca-ui__lista {
+    max-height: min(50vh, 22rem);
+  }
+}
+
+/* Página de resultados */
+.busca-page {
+  padding: 1.5rem var(--page-gutter) 3rem;
+  max-width: var(--container);
+  margin: 0 auto;
+}
+
+.busca-page h1 {
+  font-family: var(--serif);
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 600;
+  color: var(--brown);
+  margin: 0 0 1rem;
+}
+
+.busca-page__form {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1.25rem;
+}
+
+.busca-page__form input[type="search"] {
+  flex: 1;
+  min-height: 44px;
+  height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 1rem;
+  padding: 0 1rem;
+}
+
+.busca-page__form input[type="search"]:focus {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+  border-color: var(--primary-deep);
+}
+
+.busca-page__form button {
+  min-height: 44px;
+  min-width: 44px;
+  height: 44px;
+  padding: 0 1.1rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--primary, #b86e88);
+  color: #fff;
+  font-family: var(--sans);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.busca-page__status {
+  font-family: var(--sans);
+  color: var(--muted);
+  margin: 0 0 1.25rem;
+  max-width: 36rem;
+}
+
+.busca-page__status a {
+  color: var(--primary-deep);
 }

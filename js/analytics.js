@@ -156,6 +156,16 @@
         value: Number(total || 0),
       });
     },
+    search: function search(term) {
+      const q = String(term == null ? "" : term).trim();
+      if (!q) {
+        return;
+      }
+      push({
+        event: "search",
+        search_term: q,
+      });
+    },
     purchase: function purchase(transactionId, total, items) {
       const id = String(transactionId || "");
       if (!id || alreadyPurchased(id)) {
