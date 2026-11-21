@@ -1500,10 +1500,11 @@ body.ed-ocupado .ed-form [type="submit"] {
 
 .ed-imprensa-foto__img {
   display: block;
-  width: min(220px, 100%);
+  width: min(165px, 100%);
   height: auto;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 3 / 4;
   object-fit: cover;
+  object-position: center;
   border-radius: 10px;
   border: 1px solid var(--line, #e4c4ce);
 }

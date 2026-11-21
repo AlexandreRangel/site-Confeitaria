@@ -1208,7 +1208,8 @@ body[data-page="home"] .areas__list:empty {
 
 .sobre__press-card {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: stretch;
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -1226,10 +1227,12 @@ body[data-page="home"] .areas__list:empty {
 
 .sobre__press-thumb {
   display: block;
-  width: 100%;
+  width: 7.75rem;
+  flex: 0 0 7.75rem;
   height: auto;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 3 / 4;
   object-fit: cover;
+  object-position: center;
   background: var(--cream);
 }
 
@@ -1238,8 +1241,9 @@ body[data-page="home"] .areas__list:empty {
   flex-direction: column;
   justify-content: center;
   gap: 0.25rem;
-  padding: 0.95rem 1.05rem 1.1rem;
+  padding: 0.85rem 0.95rem 0.95rem;
   text-align: left;
+  min-width: 0;
 }
 
 .sobre__press-outlet {
@@ -1277,16 +1281,9 @@ body[data-page="home"] .areas__list:empty {
 }
 
 @media (min-width: 720px) {
-  .sobre__press-card {
-    flex-direction: row;
-    align-items: stretch;
-  }
-
   .sobre__press-thumb {
-    width: 44%;
-    max-width: 16.5rem;
-    height: auto;
-    align-self: stretch;
+    width: 11rem;
+    flex-basis: 11rem;
   }
 
   .sobre__press-body {

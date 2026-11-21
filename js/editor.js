@@ -35,6 +35,7 @@
     bannerCel: { maxW: 1200, maxH: 1200, alvo: 320 * 1024 },
     area: { maxW: 840, maxH: 840, alvo: 200 * 1024 },
     sobre: { maxW: 1200, maxH: 1400, alvo: 320 * 1024 },
+    imprensa: { maxW: 900, maxH: 1200, alvo: 280 * 1024, ratio: [3, 4] },
   };
 
   const ED = {
@@ -257,6 +258,17 @@
     return new Promise((resolve) => canvas.toBlob(resolve, type, quality));
   }
 
+  function coverCropRect(w0, h0, ratioW, ratioH) {
+    const target = ratioW / ratioH;
+    const current = w0 / h0;
+    if (current > target) {
+      const sw = Math.max(1, Math.round(h0 * target));
+      return { sx: Math.round((w0 - sw) / 2), sy: 0, sw: sw, sh: h0 };
+    }
+    const sh = Math.max(1, Math.round(w0 / target));
+    return { sx: 0, sy: Math.round((h0 - sh) / 2), sw: w0, sh: sh };
+  }
+
   async function processImage(file, opts) {
     if (!file || !/^image\//.test(file.type || "") ) {
       throw new Error("Escolha um arquivo de imagem (JPG, PNG ou WebP).");
@@ -271,9 +283,20 @@
     const w0 = source.width || source.naturalWidth;
     const h0 = source.height || source.naturalHeight;
     if (!w0 || !h0) throw new Error("Não consegui ler o tamanho da imagem.");
-    const scale = Math.min(1, opts.maxW / w0, opts.maxH / h0);
-    const w = Math.max(1, Math.round(w0 * scale));
-    const h = Math.max(1, Math.round(h0 * scale));
+    let sx = 0;
+    let sy = 0;
+    let sw = w0;
+    let sh = h0;
+    if (opts.ratio && opts.ratio[0] && opts.ratio[1]) {
+      const crop = coverCropRect(w0, h0, opts.ratio[0], opts.ratio[1]);
+      sx = crop.sx;
+      sy = crop.sy;
+      sw = crop.sw;
+      sh = crop.sh;
+    }
+    const scale = Math.min(1, opts.maxW / sw, opts.maxH / sh);
+    const w = Math.max(1, Math.round(sw * scale));
+    const h = Math.max(1, Math.round(sh * scale));
     const canvas = document.createElement("canvas");
     canvas.width = w;
     canvas.height = h;
@@ -281,7 +304,7 @@
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, w, h);
     ctx.imageSmoothingQuality = "high";
-    ctx.drawImage(source, 0, 0, w, h);
+    ctx.drawImage(source, sx, sy, sw, sh, 0, 0, w, h);
     if (source.close) source.close();
     let type = "image/webp";
     let quality = 0.86;
@@ -2741,7 +2764,7 @@
           '<label class="btn btn--outline btn--small ed-arquivo">' + (x.image ? "Trocar miniatura" : "Enviar miniatura") +
           '<input type="file" accept="image/*" data-ed-file="tx-imprensa" data-i="' + i + '"></label>' +
           (x.image ? '<button type="button" class="btn btn--small btn--danger" data-ed-action="imprensa-foto-remover" data-i="' + i + '">Remover miniatura</button>' : "") +
-          "</div></div>" +
+          "</div><p class=\"ed-dica\">Formato 3x4 (retrato)</p></div>" +
           '<div class="ed-linha">' +
           '<label class="ed-field">Título<input type="text" maxlength="200" data-tx-lista="imprensa" data-i="' + i + '" data-campo="title" value="' + esc(x.title || "") + '"></label>' +
           '<label class="ed-field">Veículo<input type="text" maxlength="120" data-tx-lista="imprensa" data-i="' + i + '" data-campo="outlet" value="' + esc(x.outlet || "") + '"></label></div>' +
@@ -2767,7 +2790,7 @@
       listaFotos("intro", sobre.introPhotos || [], { alt: true, multiplo: true }) +
       "</section>" +
       '<fieldset class="ed-grupo"><legend>Galeria de trabalhos</legend><p class="ed-dica">Aparecem em carrossel na página Sobre nós, numa fileira só. A ordem da lista é a ordem das fotos.</p>' + listaFotos("trabalhos", sobre.workGallery || [], { alt: true, produto: true, multiplo: true }) + "</fieldset>" +
-      '<fieldset class="ed-grupo"><legend>Na imprensa</legend><p class="ed-dica">Cada matéria pode ter uma miniatura (aparece no card de Sobre nós). Se ficar sem foto, o card sai só com o texto.</p><ul class="ed-imprensa">' + imprensa + "</ul>" +
+      '<fieldset class="ed-grupo"><legend>Na imprensa</legend><p class="ed-dica">Cada matéria pode ter uma miniatura no formato 3x4 (retrato), que aparece no card de Sobre nós. Na troca, a foto é recortada nessa proporção. Se ficar sem foto, o card sai só com o texto.</p><ul class="ed-imprensa">' + imprensa + "</ul>" +
       '<button type="button" class="btn btn--outline btn--small" data-ed-action="tx-novo" data-lista="imprensa">+ Adicionar matéria</button></fieldset>' +
       '<fieldset class="ed-grupo"><legend>Fotos da faixa do Instagram</legend><p class="ed-dica">Aparecem em destaque em Sobre nós e levam para o perfil.</p>' +
       listaFotos("instagram", (sobre.instagramGallery || []).map(function wrap(src) { return { src: src }; }), { multiplo: true }) + "</fieldset>";
@@ -3074,7 +3097,7 @@
           txLista("instagram").push(addPending("assets/sobre", "instagram", res));
         } else if (kind === "tx-imprensa") {
           const i = Number(input.getAttribute("data-i"));
-          const res = await processImage(file, IMG.sobre);
+          const res = await processImage(file, IMG.imprensa);
           const list = txLista("imprensa");
           if (list[i]) list[i].image = addPending("assets/sobre", "imprensa", res);
         }

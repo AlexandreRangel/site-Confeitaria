@@ -475,6 +475,22 @@ if (!existsSync(join(root, "data/sobre.json"))) {
     errors.push("Missing press thumbnail " + firstPress.image);
   }
 }
+if (!layoutCss.includes("aspect-ratio: 3 / 4") || !layoutCss.includes(".sobre__press-thumb")) {
+  errors.push("Na imprensa thumbnail must use a 3 / 4 portrait aspect ratio");
+}
+{
+  const edImprensaJs = readFileSync(join(root, "js/editor.js"), "utf8");
+  const edImprensaCss = readFileSync(join(root, "css/editor.css"), "utf8");
+  if (!edImprensaJs.includes("Formato 3x4 (retrato)") || !edImprensaJs.includes("IMG.imprensa") || !edImprensaJs.includes("ratio: [3, 4]")) {
+    errors.push("Painel must crop Na imprensa thumbnails to 3x4 and show the format hint");
+  }
+  if (!edImprensaCss.includes(".ed-imprensa-foto__img") || !edImprensaCss.includes("aspect-ratio: 3 / 4")) {
+    errors.push("Painel imprensa preview must use a 3 / 4 portrait aspect ratio");
+  }
+}
+if (!appJs.includes('width="600" height="800"')) {
+  errors.push("Na imprensa cards must reserve a 3 / 4 width/height to avoid CLS");
+}
 if (!baseCss.includes("--radius: 17.68px")) {
   errors.push("card/carousel radius must be 17.68px (15% less rounded than 20.8px)");
 }

@@ -1128,7 +1128,7 @@
         Jana.escapeHtml(Jana.assetUrl(image)) +
         '" alt="' +
         Jana.escapeHtml(entry.alt || fallbackAlt) +
-        '" width="800" height="450" loading="lazy" decoding="async">'
+        '" width="600" height="800" loading="lazy" decoding="async">'
       : "";
     const cta = entry.url ? '<span class="sobre__press-cta">Ler entrevista</span>' : "";
     const body = '<div class="sobre__press-body">' + outlet + '<p class="sobre__press-title">' + title + "</p>" + cta + "</div>";
