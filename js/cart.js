@@ -65,11 +65,14 @@
       const existing = current.find(function findItem(item) {
         return lineIdOf(item) === lineId;
       });
+      let addedQty;
       if (existing) {
         existing.quantity += requested;
         existing.lineId = lineId;
+        addedQty = requested;
       } else {
         const qty = Math.max(minQty, requested);
+        addedQty = qty;
         current.push({
           id: product.id,
           lineId: lineId,
@@ -82,6 +85,9 @@
         });
       }
       saveItems(current);
+      if (Jana.Analytics && typeof Jana.Analytics.addToCart === "function") {
+        Jana.Analytics.addToCart(product, addedQty);
+      }
       return current;
     },
     setQty: function setQty(lineId, quantity) {

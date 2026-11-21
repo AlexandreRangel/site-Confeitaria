@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -745,6 +745,62 @@ coralSources.forEach((rel) => {
     errors.push(rel + " still contains coral #FC7E8E");
   }
 });
+
+
+const gtmHead = "<!-- Google Tag Manager -->";
+const gtmBody = "<!-- Google Tag Manager (noscript) -->";
+const gtmId = "GTM-57MRXPNN";
+function listHtmlFiles(dir, acc) {
+  readdirSync(dir).forEach((name) => {
+    if (name === ".git" || name === "tests" || name === "screenshots" || name === "central" || name === "node_modules" || name === "scripts") {
+      return;
+    }
+    const full = join(dir, name);
+    const stat = statSync(full);
+    if (stat.isDirectory()) {
+      listHtmlFiles(full, acc);
+    } else if (name.endsWith(".html")) {
+      acc.push(full);
+    }
+  });
+  return acc;
+}
+const htmlFiles = listHtmlFiles(root, []);
+htmlFiles.forEach((full) => {
+  const rel = full.slice(root.length + 1);
+  const html = readFileSync(full, "utf8");
+  if (rel === "painel/index.html") {
+    if (html.includes(gtmId) || html.includes("googletagmanager.com") || html.includes("js/analytics.js")) {
+      errors.push("painel/index.html must not load GTM or storefront analytics");
+    }
+    return;
+  }
+  if (!html.includes(gtmId) || !html.includes(gtmHead) || !html.includes(gtmBody)) {
+    errors.push(rel + " must include the exact GTM-57MRXPNN snippets");
+    return;
+  }
+  const headStart = html.search(/<head>/i);
+  const headEnd = html.search(/<\/head>/i);
+  const head = headStart >= 0 && headEnd > headStart ? html.slice(headStart, headEnd) : "";
+  const charsetAt = head.search(/<meta charset=/i);
+  const gtmAt = head.indexOf(gtmHead);
+  if (charsetAt < 0 || gtmAt < 0 || charsetAt > gtmAt) {
+    errors.push(rel + " must keep charset before the GTM snippet in <head>");
+  }
+  const bodyMatch = html.match(/<body[^>]*>\s*/i);
+  if (!bodyMatch || html.slice(html.indexOf(bodyMatch[0]) + bodyMatch[0].length, html.indexOf(bodyMatch[0]) + bodyMatch[0].length + gtmBody.length + 10).indexOf(gtmBody) === -1) {
+    errors.push(rel + " must place the GTM noscript immediately after <body>");
+  }
+  if (html.includes("js/app.js") && !html.includes("js/analytics.js")) {
+    errors.push(rel + " must load js/analytics.js on the storefront");
+  }
+  if (/meta[^>]+http-equiv=["']Content-Security-Policy/i.test(html)) {
+    errors.push(rel + " has a Content-Security-Policy meta; confirm googletagmanager.com is allowed");
+  }
+});
+if (home.includes("Content-Security-Policy") && !home.includes("googletagmanager.com")) {
+  /* covered per-page above */
+}
 
 if (errors.length) {
   console.error(errors.join("\n"));

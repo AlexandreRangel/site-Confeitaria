@@ -40,7 +40,9 @@ const sandbox = {
     createElement: function createElement() {
       return { click: function click() {}, remove: function remove() {} };
     },
+    addEventListener: function addEventListener() {},
   },
+  dataLayer: [],
   localStorage: makeStorage(),
   sessionStorage: makeStorage(),
   location: {
@@ -63,6 +65,7 @@ sandbox.global = sandbox;
 
 vm.runInNewContext(
   readFileSync(join(root, "js/utils.js"), "utf8") +
+    readFileSync(join(root, "js/analytics.js"), "utf8") +
     readFileSync(join(root, "js/cart.js"), "utf8") +
     readFileSync(join(root, "js/store.js"), "utf8") +
     readFileSync(join(root, "js/pix.js"), "utf8") +
@@ -1033,6 +1036,56 @@ if (typeof Jana.siteText !== "function") {
     errors.push("hidden and uncategorized products must appear in Sem categoria");
   }
 }
+
+
+function eventsNamed(name) {
+  return (sandbox.dataLayer || []).filter(function keep(row) {
+    return row && row.event === name;
+  });
+}
+
+(function testAnalytics() {
+  const cake = { id: "p-analytics-bolo", slug: "analytics-bolo", name: "Bolo Analytics", price: 20, category: "Bolos", categoryId: "bolos", categoryIds: ["bolos"], images: ["x.webp"] };
+  sandbox.dataLayer.length = 0;
+  Jana.Analytics.viewItem(cake);
+  Jana.Analytics.viewItem(cake);
+  const views = eventsNamed("view_item");
+  if (views.length !== 1) errors.push("view_item must fire once per product on the same page");
+  else if (!views[0].ecommerce || views[0].ecommerce.currency !== "BRL" || views[0].ecommerce.items[0].item_id !== "analytics-bolo" || views[0].ecommerce.items[0].item_name !== "Bolo Analytics" || views[0].ecommerce.items[0].item_category !== "Bolos" || views[0].ecommerce.items[0].price !== 20) {
+    errors.push("view_item must map slug/name/category/price");
+  }
+  sandbox.dataLayer.length = 0;
+  Jana.Cart.clear();
+  Jana.Cart.add(cake, 1);
+  const added = eventsNamed("add_to_cart");
+  if (added.length !== 1 || added[0].ecommerce.items[0].quantity !== 1 || added[0].ecommerce.value !== 20) {
+    errors.push("Cart.add must fire add_to_cart with the added quantity");
+  }
+  sandbox.dataLayer.length = 0;
+  Jana.Cart.add({ id: "p-min", slug: "min-item", name: "Min", price: 10, category: "Doces festa", categoryId: "doces-festa", images: ["x.webp"], minQty: 6 }, 2);
+  const minAdd = eventsNamed("add_to_cart");
+  if (minAdd.length !== 1 || minAdd[0].ecommerce.items[0].quantity !== 6 || minAdd[0].ecommerce.value !== 60) {
+    errors.push("add_to_cart must use the quantity actually added after minQty");
+  }
+  sandbox.dataLayer.length = 0;
+  Jana.Analytics.beginCheckout(30, [Jana.Analytics.itemFrom(cake, 1)]);
+  if (eventsNamed("begin_checkout").length !== 1 || eventsNamed("begin_checkout")[0].ecommerce.value !== 30) {
+    errors.push("begin_checkout must push the cart total and items");
+  }
+  sandbox.dataLayer.length = 0;
+  Jana.Analytics.formEncomenda(45);
+  const form = eventsNamed("form_encomenda")[0];
+  if (!form || form.lead_source !== "formulario_encomenda" || form.value !== 45 || form.ecommerce) {
+    errors.push("form_encomenda must be a non-ecommerce lead event with the order total");
+  }
+  sandbox.dataLayer.length = 0;
+  Jana.Analytics.purchase("NSU-TEST-1", 45, [Jana.Analytics.itemFrom(cake, 1)]);
+  Jana.Analytics.purchase("NSU-TEST-1", 45, [Jana.Analytics.itemFrom(cake, 1)]);
+  const purchases = eventsNamed("purchase");
+  if (purchases.length !== 1 || purchases[0].ecommerce.transaction_id !== "NSU-TEST-1" || purchases[0].ecommerce.payment_type !== "pix") {
+    errors.push("purchase must fire once per transaction_id and use payment_type pix");
+  }
+})();
 
 if (errors.length) {
   console.error(errors.join("\n"));

@@ -1090,6 +1090,9 @@
       img.src = Jana.assetUrl(product.images[0]);
       img.alt = Jana.productImageAlt(product, 0);
     }
+    if (Jana.Analytics && typeof Jana.Analytics.viewItem === "function") {
+      Jana.Analytics.viewItem(product);
+    }
   }
 
   function renderFlavorPicker(product) {
@@ -1997,6 +2000,31 @@
     return true;
   }
 
+
+  function analyticsItems(items) {
+    if (!Jana.Analytics || typeof Jana.Analytics.itemFrom !== "function") {
+      return [];
+    }
+    return (items || Jana.Cart.items()).map(function toItem(item) {
+      const product = productForCartItem(item) || item;
+      return Jana.Analytics.itemFrom(product, item.quantity);
+    });
+  }
+
+  function trackFormEncomenda(totals) {
+    if (Jana.Analytics && typeof Jana.Analytics.formEncomenda === "function") {
+      const value = totals && totals.total != null ? totals.total : Jana.Cart.total();
+      Jana.Analytics.formEncomenda(value);
+    }
+  }
+
+  function trackPurchase(nsu, totals, items) {
+    if (Jana.Analytics && typeof Jana.Analytics.purchase === "function") {
+      const value = totals && totals.total != null ? totals.total : Jana.Cart.total();
+      Jana.Analytics.purchase(nsu, value, items || analyticsItems());
+    }
+  }
+
   function openCart() {
     if (blockEncomenda()) {
       return;
@@ -2009,6 +2037,7 @@
     if (!drawer || !backdrop) {
       return;
     }
+    const alreadyOpen = !drawer.hidden;
     setMenuOpen(false);
     if (!state.lastFocus) {
       state.lastFocus = document.activeElement;
@@ -2030,6 +2059,9 @@
       window.setTimeout(function focusPanel() {
         panel.focus();
       }, 0);
+    }
+    if (!alreadyOpen && Jana.Analytics && typeof Jana.Analytics.beginCheckout === "function") {
+      Jana.Analytics.beginCheckout(Jana.Cart.total(), analyticsItems());
     }
   }
 
@@ -2297,6 +2329,8 @@
       );
       if (central && central.ok && central.data && central.data.nsu) {
         order.orderNsu = central.data.nsu;
+        trackFormEncomenda(totals);
+        trackPurchase(central.data.nsu, totals, analyticsItems(payload.items));
         if (central.data.token) {
           const up = await uploadPersonalizacao(central.data.nsu, central.data.token);
           order.personalizacao = up;
@@ -2343,6 +2377,9 @@
     const centralNsu = central && central.ok && central.data && central.data.nsu;
     const nsu = centralNsu || Jana.generateOrderNsu();
     payload.orderNsu = nsu;
+    if (centralNsu) {
+      trackFormEncomenda(totals);
+    }
     if (centralNsu && central.data.token) {
       await uploadPersonalizacao(centralNsu, central.data.token);
     }
@@ -2464,6 +2501,7 @@
       centralResult.attempted = true;
       if (centralResult.ok && centralResult.data && centralResult.data.nsu) {
         payload.orderNsu = centralResult.data.nsu;
+        trackFormEncomenda(totals);
         if (centralResult.data.token) {
           await uploadPersonalizacao(centralResult.data.nsu, centralResult.data.token);
         }
