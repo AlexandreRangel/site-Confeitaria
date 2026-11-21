@@ -2,6 +2,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildSitemap } from "../scripts/gerar-sitemap.mjs";
+import { buildProductPage } from "../scripts/gerar-paginas-produto.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const site = JSON.parse(readFileSync(join(root, "data/site.json"), "utf8"));
@@ -898,6 +899,40 @@ if (!existsSync(sitemapPath)) {
   ["painel", "pagamento", "encomendas", "cestas-presentes", "404"].forEach((bad) => {
     if (locs.some((url) => url.includes("/" + bad))) errors.push("sitemap.xml should not list " + bad);
   });
+}
+
+
+if (!existsSync(join(root, "scripts/gerar-paginas-produto.mjs"))) {
+  errors.push("missing scripts/gerar-paginas-produto.mjs");
+} else {
+  const sample = products.find((p) => p && p.active !== false && p.slug === "tabua-signature") || products.find((p) => p && p.active !== false && p.slug);
+  if (sample) {
+    const template = readFileSync(join(root, "produto/index.html"), "utf8");
+    const html = buildProductPage(template, sample, areas, site);
+    const expectedUrl = "https://janaabreuconfeitaria.com.br/produto/?slug=" + encodeURIComponent(sample.slug);
+    if (!html.includes("<title>" + sample.name + " · ")) errors.push("static product page is missing the product title");
+    if (!html.includes('rel="canonical" href="' + expectedUrl + '"')) errors.push("static product page canonical must stay on /produto/?slug=");
+    if (!html.includes('id="jsonld-product"') || !html.includes('"@type":"Product"')) errors.push("static product page needs Product JSON-LD");
+    if (!html.includes('<h1 data-bind="product-name">' + sample.name + "</h1>")) errors.push("static product page needs the product <h1> in the initial HTML");
+    if (!html.includes('data-product-slug="' + sample.slug + '"')) errors.push("static product page needs data-product-slug");
+    if (!html.includes('data-root="../../"')) errors.push("static product page must use data-root=../../");
+    const onDisk = join(root, "produto", sample.slug, "index.html");
+    if (!existsSync(onDisk)) errors.push("missing generated page produto/" + sample.slug + "/index.html; run node scripts/gerar-paginas-produto.mjs");
+  }
+}
+
+const pixQr = home.match(/<img[^>]*data-bind="pix-qr"[^>]*>/);
+if (!pixQr || !/src="data:image\/svg\+xml/.test(pixQr[0])) {
+  errors.push("home Pix QR must not have an empty src");
+}
+if (!home.includes('alt="Instagram"') || !home.includes('alt="Encomendas"')) {
+  errors.push("home icon images need descriptive alt text");
+}
+if (!layoutCss.includes("min-height: min(62vw, 360px)")) {
+  errors.push("home hero media must reserve height before the carousel is filled");
+}
+if (!layoutCss.includes(".areas__list:empty")) {
+  errors.push("category list must reserve space while empty");
 }
 
 function jsonLdBlocks(html) {

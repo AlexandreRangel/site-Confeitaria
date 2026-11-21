@@ -1315,6 +1315,8 @@
       tipo: tipo,
       image: s ? s.image || "" : "",
       imageMobile: s ? s.imageMobile || "" : "",
+      imageW900: s ? s.imageW900 || "" : "",
+      imageMobileW900: s ? s.imageMobileW900 || "" : "",
       title: s ? s.title || "" : "",
       linkTipo: s ? s.linkTipo || (s.productSlug ? "produto" : "nenhum") : "nenhum",
       productSlug: s ? s.productSlug || "" : "",
@@ -1850,10 +1852,32 @@
         b.formato = "banner";
         b.avisoPc = proporcaoAviso(res, tam.pc);
         b.mudou = true;
+        delete b.imageW900;
+        if (res.width > 900) {
+          try {
+            const narrow = await processImage(file, { maxW: 900, maxH: 20000, alvo: 220 * 1024 });
+            const widePath = path.replace(/\.(webp|jpg)$/i, "-w900.$1");
+            ED.pending.set(widePath, { blob: narrow.blob, url: URL.createObjectURL(narrow.blob), w: narrow.width, h: narrow.height });
+            b.imageW900 = widePath;
+          } catch (errWide) {
+            delete b.imageW900;
+          }
+        }
       } else {
         b.imageMobile = path;
         b.avisoCel = proporcaoAviso(res, tam.cel);
         b.mudou = true;
+        delete b.imageMobileW900;
+        if (res.width > 900) {
+          try {
+            const narrow = await processImage(file, { maxW: 900, maxH: 20000, alvo: 220 * 1024 });
+            const widePath = path.replace(/\.(webp|jpg)$/i, "-w900.$1");
+            ED.pending.set(widePath, { blob: narrow.blob, url: URL.createObjectURL(narrow.blob), w: narrow.width, h: narrow.height });
+            b.imageMobileW900 = widePath;
+          } catch (errWide) {
+            delete b.imageMobileW900;
+          }
+        }
       }
       setStatus("", "");
     } catch (err) {
@@ -1938,6 +1962,10 @@
       out.image = b.image;
       if (b.imageMobile) out.imageMobile = b.imageMobile;
       else delete out.imageMobile;
+      if (b.imageW900) out.imageW900 = b.imageW900;
+      else delete out.imageW900;
+      if (b.imageMobileW900) out.imageMobileW900 = b.imageMobileW900;
+      else delete out.imageMobileW900;
       delete out.overrides;
       const legacyProduto = b.original && !b.original.linkTipo && !b.original.tipo && b.linkTipo === "produto" && b.productSlug === b.original.productSlug;
       if (!legacyProduto) {

@@ -68,7 +68,32 @@
 
   function pageProductSlug() {
     const params = new URLSearchParams(location.search);
-    return params.get("slug") || "";
+    const query = params.get("slug");
+    if (query) {
+      return query;
+    }
+    const fromBody = document.body && document.body.getAttribute("data-product-slug");
+    if (fromBody) {
+      return fromBody;
+    }
+    const parts = (location.pathname || "").split("/").filter(Boolean);
+    const idx = parts.lastIndexOf("produto");
+    if (idx >= 0 && parts[idx + 1] && parts[idx + 1] !== "index.html") {
+      try {
+        return decodeURIComponent(parts[idx + 1]);
+      } catch (err) {
+        return parts[idx + 1];
+      }
+    }
+    return "";
+  }
+
+  function productCanonicalPath(slug) {
+    const value = String(slug || "");
+    if (!value) {
+      return "produto/";
+    }
+    return "produto/?slug=" + encodeURIComponent(value);
   }
 
   function clearPageHash() {
@@ -492,7 +517,13 @@
           ">" +
           '<span class="area-button__media"><img src="' +
           Jana.escapeHtml(Jana.assetUrl(area.image)) +
-          '" alt="" width="144" height="144" decoding="async"></span>' +
+          '" alt="' +
+          Jana.escapeHtml("Categoria " + (area.name || "")) +
+          '" width="' +
+          (Jana.imageIntrinsicSize ? Jana.imageIntrinsicSize(area.image, 144, 144).width : 144) +
+          '" height="' +
+          (Jana.imageIntrinsicSize ? Jana.imageIntrinsicSize(area.image, 144, 144).height : 144) +
+          '" loading="lazy" decoding="async"></span>' +
           '<span class="area-button__label">' +
           Jana.escapeHtml(area.name) +
           "</span></a>"
@@ -727,7 +758,11 @@
       Jana.escapeHtml(Jana.assetUrl(product.images[0])) +
       '" alt="' +
       Jana.escapeHtml(Jana.productImageAlt(product, 0)) +
-      '" width="600" height="600" loading="lazy" decoding="async">' +
+      '" width="' +
+      (Jana.imageIntrinsicSize && product.images[0] ? Jana.imageIntrinsicSize(product.images[0], 600, 600).width : 600) +
+      '" height="' +
+      (Jana.imageIntrinsicSize && product.images[0] ? Jana.imageIntrinsicSize(product.images[0], 600, 600).height : 600) +
+      '" loading="lazy" decoding="async">' +
       "</a></div>" +
       '<div class="card__body">' +
       "<h3>" +
@@ -780,7 +815,13 @@
           '">' +
           '<span class="promo-card__media"><img src="' +
           Jana.escapeHtml(Jana.assetUrl(promo.image)) +
-          '" alt=""></span>' +
+          '" alt="' +
+          Jana.escapeHtml(promo.title || "") +
+          '" width="' +
+          (Jana.imageIntrinsicSize ? Jana.imageIntrinsicSize(promo.image, 600, 600).width : 600) +
+          '" height="' +
+          (Jana.imageIntrinsicSize ? Jana.imageIntrinsicSize(promo.image, 600, 600).height : 600) +
+          '" loading="lazy" decoding="async"></span>' +
           '<span class="promo-card__plaque">' +
           '<span class="promo-card__copy">' +
           Jana.escapeHtml(promo.title) +
@@ -1092,12 +1133,12 @@
       Jana.setSeoTags({
         title: product.name + " · " + brand,
         description: desc,
-        url: Jana.publicUrl("produto/?slug=" + encodeURIComponent(product.slug)),
+        url: Jana.publicUrl(productCanonicalPath(product.slug)),
         image: image,
       });
     }
     if (Jana.upsertJsonLd && Jana.productJsonLd) {
-      Jana.upsertJsonLd("jsonld-product", Jana.productJsonLd(product, brand));
+      Jana.upsertJsonLd("jsonld-product", Jana.productJsonLd(product, brand, Jana.publicUrl(productCanonicalPath(product.slug))));
     }
     applyProductMinQty(product);
     renderFlavorPicker(product);
@@ -1235,7 +1276,9 @@
           (index === state.galleryIndex ? ' aria-current="true"' : "") +
           '><img src="' +
           Jana.escapeHtml(Jana.assetUrl(src)) +
-          '" alt="" width="128" height="128"></button>'
+          '" alt="' +
+          Jana.escapeHtml(Jana.productImageAlt(product, index)) +
+          '" width="128" height="128" loading="lazy" decoding="async"></button>'
         );
       })
       .join("");
@@ -1873,7 +1916,9 @@
               '<article class="cart-row">' +
               '<img src="' +
               Jana.escapeHtml(Jana.assetUrl(item.image)) +
-              '" alt="">' +
+              '" alt="' +
+              Jana.escapeHtml(item.name || "") +
+              '" width="72" height="72">' +
               "<div><strong>" +
               Jana.escapeHtml(item.name) +
               "</strong>" +

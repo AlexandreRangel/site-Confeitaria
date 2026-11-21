@@ -15,8 +15,11 @@
  * Excluídos: redirecionamentos, /painel/, 404, /pagamento/, /encomendas/,
  * a página genérica /area/ e áreas sazonais desligadas (hoje a Páscoa).
  *
- * Regenerar no editor ou no Worker ao salvar produtos é uma opção simples
- * para o futuro; este script é a fonte atual do arquivo.
+ * Existem também páginas estáticas em /produto/<slug>/, geradas por
+ * scripts/gerar-paginas-produto.mjs. O canonical e este sitemap continuam em
+ * /produto/?slug= até o Worker (já preparado no código, sem deploy) passar a
+ * republicar essas páginas e o sitemap a cada salvamento no painel. Trocar
+ * os links internos antes disso faria um produto novo cair em 404.
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";

@@ -279,6 +279,18 @@ main {
   width: 100%;
   overflow: hidden;
   border-radius: var(--radius);
+  min-height: min(72vw, 420px);
+  height: min(72vw, 420px);
+}
+
+body[data-page="home"] .hero__media {
+  min-height: min(62vw, 360px);
+  height: min(62vw, 360px);
+}
+
+.hero--compact .hero__media {
+  min-height: min(40vw, 220px);
+  height: min(40vw, 220px);
 }
 
 .hero__track {
@@ -432,6 +444,15 @@ body[data-page="home"] .areas {
   gap: 0.75rem;
   max-width: none;
   margin: 0;
+}
+
+/* Reserva o espaço dos cards de categoria enquanto o JS não preenche a lista. */
+body[data-page="home"] .areas__list:empty {
+  min-height: calc(3 * ((100vw - 2 * var(--page-gutter) - 0.75rem) / 2) + 1.5rem);
+}
+
+.areas__list:empty {
+  min-height: calc(2 * ((100vw - 2 * var(--page-gutter) - 0.75rem) / 2) + 0.75rem);
 }
 
 .area-button {
@@ -738,6 +759,10 @@ body[data-page="home"] .areas {
   gap: 1rem;
   grid-template-columns: 1fr;
   align-items: stretch;
+}
+
+.product-grid:empty {
+  min-height: min(100vw, 22rem);
 }
 
 .product-grid--gifts {
@@ -1514,6 +1539,10 @@ body[data-page="home"] .areas {
     gap: var(--area-gap);
   }
 
+  body[data-page="home"] .areas__list:empty {
+    min-height: min(var(--area-max), calc((100vw - 2 * var(--page-gutter) - 4 * var(--area-gap)) / 5));
+  }
+
   body[data-page="home"] .area-button {
     container-type: inline-size;
     flex: 1 1 0;
@@ -1553,18 +1582,21 @@ body[data-page="home"] .areas {
 
 /* Desktop ~1280px */
 @media (min-width: 1024px) {
+  .hero__media,
   .hero__slide,
   .hero__slide img {
     min-height: 416px;
     height: 416px;
   }
 
+  body[data-page="home"] .hero__media,
   body[data-page="home"] .hero__slide,
   body[data-page="home"] .hero__slide img {
     min-height: 360px;
     height: 360px;
   }
 
+  .hero--compact .hero__media,
   .hero--compact .hero__slide,
   .hero--compact .hero__slide img {
     min-height: 288px;
@@ -1632,25 +1664,30 @@ body[data-page="home"] .areas {
   display: contents;
 }
 
+.hero.hero--banners .hero__media,
 .hero.hero--banners .hero__slide,
 .hero.hero--banners .hero__slide img {
   min-height: 0;
   height: auto;
 }
 
+.hero.hero--banners .hero__media,
 .hero.hero--banners .hero__slide img {
   aspect-ratio: 1200 / 800;
 }
 
+body[data-page="area"] .hero.hero--banners .hero__media,
 body[data-page="area"] .hero.hero--banners .hero__slide img {
   aspect-ratio: 1200 / 860;
 }
 
 @media (min-width: 720px) {
+  .hero.hero--banners .hero__media,
   .hero.hero--banners .hero__slide img {
     aspect-ratio: 2400 / 700;
   }
 
+  body[data-page="area"] .hero.hero--banners .hero__media,
   body[data-page="area"] .hero.hero--banners .hero__slide img {
     aspect-ratio: 2400 / 800;
   }

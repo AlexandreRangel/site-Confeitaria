@@ -34,8 +34,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/base.css?v=20261121b">
-  <link rel="stylesheet" href="css/layout.css?v=20261121d">
-  <link rel="stylesheet" href="css/components.css?v=20261121b">
+  <link rel="stylesheet" href="css/layout.css?v=20261121e">
+  <link rel="stylesheet" href="css/components.css?v=20261121e">
 </head>
 <body>
 <!-- Google Tag Manager (noscript) -->
@@ -112,6 +112,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           if (ok) location.replace(root + "area/?c=" + encodeURIComponent(slug));
         })
         .catch(function () {});
+    })();
+
+    (function maybeProductPage() {
+      var parts = (location.pathname || "").split("/").filter(Boolean);
+      if (/\.github\.io$/i.test(location.hostname || "") && parts[0]) parts = parts.slice(1);
+      if (parts[0] !== "produto" || !parts[1] || parts.length > 2) return;
+      var slug = String(parts[1] || "").replace(/\.html$/i, "");
+      if (!/^[a-z0-9][a-z0-9-]{0,119}$/.test(slug)) return;
+      var baseEl = document.querySelector("base");
+      var root = (baseEl && baseEl.getAttribute("href")) || "/";
+      if (root.slice(-1) !== "/") root += "/";
+      location.replace(root + "produto/?slug=" + encodeURIComponent(slug));
     })();
   </script>
 </body>

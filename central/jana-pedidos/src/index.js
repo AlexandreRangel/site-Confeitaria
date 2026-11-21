@@ -1400,6 +1400,8 @@ function validateCarousel(list) {
       assetOk(s.image, label + " (imagem do computador)");
     }
     assetOk(s.imageMobile, label + " (imagem do celular)", true);
+    assetOk(s.imageW900, label + " (imagem reduzida)", true);
+    assetOk(s.imageMobileW900, label + " (imagem do celular reduzida)", true);
     optText(s.title, 200, label + " (descrição)");
     if (s.pagina != null && !ID_RE.test(String(s.pagina))) bad(label + ": página inválida");
     if (s.linkTipo != null && !["produto", "categoria", "url", "nenhum"].includes(s.linkTipo)) bad(label + ": tipo de link inválido");
@@ -1657,6 +1659,226 @@ function areaPageHtml(slug, name) {
   return AREA_PAGE_TEMPLATE.replace(/__SLUG__/g, safeSlug).replace(/__NAME__/g, safeName);
 }
 
+const PRODUCT_PAGE_RE = /^produto\/[a-z0-9][a-z0-9-]{0,119}\/index\.html$/;
+const AREA_PAGE_FILE_RE = /^[a-z0-9][a-z0-9-]{0,119}\/index\.html$/;
+const PUBLIC_ORIGIN = "https://janaabreuconfeitaria.com.br";
+const DEFAULT_OG_IMAGE = PUBLIC_ORIGIN + "/assets/products/tabua-signature/01.webp";
+
+function isEditorGeneratedPath(path) {
+  const p = String(path || "");
+  if (p === "sitemap.xml") return true;
+  if (PRODUCT_PAGE_RE.test(p)) return true;
+  if (AREA_PAGE_FILE_RE.test(p)) {
+    const slug = p.slice(0, p.indexOf("/"));
+    return !isReservedAreaSlug(slug);
+  }
+  return false;
+}
+
+function productQueryUrl(slug) {
+  return PUBLIC_ORIGIN + "/produto/?slug=" + encodeURIComponent(String(slug || ""));
+}
+
+function hasFixedProductPrice(product) {
+  const price = product && product.price;
+  if (typeof price !== "number" || !Number.isFinite(price) || price <= 0) return false;
+  const label = String(product.priceLabel || product.precoLabel || "");
+  if (/\ba combinar\b|\bsob consulta\b/i.test(label)) return false;
+  return true;
+}
+
+function formatProductBRL(value) {
+  return Number(value).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+function areaForPublishedProduct(product, areas) {
+  const ids = [];
+  if (product && product.categoryId) ids.push(product.categoryId);
+  if (product && Array.isArray(product.categoryIds)) ids.push.apply(ids, product.categoryIds);
+  if (product && product.category) ids.push(product.category);
+  return (areas || []).find((area) => area && (ids.indexOf(area.id) !== -1 || ids.indexOf(area.slug) !== -1)) || null;
+}
+
+function buildProductJsonLd(product, brand) {
+  const url = productQueryUrl(product.slug);
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: String(product.name || ""),
+    description: String(product.description || "").trim(),
+    brand: { "@type": "Brand", name: brand },
+    url: url,
+    offers: {
+      "@type": "Offer",
+      priceCurrency: "BRL",
+      availability: "https://schema.org/InStock",
+      url: url,
+    },
+  };
+  if (product.images && product.images[0]) {
+    data.image = PUBLIC_ORIGIN + "/" + String(product.images[0]).replace(/^\//, "");
+  }
+  if (hasFixedProductPrice(product)) data.offers.price = Number(product.price);
+  return data;
+}
+
+function fillProductPageTemplate(template, product, areas, site) {
+  const brand = (site && site.brandName) || "Jana Abreu Confeitaria";
+  const name = String(product.name || "Produto");
+  const desc = String(product.description || "").trim() || (name + " · " + brand);
+  const title = name + " · " + brand;
+  const url = productQueryUrl(product.slug);
+  const imagePath = product.images && product.images[0] ? String(product.images[0]) : "";
+  const imageAbs = imagePath ? PUBLIC_ORIGIN + "/" + imagePath.replace(/^\//, "") : DEFAULT_OG_IMAGE;
+  const area = areaForPublishedProduct(product, areas);
+  const areaHref = area && (area.slug || area.id) ? "../../" + (area.slug || area.id) + "/" : "../../";
+  const areaName = area && area.name ? area.name : "Categoria";
+  const priceText = hasFixedProductPrice(product) ? formatProductBRL(product.price) : "";
+  const alt = name ? name + " da Jana Abreu Confeitaria" : "Produto da Jana Abreu Confeitaria";
+  const jsonLd = buildProductJsonLd(product, brand);
+  let html = String(template || "").replace(/(\s(?:href|src|content|data-root)=")\.\.\//g, "$1../../");
+  html = html.replace(/<meta name="description" content="[^"]*">/, '<meta name="description" content="' + htmlEscape(desc) + '">');
+  html = html.replace(/<title>[^<]*<\/title>/, "<title>" + htmlEscape(title) + "</title>");
+  html = html.replace(/<link rel="canonical" href="[^"]*">/, '<link rel="canonical" href="' + htmlEscape(url) + '">');
+  html = html.replace(/<meta property="og:title" content="[^"]*">/, '<meta property="og:title" content="' + htmlEscape(title) + '">');
+  html = html.replace(/<meta property="og:description" content="[^"]*">/, '<meta property="og:description" content="' + htmlEscape(desc) + '">');
+  html = html.replace(/<meta property="og:url" content="[^"]*">/, '<meta property="og:url" content="' + htmlEscape(url) + '">');
+  html = html.replace(/<meta property="og:image" content="[^"]*">/, '<meta property="og:image" content="' + htmlEscape(imageAbs) + '">');
+  html = html.replace(/<body data-page="product" data-root="[^"]*">/, '<body data-page="product" data-root="../../" data-product-slug="' + htmlEscape(product.slug) + '">');
+  html = html.replace(
+    /<a data-bind="product-category-link" href="[^"]*"><span data-bind="product-category">[^<]*<\/span><\/a>/g,
+    '<a data-bind="product-category-link" href="' + htmlEscape(areaHref) + '"><span data-bind="product-category">' + htmlEscape(areaName) + "</span></a>"
+  );
+  html = html.replace(/<h1 data-bind="product-name">[^<]*<\/h1>/, '<h1 data-bind="product-name">' + htmlEscape(name) + "</h1>");
+  if (priceText) {
+    html = html.replace(/<p class="modal__price" data-bind="product-price"><\/p>/, '<p class="modal__price" data-bind="product-price">' + htmlEscape(priceText) + "</p>");
+  }
+  html = html.replace(/<p data-bind="product-description"><\/p>/, '<p data-bind="product-description">' + htmlEscape(desc) + "</p>");
+  if (imagePath) {
+    html = html.replace(
+      /<img data-bind="product-image" alt="[^"]*" width="800" height="800" draggable="false">/,
+      '<img data-bind="product-image" src="../../' + htmlEscape(imagePath) + '" alt="' + htmlEscape(alt) + '" width="800" height="800" draggable="false">'
+    );
+  }
+  if (!html.includes('id="jsonld-product"')) {
+    html = html.replace("</head>", '  <script type="application/ld+json" id="jsonld-product">' + JSON.stringify(jsonLd) + "</script>\n</head>");
+  }
+  return html;
+}
+
+function sitemapTodayYmd(now) {
+  const parts = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(now || new Date());
+  const map = {};
+  parts.forEach((part) => { map[part.type] = part.value; });
+  return map.year + "-" + map.month + "-" + map.day;
+}
+
+function sitemapAreaActive(area, site, now) {
+  if (!area || area.enabled === false) return false;
+  const seasonal = area.id === "natal" || area.slug === "natal" || area.seasonal === true;
+  if (!seasonal) return true;
+  const rule = area.ativacao;
+  if (rule && typeof rule === "object") {
+    if (rule.modo === "ligado") return true;
+    if (rule.modo === "datas") {
+      const today = sitemapTodayYmd(now);
+      return !!(rule.inicio && rule.fim) && today >= rule.inicio && today <= rule.fim;
+    }
+    return false;
+  }
+  if (area.id === "natal" || area.slug === "natal") return !!(site && site.natal && site.natal.enabled === true);
+  return false;
+}
+
+function buildPublishedSitemap(areas, site, products, now) {
+  const urls = [PUBLIC_ORIGIN + "/", PUBLIC_ORIGIN + "/sobre-nos/"];
+  (areas || []).filter((area) => sitemapAreaActive(area, site, now)).forEach((area) => {
+    const slug = area.slug || area.id;
+    if (slug) urls.push(PUBLIC_ORIGIN + "/" + slug + "/");
+  });
+  (products || [])
+    .filter((product) => product && product.active !== false && product.slug)
+    .slice()
+    .sort((a, b) => String(a.slug).localeCompare(String(b.slug), "pt-BR"))
+    .forEach((product) => urls.push(productQueryUrl(product.slug)));
+  const unique = [];
+  const seen = new Set();
+  urls.forEach((url) => {
+    if (seen.has(url)) return;
+    seen.add(url);
+    unique.push(url);
+  });
+  const body = unique.map((url) => "  <url>\n    <loc>" + xmlEscapeSitemap(url) + "</loc>\n  </url>").join("\n");
+  return '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + body + "\n</urlset>\n";
+}
+
+function xmlEscapeSitemap(value) {
+  return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+async function readRepoPathText(env, path) {
+  const cfg = ghConfig(env);
+  const data = await ghOk(
+    env,
+    "GET",
+    repoPath(env) + "/contents/" + path + "?ref=" + encodeURIComponent(cfg.branch),
+    undefined,
+    "ler o site"
+  );
+  return new TextDecoder().decode(b64ToBytes(String(data.content || "").replace(/\s+/g, "")));
+}
+
+async function listProductPageSlugs(env, head) {
+  const tree = await ghOk(env, "GET", repoPath(env) + "/git/trees/" + head.treeSha, undefined, "ler o site");
+  const dir = (tree.tree || []).find((e) => e.path === "produto" && e.type === "tree");
+  if (!dir) return [];
+  const inner = await ghOk(env, "GET", repoPath(env) + "/git/trees/" + dir.sha, undefined, "ler o site");
+  return (inner.tree || []).filter((e) => e.type === "tree" && ID_RE.test(e.path)).map((e) => e.path);
+}
+
+async function publishedProductExtras(env, head, arquivos) {
+  if (!arquivos["data/products.json"]) return [];
+  const products = arquivos["data/products.json"];
+  let areas = arquivos["data/areas.json"];
+  let site = arquivos["data/site.json"];
+  if (!areas && head.shas["data/areas.json"]) {
+    areas = JSON.parse(await readBlobText(env, head.shas["data/areas.json"]));
+  }
+  if (!site && head.shas["data/site.json"]) {
+    site = JSON.parse(await readBlobText(env, head.shas["data/site.json"]));
+    if (arquivos["data/site.json"]) {
+      site = Object.assign({}, arquivos["data/site.json"], { central: site.central, colors: site.colors });
+    }
+  }
+  const template = await readRepoPathText(env, "produto/index.html");
+  const extras = [];
+  const keep = new Set();
+  (Array.isArray(products) ? products : []).forEach((product) => {
+    const slug = product && product.slug;
+    if (!product || product.active === false || !ID_RE.test(String(slug || ""))) return;
+    keep.add(slug);
+    extras.push({
+      path: "produto/" + slug + "/index.html",
+      mode: "100644",
+      type: "blob",
+      content: fillProductPageTemplate(template, product, areas || [], site || {}),
+    });
+  });
+  const existing = await listProductPageSlugs(env, head);
+  existing.forEach((slug) => {
+    if (keep.has(slug)) return;
+    extras.push({ path: "produto/" + slug + "/index.html", mode: "100644", type: "blob", sha: null });
+  });
+  extras.push({
+    path: "sitemap.xml",
+    mode: "100644",
+    type: "blob",
+    content: buildPublishedSitemap(areas || [], site || {}, products, new Date()),
+  });
+  return extras;
+}
+
+
 /* ---- rotas ---- */
 
 async function adminContentGet(env, request) {
@@ -1752,6 +1974,8 @@ async function adminContentPublish(env, request) {
         extraPages.push({ path: slug + "/index.html", mode: "100644", type: "blob", content: areaPageHtml(slug, area.name) });
       }
     }
+    const productExtras = await publishedProductExtras(env, head, arquivos);
+    extraPages.push.apply(extraPages, productExtras);
     const tree = paths
       .map((p) => ({ path: p, mode: "100644", type: "blob", content: texts[p] }))
       .concat(imageShas.map((i) => ({ path: i.path, mode: "100644", type: "blob", sha: i.sha })))
@@ -1834,6 +2058,13 @@ async function adminContentUndo(env, request) {
       }
     } else if (IMAGE_PATH_RE.test(p)) {
       if (f.status === "added") tree.push({ path: p, mode: "100644", type: "blob", sha: null });
+    } else if (isEditorGeneratedPath(p)) {
+      if (f.status === "added") {
+        tree.push({ path: p, mode: "100644", type: "blob", sha: null });
+      } else {
+        const old = await ghOk(env, "GET", base + "/contents/" + p + "?ref=" + parent, undefined, "ler o histórico");
+        tree.push({ path: p, mode: "100644", type: "blob", sha: old.sha });
+      }
     } else {
       bad("esta alteração mexeu em arquivos que o editor não controla");
     }
