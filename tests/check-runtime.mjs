@@ -555,11 +555,11 @@ if (!scheduled.active || scheduled.message.indexOf("Férias") === -1) {
 const sat = Jana.evaluatePausa({ ativo: false, periodos: [], fimDeSemana: true }, atSP("2026-12-19"));
 const sun = Jana.evaluatePausa({ ativo: false, periodos: [], fimDeSemana: true }, atSP("2026-12-20"));
 const mon = Jana.evaluatePausa({ ativo: false, periodos: [], fimDeSemana: true }, atSP("2026-12-21"));
-if (!sat.active || !sun.active || mon.active) {
-  errors.push("weekend pause should cover Saturday-Sunday only");
+if (sat.active || !sun.active || mon.active) {
+  errors.push("sunday pause should cover Sunday only");
 }
-if (sat.message.indexOf("fins de semana") === -1) {
-  errors.push("weekend message, got " + sat.message);
+if (sun.message.indexOf("domingos") === -1) {
+  errors.push("sunday message, got " + sun.message);
 }
 const csvRows = Jana.parsePausaCsv("ativo,inicio,fim,mensagem\nSIM,2026-12-20,2027-01-05,Voltamos em breve!\nNÃO,2026-07-01,2026-07-15,ignorada\n");
 const fromCsv = Jana.mergePausaFromCsv({ ativo: true, fimDeSemana: true, planilhaCsv: "https://example.com/p.csv" }, csvRows);

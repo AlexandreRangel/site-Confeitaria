@@ -2109,7 +2109,7 @@
       "</div></fieldset>" +
       aviso.map((t) => '<p class="ed-alerta">' + esc(t) + "</p>").join("") +
       '<label class="ed-field">Recado extra <span class="ed-opcional">(opcional, vai depois do aviso)</span><input type="text" name="pausa-mensagem" maxlength="300" value="' + esc(p.mensagem || "") + '" placeholder="Ex.: Voltamos em breve!"></label>' +
-      '<label class="ed-check"><input type="checkbox" name="pausa-fds"' + (p.fimDeSemana ? " checked" : "") + "> <span>Pausar todo fim de semana (sábado e domingo)</span></label>" +
+      '<label class="ed-check"><input type="checkbox" name="pausa-fds"' + (p.fimDeSemana ? " checked" : "") + "> <span>Pausar todo domingo</span></label>" +
       (modo !== "aberto" ? '<div class="ed-previa"><span class="ed-previa__rotulo">A cliente vê:</span> «' + esc(pausaPreview(p)) + "»</div>" : "") +
       datasBloqueadasHtml(p) +
       '<details class="ed-mais"' + ((p.periodos || []).length ? " open" : "") + "><summary>Pausas programadas (férias etc.)</summary>" +

@@ -2,7 +2,7 @@
   const Jana = global.Jana || {};
   const TZ = "America/Sao_Paulo";
   const CACHE_MS = 60 * 1000;
-  const WEEKEND_MESSAGE = "Não aceitamos encomendas aos fins de semana. Volte na segunda!";
+  const WEEKEND_MESSAGE = "Não aceitamos encomendas aos domingos. Volte na segunda!";
   let csvCache = { at: 0, value: null, url: "" };
   let modalLastFocus = null;
   let lockHook = null;
@@ -255,7 +255,7 @@
         };
       }
     }
-    if (cfg.fimDeSemana && (weekday === 0 || weekday === 6)) {
+    if (cfg.fimDeSemana && weekday === 0) {
       const extra = cfg.mensagem;
       return {
         active: true,
@@ -266,7 +266,7 @@
     return { active: false, source: "", message: "" };
   };
 
-  /* Dia civil (AAAA-MM-DD) cai numa pausa datada ou num fim de semana pausado?
+  /* Dia civil (AAAA-MM-DD) cai numa pausa datada ou num domingo pausado (campo fimDeSemana = pausa aos domingos)?
      Pausa ligada sem datas (encomendas fechadas agora) não entra aqui: isso já bloqueia o carrinho. */
   Jana.isDesiredDateUnavailable = function isDesiredDateUnavailable(ymd, pausa) {
     const raw = String(ymd || "").trim();
@@ -322,7 +322,7 @@
     if (cfg.fimDeSemana) {
       const match = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
       const date = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12));
-      if (date.getUTCDay() === 0 || date.getUTCDay() === 6) {
+      if (date.getUTCDay() === 0) {
         return { kind: "fimDeSemana", motivo: cfg.mensagem || "", data: raw };
       }
     }

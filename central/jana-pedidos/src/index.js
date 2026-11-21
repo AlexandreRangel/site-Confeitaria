@@ -98,7 +98,7 @@ function desiredDateUnavailability(ymd, pausa) {
   }
   if (cfg.fimDeSemana) {
     const wd = weekdayUtc(ymd);
-    if (wd === 0 || wd === 6) return { kind: "fimDeSemana", motivo: String(cfg.mensagem || "").trim() };
+    if (wd === 0) return { kind: "fimDeSemana", motivo: String(cfg.mensagem || "").trim() };
   }
   return null;
 }
@@ -1530,7 +1530,7 @@ function validatePausa(p) {
     if (x.inicio && x.fim && x.inicio > x.fim) bad("pausa programada: a data de fim vem antes do início");
     optText(x.mensagem, 300, "pausa programada (recado)");
   });
-  if (typeof p.fimDeSemana !== "boolean") bad("pausa: fim de semana inválido");
+  if (typeof p.fimDeSemana !== "boolean") bad("pausa: domingo inválido");
   if (p.planilhaCsv && !/^https:\/\/[^\s"'<>]+$/.test(String(p.planilhaCsv))) bad("pausa: link da planilha inválido");
   if (p.datasBloqueadas != null) {
     if (!Array.isArray(p.datasBloqueadas) || p.datasBloqueadas.length > 200) bad("pausa: datas bloqueadas inválidas");
