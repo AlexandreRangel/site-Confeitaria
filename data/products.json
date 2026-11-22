@@ -61,7 +61,7 @@
     "id": "p-alfajor-natalino-und",
     "slug": "alfajor-natalino-und",
     "name": "Alfajor Natalino Und",
-    "description": "",
+    "description": "Nosso produto de maior destaque, os alfajores amantegados de doce deleite decorados para o Natal! A lembrancinha perfeita para presentear nesse fim de ano: delicioso e uma gracinha\n\nEscolha entre temas de natal (sortidos) e impressão personalizada (lembre-se de anexar a arte desejada no seu pedido!) \n\nPedido mínimo 15 unidades.\nEmbalados individualmente, perfeito para presentear.",
     "categoryId": "natal",
     "categoryIds": [
       "natal"
@@ -71,11 +71,12 @@
     "images": [
       "assets/products/alfajor-natalino-und/foto-mwjgru653yayq.webp",
       "assets/products/alfajor-natalino-und/foto-mwjjqjby5felm.webp",
-      "assets/products/alfajor-natalino-und/foto-mwjjqjlw1rct4.webp"
+      "assets/products/alfajor-natalino-und/foto-mwrzodsdeh7w1.webp"
     ],
     "featured": false,
     "active": true,
     "aceitaImagemPersonalizacao": true,
+    "minQty": 15,
     "tags": []
   },
   {
