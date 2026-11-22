@@ -142,15 +142,17 @@
     "id": "p-biscoitos-de-parmesao-para-presentear",
     "slug": "biscoitos-de-parmesao-para-presentear",
     "name": "Biscoitos de parmesão para presentear",
-    "description": "",
+    "description": "Lata para presente do biscoitinho de queijo que arranca suspiros de quem experimenta, feito com parmesão esse petit four desmancha na boca e encanta pelo sabor",
     "categoryId": "natal",
     "categoryIds": [
-      "natal"
+      "natal",
+      "bolos"
     ],
     "category": "Natal",
     "price": 48.9,
     "images": [
-      "assets/products/novo-produto/foto-mwdqq91hjjb0s.webp"
+      "assets/products/novo-produto/foto-mwdqq91hjjb0s.webp",
+      "assets/products/biscoitos-de-parmesao-para-presentear/foto-mws2nx56wjx27.jpg"
     ],
     "featured": false,
     "active": true,
