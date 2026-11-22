@@ -84,7 +84,7 @@
     "id": "p-mini-amanteigado",
     "slug": "mini-amanteigado",
     "name": "Mini amanteigado",
-    "description": "",
+    "description": "Amantegado 4cm personalizado com a marca da sua empresa, perfeito para presentear seus clientes e demonstrar seu carinho nesse fim de ano \n\nAnexe ao seu pedido sua arte ou logo \n\nPedido mínimo 30 unidades",
     "categoryId": "personalizado-para-empresas",
     "categoryIds": [
       "personalizado-para-empresas",
@@ -98,6 +98,7 @@
     "featured": false,
     "active": true,
     "aceitaImagemPersonalizacao": true,
+    "minQty": 30,
     "tags": []
   },
   {
