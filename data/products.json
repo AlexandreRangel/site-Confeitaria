@@ -50,11 +50,12 @@
       "assets/products/caixa-2-alfajores-natal/foto-mwjhdyllc7rsz.webp",
       "assets/products/caixa-2-alfajores-natal/foto-mwjhf5w2vz6k8.webp",
       "assets/products/caixa-2-alfajores-natal/foto-mwjhf66cgvlhg.webp",
-      "assets/products/caixa-2-alfajores-natal/foto-mwjhf6f03umpt.webp"
+      "assets/products/caixa-2-alfajores-natal/foto-mws0wwwzhhx6q.webp"
     ],
     "featured": false,
     "active": true,
     "aceitaImagemPersonalizacao": true,
+    "minQty": 10,
     "tags": []
   },
   {
