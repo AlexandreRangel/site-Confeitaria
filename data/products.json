@@ -1,5 +1,24 @@
 [
   {
+    "id": "p-lata-alfajores-para-presente",
+    "slug": "lata-alfajores-para-presente",
+    "name": "Lata alfajores para presente",
+    "description": "",
+    "categoryId": "natal",
+    "categoryIds": [
+      "natal"
+    ],
+    "category": "Natal",
+    "price": 135,
+    "images": [
+      "assets/products/lata-alfajores-para-presente/foto-mws1msbrmxknd.jpg",
+      "assets/products/lata-alfajores-para-presente/foto-mws1msfmluq6a.jpg"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
     "id": "p-cesta-encanto-de-natal",
     "slug": "cesta-encanto-de-natal",
     "name": "Cesta Encanto de Natal",
