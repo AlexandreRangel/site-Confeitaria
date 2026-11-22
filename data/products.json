@@ -184,7 +184,7 @@
     "id": "p-box-gratidao",
     "slug": "box-gratidao",
     "name": "Box Gratidão",
-    "description": "",
+    "description": "Algumas pessoas fizeram diferença no nosso ano, e o Natal é uma oportunidade de demonstrar que isso não passou despercebido. O Box Gratidão é um presente pensado para expressar carinho, reconhecimento e apreço de uma forma especial, mesmo nos pequenos gestos.\n\nEm um charmoso caixote de pinus, preparado para presentear, reunimos uma mini garrafa de vinho, uma bola natalina de acrílico recheada com castanhas e frutas, gingerbreads artesanais e uma caixa com quatro alfajores decorados especialmente para o Natal. Uma combinação de sabores, delicadeza e encanto que faz do presente uma lembrança cheia de significado.\n\nIdeal para presentear amigos, familiares, anfitriões, clientes e colaboradores, é uma forma de agradecer, celebrar vínculos e desejar um Natal mais doce a quem esteve presente ao longo do ano.\nCORPORATIVO: personalizamos o alfajor com seu logo, anexe sua arte ou logo ao pedido",
     "categoryId": "natal",
     "categoryIds": [
       "natal"
@@ -197,6 +197,7 @@
     ],
     "featured": false,
     "active": true,
+    "aceitaImagemPersonalizacao": true,
     "tags": []
   },
   {
