@@ -1286,6 +1286,46 @@
     return { href: "", external: false };
   };
 
+  /* Tamanho real [largura, altura] de uma imagem de banner: o gravado no banner (imageSize)
+     ou o da tabela IMAGE_SIZES. null quando não se sabe (o site mede ao carregar). */
+  Jana.bannerImageSize = function bannerImageSize(path, stored) {
+    if (Array.isArray(stored) && stored.length === 2) {
+      const w = Number(stored[0]);
+      const h = Number(stored[1]);
+      if (Number.isFinite(w) && Number.isFinite(h) && w > 0 && h > 0) return [Math.round(w), Math.round(h)];
+    }
+    const found = Jana.IMAGE_SIZES && Jana.IMAGE_SIZES[String(path || "")];
+    if (found && found[0] > 0 && found[1] > 0) return [found[0], found[1]];
+    return null;
+  };
+
+  /* Proporção do carrossel de banners: a mais comum entre as imagens (tolerância de 1,5%).
+     sizes: lista de [w, h] ou null. Devolve [w, h] ou null. */
+  Jana.BANNER_RATIO_TOLERANCE = 0.015;
+  Jana.bannerFrameSize = function bannerFrameSize(sizes) {
+    const groups = [];
+    (sizes || []).forEach(function add(size) {
+      if (!size || !(size[0] > 0) || !(size[1] > 0)) return;
+      const r = size[0] / size[1];
+      const g = groups.find(function near(x) {
+        return Math.abs(x.r / r - 1) <= Jana.BANNER_RATIO_TOLERANCE;
+      });
+      if (g) g.n += 1;
+      else groups.push({ r: r, n: 1, size: size });
+    });
+    if (!groups.length) return null;
+    let best = groups[0];
+    groups.forEach(function pick(g) {
+      if (g.n > best.n) best = g;
+    });
+    return best.size;
+  };
+
+  Jana.bannerFitsFrame = function bannerFitsFrame(size, frame) {
+    if (!size || !frame) return true;
+    return Math.abs(size[0] / size[1] / (frame[0] / frame[1]) - 1) <= Jana.BANNER_RATIO_TOLERANCE;
+  };
+
   /* Banners de uma página: "home" (padrão) ou o id de uma área. */
   Jana.pageCarouselSlides = function pageCarouselSlides(carousel, products, pagina) {
     const target = pagina || "home";
@@ -1319,6 +1359,8 @@
           external: link.external,
           title: (tipo === "produto" && !slide.linkTipo && product && product.name) || slide.title || (product && product.name) || "",
           banner: slide.formato === "banner",
+          imageSize: Jana.bannerImageSize(slide.image, slide.imageSize),
+          imageMobileSize: slide.imageMobile ? Jana.bannerImageSize(slide.imageMobile, slide.imageMobileSize) : null,
           matched: !!product,
           foto: Jana.fotoForSave ? Jana.fotoForSave(slide.foto) : null,
         };

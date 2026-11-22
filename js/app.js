@@ -502,6 +502,68 @@
     Jana.qsa('[data-action="carousel-prev"], [data-action="carousel-next"]').forEach(function toggleArrow(btn) {
       btn.hidden = slides.length < 2;
     });
+    updateBannerFrame();
+    if (!state.bannerLoadWatch) {
+      state.bannerLoadWatch = true;
+      track.addEventListener("load", onBannerImageLoad, true);
+    }
+  }
+
+  /* Banners aparecem inteiros, na proporção em que foram feitos: o carrossel usa a proporção
+     mais comum das imagens da página (computador e celular). Um banner com outra proporção
+     aparece inteiro (sem corte), com uma faixa de fundo. */
+  function bannerSizes(slides) {
+    const measured = state.bannerMeasured || {};
+    const pc = [];
+    const cel = [];
+    slides.forEach(function sizes(slide) {
+      if (!slide || slide.tipo === "produto" || !slide.image) {
+        pc.push(null);
+        cel.push(null);
+        return;
+      }
+      const pcSize = slide.imageSize || measured[slide.image] || null;
+      pc.push(pcSize);
+      cel.push(slide.imageMobile ? slide.imageMobileSize || measured[slide.imageMobile] || null : pcSize);
+    });
+    return { pc: pc, cel: cel };
+  }
+
+  function updateBannerFrame() {
+    const hero = Jana.qs("#hero-carrossel");
+    const track = Jana.qs('[data-bind="carousel"]');
+    if (!hero || !track || !Jana.bannerFrameSize) return;
+    const slides = state.slides || [];
+    const on = hero.classList.contains("hero--banners");
+    const sizes = on ? bannerSizes(slides) : { pc: [], cel: [] };
+    const framePc = on ? Jana.bannerFrameSize(sizes.pc) : null;
+    const frameCel = on ? Jana.bannerFrameSize(sizes.cel) : null;
+    if (framePc) hero.style.setProperty("--banner-ar-pc", framePc[0] + " / " + framePc[1]);
+    else hero.style.removeProperty("--banner-ar-pc");
+    if (frameCel) hero.style.setProperty("--banner-ar-cel", frameCel[0] + " / " + frameCel[1]);
+    else hero.style.removeProperty("--banner-ar-cel");
+    Array.prototype.forEach.call(track.children, function mark(el, i) {
+      el.classList.toggle("hero__slide--inteiro-pc", !!(on && sizes.pc[i] && framePc && !Jana.bannerFitsFrame(sizes.pc[i], framePc)));
+      el.classList.toggle("hero__slide--inteiro-cel", !!(on && sizes.cel[i] && frameCel && !Jana.bannerFitsFrame(sizes.cel[i], frameCel)));
+    });
+  }
+
+  function onBannerImageLoad(event) {
+    const img = event.target;
+    if (!img || img.tagName !== "IMG" || !img.naturalWidth || !img.naturalHeight) return;
+    const track = Jana.qs('[data-bind="carousel"]');
+    if (!track) return;
+    const el = img.closest(".hero__slide");
+    const index = Array.prototype.indexOf.call(track.children, el);
+    const slide = (state.slides || [])[index];
+    if (!slide || slide.tipo === "produto" || !slide.image) return;
+    const mobile = window.matchMedia("(max-width: 719px)").matches;
+    const key = mobile && slide.imageMobile ? slide.imageMobile : slide.image;
+    const known = key === slide.imageMobile ? slide.imageMobileSize : slide.imageSize;
+    state.bannerMeasured = state.bannerMeasured || {};
+    if (known || state.bannerMeasured[key]) return;
+    state.bannerMeasured[key] = [img.naturalWidth, img.naturalHeight];
+    updateBannerFrame();
   }
 
   function goToSlide(index) {

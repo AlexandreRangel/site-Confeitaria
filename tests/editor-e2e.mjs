@@ -256,6 +256,8 @@ async function run(browser, viewport) {
   await tab(page, "carrossel");
   await page.click('[data-ed-action="novo-banner"]');
   await page.waitForSelector('[data-ed="dialog-banner"][open]');
+  await page.check('[data-ed="form-banner"] input[name="bannerTipo"][value="imagem"]');
+  await page.waitForSelector('[data-ed-file="banner-pc"]', { state: "attached" });
   await page.setInputFiles('[data-ed-file="banner-pc"]', await pngFile(page, 2400, 700, "#4c553a", "pc.png"));
   await confirmarFotoEditor(page);
   await page.waitForSelector('[data-ed="dialog-banner"] .ed-preview--pc img');
@@ -298,6 +300,57 @@ async function run(browser, viewport) {
       await p.context().close();
     }
   }
+  record("banner guarda o tamanho real das imagens", !!slide && JSON.stringify(slide.imageSize) === "[2400,700]" && JSON.stringify(slide.imageMobileSize) === "[1200,800]", JSON.stringify(slide && [slide.imageSize, slide.imageMobileSize]));
+
+  /* ---------- reaproveitar o banner da página inicial em uma categoria + subir sem recorte ---------- */
+  await page.check('input[name="ed-pagina"][value="corporate"]');
+  await page.waitForSelector('[data-ed="carrossel"] .ed-reusar');
+  await page.click('[data-ed="carrossel"] .ed-reusar > summary');
+  await page.click('[data-ed-action="banner-reusar"][data-id="' + slide.id + '"]');
+  await page.waitForSelector('#tab-carrossel .ed-banner:has-text("' + titulo + '")');
+  await saveTab(page, "banner reaproveitado", () => readData("carousel.json").filter((s) => s.title === titulo).length === 2);
+  const copia = readData("carousel.json").find((s) => s.title === titulo && s.pagina === "corporate");
+  record("banner reaproveitado em outra categoria, mesma imagem", !!copia && copia.id !== slide.id && copia.image === slide.image && copia.imageMobile === slide.imageMobile, JSON.stringify(copia));
+  const tituloArea = "Banner categoria " + tag;
+  await page.click('[data-ed-action="novo-banner"]');
+  await page.waitForSelector('[data-ed="dialog-banner"][open]');
+  await page.check('[data-ed="form-banner"] input[name="bannerTipo"][value="imagem"]');
+  await page.waitForSelector('[data-ed-file="banner-pc"]', { state: "attached" });
+  await page.setInputFiles('[data-ed-file="banner-pc"]', await pngFile(page, 2400, 700, "#3a4c55", "area-pc.png"));
+  const zoomInicial = await page.locator('[data-ed="foto-editor-modal"] input[type="range"][data-fe-campo="zoom"]').inputValue();
+  await confirmarFotoEditor(page);
+  await page.waitForSelector('[data-ed="dialog-banner"] .ed-preview--pc img');
+  await page.fill('[data-ed="form-banner"] input[name="title"]', tituloArea);
+  await page.click('[data-ed="form-banner"] button[type="submit"]');
+  await page.waitForFunction(() => !document.querySelector('[data-ed="dialog-banner"]').open);
+  await saveTab(page, "banner na categoria", () => readData("carousel.json").some((s) => s.title === tituloArea));
+  const slideArea = readData("carousel.json").find((s) => s.title === tituloArea);
+  record("banner 2400×700 numa categoria entra inteiro (zoom 1, sem recorte)", zoomInicial === "1" && !!slideArea && JSON.stringify(slideArea.imageSize) === "[2400,700]", "zoom=" + zoomInicial + " " + JSON.stringify(slideArea && slideArea.imageSize));
+  for (const vp of [{ width: 390, height: 844 }, { width: 1280, height: 900 }]) {
+    const p = await publicPage(browser, vp, "/corporate/");
+    await p.waitForTimeout(400);
+    const medidas = await p.evaluate((titulos) => {
+      return titulos.map((t) => {
+        const img = Array.from(document.querySelectorAll(".hero__slide img")).find((i) => i.alt === t);
+        if (!img) return null;
+        const r = img.getBoundingClientRect();
+        const cs = getComputedStyle(img);
+        const nat = img.naturalWidth / img.naturalHeight;
+        const box = r.width / r.height;
+        return { t: t, fit: cs.objectFit, cortado: cs.objectFit === "cover" && Math.abs(nat / box - 1) > 0.02 };
+      });
+    }, [titulo, tituloArea]);
+    record("categoria (" + vp.width + "px): banners reaproveitado e novo aparecem inteiros", medidas.every((m) => m && !m.cortado), JSON.stringify(medidas));
+    await p.context().close();
+  }
+  for (const t of [tituloArea, titulo]) {
+    const c = page.locator("#tab-carrossel .ed-banner", { hasText: t });
+    await c.locator('[data-ed-action="remover-banner"]').first().click();
+    await confirmDialog(page);
+  }
+  await saveTab(page, "remover banners da categoria", () => !readData("carousel.json").some((s) => s.pagina === "corporate" && (s.title === titulo || s.title === tituloArea)));
+  await page.check('input[name="ed-pagina"][value="home"]');
+
   // remover o banner de teste (confirmação + publicar)
   const card = page.locator(".ed-banner", { hasText: titulo });
   await card.locator('[data-ed-action="remover-banner"]').click();

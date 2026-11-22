@@ -27,6 +27,12 @@ body[data-page="area"] .hero__slide--produto {
   }
 }
 
+/* No carrossel de banners, o banner de produto segue a proporção das imagens da página. */
+.hero.hero--banners .hero__slide--produto,
+body[data-page="area"] .hero.hero--banners .hero__slide--produto {
+  aspect-ratio: var(--banner-ar);
+}
+
 .hero__slide--produto:focus-visible {
   outline: 3px solid var(--primary);
   outline-offset: 3px;

@@ -1,4 +1,4 @@
-@import url("banner-produto.css?v=20261116d");
+@import url("banner-produto.css?v=20261122ban");
 
 /* Editor do site — mobile primeiro. Paleta: texto #4c553a, creme #fdf6ec, acento #b86e88, rosa claro #f5d5e0.
    Botões preenchidos usam #9a5870 (contraste AA no branco). */
@@ -1638,7 +1638,8 @@ body.ed-ocupado .ed-form [type="submit"] {
   overflow: hidden;
   border-radius: 12px;
   background: #fff;
-  border: 1px solid var(--line, #e4c4ce);
+  border: 0;
+  outline: 1px solid var(--line, #e4c4ce);
   touch-action: none;
   cursor: grab;
   flex-shrink: 0;
@@ -1737,5 +1738,61 @@ body.ed-ocupado .ed-form [type="submit"] {
   }
   .ed-feditor .ed-foto__slider {
     grid-template-columns: auto 1fr 4.2rem auto;
+  }
+}
+
+/* Carrossel: reaproveitar um banner de outra página */
+.ed-reusar {
+  margin-top: 1rem;
+}
+.ed-reusar > summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0.35rem 0;
+}
+.ed-reusar__lista {
+  list-style: none;
+  margin: 0.6rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+.ed-reusar__item {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.45rem;
+  border: 1px solid var(--line, #e4c4ce);
+  border-radius: 10px;
+  background: #fff;
+}
+.ed-reusar__thumb img,
+.ed-reusar__thumb .ed-semfoto {
+  display: block;
+  width: 100%;
+  height: 3.2rem;
+  object-fit: contain;
+  border-radius: 6px;
+  background: var(--secondary, #f6e7ea);
+}
+.ed-reusar__thumb--produto img {
+  object-fit: cover;
+}
+.ed-reusar__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+.ed-reusar__info strong {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 560px) {
+  .ed-reusar__item {
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+  }
+  .ed-reusar__item .btn {
+    grid-column: 1 / -1;
   }
 }

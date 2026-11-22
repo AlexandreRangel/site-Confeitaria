@@ -255,7 +255,7 @@
       '"><img alt="Prévia da foto" draggable="false"></div></div>' +
       '<div class="ed-feditor__controles">' +
       (opts.hint ? '<p class="ed-dica">' + esc(opts.hint) + "</p>" : "") +
-      '<p class="ed-dica">Arraste para enquadrar. Roda do mouse ou pinça para o zoom. Teclado: setas, + e −, 0 restaura, Esc cancela.</p>' +
+      '<p class="ed-dica">Arraste para enquadrar. Zoom 1 = sem ampliação; valores acima de 1 ampliam. Roda do mouse ou pinça para o zoom. Teclado: setas, + e −, 0 restaura, Esc cancela.</p>' +
       '<div data-fe="svg" hidden></div>' +
       '<div class="ed-foto__bloco"><p class="ed-foto__rotulo" id="ed-feditor-enq">Enquadramento</p>' +
       '<div class="ed-foto__setas" role="group" aria-labelledby="ed-feditor-enq">' +
@@ -264,7 +264,7 @@
       '<button type="button" data-fe-action="nudge" data-dir="right" data-eixo="x" data-delta="-2" aria-label="Mover a foto para a direita">→</button>' +
       '<button type="button" data-fe-action="nudge" data-dir="down" data-eixo="y" data-delta="-2" aria-label="Mover a foto para baixo">↓</button>' +
       "</div>" +
-      '<div class="ed-foto__zoom"><label for="ed-feditor-zoom">Zoom</label>' +
+      '<div class="ed-foto__zoom"><label for="ed-feditor-zoom">Zoom (1 = imagem inteira)</label>' +
       '<button type="button" class="btn btn--outline" data-fe-action="zoom" data-delta="-0.1" aria-label="Diminuir zoom">−</button>' +
       '<input id="ed-feditor-zoom" type="range" min="' +
       z.min +

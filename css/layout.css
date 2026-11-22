@@ -1,4 +1,4 @@
-@import url("banner-produto.css?v=20261116d");
+@import url("banner-produto.css?v=20261122ban");
 
 .topo,
 main,
@@ -1685,25 +1685,58 @@ body[data-page="home"] .areas__list:empty {
   height: auto;
 }
 
-.hero.hero--banners .hero__media,
-.hero.hero--banners .hero__slide img {
-  aspect-ratio: 1200 / 800;
+/* Proporção do carrossel de banners. O site (app.js) grava em --banner-ar-pc/--banner-ar-cel
+   a proporção real das imagens da página; sem elas, vale a recomendada. */
+.hero.hero--banners {
+  --banner-ar: var(--banner-ar-cel, 1200 / 800);
 }
 
-body[data-page="area"] .hero.hero--banners .hero__media,
-body[data-page="area"] .hero.hero--banners .hero__slide img {
-  aspect-ratio: 1200 / 860;
+body[data-page="area"] .hero.hero--banners {
+  --banner-ar: var(--banner-ar-cel, 1200 / 860);
+}
+
+.hero.hero--banners .hero__media,
+.hero.hero--banners .hero__slide img {
+  aspect-ratio: var(--banner-ar);
+}
+
+/* Sem ampliação intencional: não cortar nem mesmo por diferenças de arredondamento no w900. */
+.hero.hero--banners .hero__slide:not(.hero__slide--produto) img:not(.hero__foto--ajustada) {
+  object-fit: contain;
+}
+
+/* Banner com proporção diferente da dos outros: aparece inteiro, sem corte. */
+.hero.hero--banners .hero__slide--inteiro-cel {
+  background: var(--cream, #fdf6ec);
+}
+
+.hero.hero--banners .hero__slide--inteiro-cel img:not(.hero__foto--ajustada) {
+  object-fit: contain;
 }
 
 @media (min-width: 720px) {
-  .hero.hero--banners .hero__media,
-  .hero.hero--banners .hero__slide img {
-    aspect-ratio: 2400 / 700;
+  .hero.hero--banners {
+    --banner-ar: var(--banner-ar-pc, 2400 / 700);
   }
 
-  body[data-page="area"] .hero.hero--banners .hero__media,
-  body[data-page="area"] .hero.hero--banners .hero__slide img {
-    aspect-ratio: 2400 / 800;
+  body[data-page="area"] .hero.hero--banners {
+    --banner-ar: var(--banner-ar-pc, 2400 / 800);
+  }
+
+  .hero.hero--banners .hero__slide--inteiro-cel {
+    background: transparent;
+  }
+
+  .hero.hero--banners .hero__slide--inteiro-cel img:not(.hero__foto--ajustada) {
+    object-fit: cover;
+  }
+
+  .hero.hero--banners .hero__slide--inteiro-pc {
+    background: var(--cream, #fdf6ec);
+  }
+
+  .hero.hero--banners .hero__slide--inteiro-pc img:not(.hero__foto--ajustada) {
+    object-fit: contain;
   }
 }
 

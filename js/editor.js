@@ -379,6 +379,71 @@
     return res.blob();
   }
 
+  /* Largura e altura reais de um arquivo/blob de imagem (para o banner entrar inteiro). */
+  async function dimensoesDaFonte(source) {
+    try {
+      if (global.createImageBitmap && source instanceof Blob) {
+        const bm = await createImageBitmap(source, { imageOrientation: "from-image" });
+        const out = [bm.width, bm.height];
+        if (bm.close) bm.close();
+        if (out[0] > 0 && out[1] > 0) return out;
+      }
+    } catch (err) {
+      /* cai no <img> */
+    }
+    try {
+      const url = source instanceof Blob ? URL.createObjectURL(source) : String(source);
+      const img = new Image();
+      img.src = url;
+      await img.decode();
+      if (source instanceof Blob) URL.revokeObjectURL(url);
+      if (img.naturalWidth > 0 && img.naturalHeight > 0) return [img.naturalWidth, img.naturalHeight];
+    } catch (err) {
+      /* sem tamanho: o editor usa a proporção recomendada */
+    }
+    return null;
+  }
+
+  /* Tamanho [w, h] de uma imagem de banner: a recém-preparada, a gravada no banner ou a tabela do site. */
+  function tamanhoImagemBanner(path, stored) {
+    if (!path) return null;
+    const pend = ED.pending.get(path);
+    if (pend && pend.w > 0 && pend.h > 0) return [pend.w, pend.h];
+    return Jana.bannerImageSize ? Jana.bannerImageSize(path, stored) : null;
+  }
+
+  function aspectoBanner(size, fallback) {
+    const t = size || fallback;
+    return t[0] + "/" + t[1];
+  }
+
+  /* Banner: a foto entra inteira, na proporção em que foi criada. */
+  async function opcoesBanner(source, qual, tam) {
+    const dim = await dimensoesDaFonte(source);
+    const alvo = qual === "pc" ? tam.pc : tam.cel;
+    if (!dim) return { ratio: alvo };
+    return {
+      ratio: dim,
+      hint:
+        "A imagem entra inteira, como foi criada (" + dim[0] + " × " + dim[1] + " px), com zoom 1. Use o zoom ou arraste só se quiser recortar. Recomendado: " +
+        alvo[0] + " × " + alvo[1] + " px.",
+    };
+  }
+
+  function avisoBanner(res, alvo) {
+    if (!res || !alvo) return "";
+    const r = res.width / res.height;
+    const a = alvo[0] / alvo[1];
+    const tam = res.width + " × " + res.height + " px";
+    if (Math.abs(r - a) / a > 0.06) {
+      return "Esta imagem tem " + tam + " (recomendado " + alvo[0] + " × " + alvo[1] + " px). Ela aparece inteira, sem corte; se os outros banners desta página tiverem outra proporção, pode sobrar uma faixa clara em volta dela.";
+    }
+    if (res.width < alvo[0] * 0.6) {
+      return "Esta imagem tem " + tam + " e pode ficar sem nitidez. O ideal é " + alvo[0] + " × " + alvo[1] + " px.";
+    }
+    return "";
+  }
+
   function registrarW900(path, res, dest, key) {
     delete dest[key];
     if (res && res.w900 && res.w900.blob) {
@@ -1391,6 +1456,77 @@
     return d.carousel.filter((s) => (s.pagina || "home") === pagina).sort(byOrder);
   }
 
+  /* Banners de outras páginas que podem ser reaproveitados nesta, sem subir a imagem de novo. */
+  function assinaturaBanner(s) {
+    if (bannerTipo(s) === "produto") return "p|" + (s.productSlug || "") + "|" + JSON.stringify(s.overrides || {});
+    return "i|" + (s.image || "") + "|" + (s.imageMobile || "");
+  }
+
+  function bannersReaproveitaveis(d, pagina) {
+    const aqui = new Set(bannersDaPagina(d, pagina).map(assinaturaBanner));
+    const vistos = new Set();
+    const nomes = {};
+    paginas().forEach((p) => (nomes[p.id] = p.name));
+    const out = [];
+    d.carousel
+      .filter((s) => s && (s.pagina || "home") !== pagina)
+      .slice()
+      .sort((a, b) => String(nomes[a.pagina || "home"] || "").localeCompare(String(nomes[b.pagina || "home"] || ""), "pt-BR") || byOrder(a, b))
+      .forEach((s) => {
+        const sig = assinaturaBanner(s);
+        if (aqui.has(sig) || vistos.has(sig)) return;
+        if (bannerTipo(s) === "produto" ? !s.productSlug : !s.image) return;
+        vistos.add(sig);
+        out.push({ banner: s, paginaNome: nomes[s.pagina || "home"] || s.pagina || "Página inicial" });
+      });
+    return out;
+  }
+
+  function reaproveitarBanner(id) {
+    const d = ED.drafts.carrossel;
+    const pag = ED.carrosselPagina;
+    const s = d.carousel.find((x) => x.id === id);
+    if (!s) return;
+    const copia = JSON.parse(JSON.stringify(s));
+    copia.id = "banner-" + randomId();
+    if (pag !== "home") copia.pagina = pag;
+    else delete copia.pagina;
+    copia.order = bannersDaPagina(d, pag).length + 1;
+    d.carousel.push(copia);
+    renderCarrossel();
+    updateSavebar();
+    setStatus("aviso", "Banner adicionado a esta página, sem subir a imagem de novo. Toque em «Salvar e publicar» para mandar para o site.");
+    const btn = qs('[data-ed-action="editar-banner"][data-id="' + CSS.escape(copia.id) + '"]');
+    if (btn) btn.focus();
+  }
+
+  function reaproveitarHtml(d, pag) {
+    const lista = bannersReaproveitaveis(d, pag);
+    if (!lista.length) return "";
+    return (
+      '<details class="ed-grupo ed-reusar"><summary>Usar um banner que já existe em outra página (' + lista.length + ")</summary>" +
+      '<p class="ed-dica">Escolha um banner já cadastrado para colocar também nesta página. A imagem não precisa ser enviada de novo; depois você pode editar a cópia sem mudar o original.</p>' +
+      '<ul class="ed-reusar__lista">' +
+      lista
+        .map(function item(entry) {
+          const s = entry.banner;
+          const isProd = bannerTipo(s) === "produto";
+          const resolved = isProd && Jana.resolveProductBanner ? Jana.resolveProductBanner(s, produtoDoBanner(s)) : null;
+          const titulo = isProd ? (resolved && resolved.title) || s.productSlug : s.title || "(sem descrição)";
+          const thumb = isProd ? (resolved && resolved.image) || "" : s.image;
+          return (
+            '<li class="ed-reusar__item">' +
+            '<span class="ed-reusar__thumb' + (isProd ? " ed-reusar__thumb--produto" : "") + '">' + (thumb ? imgTag(thumb, "", "") : '<span class="ed-semfoto">sem foto</span>') + "</span>" +
+            '<span class="ed-reusar__info"><strong>' + esc(titulo) + "</strong><span class=\"ed-dica-inline\">" + (isProd ? "Banner de produto" : "Banner de imagem") + " · em «" + esc(entry.paginaNome) + "»</span></span>" +
+            '<button type="button" class="btn btn--small btn--outline" data-ed-action="banner-reusar" data-id="' + esc(s.id) + '">Usar nesta página</button>' +
+            "</li>"
+          );
+        })
+        .join("") +
+      "</ul></details>"
+    );
+  }
+
   function renderCarrossel() {
     const root = qs('[data-ed="carrossel"]');
     if (!root || !ED.carregado) return;
@@ -1411,7 +1547,7 @@
         .join("") +
       "</div></fieldset>" +
       '<p class="painel-note">O modo padrão é o <strong>banner de produto</strong>: você escolhe o produto e o site monta o banner com a foto, o nome, a descrição, o preço e o link. Também é possível criar um <strong>banner de imagem</strong>, como antes. Tamanho recomendado para imagens: <strong>computador ' + tam.pc[0] + " × " + tam.pc[1] + " px</strong> e <strong>celular " + tam.cel[0] + " × " + tam.cel[1] +
-      " px</strong>. Quando todos os banners da página têm o formato novo, eles aparecem inteiros, sem cortes. Sem imagem de celular, o celular mostra a do computador.</p>" +
+      " px</strong>. Quando todos os banners da página têm o formato novo, eles aparecem inteiros, sem cortes, na proporção em que foram criados. Sem imagem de celular, o celular mostra a do computador.</p>" +
       (area && !list.length
         ? '<p class="ed-vazio">Sem banners: a página «' + esc(area.name) + "» mostra as fotos dos produtos automaticamente. Se você adicionar banners, eles aparecem no lugar.</p>"
         : "") +
@@ -1445,7 +1581,8 @@
           );
         })
         .join("") +
-      "</ol>";
+      "</ol>" +
+      reaproveitarHtml(d, pag);
   }
 
   function moverBanner(id, dir) {
@@ -1491,6 +1628,8 @@
       imageMobile: s ? s.imageMobile || "" : "",
       imageW900: s ? s.imageW900 || "" : "",
       imageMobileW900: s ? s.imageMobileW900 || "" : "",
+      imageSize: s && Array.isArray(s.imageSize) ? s.imageSize.slice() : null,
+      imageMobileSize: s && Array.isArray(s.imageMobileSize) ? s.imageMobileSize.slice() : null,
       title: s ? s.title || "" : "",
       linkTipo: s ? s.linkTipo || (s.productSlug ? "produto" : "nenhum") : "nenhum",
       productSlug: s ? s.productSlug || "" : "",
@@ -1669,7 +1808,9 @@
   }
 
   function listaImagemBanner(s, src, sufixo) {
-    const tag = imgTag(src, "", "");
+    const size = s ? tamanhoImagemBanner(src, src === s.imageMobile ? s.imageMobileSize : src === s.image ? s.imageSize : null) : null;
+    let tag = imgTag(src, "", "");
+    if (size && src) tag = tag.replace("<img ", '<img style="aspect-ratio:' + size[0] + "/" + size[1] + '" ');
     if (!Jana.decorateBannerFoto || !s || !s.foto) return tag;
     const dec = Jana.decorateBannerFoto(tag, s.foto, Jana.fotoFilterId("lista-" + s.id + "-" + sufixo));
     return dec.svg + dec.html;
@@ -1894,15 +2035,15 @@
     const radio = (v, label) =>
       '<label class="ed-check"><input type="radio" name="linkTipo" value="' + v + '"' + (b.linkTipo === v ? " checked" : "") + "> <span>" + label + "</span></label>";
     const corpoImagem =
-      '<p class="ed-dica">' + tam.pc[0] + " × " + tam.pc[1] + " px no computador; " + tam.cel[0] + " × " + tam.cel[1] + " px no celular. Sem a imagem de celular, o celular mostra a do computador.</p>" +
+      '<p class="ed-dica">Recomendado: ' + tam.pc[0] + " × " + tam.pc[1] + " px no computador; " + tam.cel[0] + " × " + tam.cel[1] + " px no celular. A imagem aparece inteira, na proporção em que foi criada. Sem a imagem de celular, o celular mostra a do computador.</p>" +
       '<fieldset class="ed-grupo"><legend>Imagem para computador <span class="ed-obrigatorio">(obrigatória)</span></legend>' +
-      '<div class="ed-preview ed-preview--pc ed-preview--frame" data-ed-foto-frame="pc" tabindex="0" role="group" aria-label="Enquadramento no computador" style="aspect-ratio:' + tam.pc[0] + "/" + tam.pc[1] + '">' + (b.image ? imgTag(b.image, "", "") : '<span class="ed-semfoto">sem imagem</span>') + "</div>" +
+      '<div class="ed-preview ed-preview--pc ed-preview--frame" data-ed-foto-frame="pc" tabindex="0" role="group" aria-label="Enquadramento no computador" style="aspect-ratio:' + aspectoBanner(tamanhoImagemBanner(b.image, b.imageSize), tam.pc) + '">' + (b.image ? imgTag(b.image, "", "") : '<span class="ed-semfoto">sem imagem</span>') + "</div>" +
       (b.avisoPc ? '<p class="ed-alerta">' + esc(b.avisoPc) + "</p>" : "") + fe("image") +
       '<div class="ed-linha">' +
       (b.image ? '<button type="button" class="btn btn--outline" data-ed-action="banner-editar-pc">Editar foto</button>' : "") +
       '<label class="btn btn--outline ed-arquivo">' + (b.image ? "Trocar foto" : "Escolher foto") + '<input type="file" accept="image/*" data-ed-file="banner-pc"' + inv("image") + "></label></div></fieldset>" +
       '<fieldset class="ed-grupo"><legend>Imagem para celular <span class="ed-opcional">(opcional)</span></legend>' +
-      '<div class="ed-preview ed-preview--cel ed-preview--frame" data-ed-foto-frame="cel" tabindex="0" role="group" aria-label="Enquadramento no celular" style="aspect-ratio:' + tam.cel[0] + "/" + tam.cel[1] + '">' + ((b.imageMobile || b.image) ? imgTag(b.imageMobile || b.image, "", "") : '<span class="ed-semfoto">sem imagem</span>') + "</div>" +
+      '<div class="ed-preview ed-preview--cel ed-preview--frame" data-ed-foto-frame="cel" tabindex="0" role="group" aria-label="Enquadramento no celular" style="aspect-ratio:' + aspectoBanner(b.imageMobile ? tamanhoImagemBanner(b.imageMobile, b.imageMobileSize) : tamanhoImagemBanner(b.image, b.imageSize), tam.cel) + '">' + ((b.imageMobile || b.image) ? imgTag(b.imageMobile || b.image, "", "") : '<span class="ed-semfoto">sem imagem</span>') + "</div>" +
       (b.avisoCel ? '<p class="ed-alerta">' + esc(b.avisoCel) + "</p>" : "") +
       '<div class="ed-linha">' +
       (b.imageMobile || b.image ? '<button type="button" class="btn btn--outline" data-ed-action="banner-editar-cel">Editar foto</button>' : "") +
@@ -2024,7 +2165,7 @@
       if (qual === "produto") {
         res = await processImage(file, IMG.produto);
       } else {
-        res = await processarComEditor(file, qual);
+        res = await processarComEditor(file, qual, await opcoesBanner(file, qual, tam));
         if (!res) {
           setStatus("", "");
           renderBannerDialog();
@@ -2036,13 +2177,15 @@
         setOverride(b, "image", path);
       } else if (qual === "pc") {
         b.image = path;
+        b.imageSize = [res.width, res.height];
         b.formato = "banner";
-        b.avisoPc = "";
+        b.avisoPc = avisoBanner(res, tam.pc);
         b.mudou = true;
         registrarW900(path, res, b, "imageW900");
       } else {
         b.imageMobile = path;
-        b.avisoCel = "";
+        b.imageMobileSize = [res.width, res.height];
+        b.avisoCel = avisoBanner(res, tam.cel);
         b.mudou = true;
         registrarW900(path, res, b, "imageMobileW900");
       }
@@ -2062,7 +2205,8 @@
     setStatus("salvando", "Abrindo a foto…");
     try {
       const source = await sourceFromPath(path);
-      const res = await processarComEditor(source, qual);
+      const tam = tamanhos(b.pagina);
+      const res = await processarComEditor(source, qual, await opcoesBanner(source, qual, tam));
       if (!res) {
         setStatus("", "");
         return;
@@ -2072,13 +2216,15 @@
       const next = addPending("assets/carousel", base + suffix, res);
       if (qual === "pc") {
         b.image = next;
+        b.imageSize = [res.width, res.height];
         b.formato = "banner";
-        b.avisoPc = "";
+        b.avisoPc = avisoBanner(res, tam.pc);
         b.mudou = true;
         registrarW900(next, res, b, "imageW900");
       } else {
         b.imageMobile = next;
-        b.avisoCel = "";
+        b.imageMobileSize = [res.width, res.height];
+        b.avisoCel = avisoBanner(res, tam.cel);
         b.mudou = true;
         registrarW900(next, res, b, "imageMobileW900");
       }
@@ -2149,6 +2295,8 @@
       out.title = resolved.title;
       delete out.image;
       delete out.imageMobile;
+      delete out.imageSize;
+      delete out.imageMobileSize;
       delete out.linkCategory;
       delete out.url;
       delete out.subtitle;
@@ -2169,6 +2317,12 @@
       else delete out.imageW900;
       if (b.imageMobileW900) out.imageMobileW900 = b.imageMobileW900;
       else delete out.imageMobileW900;
+      const sizePc = tamanhoImagemBanner(b.image, b.imageSize);
+      if (sizePc) out.imageSize = sizePc;
+      else delete out.imageSize;
+      const sizeCel = b.imageMobile ? tamanhoImagemBanner(b.imageMobile, b.imageMobileSize) : null;
+      if (sizeCel) out.imageMobileSize = sizeCel;
+      else delete out.imageMobileSize;
       delete out.overrides;
       const legacyProduto = b.original && !b.original.linkTipo && !b.original.tipo && b.linkTipo === "produto" && b.productSlug === b.original.productSlug;
       if (!legacyProduto) {
@@ -3460,6 +3614,9 @@
       case "remover-banner":
         removerBanner(id);
         break;
+      case "banner-reusar":
+        reaproveitarBanner(id);
+        break;
       case "banner-mover":
         moverBanner(id, Number(el.getAttribute("data-dir")));
         break;
@@ -3469,6 +3626,8 @@
       case "banner-sem-celular":
         lerBannerForm();
         ED.banner.imageMobile = "";
+        ED.banner.imageMobileSize = null;
+        ED.banner.imageMobileW900 = "";
         ED.banner.avisoCel = "";
         ED.banner.mudou = true;
         renderBannerDialog();
