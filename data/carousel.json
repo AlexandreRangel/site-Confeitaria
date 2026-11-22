@@ -1,33 +1,11 @@
 [
   {
-    "id": "slide-tabua-signature",
-    "title": "Tábua Signature",
-    "subtitle": "Cestas",
-    "image": "assets/products/tabua-signature/01.webp",
-    "linkCategory": "cestas",
-    "productSlug": "tabua-signature",
-    "order": 3
-  },
-  {
     "id": "banner-mwjey5949d0nl",
     "tipo": "produto",
     "productSlug": "coffee-break-corporativo",
     "linkTipo": "produto",
     "title": "Coffee Break corporativo",
-    "order": 2
-  },
-  {
-    "id": "banner-mwjhnktkx5b3g",
-    "tipo": "imagem",
-    "title": "Conheça nossas cestas de café da manhã especiais",
-    "image": "assets/carousel/banner-pc-mwjhm25l2qw90.webp",
-    "linkTipo": "categoria",
-    "formato": "banner",
-    "foto": {
-      "y": 69.2
-    },
-    "order": 4,
-    "linkCategory": "cestas"
+    "order": 4
   },
   {
     "id": "banner-mwjltdguji9lj",
@@ -50,7 +28,7 @@
       "title": "Desenvolvemos projetos personalizados exclusivos",
       "description": "Traga suas referências e criamos um projeto único para seu evento"
     },
-    "order": 5
+    "order": 2
   },
   {
     "id": "banner-mwl2tscanhfcj",
@@ -217,5 +195,47 @@
     "linkCategory": "natal",
     "formato": "banner",
     "order": 2
+  },
+  {
+    "id": "banner-mws2xn4myg30e",
+    "tipo": "imagem",
+    "title": "Personalize com sua marca",
+    "image": "assets/carousel/banner-pc-mws2vfead6n7m.webp",
+    "imageMobile": "assets/carousel/banner-cel-mws2vtia59zi1.webp",
+    "imageW900": "assets/carousel/banner-pc-mws2vfead6n7m-w900.webp",
+    "imageMobileW900": "assets/carousel/banner-cel-mws2vtia59zi1-w900.webp",
+    "imageSize": [
+      2400,
+      700
+    ],
+    "imageMobileSize": [
+      1200,
+      860
+    ],
+    "linkTipo": "categoria",
+    "linkCategory": "natal",
+    "formato": "banner",
+    "order": 3
+  },
+  {
+    "id": "banner-mws2zhk2o3h6o",
+    "tipo": "imagem",
+    "title": "Natal",
+    "image": "assets/carousel/banner-pc-mws2yn0h64u1t.webp",
+    "imageMobile": "assets/carousel/banner-cel-mws2yz96ys6uh.webp",
+    "imageW900": "assets/carousel/banner-pc-mws2yn0h64u1t-w900.webp",
+    "imageMobileW900": "assets/carousel/banner-cel-mws2yz96ys6uh-w900.webp",
+    "imageSize": [
+      2400,
+      800
+    ],
+    "imageMobileSize": [
+      1200,
+      860
+    ],
+    "linkTipo": "categoria",
+    "linkCategory": "natal",
+    "formato": "banner",
+    "order": 5
   }
 ]
