@@ -450,8 +450,8 @@
     "id": "p-bolo-p-50-brigs-personalizados",
     "sourceId": "6873c3740fa91c3e9803b1e7",
     "slug": "bolo-p-50-brigs-personalizados",
-    "name": "Bolo p + 50 brigs personalizados ",
-    "description": "Combo inclui bolo P (serve até 15 fatias) 50 brigadeiros personalizados Obs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp!",
+    "name": "Bolo p + 50 brigs personalizados",
+    "description": "Combo inclui bolo P (serve até 15 fatias) 50 brigadeiros personalizados Obs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp! ou anexe ao seu pedido foto ou arte para impressão comestível",
     "categoryId": "combos-festa",
     "categoryIds": [
       "combos-festa"
@@ -463,6 +463,7 @@
     ],
     "featured": false,
     "active": true,
+    "aceitaImagemPersonalizacao": true,
     "tags": []
   },
   {
