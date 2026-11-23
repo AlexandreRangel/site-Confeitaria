@@ -1740,23 +1740,6 @@
     "tags": []
   },
   {
-    "id": "p-biscoito-agradecimento",
-    "sourceId": "691a458b17133149560305f5",
-    "slug": "biscoito-agradecimento",
-    "name": "Biscoito agradecimento ",
-    "description": "",
-    "categoryId": null,
-    "categoryIds": [],
-    "category": null,
-    "price": 10,
-    "images": [
-      "assets/products/biscoito-agradecimento/01.webp"
-    ],
-    "featured": false,
-    "active": true,
-    "tags": []
-  },
-  {
     "id": "p-amanteigado-decorado-corte-personalizado-tag",
     "sourceId": "67ba0625b6d984714f233510",
     "slug": "amanteigado-decorado-corte-personalizado-tag",
