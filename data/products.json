@@ -1,5 +1,24 @@
 [
   {
+    "id": "p-mini-biscoito-decorado-natal",
+    "slug": "mini-biscoito-decorado-natal",
+    "name": "Mini biscoito decorado Natal",
+    "description": "Mini biscoitinhos decorados em tema natalino, embalados individualmente perfeito para quem precisa dar muitas lembrancinhas.",
+    "categoryId": "natal",
+    "categoryIds": [
+      "natal"
+    ],
+    "category": "Natal",
+    "price": 4.5,
+    "images": [
+      "assets/products/mini-biscoito-decorado-natal/foto-mwtfo4nlot38b.jpg"
+    ],
+    "featured": false,
+    "active": true,
+    "minQty": 20,
+    "tags": []
+  },
+  {
     "id": "p-adicione-topo-comestivel-no-seu-bolo",
     "slug": "adicione-topo-comestivel-no-seu-bolo",
     "name": "Adicione topo comestível no seu bolo",
