@@ -874,7 +874,7 @@
     "sourceId": "67a2bf08c0b6e14e4c0c13b0",
     "slug": "caixa-12-cupcakes-personalizados",
     "name": "Caixa 12 cupcakes personalizados",
-    "description": "Feitos sob medida para o tema da sua festa, nossos cupcakes são a combinação perfeita de sabor e encanto. Com massa macia de chocolate, ganache e decorado com pasta de leite ninho, eles encantam pelo visual e pelo sabor.Perfeitos para qualquer celebraçãoObs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp!",
+    "description": "Feitos sob medida para o tema da sua festa, nossos cupcakes são a combinação perfeita de sabor e encanto. Com massa macia e sabor de baunilha, chocolate ou baunilha com frutas vermelhas e decorado com pasta de leite ninho, eles encantam pelo visual e pelo sabor. Perfeitos para qualquer celebração\nObs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp ou anexe aqui em seu pedido uma imagem para inspiração ou impressão comestível.",
     "categoryId": "festa-personalizada",
     "categoryIds": [
       "festa-personalizada"
@@ -889,6 +889,7 @@
     ],
     "featured": false,
     "active": true,
+    "aceitaImagemPersonalizacao": true,
     "tags": [
       "cupcake"
     ]
