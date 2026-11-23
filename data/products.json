@@ -1128,19 +1128,20 @@
     "id": "p-bento-cake",
     "sourceId": "6abe5eccac6b6ae29e0551bb",
     "slug": "bento-cake",
-    "name": "Bentô cake ",
-    "description": "",
+    "name": "Bentô cake",
+    "description": "Nosso menor bolinho, na marmitinha. Tendo aproximadamente 500g é a opção ideal para “só cantar um parabéns”  deixe sua escolha de frase de humor ou parabéns nos comentários ou anexe uma imagem de referência",
     "categoryId": "bolos",
     "categoryIds": [
       "bolos"
     ],
     "category": "Bolos",
-    "price": 68,
+    "price": 75,
     "images": [
       "assets/products/bento-cake/01.webp"
     ],
     "featured": false,
     "active": true,
+    "aceitaImagemPersonalizacao": true,
     "tags": []
   },
   {
