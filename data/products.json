@@ -787,8 +787,8 @@
     "id": "p-caixa-com-50-brigadeiros-personalizados",
     "sourceId": "67a16597b7d1513311546746",
     "slug": "caixa-com-50-brigadeiros-personalizados",
-    "name": "Caixa com 50 brigadeiros personalizados ",
-    "description": "50 brigadeiros personalizados de acordo com o evento.Obs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp!",
+    "name": "Caixa com 50 brigadeiros personalizados",
+    "description": "50 brigadeiros personalizados com pasta de leite ninho\n\nDecoramos de acordo com o tema da festa, anexe imagem de referencia ou arte para impressão comestível",
     "categoryId": "festa-personalizada",
     "categoryIds": [
       "festa-personalizada"
@@ -801,6 +801,7 @@
     ],
     "featured": false,
     "active": true,
+    "aceitaImagemPersonalizacao": true,
     "tags": [
       "brigadeiros",
       "personalizados"
