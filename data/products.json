@@ -676,8 +676,8 @@
     "id": "p-combo-celebracao-bolo-pp-e-15-brigs",
     "sourceId": "6a4cea68b9e0d1e580031910",
     "slug": "combo-celebracao-bolo-pp-e-15-brigs",
-    "name": "Combo celebração  - Bolo PP e 15 brigs ",
-    "description": "Bolo pp + caixa 15 brigadeiros sortidos",
+    "name": "Combo celebração  - Bolo PP e 15 brigs",
+    "description": "Bolo PP personalizado\nCaixa 15 brigadeiros \nEsse combo é sugerido para até 8 pessoas\n\nObs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp ou anexe aqui no seu pedido uma imagem para impressão comestível",
     "categoryId": "combos-festa",
     "categoryIds": [
       "combos-festa"
@@ -689,6 +689,7 @@
     ],
     "featured": false,
     "active": true,
+    "aceitaImagemPersonalizacao": true,
     "tags": []
   },
   {
