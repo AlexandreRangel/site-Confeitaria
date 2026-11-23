@@ -287,8 +287,7 @@
     "description": "Caixa para presente contendo 4 alfajores (sabor doce de leite com coco) personalizados com tag de feliz natal\n\nCorporativo: anexe arte ou logo para personalizar esse presente com sua marca!",
     "categoryId": "natal",
     "categoryIds": [
-      "natal",
-      "personalizado-para-empresas"
+      "natal"
     ],
     "category": "Natal",
     "price": 28.9,
