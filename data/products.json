@@ -1107,24 +1107,6 @@
     "tags": []
   },
   {
-    "id": "p-buque-de-flores",
-    "sourceId": "69a58f4fbcece8e79402f0f4",
-    "slug": "buque-de-flores",
-    "name": "Buquê de flores ",
-    "description": "Biscoitos amanteigados decorados para celebrar a dia da mulher",
-    "categoryId": null,
-    "categoryIds": [],
-    "category": null,
-    "price": 72,
-    "images": [
-      "assets/products/buque-de-flores/01.webp",
-      "assets/products/buque-de-flores/02.webp"
-    ],
-    "featured": false,
-    "active": true,
-    "tags": []
-  },
-  {
     "id": "p-bento-cake",
     "sourceId": "6abe5eccac6b6ae29e0551bb",
     "slug": "bento-cake",
