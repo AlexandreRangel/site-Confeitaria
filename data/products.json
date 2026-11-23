@@ -616,7 +616,7 @@
     "id": "p-cesta-dengo",
     "sourceId": "670ec6cfdcb100010f561205",
     "slug": "cesta-dengo",
-    "name": "Cesta Dengo ",
+    "name": "Cesta Dengo",
     "description": "Cesta dengo incluibolo de cenoura com ganache, cookie recheado de nutellla, frutas frescasgeleia croissant queijo briewaffles",
     "categoryId": "cestas-presentes",
     "categoryIds": [
@@ -625,8 +625,8 @@
     "category": "Cestas & Presentes",
     "price": 257,
     "images": [
-      "assets/products/cesta-dengo/01.webp",
-      "assets/products/cesta-dengo/02.webp"
+      "assets/products/cesta-dengo/02.webp",
+      "assets/products/cesta-dengo/01.webp"
     ],
     "featured": false,
     "active": true,
