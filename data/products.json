@@ -573,25 +573,6 @@
     "tags": []
   },
   {
-    "id": "p-cheesecake-frutas-vermelhas-g",
-    "sourceId": "69c04a73e136db240a08d227",
-    "slug": "cheesecake-frutas-vermelhas-g",
-    "name": "Cheesecake frutas vermelhas G",
-    "description": "Cheesecake com Frutas VermelhasUm clássico que atravessa gerações com elegância.A cremosidade da cheesecake encontra o frescor da geleia artesanal de morangos, finalizada com frutas vermelhas frescas que trazem acidez, brilho e leveza à composição.Equilibrada e sofisticada, é a escolha ideal para momentos de partilha à mesa, onde cada fatia encerra a refeição com delicadeza e intenção.G serve de 10 a 12 porções",
-    "categoryId": "sobremesas",
-    "categoryIds": [
-      "sobremesas"
-    ],
-    "category": "Sobremesas",
-    "price": 287,
-    "images": [
-      "assets/products/cheesecake-frutas-vermelhas-g/01.webp"
-    ],
-    "featured": false,
-    "active": true,
-    "tags": []
-  },
-  {
     "id": "p-bolo-p-15-mini-alfajor-lembranca",
     "sourceId": "681b5fc481187e4f6e2db690",
     "slug": "bolo-p-15-mini-alfajor-lembranca",
