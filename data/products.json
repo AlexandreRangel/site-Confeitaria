@@ -1063,8 +1063,8 @@
     "id": "p-kit-5-biscoitos-personalizados",
     "sourceId": "698a7c8b716b4e168c0f5711",
     "slug": "kit-5-biscoitos-personalizados",
-    "name": "Kit 5 biscoitos personalizados ",
-    "description": "Combo de 5 biscoitos personalizados com glacê para decorar a mesa de bolo",
+    "name": "Kit 5 biscoitos personalizados",
+    "description": "Combo de 5 biscoitos personalizados com glacê para decorar a mesa de bolo\n\nCombine a decoração pelo WhatsApp ou anexe uma imagem de referência ao seu pedido",
     "categoryId": "festa-personalizada",
     "categoryIds": [
       "festa-personalizada",
@@ -1081,6 +1081,7 @@
     ],
     "featured": false,
     "active": true,
+    "aceitaImagemPersonalizacao": true,
     "tags": []
   },
   {
