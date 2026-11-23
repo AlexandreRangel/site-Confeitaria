@@ -769,6 +769,11 @@ a.promo-card:focus-visible {
 
 .checkout__privacy {
   color: var(--muted);
+  margin: 0 0 0.7rem;
+}
+
+.checkout__privacy a {
+  color: var(--primary-deep);
 }
 
 .checkout__note,

@@ -169,6 +169,7 @@ const storefrontPages = [
   "produto/index.html",
   "sobre-nos/index.html",
   "perguntas-frequentes/index.html",
+  "politica-de-cancelamento/index.html",
   "busca/index.html",
   "encomendas/index.html",
   ...expectedAreas.map((id) => id + "/index.html"),
@@ -425,7 +426,7 @@ const painelPage = existsSync(join(root, "painel/index.html")) ? readFileSync(jo
 if (painelPage.includes("whatsapp-fab") || painelPage.includes('class="selos"')) {
   errors.push("Painel must not include storefront payment seals or the WhatsApp floating button");
 }
-const publicWithSeals = ["404.html", "area/index.html", "bolos/index.html", "cestas/index.html", "corporate/index.html", "doces-personalizados/index.html", "encomendas/index.html", "natal/index.html", "pagamento/index.html", "pascoa/index.html", "produto/index.html", "sobre-nos/index.html", "perguntas-frequentes/index.html", "busca/index.html"];
+const publicWithSeals = ["404.html", "area/index.html", "bolos/index.html", "cestas/index.html", "corporate/index.html", "doces-personalizados/index.html", "encomendas/index.html", "natal/index.html", "pagamento/index.html", "pascoa/index.html", "produto/index.html", "sobre-nos/index.html", "perguntas-frequentes/index.html", "politica-de-cancelamento/index.html", "busca/index.html"];
 publicWithSeals.forEach(function checkPage(rel) {
   const page = readFileSync(join(root, rel), "utf8");
   if (!page.includes('class="selos"') || !page.includes("whatsapp-fab") || !page.includes("js/selos.js")) {
@@ -933,7 +934,7 @@ if (!existsSync(sitemapPath)) {
     errors.push("sitemap.xml is out of date; run node scripts/gerar-sitemap.mjs");
   }
   const locs = Array.from(sitemap.matchAll(/<loc>(.*?)<\/loc>/g)).map((m) => m[1]);
-  ["https://janaabreuconfeitaria.com.br/", "https://janaabreuconfeitaria.com.br/natal/", "https://janaabreuconfeitaria.com.br/corporate/", "https://janaabreuconfeitaria.com.br/bolos/", "https://janaabreuconfeitaria.com.br/cestas/", "https://janaabreuconfeitaria.com.br/doces-personalizados/", "https://janaabreuconfeitaria.com.br/sobre-nos/", "https://janaabreuconfeitaria.com.br/perguntas-frequentes/"].forEach((url) => {
+  ["https://janaabreuconfeitaria.com.br/", "https://janaabreuconfeitaria.com.br/natal/", "https://janaabreuconfeitaria.com.br/corporate/", "https://janaabreuconfeitaria.com.br/bolos/", "https://janaabreuconfeitaria.com.br/cestas/", "https://janaabreuconfeitaria.com.br/doces-personalizados/", "https://janaabreuconfeitaria.com.br/sobre-nos/", "https://janaabreuconfeitaria.com.br/perguntas-frequentes/", "https://janaabreuconfeitaria.com.br/politica-de-cancelamento/"].forEach((url) => {
     if (!locs.includes(url)) errors.push("sitemap.xml missing " + url);
   });
   products.filter((p) => p && p.active !== false && p.slug).forEach((p) => {
@@ -1053,6 +1054,30 @@ if (!utilsJs.includes("foldSearch") || !utilsJs.includes("searchProducts") || !u
 if (!utilsJs.includes('"busca"') || !workerJs.includes('"busca"')) {
   errors.push("busca must be a reserved area slug");
 }
+if (!utilsJs.includes('"politica-de-cancelamento"') || !workerJs.includes('"politica-de-cancelamento"')) {
+  errors.push("politica-de-cancelamento must be a reserved area slug");
+}
+if (!workerJs.includes("/politica-de-cancelamento/") || !workerJs.includes('href=\\"../politica-de-cancelamento/\\">Política de cancelamento</a>')) {
+  errors.push("Worker area template and sitemap must include /politica-de-cancelamento/");
+}
+const politicaPage = existsSync(join(root, "politica-de-cancelamento/index.html"))
+  ? readFileSync(join(root, "politica-de-cancelamento/index.html"), "utf8")
+  : "";
+if (!politicaPage || !politicaPage.includes('data-page="politica"') || !politicaPage.includes("<h1") || !politicaPage.includes("Política de Cancelamento")) {
+  errors.push("politica-de-cancelamento needs h1 «Política de Cancelamento» and data-page=politica");
+}
+if (!politicaPage.includes("<h2>1.") || !politicaPage.includes("<h2>2.") || !politicaPage.includes("<h2>3.") || !politicaPage.includes("<h2>4.") || !politicaPage.includes("<h2>Informações Importantes</h2>")) {
+  errors.push("politica-de-cancelamento must use h2 for the numbered sections and Informações Importantes");
+}
+if (!politicaPage.includes("<li>Reembolso de 30% do valor pago; ou</li>") || !politicaPage.includes("Reagendamento para uma nova data, sujeito à disponibilidade de agenda, em até 30 dias corridos após a data originalmente contratada.")) {
+  errors.push("politica-de-cancelamento item 2 must be a list with the two official options");
+}
+if (!politicaPage.includes("Ao confirmar a encomenda, o cliente declara estar ciente e de acordo com esta política.")) {
+  errors.push("politica-de-cancelamento must keep the official closing sentence");
+}
+if ((politicaPage.match(/<h1/g) || []).length !== 1) {
+  errors.push("politica-de-cancelamento must have exactly one h1");
+}
 const analyticsJs = readFileSync(join(root, "js/analytics.js"), "utf8");
 if (!analyticsJs.includes('event: "search"') || !analyticsJs.includes("search_term")) {
   errors.push("GTM search event must send search_term without changing the other events");
@@ -1064,6 +1089,7 @@ const seoPages = [
   "produto/index.html",
   "sobre-nos/index.html",
   "perguntas-frequentes/index.html",
+  "politica-de-cancelamento/index.html",
   "busca/index.html",
   "encomendas/index.html",
   "pagamento/index.html",
@@ -1075,10 +1101,13 @@ const seoPages = [
   "natal/index.html",
   "pascoa/index.html",
 ];
-["index.html", "404.html", "produto/index.html", "sobre-nos/index.html", "perguntas-frequentes/index.html", "busca/index.html", "encomendas/index.html", "pagamento/index.html", "area/index.html", "bolos/index.html", "cestas/index.html", "corporate/index.html", "doces-personalizados/index.html", "natal/index.html", "pascoa/index.html"].forEach((rel) => {
+["index.html", "404.html", "produto/index.html", "sobre-nos/index.html", "perguntas-frequentes/index.html", "politica-de-cancelamento/index.html", "busca/index.html", "encomendas/index.html", "pagamento/index.html", "area/index.html", "bolos/index.html", "cestas/index.html", "corporate/index.html", "doces-personalizados/index.html", "natal/index.html", "pascoa/index.html"].forEach((rel) => {
   const html = readFileSync(join(root, rel), "utf8");
   if (!html.includes('class="rodape__faq"') || !html.includes(">Perguntas frequentes</a>")) {
     errors.push(rel + " footer must include a visible Perguntas frequentes link");
+  }
+  if (!html.includes("politica-de-cancelamento/") || !html.includes(">Política de cancelamento</a>")) {
+    errors.push(rel + " footer must include a visible Política de cancelamento link");
   }
 });
 

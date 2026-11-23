@@ -53,6 +53,7 @@ const publicPages = [
   "/personalizado-para-empresas/",
   "/produto/",
   "/perguntas-frequentes/",
+  "/politica-de-cancelamento/",
   "/busca/",
   "/sobre-nos/",
   "/sobremesas/",

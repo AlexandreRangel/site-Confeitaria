@@ -10,7 +10,7 @@
  *
  * e publique o sitemap.xml na branch preview (junto com os demais arquivos).
  *
- * Inclusos: a home, /sobre-nos/, /perguntas-frequentes/, as áreas visíveis no site e todos os produtos
+ * Inclusos: a home, /sobre-nos/, /perguntas-frequentes/, /politica-de-cancelamento/, as áreas visíveis no site e todos os produtos
  * ativos no formato real /produto/?slug=...
  * Excluídos: redirecionamentos, /painel/, 404, /pagamento/, /encomendas/,
  * a página genérica /area/ e áreas sazonais desligadas (hoje a Páscoa).
@@ -100,7 +100,7 @@ function productUrl(slug) {
 }
 
 export function buildSitemap(areas, site, products, now) {
-  const urls = [pageUrl("/"), pageUrl("sobre-nos/"), pageUrl("perguntas-frequentes/")];
+  const urls = [pageUrl("/"), pageUrl("sobre-nos/"), pageUrl("perguntas-frequentes/"), pageUrl("politica-de-cancelamento/")];
   visibleAreas(areas, site, now).forEach(function addArea(area) {
     const slug = area.slug || area.id;
     if (slug) urls.push(pageUrl(slug + "/"));

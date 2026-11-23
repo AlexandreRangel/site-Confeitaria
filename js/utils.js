@@ -310,6 +310,7 @@
     "doces-festa", "festa-personalizada", "sobremesas", "favicon", "robots", "sitemap",
     "perguntas-frequentes",
     "busca",
+    "politica-de-cancelamento",
   ];
 
   Jana.isReservedAreaSlug = function isReservedAreaSlug(slug) {

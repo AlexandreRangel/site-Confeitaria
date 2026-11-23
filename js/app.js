@@ -70,6 +70,10 @@
     return document.body.getAttribute("data-page") === "search";
   }
 
+  function isPoliticaPage() {
+    return document.body.getAttribute("data-page") === "politica";
+  }
+
   function renderFaq() {
     if (!isFaqPage()) {
       return;
@@ -305,6 +309,9 @@
     }
     if (isFaqPage() && site.brandName) {
       document.title = "Perguntas frequentes · " + site.brandName;
+    }
+    if (isPoliticaPage() && site.brandName) {
+      document.title = "Política de Cancelamento · " + site.brandName;
     }
     if (isSearchPage() && site.brandName) {
       let q = "";
