@@ -1224,26 +1224,6 @@
     "tags": []
   },
   {
-    "id": "p-petit-parmesan",
-    "sourceId": "69962fdc1443b6bc2302895e",
-    "slug": "petit-parmesan",
-    "name": "Petit Parmesan",
-    "description": "Porção de 300g do nosso delicioso petit four de queijo parmesão",
-    "categoryId": "cestas-presentes",
-    "categoryIds": [
-      "cestas-presentes"
-    ],
-    "category": "Cestas & Presentes",
-    "price": 46,
-    "images": [
-      "assets/products/petit-parmesan/01.webp",
-      "assets/products/petit-parmesan/02.webp"
-    ],
-    "featured": false,
-    "active": true,
-    "tags": []
-  },
-  {
     "id": "p-aniversariantes-do-mes-bento-cake",
     "sourceId": "6a4cff369d081c71b708b352",
     "slug": "aniversariantes-do-mes-bento-cake",
