@@ -1,5 +1,28 @@
 [
   {
+    "id": "p-adicione-topo-comestivel-no-seu-bolo",
+    "slug": "adicione-topo-comestivel-no-seu-bolo",
+    "name": "Adicione topo comestível no seu bolo",
+    "description": "Adicione topos feitos com pasta de leite ninho com impressão comestível \nAnexe ao seu pedido uma imagem de como gostaria do resultado",
+    "categoryId": "bolos",
+    "categoryIds": [
+      "bolos",
+      "combos-festa"
+    ],
+    "category": "Bolos",
+    "price": 35,
+    "images": [
+      "assets/products/adicione-topo-comestivel-no-seu-bolo/foto-mwteqz78v43o9.jpg",
+      "assets/products/adicione-topo-comestivel-no-seu-bolo/foto-mwteqqvlyhdqx.jpg",
+      "assets/products/adicione-topo-comestivel-no-seu-bolo/foto-mwter0b4cl96h.jpg",
+      "assets/products/adicione-topo-comestivel-no-seu-bolo/foto-mwteqxubuedvj.jpg"
+    ],
+    "featured": false,
+    "active": true,
+    "aceitaImagemPersonalizacao": true,
+    "tags": []
+  },
+  {
     "id": "p-lata-alfajores-para-presente",
     "slug": "lata-alfajores-para-presente",
     "name": "Lata alfajores para presente",
