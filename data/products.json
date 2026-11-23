@@ -673,25 +673,6 @@
     "tags": []
   },
   {
-    "id": "p-cheesecake-frutas-vermelhas-m",
-    "sourceId": "69c04a2333a0dee01d0ec7ca",
-    "slug": "cheesecake-frutas-vermelhas-m",
-    "name": "Cheesecake frutas vermelhas M",
-    "description": "Cheesecake com Frutas VermelhasUm clássico que atravessa gerações com elegância.A cremosidade da cheesecake encontra o frescor da geleia artesanal de morangos, finalizada com frutas vermelhas frescas que trazem acidez, brilho e leveza à composição.Equilibrada e sofisticada, é a escolha ideal para momentos de partilha à mesa, onde cada fatia encerra a refeição com delicadeza e intenção.M serve até 8 porções",
-    "categoryId": "sobremesas",
-    "categoryIds": [
-      "sobremesas"
-    ],
-    "category": "Sobremesas",
-    "price": 230,
-    "images": [
-      "assets/products/cheesecake-frutas-vermelhas-m/01.webp"
-    ],
-    "featured": false,
-    "active": true,
-    "tags": []
-  },
-  {
     "id": "p-combo-celebracao-bolo-pp-e-15-brigs",
     "sourceId": "6a4cea68b9e0d1e580031910",
     "slug": "combo-celebracao-bolo-pp-e-15-brigs",
