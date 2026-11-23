@@ -1611,29 +1611,6 @@
     "tags": []
   },
   {
-    "id": "p-brownie-personalizado-caixinha",
-    "sourceId": "687151c12b688a10b508c9f7",
-    "slug": "brownie-personalizado-caixinha",
-    "name": "Brownie personalizado caixinha",
-    "description": "",
-    "categoryId": "personalizado-para-empresas",
-    "categoryIds": [
-      "personalizado-para-empresas"
-    ],
-    "category": "Personalizado para Empresas",
-    "price": 12,
-    "images": [
-      "assets/products/brownie-personalizado-caixinha/01.webp",
-      "assets/products/brownie-personalizado-caixinha/02.webp",
-      "assets/products/brownie-personalizado-caixinha/03.webp",
-      "assets/products/brownie-personalizado-caixinha/04.webp",
-      "assets/products/brownie-personalizado-caixinha/05.webp"
-    ],
-    "featured": false,
-    "active": true,
-    "tags": []
-  },
-  {
     "id": "p-mini-cupcake-caixa",
     "sourceId": "6aa048e920af1e79b8054699",
     "slug": "mini-cupcake-caixa",
