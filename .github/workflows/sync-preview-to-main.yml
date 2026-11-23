@@ -1,0 +1,46 @@
+name: Sync preview to main
+
+# Mantém a branch `main` (publicada pelo GitHub Pages) sempre igual à `preview`,
+# que é onde o painel da Jana (Worker jana-pedidos) commita as edições.
+# O Worker publica com force:false, então preview só anda para a frente;
+# este workflow repete esse fast-forward em main. Nunca usa --force.
+#
+# Se algum dia `main` divergir de `preview` (ex.: commit manual em main),
+# a checagem abaixo falha e o workflow marca erro — nada é apagado.
+
+on:
+  push:
+    branches: [preview]
+  workflow_dispatch:
+
+concurrency:
+  group: sync-preview-to-main
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview
+          fetch-depth: 0
+
+      - name: Fast-forward main até preview
+        run: |
+          set -euo pipefail
+          git fetch origin preview main
+          echo "preview: $(git rev-parse --short origin/preview)"
+          echo "main:    $(git rev-parse --short origin/main)"
+          # Garante fast-forward: main deve ser ancestral de preview.
+          if git merge-base --is-ancestor origin/main origin/preview; then
+            echo "fast-forward ok, sincronizando main"
+          else
+            echo "::error main divergiu de preview; recusando push (sem --force)"
+            exit 1
+          fi
+          git push origin origin/preview:refs/heads/main
+          echo "main agora: $(git rev-parse --short origin/preview)"
