@@ -4,7 +4,7 @@
   "fim": "2026-11-30",
   "mensagem": "",
   "periodos": [],
-  "fimDeSemana": false,
+  "fimDeSemana": true,
   "planilhaCsv": "",
   "datasBloqueadas": [
     {
