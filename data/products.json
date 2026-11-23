@@ -722,7 +722,7 @@
     "sourceId": "66f31042c2795e0241230ff8",
     "slug": "bolo-buttercream-p",
     "name": "Bolo buttercream P",
-    "description": "Nosso bolo decorado tamanho P, é feito com massa de pão de ló super leve, regada com nossa calda exclusiva de baunilha do cerrado, que reaça ainda mais o sabor. O recheio cremoso, que você escolhe entre nossas opções especiais, completa essa experiência única. Perfeito para celebrar momentos especiais com quem você ama. O tamanho P serve entre 12 e 15 fatias.A finalização é feita com nosso delicioso buttercream de merengue suíço, escolha entre a decoração básica, que é padrão e remete ao sabor do bolo ou acrescente personalizações de acordo com o tema de festa ( que serão cobradas a parte) escreva nas observações o tema e data da sua festa.",
+    "description": "Nosso bolo decorado tamanho P, é feito com massa de pão de ló super leve, regada com nossa calda exclusiva de baunilha do cerrado, que reaça ainda mais o sabor. O recheio cremoso, que você escolhe entre nossas opções especiais, completa essa experiência única. Perfeito para celebrar momentos especiais com quem você ama. O tamanho P serve aproximadamente até 15 fatias.\nA finalização é feita com nosso delicioso buttercream de merengue suíço, escolha entre a decoração básica, que é padrão e remete ao sabor do bolo ou acrescente personalizações de acordo com o tema de festa ( que serão cobradas a parte) escreva nas observações o tema e data da sua festa.\n\nObs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp ou anexe aqui em seu pedido uma foto para impressão comestível",
     "categoryId": "bolos",
     "categoryIds": [
       "bolos"
@@ -737,6 +737,7 @@
     ],
     "featured": false,
     "active": true,
+    "aceitaImagemPersonalizacao": true,
     "tags": []
   },
   {
