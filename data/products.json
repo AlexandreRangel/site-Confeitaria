@@ -712,8 +712,8 @@
     "id": "p-um-carinho-de-bom-dia",
     "sourceId": "681a5ca6142d024bce0c494d",
     "slug": "um-carinho-de-bom-dia",
-    "name": "Um carinho de bom dia ",
-    "description": "sanduíche ciabatta, pesto com mortadela defumada, bolo 4/4 “quatre quarts” (amanteigado), croissant, waffle, mel, frutas, iogurte, geleia artesanal",
+    "name": "Um carinho de bom dia",
+    "description": "Cesta de café especial pensada para 1 pessoa, que inclui: sanduíche ciabatta de pesto com mortadela defumada, bolo 4/4 “quatre quarts” (amanteigado), croissant, waffle, mel, frutas, iogurte e geleia artesanal.\nDeixe nas observações o nome e uma mensagem para quem irá receber esse presente especial. Bem como o horário que gostaria da entrega",
     "categoryId": "cestas-presentes",
     "categoryIds": [
       "cestas-presentes"
@@ -727,7 +727,11 @@
     ],
     "featured": false,
     "active": true,
-    "tags": []
+    "tags": [
+      "café da manhã",
+      "cesta de café",
+      "café especial"
+    ]
   },
   {
     "id": "p-bolo-buttercream-p",
