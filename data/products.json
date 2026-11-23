@@ -1288,7 +1288,7 @@
     "sourceId": "6a63bd2256a8618e5e0bc628",
     "slug": "kit-festa-pequeno-artista",
     "name": "Kit festa Pequeno Artista",
-    "description": "Pedido mínimo 5 unidades. Tenha em sua festa um momento descontraído para soltar toda a criatividade criando deliciosas obras comestíveis",
+    "description": "Pedido mínimo 5 unidades. Tenha em sua festa um momento descontraído para soltar toda a criatividade criando deliciosas obras comestíveis.\n Cada kit contém 3 telas comestíveis (biscoitos) 3 bisnagas de glacê colorido, e apliques temáticos ou mm's",
     "categoryId": "festa-personalizada",
     "categoryIds": [
       "festa-personalizada"
@@ -1297,12 +1297,12 @@
     "price": 32,
     "images": [
       "assets/products/kit-festa-pequeno-artista/04.webp",
-      "assets/products/kit-festa-pequeno-artista/01.webp",
       "assets/products/kit-festa-pequeno-artista/02.webp",
       "assets/products/kit-festa-pequeno-artista/03.webp"
     ],
     "featured": false,
     "active": true,
+    "minQty": 5,
     "tags": []
   },
   {
