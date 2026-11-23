@@ -298,6 +298,7 @@
     ],
     "featured": false,
     "active": true,
+    "aceitaImagemPersonalizacao": true,
     "tags": [
       "bolo",
       "bolo retangular",
