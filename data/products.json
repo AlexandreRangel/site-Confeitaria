@@ -784,25 +784,6 @@
     "tags": []
   },
   {
-    "id": "p-cheesecake-frutas-vermelhas-p",
-    "sourceId": "69bf38e304c56f59390e26b4",
-    "slug": "cheesecake-frutas-vermelhas-p",
-    "name": "Cheesecake frutas vermelhas P",
-    "description": "Cheesecake com Frutas VermelhasUm clássico que atravessa gerações com elegância.A cremosidade da cheesecake encontra o frescor da geleia artesanal de morangos, finalizada com frutas vermelhas frescas que trazem acidez, brilho e leveza à composição.Equilibrada e sofisticada, é a escolha ideal para momentos de partilha à mesa, onde cada fatia encerra a refeição com delicadeza e intenção.P serve até 6 porções",
-    "categoryId": "sobremesas",
-    "categoryIds": [
-      "sobremesas"
-    ],
-    "category": "Sobremesas",
-    "price": 190,
-    "images": [
-      "assets/products/cheesecake-frutas-vermelhas-p/01.webp"
-    ],
-    "featured": false,
-    "active": true,
-    "tags": []
-  },
-  {
     "id": "p-caixa-com-50-brigadeiros-personalizados",
     "sourceId": "67a16597b7d1513311546746",
     "slug": "caixa-com-50-brigadeiros-personalizados",
