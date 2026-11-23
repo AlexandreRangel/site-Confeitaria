@@ -533,7 +533,7 @@
     "sourceId": "690123b0e8f4836321110e1e",
     "slug": "combo-encanto",
     "name": "Combo encanto",
-    "description": "Combo inclui Bolo P com topo personalizadoCaixa 12 browniesCaixa 15 brigadeirosObs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp!",
+    "description": "Combo inclui: \nBolo P (serve até 15 fatias) com topo personalizado em pasta de leite ninho \nCaixa 12 brownies\nCaixa 15 brigadeiros\nObs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp ou anexe aqui em seu pedido uma imagem para impressão comestível",
     "categoryId": "combos-festa",
     "categoryIds": [
       "combos-festa"
@@ -545,6 +545,7 @@
     ],
     "featured": false,
     "active": true,
+    "aceitaImagemPersonalizacao": true,
     "tags": []
   },
   {
