@@ -1233,8 +1233,8 @@
     "id": "p-caixa-4-cupcakes",
     "sourceId": "6a62aacb19dd8bcd6304363f",
     "slug": "caixa-4-cupcakes",
-    "name": "Caixa 4 cupcakes ",
-    "description": "",
+    "name": "Caixa 4 cupcakes",
+    "description": "Caixa com 4 cupcakes temáticos, coloque o tema nas observações ou anexe uma imagem de referência \n\nSabores: chocolate, creme de baunilha e baunilha com frutas vermelhas.",
     "categoryId": "festa-personalizada",
     "categoryIds": [
       "festa-personalizada"
@@ -1247,6 +1247,7 @@
     ],
     "featured": false,
     "active": true,
+    "aceitaImagemPersonalizacao": true,
     "tags": []
   },
   {
