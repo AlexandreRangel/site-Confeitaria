@@ -2236,7 +2236,7 @@
     "sourceId": "689e0adc487bc741fe7feea5",
     "slug": "amanteigados-carimbados",
     "name": "Amanteigados carimbados",
-    "description": "Embalados individualmente",
+    "description": "Embalados individualmente.\nNo primeiro pedido é cobrada uma taxa de produção",
     "categoryId": "personalizado-para-empresas",
     "categoryIds": [
       "personalizado-para-empresas"
@@ -2248,6 +2248,8 @@
     ],
     "featured": false,
     "active": true,
+    "aceitaImagemPersonalizacao": true,
+    "minQty": 20,
     "tags": []
   },
   {
