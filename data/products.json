@@ -1,5 +1,25 @@
 [
   {
+    "id": "p-brownie-natalino-unidade",
+    "slug": "brownie-natalino-unidade",
+    "name": "Brownie natalino unidade",
+    "description": "",
+    "categoryId": "natal",
+    "categoryIds": [
+      "natal"
+    ],
+    "category": "Natal",
+    "price": 4.7,
+    "images": [
+      "assets/products/brownie-natalino-unidade/foto-mwv978hbsof9b.jpg",
+      "assets/products/brownie-natalino-unidade/foto-mwv97j7tvh640.jpg"
+    ],
+    "featured": false,
+    "active": true,
+    "minQty": 20,
+    "tags": []
+  },
+  {
     "id": "p-alfajor-logo-natalina",
     "slug": "alfajor-logo-natalina",
     "name": "Alfajor und logo natalino",
