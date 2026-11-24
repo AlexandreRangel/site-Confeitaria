@@ -1,5 +1,25 @@
 [
   {
+    "id": "p-lata-alfajor-personalizada",
+    "slug": "lata-alfajor-personalizada",
+    "name": "Lata alfajor personalizada",
+    "description": "",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas"
+    ],
+    "category": "Personalizado para Empresas",
+    "price": 63,
+    "images": [
+      "assets/products/lata-alfajor-personalizada/foto-mwvauuty8a0g0.jpg"
+    ],
+    "featured": false,
+    "active": true,
+    "aceitaImagemPersonalizacao": true,
+    "minQty": 2,
+    "tags": []
+  },
+  {
     "id": "p-jogo-da-velha-natalino",
     "slug": "jogo-da-velha-natalino",
     "name": "Jogo da velha natalino",
