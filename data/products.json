@@ -1,5 +1,23 @@
 [
   {
+    "id": "p-jogo-da-velha-natalino",
+    "slug": "jogo-da-velha-natalino",
+    "name": "Jogo da velha natalino",
+    "description": "",
+    "categoryId": "natal",
+    "categoryIds": [
+      "natal"
+    ],
+    "category": "Natal",
+    "price": 75,
+    "images": [
+      "assets/products/jogo-da-velha-natalino/foto-mwva6kqg1ucqq.jpg"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
     "id": "p-brownie-natalino-unidade",
     "slug": "brownie-natalino-unidade",
     "name": "Brownie natalino unidade",
