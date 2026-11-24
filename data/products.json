@@ -2019,25 +2019,6 @@
     "tags": []
   },
   {
-    "id": "p-brownie-tag",
-    "sourceId": "68e8075456710e16fd61b252",
-    "slug": "brownie-tag",
-    "name": "Brownie tag ",
-    "description": "Mini brownie com tag personalizada",
-    "categoryId": "personalizado-para-empresas",
-    "categoryIds": [
-      "personalizado-para-empresas"
-    ],
-    "category": "Personalizado para Empresas",
-    "price": 4.5,
-    "images": [
-      "assets/products/brownie-tag/01.webp"
-    ],
-    "featured": false,
-    "active": true,
-    "tags": []
-  },
-  {
     "id": "p-mini-brownies-decorados",
     "sourceId": "686ef8af5d519d29763e3a01",
     "slug": "mini-brownies-decorados",
