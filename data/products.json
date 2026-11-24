@@ -1,5 +1,24 @@
 [
   {
+    "id": "p-bem-casado-papel-italiano-e-lacou",
+    "slug": "bem-casado-papel-italiano-e-lacou",
+    "name": "Bem casado papel italiano e lacou",
+    "description": "",
+    "categoryId": "combos-festa",
+    "categoryIds": [
+      "combos-festa"
+    ],
+    "category": "Combos festa",
+    "price": 6.7,
+    "images": [
+      "assets/products/bem-casado-papel-italiano-e-lacou/foto-mwvawp2ka0g6u.jpg"
+    ],
+    "featured": false,
+    "active": true,
+    "minQty": 30,
+    "tags": []
+  },
+  {
     "id": "p-lata-alfajor-personalizada",
     "slug": "lata-alfajor-personalizada",
     "name": "Lata alfajor personalizada",
