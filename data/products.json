@@ -2067,7 +2067,7 @@
     "id": "p-obrigadinho-biscoito-personalizado-mini",
     "sourceId": "69c444eb08622082ad049405",
     "slug": "obrigadinho-biscoito-personalizado-mini",
-    "name": "Obrigadinho - Biscoito personalizado mini ",
+    "name": "Obrigadinho - Biscoito personalizado mini",
     "description": "Solicite cotação personalizada para pedidos em atacado",
     "categoryId": "personalizado-para-empresas",
     "categoryIds": [
@@ -2082,6 +2082,8 @@
     ],
     "featured": false,
     "active": true,
+    "aceitaImagemPersonalizacao": true,
+    "minQty": 25,
     "tags": []
   },
   {
