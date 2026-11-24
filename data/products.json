@@ -2026,22 +2026,23 @@
     "id": "p-mini-brownies-decorados",
     "sourceId": "686ef8af5d519d29763e3a01",
     "slug": "mini-brownies-decorados",
-    "name": "Mini brownies decorados ",
-    "description": "",
+    "name": "Mini brownies decorados",
+    "description": "Nosso delicioso brownie de chocolate intenso, com doce de leite e decoração de pasta de leite ninho no tema da sua comemoração. Anexe em seu pedido uma inspiração ou imagem para impressão comestível. \nPedido mínimo 20 unidades",
     "categoryId": "festa-personalizada",
     "categoryIds": [
       "festa-personalizada"
     ],
     "category": "Festa Personalizada",
-    "price": 4.5,
+    "price": 4.8,
     "images": [
       "assets/products/mini-brownies-decorados/01.webp",
       "assets/products/mini-brownies-decorados/02.webp",
-      "assets/products/mini-brownies-decorados/03.webp",
       "assets/products/mini-brownies-decorados/04.webp"
     ],
     "featured": false,
     "active": true,
+    "aceitaImagemPersonalizacao": true,
+    "minQty": 20,
     "tags": []
   },
   {
