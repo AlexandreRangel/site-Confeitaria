@@ -1255,7 +1255,7 @@
     "sourceId": "6a4cff369d081c71b708b352",
     "slug": "aniversariantes-do-mes-bento-cake",
     "name": "Aniversariantes do mês Bentô cake",
-    "description": "",
+    "description": "Kits individuais para celebrar os aniversáriantes do mês no ambiente corporativo. \nPersonalize com sua marca anexando o logo ao seu pedido.\nCada kit contém: 1 bentô cake personalizado e 1 lata de coca-cola \nNegocie entregas recorrentes em sua empresa e leve esse carinho a cada colaborador",
     "categoryId": "personalizado-para-empresas",
     "categoryIds": [
       "personalizado-para-empresas"
@@ -1267,6 +1267,8 @@
     ],
     "featured": false,
     "active": true,
+    "aceitaImagemPersonalizacao": true,
+    "minQty": 5,
     "tags": []
   },
   {
