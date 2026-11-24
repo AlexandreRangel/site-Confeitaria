@@ -1226,6 +1226,7 @@
     "featured": false,
     "active": true,
     "aceitaImagemPersonalizacao": true,
+    "minQty": 3,
     "tags": []
   },
   {
