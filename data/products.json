@@ -2121,7 +2121,7 @@
     "sourceId": "68a753b91bc06b35de0332e1",
     "slug": "brigadeiro",
     "name": "Brigadeiro",
-    "description": "Brigadeiro gourmet de chocolate com granulado de chocolate nobre, sabor e cremosidade no equilibrio perfeitopedido mínimo 15 unidades",
+    "description": "Brigadeiro gourmet de chocolate com granulado de chocolate nobre, sabor e cremosidade no equilibrio perfeito\npedido mínimo 15 unidades",
     "categoryId": "doces-festa",
     "categoryIds": [
       "doces-festa"
@@ -2129,8 +2129,8 @@
     "category": "Doces festa",
     "price": 3.9,
     "images": [
-      "assets/products/brigadeiro/01.webp",
-      "assets/products/brigadeiro/02.webp"
+      "assets/products/brigadeiro/02.webp",
+      "assets/products/brigadeiro/01.webp"
     ],
     "featured": false,
     "active": true,
