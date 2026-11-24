@@ -1983,7 +1983,7 @@
     "sourceId": "6866cbeef5e2f06c7161154d",
     "slug": "biscoito-logo-carimbado-ninho",
     "name": "Biscoito logo carimbado ninho",
-    "description": "No primeiro pedido é cobrada a taxa de produção do carimbo personalizado, no valor de 40 reais, mande sua logo pelo whatsapp",
+    "description": "No primeiro pedido é cobrada a taxa de produção do carimbo personalizado, no valor de R$35 reais, anexe ao seu pedido a arte de seu logo. Antes de realizar o pagamento consulte nossa equipe para verificar a viabilidade da produção do carimbo.",
     "categoryId": "personalizado-para-empresas",
     "categoryIds": [
       "personalizado-para-empresas"
@@ -1995,6 +1995,8 @@
     ],
     "featured": false,
     "active": true,
+    "aceitaImagemPersonalizacao": true,
+    "minQty": 20,
     "tags": []
   },
   {
