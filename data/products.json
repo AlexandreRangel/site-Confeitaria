@@ -1144,25 +1144,6 @@
     "tags": []
   },
   {
-    "id": "p-alfajores-doce-deleite-550g",
-    "sourceId": "689a77a26ab2e9264f41aee0",
-    "slug": "alfajores-doce-deleite-550g",
-    "name": "Alfajores doce deleite 550g",
-    "description": "Perfeito para acompanhar a pausa do café da tarde, nossos alfajores arrancam suspiros. O pote é perfeito para dar de presente ou para ter em casa para aquele momento especial de pausa em que você quer beliscar algo delicioso, dificil é comer um só.Recomendamos o consumo em até 20 dias ou conservar em geladeira",
-    "categoryId": "cestas-presentes",
-    "categoryIds": [
-      "cestas-presentes"
-    ],
-    "category": "Cestas & Presentes",
-    "price": 73,
-    "images": [
-      "assets/products/alfajores-doce-deleite-550g/01.webp"
-    ],
-    "featured": false,
-    "active": true,
-    "tags": []
-  },
-  {
     "id": "p-bento-cake",
     "sourceId": "6abe5eccac6b6ae29e0551bb",
     "slug": "bento-cake",
