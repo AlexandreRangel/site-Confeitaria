@@ -1,5 +1,25 @@
 [
   {
+    "id": "p-combo-ouro",
+    "slug": "combo-ouro",
+    "name": "Combo ouro",
+    "description": "Combo ouro inclui:\nBolo P (serve até 15 fatias) \n6 cupcakes \n4 pirulitos de biscoito decorado \n12 mini brownies \n10 alfajores",
+    "categoryId": "combos-festa",
+    "categoryIds": [
+      "combos-festa"
+    ],
+    "category": "Combos festa",
+    "price": 560,
+    "images": [
+      "assets/products/combo-ouro/foto-mwvdppnk1cgz2.jpg",
+      "assets/products/combo-ouro/foto-mwvdps0n0i2sv.jpg"
+    ],
+    "featured": false,
+    "active": true,
+    "aceitaImagemPersonalizacao": true,
+    "tags": []
+  },
+  {
     "id": "p-mini-brownie-logo",
     "slug": "mini-brownie-logo",
     "name": "Mini brownie logo",
