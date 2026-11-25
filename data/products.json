@@ -1,5 +1,25 @@
 [
   {
+    "id": "p-bem-casado-caixinha",
+    "slug": "bem-casado-caixinha",
+    "name": "Bem casado caixinha",
+    "description": "",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas"
+    ],
+    "category": "Personalizado para Empresas",
+    "price": 8,
+    "images": [
+      "assets/products/bem-casado-caixinha/foto-mwvsraq10hf2u.jpg"
+    ],
+    "featured": false,
+    "active": true,
+    "aceitaImagemPersonalizacao": true,
+    "minQty": 30,
+    "tags": []
+  },
+  {
     "id": "p-bem-casado-logo",
     "slug": "bem-casado-logo",
     "name": "Bem casado logo",
