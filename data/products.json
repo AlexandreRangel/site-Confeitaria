@@ -1,5 +1,26 @@
 [
   {
+    "id": "p-caixa-presente-10-alfajores",
+    "slug": "caixa-presente-10-alfajores",
+    "name": "Caixa presente 10 alfajores",
+    "description": "",
+    "categoryId": "natal",
+    "categoryIds": [
+      "natal"
+    ],
+    "category": "Natal",
+    "price": 95,
+    "images": [
+      "assets/products/caixa-presente-10-alfajores/foto-mwvduxpu9ykta.jpg",
+      "assets/products/caixa-presente-10-alfajores/foto-mwvdvsvyj9g76.jpg",
+      "assets/products/caixa-presente-10-alfajores/foto-mwvdvx4yi8ya5.jpg",
+      "assets/products/caixa-presente-10-alfajores/foto-mwvdw0tx858bk.jpg"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
     "id": "p-combo-ouro",
     "slug": "combo-ouro",
     "name": "Combo ouro",
