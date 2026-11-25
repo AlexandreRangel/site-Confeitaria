@@ -1605,7 +1605,7 @@
     "sourceId": "6a62aa669c2103c6a4026fe5",
     "slug": "pao-de-mel-caixa-individual-com-laco-e-tag",
     "name": "Pão de mel - Caixa individual com laço e tag",
-    "description": "",
+    "description": "Pão de mel fofinho e super aromático, recheado de doce de leite banhando em chocolate meio amargo e decorado nas cores e identidade da sua marca, em caixa individual com laço e tag \nAnexe em seu pedido a logo para impressão comestível",
     "categoryId": "personalizado-para-empresas",
     "categoryIds": [
       "personalizado-para-empresas"
@@ -1618,6 +1618,8 @@
     ],
     "featured": false,
     "active": true,
+    "aceitaImagemPersonalizacao": true,
+    "minQty": 10,
     "tags": []
   },
   {
