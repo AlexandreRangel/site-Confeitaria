@@ -2159,27 +2159,6 @@
     "tags": []
   },
   {
-    "id": "p-biscoito-logo-carimbado-ninho",
-    "sourceId": "6866cbeef5e2f06c7161154d",
-    "slug": "biscoito-logo-carimbado-ninho",
-    "name": "Biscoito logo carimbado ninho",
-    "description": "No primeiro pedido é cobrada a taxa de produção do carimbo personalizado, no valor de R$35 reais, anexe ao seu pedido a arte de seu logo. Antes de realizar o pagamento consulte nossa equipe para verificar a viabilidade da produção do carimbo.",
-    "categoryId": "personalizado-para-empresas",
-    "categoryIds": [
-      "personalizado-para-empresas"
-    ],
-    "category": "Personalizado para Empresas",
-    "price": 4.5,
-    "images": [
-      "assets/products/biscoito-logo-carimbado-ninho/01.webp"
-    ],
-    "featured": false,
-    "active": true,
-    "aceitaImagemPersonalizacao": true,
-    "minQty": 20,
-    "tags": []
-  },
-  {
     "id": "p-bombom-de-uva",
     "sourceId": "68d1875972dfed50aa55537c",
     "slug": "bombom-de-uva",
