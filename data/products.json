@@ -1,5 +1,25 @@
 [
   {
+    "id": "p-alfajor-g",
+    "slug": "alfajor-g",
+    "name": "Alfajor G",
+    "description": "",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas"
+    ],
+    "category": "Personalizado para Empresas",
+    "price": 9,
+    "images": [
+      "assets/products/alfajor-g/foto-mwvsvtew3hhk3.jpg"
+    ],
+    "featured": false,
+    "active": true,
+    "aceitaImagemPersonalizacao": true,
+    "minQty": 15,
+    "tags": []
+  },
+  {
     "id": "p-bem-casado-caixinha",
     "slug": "bem-casado-caixinha",
     "name": "Bem casado caixinha",
