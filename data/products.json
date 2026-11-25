@@ -529,7 +529,7 @@
     "sourceId": "68ee8297254dc56bfa061e08",
     "slug": "combo-prata",
     "name": "Combo prata",
-    "description": "Nosso combo prata incluiBolo P30 brigadeiros decorados12 mini brownies4 pirulitos biscoito decoradoserve até 12 pessoasObs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp!",
+    "description": "Nosso combo prata inclui:\nBolo P (serve até 15 fatias)\n30 brigadeiros decorados, 12 mini brownies, 4 pirulitos biscoito decorados, \nserve até 12 pessoas\n\nObs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp ou anexe em seu pedido uma referência ou imagem para impressão comestível.",
     "categoryId": "combos-festa",
     "categoryIds": [
       "combos-festa"
@@ -541,6 +541,7 @@
     ],
     "featured": false,
     "active": true,
+    "aceitaImagemPersonalizacao": true,
     "tags": []
   },
   {
