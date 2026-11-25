@@ -1,5 +1,25 @@
 [
   {
+    "id": "p-alfajor-logo-caixinha",
+    "slug": "alfajor-logo-caixinha",
+    "name": "Alfajor logo caixinha",
+    "description": "",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas"
+    ],
+    "category": "Personalizado para Empresas",
+    "price": 7.5,
+    "images": [
+      "assets/products/alfajor-logo-caixinha/foto-mwvsyzgk1sded.jpg"
+    ],
+    "featured": false,
+    "active": true,
+    "aceitaImagemPersonalizacao": true,
+    "minQty": 20,
+    "tags": []
+  },
+  {
     "id": "p-alfajor-g",
     "slug": "alfajor-g",
     "name": "Alfajor G",
