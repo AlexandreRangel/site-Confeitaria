@@ -346,12 +346,11 @@
     "slug": "mini-amanteigado",
     "name": "Mini amanteigado logo natalina",
     "description": "Amantegado 4cm personalizado com a marca da sua empresa, perfeito para presentear seus clientes e demonstrar seu carinho nesse fim de ano \n\nAnexe ao seu pedido sua arte ou logo \n\nPedido mínimo 30 unidades",
-    "categoryId": "personalizado-para-empresas",
+    "categoryId": "natal",
     "categoryIds": [
-      "personalizado-para-empresas",
       "natal"
     ],
-    "category": "Personalizado para Empresas",
+    "category": "Natal",
     "price": 4,
     "images": [
       "assets/products/mini-amanteigado/foto-mwjfoatat1yul.webp"
