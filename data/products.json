@@ -1439,7 +1439,7 @@
     "sourceId": "689a58a10ff2882a57368b51",
     "slug": "lata-amanteigados-personalizados",
     "name": "Lata amanteigados personalizados",
-    "description": "Lata com rótulo personalizado, contendo 200g de biscoito amanteigado carimbado com sua marca. no primeiro pedido é cobrada taxa de produção do carimbo no valor de R$35",
+    "description": "Lata com rótulo personalizado, contendo 200g de biscoito amanteigado carimbado com sua marca. no primeiro pedido é cobrada taxa de produção do carimbo no valor de R$35\nAnexe em seu pedido a arte do rótulo nas medidas 40x14 cm e nos envie seu logo",
     "categoryId": "personalizado-para-empresas",
     "categoryIds": [
       "personalizado-para-empresas"
@@ -1451,6 +1451,8 @@
     ],
     "featured": false,
     "active": true,
+    "aceitaImagemPersonalizacao": true,
+    "minQty": 3,
     "tags": []
   },
   {
