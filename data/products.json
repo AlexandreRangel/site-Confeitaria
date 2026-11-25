@@ -1999,7 +1999,7 @@
     "id": "p-alfajor-personalizado-logo-tag",
     "sourceId": "6873b4f27b047d6b5e0fcd9d",
     "slug": "alfajor-personalizado-logo-tag",
-    "name": "Alfajor personalizado logo + tag ",
+    "name": "Alfajor personalizado logo + tag",
     "description": "",
     "categoryId": "personalizado-para-empresas",
     "categoryIds": [
@@ -2008,13 +2008,14 @@
     "category": "Personalizado para Empresas",
     "price": 6.5,
     "images": [
-      "assets/products/alfajor-personalizado-logo-tag/01.webp",
       "assets/products/alfajor-personalizado-logo-tag/02.webp",
       "assets/products/alfajor-personalizado-logo-tag/03.webp",
       "assets/products/alfajor-personalizado-logo-tag/04.webp"
     ],
     "featured": false,
     "active": true,
+    "aceitaImagemPersonalizacao": true,
+    "minQty": 2,
     "tags": []
   },
   {
