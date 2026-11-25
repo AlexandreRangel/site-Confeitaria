@@ -1783,8 +1783,8 @@
     "id": "p-mini-cupcake-caixa",
     "sourceId": "6aa048e920af1e79b8054699",
     "slug": "mini-cupcake-caixa",
-    "name": "Mini cupcake caixa ",
-    "description": "",
+    "name": "Mini cupcake caixa",
+    "description": "Caixa contendo mini cupcake decorado com seu logo \nsabores cupcake: chocolatudo, creme de baunilha e baunilha com frutas vermelhas\nAnexe em seu pedido o logo para impressão comestível",
     "categoryId": "personalizado-para-empresas",
     "categoryIds": [
       "personalizado-para-empresas"
@@ -1796,6 +1796,8 @@
     ],
     "featured": false,
     "active": true,
+    "aceitaImagemPersonalizacao": true,
+    "minQty": 15,
     "tags": []
   },
   {
