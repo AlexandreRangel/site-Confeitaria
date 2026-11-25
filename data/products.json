@@ -1,5 +1,25 @@
 [
   {
+    "id": "p-bem-casado-logo",
+    "slug": "bem-casado-logo",
+    "name": "Bem casado logo",
+    "description": "",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas"
+    ],
+    "category": "Personalizado para Empresas",
+    "price": 7.5,
+    "images": [
+      "assets/products/bem-casado-logo/foto-mwvsojbt4key9.jpg"
+    ],
+    "featured": false,
+    "active": true,
+    "aceitaImagemPersonalizacao": true,
+    "minQty": 30,
+    "tags": []
+  },
+  {
     "id": "p-caixa-brownie-personalizado",
     "slug": "caixa-brownie-personalizado",
     "name": "Caixa brownie personalizado",
