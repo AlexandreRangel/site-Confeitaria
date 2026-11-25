@@ -1729,25 +1729,6 @@
     "tags": []
   },
   {
-    "id": "p-amanteigado-decorado-obrigado",
-    "sourceId": "6873b9710bc0716c1d77f35f",
-    "slug": "amanteigado-decorado-obrigado",
-    "name": "Amanteigado decorado obrigado",
-    "description": "Um gesto especial de agradecimento em nosso biscoito “obrigado” Consulte personalizações disponíveis",
-    "categoryId": "personalizado-para-empresas",
-    "categoryIds": [
-      "personalizado-para-empresas"
-    ],
-    "category": "Personalizado para Empresas",
-    "price": 14.5,
-    "images": [
-      "assets/products/amanteigado-decorado-obrigado/01.webp"
-    ],
-    "featured": false,
-    "active": true,
-    "tags": []
-  },
-  {
     "id": "p-pirulito-biscoito",
     "sourceId": "68cb2f060d25b81dde742078",
     "slug": "pirulito-biscoito",
