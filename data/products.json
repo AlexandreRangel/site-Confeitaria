@@ -1633,12 +1633,13 @@
     "category": "Personalizado para Empresas",
     "price": 20,
     "images": [
-      "assets/products/aniversariantes-do-mes-cupcake/01.webp",
       "assets/products/aniversariantes-do-mes-cupcake/02.webp",
+      "assets/products/aniversariantes-do-mes-cupcake/01.webp",
       "assets/products/aniversariantes-do-mes-cupcake/03.webp"
     ],
     "featured": false,
     "active": true,
+    "minQty": 8,
     "tags": [
       "cupcake"
     ]
