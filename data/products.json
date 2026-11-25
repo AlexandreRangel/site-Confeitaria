@@ -1801,25 +1801,6 @@
     "tags": []
   },
   {
-    "id": "p-amanteigado-decorado-ninho",
-    "sourceId": "68532590dec27d7b3605409f",
-    "slug": "amanteigado-decorado-ninho",
-    "name": "Amanteigado decorado Ninho",
-    "description": "",
-    "categoryId": "personalizado-para-empresas",
-    "categoryIds": [
-      "personalizado-para-empresas"
-    ],
-    "category": "Personalizado para Empresas",
-    "price": 11,
-    "images": [
-      "assets/products/amanteigado-decorado-ninho/01.webp"
-    ],
-    "featured": false,
-    "active": true,
-    "tags": []
-  },
-  {
     "id": "p-amanteigado-ninho-personalizado",
     "sourceId": "6873c2fe15adf910a40f90c9",
     "slug": "amanteigado-ninho-personalizado",
