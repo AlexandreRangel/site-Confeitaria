@@ -1690,25 +1690,6 @@
     "tags": []
   },
   {
-    "id": "p-amanteigado-personalizado-caixinha",
-    "sourceId": "688dadbd524bfb4e7d7373c3",
-    "slug": "amanteigado-personalizado-caixinha",
-    "name": "Amanteigado personalizado caixinha",
-    "description": "Caixinha de acrílico recheada de biscoitos amanteigados com carimbo personalizado e tag Solicite orçamento pelo WhatsApp",
-    "categoryId": "personalizado-para-empresas",
-    "categoryIds": [
-      "personalizado-para-empresas"
-    ],
-    "category": "Personalizado para Empresas",
-    "price": 16,
-    "images": [
-      "assets/products/amanteigado-personalizado-caixinha/01.webp"
-    ],
-    "featured": false,
-    "active": true,
-    "tags": []
-  },
-  {
     "id": "p-amanteigados-emoji",
     "sourceId": "6873c61a69180e76c77910ff",
     "slug": "amanteigados-emoji",
