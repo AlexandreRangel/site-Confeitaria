@@ -1843,7 +1843,7 @@
     "sourceId": "67ba0625b6d984714f233510",
     "slug": "amanteigado-decorado-corte-personalizado-tag",
     "name": "Amanteigado decorado corte personalizado + tag",
-    "description": "Personalize a tag e modelo do biscoito de acordo com a identidade visual do seu evento/empresa.Formas de pagamento disponíveis: pix, boleto ou link de pagamento no cartão de crédito. Emitimos nota fiscal, solicite condições de faturamento",
+    "description": "Personalize a tag e modelo do biscoito de acordo com a identidade visual do seu evento/empresa",
     "categoryId": "personalizado-para-empresas",
     "categoryIds": [
       "personalizado-para-empresas"
@@ -1851,11 +1851,13 @@
     "category": "Personalizado para Empresas",
     "price": 9.5,
     "images": [
-      "assets/products/amanteigado-decorado-corte-personalizado-tag/01.webp",
-      "assets/products/amanteigado-decorado-corte-personalizado-tag/02.webp"
+      "assets/products/amanteigado-decorado-corte-personalizado-tag/02.webp",
+      "assets/products/amanteigado-decorado-corte-personalizado-tag/01.webp"
     ],
     "featured": false,
     "active": true,
+    "aceitaImagemPersonalizacao": true,
+    "minQty": 15,
     "tags": []
   },
   {
