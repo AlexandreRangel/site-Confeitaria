@@ -1759,7 +1759,7 @@
     "id": "p-caixa-2-alfajores-logo",
     "sourceId": "6991c2badd346c1be7068fea",
     "slug": "caixa-2-alfajores-logo",
-    "name": "Caixa 2 alfajores logo ",
+    "name": "Caixa 2 alfajores logo",
     "description": "",
     "categoryId": "personalizado-para-empresas",
     "categoryIds": [
@@ -1773,6 +1773,8 @@
     ],
     "featured": false,
     "active": true,
+    "aceitaImagemPersonalizacao": true,
+    "minQty": 10,
     "tags": []
   },
   {
