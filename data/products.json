@@ -1,5 +1,24 @@
 [
   {
+    "id": "p-coquetel-volante",
+    "slug": "coquetel-volante",
+    "name": "Coquetel volante",
+    "description": "Para quem busca um menu delicioso em sua celebração, perfeito para eventos sociais ou inaugurações \nNosso serviço pode incluir petiscos salgados e/ou doces, garçons, bebidas e logística. Consulte valores e menus personalizados com nosso time de vendas pelo WhatsApp",
+    "categoryId": "personalizado-para-empresas",
+    "categoryIds": [
+      "personalizado-para-empresas"
+    ],
+    "category": "Personalizado para Empresas",
+    "price": 0,
+    "images": [
+      "assets/products/coquetel-volante/foto-mwvtu2xetpwu6.jpg",
+      "assets/products/coquetel-volante/foto-mwvtsz60ke5vr.jpg"
+    ],
+    "featured": false,
+    "active": true,
+    "tags": []
+  },
+  {
     "id": "p-alfajor-logo-caixinha",
     "slug": "alfajor-logo-caixinha",
     "name": "Alfajor logo caixinha",
