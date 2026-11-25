@@ -1879,30 +1879,6 @@
     "tags": []
   },
   {
-    "id": "p-amanteigado-personalizado-6cm",
-    "sourceId": "66f31cb0adf9c514fc50670f",
-    "slug": "amanteigado-personalizado-6cm",
-    "name": "Amanteigado Personalizado - 6cm",
-    "description": "Pedido mínimo 20 unidades. Biscoito redondo de 6cm, feito com nossa massa especial amanteigada.Formas de pagamento disponíveis: boleto ou crédito conta Pj, emitimos nota fiscal e faturamos com até 30 dias de prazoObs: Os detalhes da decoração serão combinados após o pedido ser fechado. Nos envie uma mensagem no whatsapp!",
-    "categoryId": "personalizado-para-empresas",
-    "categoryIds": [
-      "personalizado-para-empresas"
-    ],
-    "category": "Personalizado para Empresas",
-    "price": 8,
-    "images": [
-      "assets/products/amanteigado-personalizado-6cm/01.webp",
-      "assets/products/amanteigado-personalizado-6cm/02.webp"
-    ],
-    "featured": false,
-    "active": true,
-    "tags": [
-      "biscoito ",
-      "amanteigado",
-      "personalizado"
-    ]
-  },
-  {
     "id": "p-bem-casado-personalizado-logo-com-tag",
     "sourceId": "6aa049167a31094340038ad2",
     "slug": "bem-casado-personalizado-logo-com-tag",
