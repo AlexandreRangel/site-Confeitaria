@@ -2025,7 +2025,7 @@
       "personalizado-para-empresas"
     ],
     "category": "Personalizado para Empresas",
-    "price": 6.5,
+    "price": 7,
     "images": [
       "assets/products/alfajor-personalizado-logo-tag/02.webp",
       "assets/products/alfajor-personalizado-logo-tag/03.webp",
@@ -2034,7 +2034,7 @@
     "featured": false,
     "active": true,
     "aceitaImagemPersonalizacao": true,
-    "minQty": 2,
+    "minQty": 20,
     "tags": []
   },
   {
