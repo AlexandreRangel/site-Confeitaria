@@ -1961,7 +1961,7 @@
     "id": "p-bem-casado-personalizado-logo-com-tag",
     "sourceId": "6aa049167a31094340038ad2",
     "slug": "bem-casado-personalizado-logo-com-tag",
-    "name": "Bem casado personalizado logo com tag ",
+    "name": "Bem casado personalizado logo com tag",
     "description": "",
     "categoryId": "personalizado-para-empresas",
     "categoryIds": [
@@ -1974,6 +1974,8 @@
     ],
     "featured": false,
     "active": true,
+    "aceitaImagemPersonalizacao": true,
+    "minQty": 30,
     "tags": []
   },
   {
